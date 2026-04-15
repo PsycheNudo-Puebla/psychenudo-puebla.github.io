@@ -6,13 +6,14 @@
     <title>PsycheNudo Puebla | Red de Difusión</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: auto; padding: 20px; background-color: #f4f7f6; }
-        header { background-color: #2c3e50; color: white; padding: 40px 20px; text-align: center; border-radius: 8px; margin-bottom: 30px; }
+        header { background-color: #2c3e50; color: white; padding: 40px 20px; text-align: center; border-radius: 8px; margin-bottom: 10px; }
         h1 { margin: 0; font-size: 2.5em; }
+        nav { text-align: center; margin-bottom: 30px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        nav a { margin: 0 15px; text-decoration: none; color: #2c3e50; font-weight: bold; }
         .contenedor { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .seccion { margin-bottom: 40px; }
+        .seccion { margin-bottom: 40px; scroll-margin-top: 20px; }
         .tarjeta-colega { border-left: 5px solid #2c3e50; background: #f9f9f9; padding: 20px; border-radius: 4px; margin-top: 15px; }
         .boton { display: inline-block; background: #2c3e50; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px; font-weight: bold; }
-        .boton:hover { background: #34495e; }
         footer { text-align: center; margin-top: 50px; font-size: 0.9em; color: #666; border-top: 1px solid #ddd; padding-top: 20px; }
     </style>
 </head>
@@ -22,42 +23,50 @@
         <h1>PsycheNudo Puebla</h1>
         <p>Nodo de Difusión Académica, Tecnología Educativa y Ética Clínica</p>
     </header>
-<nav style="text-align:center; margin-bottom: 20px;">
-    <a href="#mision" style="margin: 0 10px;">Misión</a> | 
-    <a href="#red" style="margin: 0 10px;">Red de Colegas</a> | 
-    <a href="#recursos" style="margin: 0 10px;">Recursos e Innovación</a> |
-    <a href="#articulos" style="margin: 0 10px;">Artículos</a>
-</nav>
+
+    <nav>
+        <a href="#mision">Misión</a>
+        <a href="#red">Red de Colegas</a>
+        <a href="#recursos">Recursos</a>
+        <a href="#articulos">Artículos</a>
+    </nav>
     
     <div class="contenedor">
-        <div class="seccion">
+        <div id="mision" class="seccion">
             <h2>Nuestra Misión</h2>
             <p>Un espacio dedicado a la divulgación científica y tecnológica en el área de la salud mental. En <strong>PsycheNudo Puebla</strong>, conectamos la formación académica universitaria con la responsabilidad social, ofreciendo recursos validados y una red de profesionales éticos.</p>
         </div>
 
-        <div class="seccion">
+        <div id="red" class="seccion">
             <h2>Red de Profesionales (El Nudo)</h2>
             <p>Colaboradores validados para atención y orientación:</p>
             
             <div class="tarjeta-colega">
                 <h3>Mtro. Adrián González</h3>
                 <p>Psicólogo Clínico y Catedrático Universitario. Desarrollador de herramientas psicoeducativas.</p>
-                <p><strong>Cédula Profesional:</strong> [Ingresa tu cédula aquí]</p>
-                <a href="#" class="boton">Ver Perfil en LinkedIn</a>
+                <p><strong>Cédula Profesional:</strong> [Tu Cédula Aquí]</p>
+                <a href="TU_LINKEDIN_AQUI" class="boton">Ver Perfil en LinkedIn</a>
             </div>
-            
-            </div>
+        </div>
 
-        <div class="seccion">
+        <div id="recursos" class="seccion">
             <h2>Proyectos Pedagógicos e Interactivos</h2>
             <p>Recursos digitales y aplicaciones desarrolladas por alumnos de psicología bajo supervisión académica.</p>
             <p><em>Próximamente: Galería de herramientas HTML/Python.</em></p>
+        </div>
+
+        <div id="articulos" class="seccion">
+            <h2>Biblioteca de Artículos</h2>
+            <p>Textos de divulgación y reflexión clínica.</p>
+            <ul>
+                <li>Próximamente: Primer artículo de PsycheNudo</li>
+            </ul>
         </div>
     </div>
 
     <footer>
         <p>PsycheNudo Puebla &copy; 2026</p>
-        <p><strong>Aviso Legal:</strong> Este sitio es una plataforma de difusión. La práctica clínica es responsabilidad individual de cada profesional. Se recomienda verificar la cédula profesional en el Registro Nacional de Profesionistas.</p>
+        <p><strong>Aviso Legal:</strong> Este sitio es una plataforma de difusión. La práctica clínica es responsabilidad individual de cada profesional.</p>
     </footer>
 
 </body>
