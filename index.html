@@ -4,57 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PsycheNudo Puebla | Red de Difusión</title>
-    <style>
-        /* Estilos Generales */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: auto; padding: 20px; background-color: #f4f7f6; }
-        
-        /* Encabezado Azul */
-        header { background-color: #2c3e50; color: white; padding: 40px 20px; text-align: center; border-radius: 8px; margin-bottom: 10px; }
-        h1 { margin: 0; font-size: 2.5em; }
-
-        /* Barra de Navegación (Pestañas) */
-        nav { 
-            text-align: center; 
-            margin-bottom: 30px; 
-            background: white; 
-            padding: 15px; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
-            position: sticky; /* Esto hace que el menú te siga al bajar */
-            top: 10px;
-            z-index: 1000;
-        }
-        nav a { 
-            margin: 0 10px; 
-            text-decoration: none; 
-            color: #2c3e50; 
-            font-weight: bold; 
-            padding: 8px 12px;
-            border-radius: 4px;
-            transition: background 0.3s;
-        }
-        nav a:hover { background-color: #ecf0f1; }
-
-        /* Contenedor Blanco */
-        .contenedor { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        
-        /* Secciones con margen para que el menú no tape el título al saltar */
-        .seccion { margin-bottom: 60px; scroll-margin-top: 100px; }
-        
-        .tarjeta-colega { border-left: 5px solid #2c3e50; background: #f9f9f9; padding: 20px; border-radius: 4px; margin-top: 15px; }
-        .boton { display: inline-block; background: #2c3e50; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px; font-weight: bold; }
-        
-        footer { text-align: center; margin-top: 50px; font-size: 0.9em; color: #666; border-top: 1px solid #ddd; padding-top: 20px; }
-    </style>
+    <link rel="stylesheet" href="css/estilos.css">
 </head>
 <body>
 
-    <header>
+    <header class="site-header">
         <h1>PsycheNudo Puebla</h1>
         <p>Nodo de Difusión Académica, Tecnología Educativa y Ética Clínica</p>
     </header>
 
-    <nav>
+    <nav class="site-nav">
         <a href="#mision">Misión</a>
         <a href="#red">Red de Colegas</a>
         <a href="#recursos">Recursos</a>
@@ -62,12 +21,12 @@
     </nav>
     
     <div class="contenedor">
-        <div id="mision" class="seccion">
+        <section id="mision" class="seccion">
             <h2>Nuestra Misión</h2>
             <p>Un espacio dedicado a la divulgación científica y tecnológica en el área de la salud mental. En <strong>PsycheNudo Puebla</strong>, conectamos la formación académica universitaria con la responsabilidad social, ofreciendo recursos validados y una red de profesionales éticos.</p>
-        </div>
+        </section>
 
-        <div id="red" class="seccion">
+        <section id="red" class="seccion">
             <h2>Red de Profesionales (El Nudo)</h2>
             <p>Colaboradores validados para atención y orientación:</p>
             
@@ -75,28 +34,29 @@
                 <h3>Mtro. Adrián González</h3>
                 <p>Psicólogo Clínico y Catedrático Universitario. Desarrollador de herramientas psicoeducativas.</p>
                 <p><strong>Cédula Profesional:</strong> [Ingresa tu cédula aquí]</p>
-                <a href="TU_LINKEDIN_AQUI" class="boton">Ver Perfil en LinkedIn</a>
+                <a href="https://linkedin.com/in/tu-perfil" class="boton" target="_blank">Ver Perfil en LinkedIn</a>
             </div>
-        </div>
+        </section>
 
-        <div id="recursos" class="seccion">
+        <section id="recursos" class="seccion">
             <h2>Proyectos Pedagógicos e Interactivos</h2>
             <p>Recursos digitales y aplicaciones desarrolladas por alumnos de psicología bajo supervisión académica.</p>
             <p><em>Próximamente: Galería de herramientas HTML/Python.</em></p>
-        </div>
+        </section>
 
-        <div id="articulos" class="seccion">
+        <section id="articulos" class="seccion">
             <h2>Biblioteca de Artículos</h2>
-            <p>Textos de divulgación y reflexión clínica.</p>
-            <ul style="list-style-type: none; padding: 0;">
-                <li style="background: #eee; padding: 10px; margin-bottom: 5px; border-radius: 4px;">
-                    📄 <em>Próximamente: "El impacto de la tecnología en la clínica poblana"</em>
+            <p>Textos de divulgación y reflexión clínica. Haz clic en el título para leer en pantalla.</p>
+            <ul class="lista-articulos">
+                <li>
+                    📄 <a href="articulos/tecnologia-clinica.html">El impacto de la tecnología en la práctica clínica contemporánea</a>
+                    <small>Mtro. Adrián González · Marzo 2026 · Ética y Telepsicología</small>
                 </li>
             </ul>
-        </div>
+        </section>
     </div>
 
-    <footer>
+    <footer class="site-footer">
         <p>PsycheNudo Puebla &copy; 2026</p>
         <p><strong>Aviso Legal:</strong> Este sitio es una plataforma de difusión. La práctica clínica es responsabilidad individual de cada profesional. Se recomienda verificar la cédula profesional en el Registro Nacional de Profesionistas.</p>
     </footer>
