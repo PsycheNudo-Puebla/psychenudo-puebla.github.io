@@ -41,7 +41,7 @@ header.site-header .logo-link {
     margin-bottom: 25px;
 }
 header.site-header .logo-img {
-    max-width: 320px;
+    max-width: 380px;
     height: auto;
     transition: transform 0.3s ease;
     filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2)) brightness(1.02);
