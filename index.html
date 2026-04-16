@@ -35,7 +35,7 @@
                         <div class="mision-vision">
                             <div class="tarjeta-identidad">
                                 <h3>Nuestra Misión</h3>
-                                <p>Fomentar un diálogo interdisciplinario gratuito y supervisado, donde la prioridad sea la difusión de conocimiento honesto y el desarrollo de herramientas útiles para la comunidad y los profesionales.</p>
+                                <p>Fomentar un diálogo interdisciplinario gratuito y validado por pares, donde la prioridad sea la difusión de conocimiento honesto y el desarrollo de herramientas útiles para la comunidad y los profesionales.</p>
                             </div>
                             <div class="tarjeta-identidad">
                                 <h3>Nuestra Visión</h3>
@@ -51,11 +51,31 @@
             <section id="red" class="tab-content" role="tabpanel">
                 <h2>Red de Profesionales (El Nudo)</h2>
                 <p>Colaboradores validados para atención y orientación:</p>
-                <div class="tarjeta-colega">
-                    <h3>Mtro. Adrián González</h3>
-                    <p>Psicólogo Clínico y Catedrático Universitario. Desarrollador de herramientas psicoeducativas.</p>
-                    <p><strong>Cédula Profesional:</strong> [Ingresa tu cédula aquí]</p>
-                    <a href="adrian-gonzalez.html" class="boton">Ver Perfil Profesional</a>
+                
+                {% if site.profesionales.size > 0 %}
+                    <div class="grid-colegas">
+                    {% for profesional in site.profesionales %}
+                        <div class="tarjeta-colega">
+                            <h3>{{ profesional.nombre }}</h3>
+                            <p class="especialidad-colega">{{ profesional.especialidad }}</p>
+                            <p>{{ profesional.content | strip_html | truncate: 150 }}</p>
+                            <p><strong>Invitado por:</strong> {{ profesional.invitado_por }}</p>
+                            <p><strong>Cédula Profesional:</strong> {{ profesional.cedula }}</p>
+                            <a href="{{ profesional.url }}" class="boton">Ver Perfil Completo</a>
+                            {% if profesional.external_url %}
+                            <a href="{{ profesional.external_url }}" class="boton boton-secundario" target="_blank">Trayectoria Profesional</a>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="mensaje-vacio">Próximamente se agregarán miembros a la red. ¿Quieres formar parte? Contáctanos a través de GitHub Discussions.</p>
+                {% endif %}
+                
+                <div style="margin-top: 30px; padding: 20px; background: #f3fcf8; border-radius: 8px; border-left: 4px solid var(--color-secundario);">
+                    <h3 style="color: var(--color-primario); margin-top: 0;">Únete al Nudo</h3>
+                    <p>Si eres psicólogo titulado y deseas colaborar con PsycheNudo, queremos conocerte.</p>
+                    <a href="https://github.com/PsycheNudo-Puebla/psychenudo-puebla.github.io/discussions" class="boton" target="_blank">Solicitar Participación</a>
                 </div>
             </section>
 
