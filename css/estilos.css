@@ -25,29 +25,43 @@ body {
 header.site-header {
     background: linear-gradient(135deg, var(--color-primario) 0%, var(--color-secundario) 100%);
     color: var(--blanco);
-    padding: 30px 20px;
+    padding: 40px 20px;
     text-align: center;
     border-radius: 0;
-    margin-bottom: 0;
+    margin-bottom: 20px;
     max-width: 100%;
     margin-left: auto;
     margin-right: auto;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 20px rgba(13, 43, 84, 0.2);
 }
 header.site-header .logo-link {
-    display: inline-block;
-    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 25px;
 }
 header.site-header .logo-img {
-    max-width: 280px;
+    max-width: 320px;
     height: auto;
     transition: transform 0.3s ease;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
 }
 header.site-header .logo-img:hover {
-    transform: scale(1.05);
+    transform: scale(1.03);
 }
-header.site-header h1 { font-size: 2.2rem; margin-bottom: 10px; margin-top: 0; }
-header.site-header p { font-size: 1rem; opacity: 0.95; margin: 0; }
+header.site-header h1 { 
+    font-size: 2.2rem; 
+    margin-bottom: 10px; 
+    margin-top: 0;
+    display: none;
+}
+header.site-header p { 
+    font-size: 1.05rem; 
+    opacity: 0.98; 
+    margin: 0;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+}
 
 /* ===== NAVEGACIÓN ===== */
 nav.site-nav {
@@ -314,21 +328,34 @@ footer.site-footer { text-align: center; margin-top: 50px; font-size: 0.9em; col
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
-    body { padding: 10px; }
-    header.site-header, .contenedor, footer.site-footer { max-width: 100%; }
-    header.site-header { padding: 20px 10px; }
-    header.site-header .logo-img { max-width: 200px; }
-    header.site-header p { font-size: 0.9rem; }
-    .bloque-identidad { grid-template-columns: 1fr; }
-    .tabs { grid-template-columns: repeat(2, 1fr); }
-    .tab { text-align: center; padding: 10px 12px; }
-    .tab-content { padding: 0; }
-    .articulo-lector { padding: 0 10px; }
+    header.site-header {
+        padding: 30px 15px;
+    }
+    header.site-header .logo-img {
+        max-width: 250px;
+    }
+    header.site-header p {
+        font-size: 0.95rem;
+    }
+    .perfil-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 480px) {
+    header.site-header {
+        padding: 25px 10px;
+    }
+    header.site-header .logo-img {
+        max-width: 200px;
+    }
+    header.site-header .logo-link {
+        margin-bottom: 20px;
+    }
+    header.site-header p {
+        font-size: 0.9rem;
+    }
     .tabs { gap: 6px; grid-template-columns: 1fr; }
     .tab { padding: 10px 14px; font-size: 0.85rem; letter-spacing: 0; }
-    header.site-header .logo-img { max-width: 150px; }
 }
 
