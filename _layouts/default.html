@@ -24,5 +24,17 @@
         <p><strong>Aviso Legal:</strong> Este sitio es una plataforma de difusión. La práctica clínica es responsabilidad individual de cada profesional. Se recomienda verificar la cédula profesional en el Registro Nacional de Profesionistas.</p>
     </footer>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const enlaces = document.querySelectorAll('a[href^="http"]');
+            enlaces.forEach(function(enlace) {
+                const href = enlace.getAttribute('href');
+                if (href && !href.includes('psychenudo-puebla.github.io') && !href.includes(window.location.hostname)) {
+                    enlace.setAttribute('target', '_blank');
+                    enlace.setAttribute('rel', 'noopener noreferrer');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

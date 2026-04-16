@@ -15,6 +15,9 @@ collections:
   articulos:
     output: true
     permalink: /articulos/:name/
+  profesionales:
+    output: true
+    permalink: /profesionales/:name/
 
 # Exclude from processing
 exclude:

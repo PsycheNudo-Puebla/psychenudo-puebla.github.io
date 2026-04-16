@@ -1,0 +1,31 @@
+---
+layout: default
+---
+
+<section class="perfil-bloque">
+    <div class="perfil-header">
+        <h1>{{ page.nombre }}</h1>
+        <p class="especialidad">{{ page.especialidad }}</p>
+    </div>
+
+    <div class="perfil-grid">
+        <article class="perfil-contenido">
+            <h2>Biografía</h2>
+            {{ content }}
+        </article>
+
+        <aside class="perfil-meta">
+            <div class="perfil-info">
+                <span>Invitado al nudo por:</span>
+                <strong>{{ page.invitado_por }}</strong>
+            </div>
+            <div class="perfil-info">
+                <span>Cédula Profesional:</span>
+                <strong>{{ page.cedula }}</strong>
+            </div>
+            {% if page.external_url %}
+            <a href="{{ page.external_url }}" class="boton perfil-boton">Ver trayectoria completa</a>
+            {% endif %}
+        </aside>
+    </div>
+</section>
