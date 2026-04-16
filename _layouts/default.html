@@ -1,6 +1,3 @@
----
-layout: default
----
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -12,21 +9,15 @@ layout: default
 <body>
 
     <header class="site-header">
-        <h1>{{ site.title }}</h1>
+        <a href="{{ '/' | relative_url }}" class="logo-link">
+            <img src="{{ '/assets/logo-psychenudo.png' | relative_url }}" alt="PsycheNudo Puebla Logo" class="logo-img">
+        </a>
         <p>{{ site.description }}</p>
     </header>
 
-    <nav class="site-nav">
-        <a href="#mision">Misión</a>
-        <a href="#red">Red de Colegas</a>
-        <a href="#recursos">Recursos</a>
-        <a href="#comunidad">Comunidad</a>
-        <a href="#articulos">Artículos</a>
-    </nav>
-    
-    <div class="contenedor">
+    <main class="contenedor">
         {{ content }}
-    </div>
+    </main>
 
     <footer class="site-footer">
         <p>{{ site.title }} &copy; 2026</p>
