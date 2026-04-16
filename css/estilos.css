@@ -41,7 +41,7 @@ header.site-header .logo-link {
     margin-bottom: 25px;
 }
 header.site-header .logo-img {
-    max-width: 380px;
+    max-width: 450px;
     height: auto;
     transition: transform 0.3s ease;
     filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2)) brightness(1.02);
@@ -95,7 +95,7 @@ nav.site-nav a:hover { background-color: #ecf0f1; }
 /* ===== CONTENEDOR PRINCIPAL ===== */
 .contenedor {
     background: var(--blanco);
-    padding: 30px;
+    padding: 40px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     max-width: 900px;
@@ -264,6 +264,7 @@ nav.site-nav a:hover { background-color: #ecf0f1; }
 .tarjeta-identidad p {
     color: var(--color-texto-claro);
     line-height: 1.7;
+    font-size: 1.1rem;
 }
 
 /* ===== PERFIL PROFESIONAL ===== */
@@ -412,4 +413,3 @@ footer.site-footer { text-align: center; margin-top: 50px; font-size: 0.9em; col
     .tabs { gap: 6px; grid-template-columns: 1fr; }
     .tab { padding: 10px 14px; font-size: 0.85rem; letter-spacing: 0; }
 }
-
