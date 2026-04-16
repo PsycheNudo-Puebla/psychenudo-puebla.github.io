@@ -1,0 +1,28 @@
+title: "PsycheNudo Puebla"
+description: "Nodo de Difusión Académica, Tecnología Educativa y Ética Clínica"
+url: "https://psychenudo-puebla.github.io"
+baseurl: ""
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+theme: minima
+plugins:
+  - jekyll-feed
+
+# Collections
+collections:
+  articulos:
+    output: true
+    permalink: /articulos/:name/
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor/
+  - .bundle/
+  - .sass-cache/
+  - .jekyll-cache/
+  - gemfiles/
+  - .bundle

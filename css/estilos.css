@@ -130,6 +130,17 @@ nav.site-nav a:hover { background-color: #ecf0f1; }
 .articulo-footer ol { padding-left: 20px; margin: 10px 0; }
 .articulo-footer li { margin-bottom: 6px; font-size: 0.95rem; }
 
+/* ===== SECCIÓN DE COMENTARIOS ===== */
+.comentarios {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid var(--borde-suave);
+}
+.comentarios h3 { color: var(--color-primario); margin-bottom: 10px; }
+.comentarios p { margin-bottom: 15px; color: var(--color-texto-claro); }
+
 /* ===== FOOTER ===== */
 footer.site-footer { text-align: center; margin-top: 50px; font-size: 0.9em; color: var(--color-texto-claro); border-top: 1px solid var(--borde-suave); padding-top: 20px; max-width: 900px; margin-left: auto; margin-right: auto; }
 

@@ -1,0 +1,37 @@
+---
+layout: default
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page.title | default: site.title }}</title>
+    <link rel="stylesheet" href="{{ '/css/estilos.css' | relative_url }}">
+</head>
+<body>
+
+    <header class="site-header">
+        <h1>{{ site.title }}</h1>
+        <p>{{ site.description }}</p>
+    </header>
+
+    <nav class="site-nav">
+        <a href="#mision">Misión</a>
+        <a href="#red">Red de Colegas</a>
+        <a href="#recursos">Recursos</a>
+        <a href="#comunidad">Comunidad</a>
+        <a href="#articulos">Artículos</a>
+    </nav>
+    
+    <div class="contenedor">
+        {{ content }}
+    </div>
+
+    <footer class="site-footer">
+        <p>{{ site.title }} &copy; 2026</p>
+        <p><strong>Aviso Legal:</strong> Este sitio es una plataforma de difusión. La práctica clínica es responsabilidad individual de cada profesional. Se recomienda verificar la cédula profesional en el Registro Nacional de Profesionistas.</p>
+    </footer>
+
+</body>
+</html>
