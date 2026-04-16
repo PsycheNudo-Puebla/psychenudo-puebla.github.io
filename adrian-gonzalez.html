@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mtro. Adrián González | PsycheNudo Puebla</title>
+    <link rel="stylesheet" href="css/estilos.css">
+    <style>
+        /* Estilos específicos para resaltar tu perfil */
+        .foto-perfil {
+            width: 150px;
+            height: 150px;
+            background-color: #34495e;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            border: 5px solid white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .boton-discord {
+            display: inline-block;
+            background-color: #5865F2; /* Color oficial de Discord */
+            color: white;
+            padding: 18px 35px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4);
+            margin-top: 20px;
+        }
+        .boton-discord:hover {
+            background-color: #4752c4;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(88, 101, 242, 0.6);
+        }
+        .bio-profesional {
+            text-align: left;
+            background: #f9f9f9;
+            padding: 25px;
+            border-left: 5px solid #2c3e50;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="foto-perfil">A</div>
+        <h1>Mtro. Adrián González</h1>
+        <p>Psicólogo Clínico | Catedrático Universitario | Desarrollador de Software</p>
+    </header>
+
+    <nav>
+        <a href="index.html">← Volver al Inicio</a>
+        <a href="#proyectos">Proyectos</a>
+        <a href="#comunidad">Comunidad</a>
+    </nav>
+
+    <main class="contenedor">
+        <section class="seccion">
+            <h2>Perfil Profesional</h2>
+            <div class="bio-profesional">
+                <p>Maestro en Psicoanálisis y Cultura con licenciatura en Psicología General. Mi labor se centra en la intersección de la clínica, la docencia y la innovación tecnológica en <strong>Puebla, México</strong>.</p>
+                <p>Actualmente desarrollo herramientas digitales para la gestión clínica y la gamificación del aprendizaje, buscando fortalecer los nudos académicos entre colegas y estudiantes.</p>
+            </div>
+        </section>
+
+        <section id="comunidad" class="seccion" style="text-align: center;">
+            <h2>Nodo de Discusión</h2>
+            <p>He creado un espacio en tiempo real para asesorías, debate ético y colaboración profesional. Puedes unirte directamente aquí:</p>
+            
+            <a href="https://discord.gg/7dD7QNDA" class="boton-discord" target="_blank">
+                💬 Entrar al Discord de PsycheNudo
+            </a>
+            
+            <p style="margin-top: 15px; font-size: 0.9rem; color: #666;">
+                *No necesitas descargar nada, puedes entrar desde tu navegador.
+            </p>
+        </section>
+
+        <hr>
+
+        <section id="comentarios" class="seccion">
+            <h3>Foro de Consultas</h3>
+            <p>Si tienes alguna duda académica o profesional, puedes dejarla aquí abajo. (Requiere cuenta de GitHub).</p>
+            
+            <div id="giscus-container">
+                </div>
+        </section>
+    </main>
+
+    <footer style="text-align: center; padding: 20px; color: #666;">
+        <p>PsycheNudo Puebla © 2026 - Difusión Académica y Tecnológica</p>
+    </footer>
+
+</body>
+</html>
