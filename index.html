@@ -9,57 +9,96 @@
 <body>
 
     <header class="site-header">
-        <h1>PsycheNudo Puebla</h1>
+        <a href="index.html" class="logo-link">
+            <img src="assets/logo-psychenudo.png" alt="PsycheNudo Puebla Logo" class="logo-img">
+        </a>
         <p>Nodo de Difusión Académica, Tecnología Educativa y Ética Clínica</p>
     </header>
 
-    <nav class="site-nav">
-        <a href="#mision">Misión</a>
-        <a href="#red">Red de Colegas</a>
-        <a href="#recursos">Recursos</a>
-        <a href="#articulos">Artículos</a>
-    </nav>
-    
-    <div class="contenedor">
-        <section id="mision" class="seccion">
-            <h2>Nuestra Misión</h2>
-            <p>Un espacio dedicado a la divulgación científica y tecnológica en el área de la salud mental. En <strong>PsycheNudo Puebla</strong>, conectamos la formación académica universitaria con la responsabilidad social, ofreciendo recursos validados y una red de profesionales éticos.</p>
+    <main class="contenedor">
+        <section class="identidad">
+            <h2>Un Espacio de Encuentro Profesional</h2>
+            <div class="bloque-identidad">
+                <div class="bloque-texto">
+                    <h3>Más allá de las Escuelas: El Diálogo Ético</h3>
+                    <p>En <strong>PsycheNudo Puebla</strong>, dejamos de lado el conflicto de egos. Reconocemos que la psicología es una disciplina compleja que requiere pluralidad. Aquí, el rigor no nace de la imposición de un método sobre otro, sino del cuestionamiento constante de nuestra propia práctica y objetivos.</p>
+                </div>
+                <div class="mision-vision">
+                    <div class="tarjeta-identidad">
+                        <h3>Nuestra Misión</h3>
+                        <p>Fomentar un diálogo interdisciplinario gratuito y supervisado, donde la prioridad sea la difusión de conocimiento honesto y el desarrollo de herramientas útiles para la comunidad y los profesionales.</p>
+                    </div>
+                    <div class="tarjeta-identidad">
+                        <h3>Nuestra Visión</h3>
+                        <p>Ser una comunidad donde psicólogos de diversos enfoques compartan su labor y orienten a las nuevas generaciones bajo un estándar de respeto mutuo, rigor ético y rechazo a prácticas oportunistas.</p>
+                    </div>
+                </div>
+            </div>
         </section>
 
-        <section id="red" class="seccion">
-            <h2>Red de Profesionales (El Nudo)</h2>
-            <p>Colaboradores validados para atención y orientación:</p>
-            
-            <div class="tarjeta-colega">
-    <h3>Mtro. Adrián González</h3>
-    <p>Psicólogo Clínico y Catedrático Universitario. Desarrollador de herramientas psicoeducativas.</p>
-    <p><strong>Cédula Profesional:</strong> [Ingresa tu cédula aquí]</p>
-    
-    <a href="adrian-gonzalez.html" class="boton">Ver Perfil Profesional</a>
-</div>
+        <div class="tabs-panel">
+            <div class="tabs" role="tablist" aria-label="Secciones principales">
+                <button class="tab active" data-tab="mision" type="button">Misión</button>
+                <button class="tab" data-tab="red" type="button">Red</button>
+                <button class="tab" data-tab="recursos" type="button">Recursos</button>
+                <button class="tab" data-tab="articulos" type="button">Artículos</button>
+            </div>
 
-        <section id="recursos" class="seccion">
-            <h2>Proyectos Pedagógicos e Interactivos</h2>
-            <p>Recursos digitales y aplicaciones desarrolladas por alumnos de psicología bajo supervisión académica.</p>
-            <p><em>Próximamente: Galería de herramientas HTML/Python.</em></p>
-        </section>
+            <section id="mision" class="tab-content active" role="tabpanel">
+                <h2>Nuestra Misión</h2>
+                <p>Un espacio dedicado a la divulgación científica y tecnológica en el área de la salud mental. En <strong>PsycheNudo Puebla</strong>, conectamos la formación académica universitaria con la responsabilidad social, ofreciendo recursos validados y una red de profesionales éticos.</p>
+            </section>
 
-        <section id="articulos" class="seccion">
-            <h2>Biblioteca de Artículos</h2>
-            <p>Textos de divulgación y reflexión clínica. Haz clic en el título para leer en pantalla.</p>
-            <ul class="lista-articulos">
-                <li>
-                    📄 <a href="articulos/tecnologia-clinica.html">El impacto de la tecnología en la práctica clínica contemporánea</a>
-                    <small>Mtro. Adrián González · Marzo 2026 · Ética y Telepsicología</small>
-                </li>
-            </ul>
-        </section>
-    </div>
+            <section id="red" class="tab-content" role="tabpanel">
+                <h2>Red de Profesionales (El Nudo)</h2>
+                <p>Colaboradores validados para atención y orientación:</p>
+                <div class="tarjeta-colega">
+                    <h3>Mtro. Adrián González</h3>
+                    <p>Psicólogo Clínico y Catedrático Universitario. Desarrollador de herramientas psicoeducativas.</p>
+                    <p><strong>Cédula Profesional:</strong> [Ingresa tu cédula aquí]</p>
+                    <a href="adrian-gonzalez.html" class="boton">Ver Perfil Profesional</a>
+                </div>
+            </section>
+
+            <section id="recursos" class="tab-content" role="tabpanel">
+                <h2>Proyectos Pedagógicos e Interactivos</h2>
+                <p>Recursos digitales y aplicaciones desarrolladas por alumnos de psicología bajo supervisión académica.</p>
+                <p><em>Próximamente: Galería de herramientas HTML/Python.</em></p>
+            </section>
+
+            <section id="articulos" class="tab-content" role="tabpanel">
+                <h2>Biblioteca de Artículos</h2>
+                <p>Textos de divulgación y reflexión clínica. Haz clic en el título para leer en pantalla.</p>
+                <ul class="lista-articulos">
+                    <li>
+                        📄 <a href="articulos/tecnologia-clinica.html">El impacto de la tecnología en la práctica clínica contemporánea</a>
+                        <small>Mtro. Adrián González · Marzo 2026 · Ética y Telepsicología</small>
+                    </li>
+                </ul>
+            </section>
+        </div>
+    </main>
 
     <footer class="site-footer">
         <p>PsycheNudo Puebla &copy; 2026</p>
         <p><strong>Aviso Legal:</strong> Este sitio es una plataforma de difusión. La práctica clínica es responsabilidad individual de cada profesional. Se recomienda verificar la cédula profesional en el Registro Nacional de Profesionistas.</p>
     </footer>
 
+    <script>
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(btn => btn.classList.remove('active'));
+                tab.classList.add('active');
+
+                const target = tab.dataset.tab;
+                tabContents.forEach(content => {
+                    content.classList.toggle('active', content.id === target);
+                });
+            });
+        });
+    </script>
 </body>
 </html>
