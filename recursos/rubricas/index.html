@@ -1,26 +1,21 @@
     <script>
-    // Permitir login con Enter/NumpadEnter en el campo de contraseña
+    // Arranque en modo local sin servicios externos
     document.addEventListener('DOMContentLoaded', function() {
-        var passwordInput = document.getElementById('passwordInput');
-        if (passwordInput) {
-            passwordInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' || e.key === 'NumpadEnter') {
-                    e.preventDefault();
-                    handleLogin();
-                }
+        var loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                startOfflineMode();
             });
         }
     });
     </script>
-<!-- La función compartirRubrica() ha sido movida al bloque <script> adecuado para evitar que se muestre como texto en la página. -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎓 Rúbrica - Evaluación Local</title>
-    <!-- SDK de Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- PDF Generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -885,21 +880,13 @@
          ═══════════════════════════════════════════════════════════════════════════════ -->
     <div id="screenLogin" class="screen active">
         <div class="login-container">
-            <h1>🎓 Rúbrica Cloud</h1>
-            <p>Inicia sesión para sincronizar tus evaluaciones en la nube.</p>
-            
-            <input type="text" id="usernameInput" placeholder="Nombre de usuario (solo para registro)">
-            <input type="email" id="emailInput" placeholder="Correo electrónico">
-            <input type="password" id="passwordInput" placeholder="Contraseña">
-
-                        <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
-                            <div class="login-actions">
-                                <button type="submit" class="primary large">Iniciar Sesión</button>
-                                <button type="button" class="secondary large" onclick="handleSignUp()">Registrarse</button>
-                            </div>
-                        </form>
-            
-            <button class="offline-mode-btn" onclick="startOfflineMode()">Continuar sin cuenta (Modo Offline)</button>
+            <h1>🎓 Rúbrica Offline</h1>
+            <p>Esta versión funciona de forma local y conserva tus datos en el navegador de este equipo.</p>
+            <form id="loginForm" onsubmit="event.preventDefault(); startOfflineMode();">
+                <div class="login-actions">
+                    <button type="submit" class="primary large">Entrar al modo local</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -937,7 +924,6 @@
                     <h2>📂 Cargar Rúbrica</h2>
                     <p>Carga una rúbrica: vacía, con alumnos, o con calificaciones ya hechas.</p>
                     <button class="primary large" onclick="goToLoadRubric()">📂 Cargar desde Equipo</button>
-                    <button class="info large" onclick="openCloudListModal('generic')" style="margin-top: 10px;">☁️ Cargar de la Nube</button>
                 </div>
 
                 <div class="option-card">
@@ -949,7 +935,6 @@
             </div>
             <div style="text-align: center; margin-top: 20px;">
                 <button class="secondary" onclick="openModal('modalInstructions')" style="font-size: 14px;">ℹ️ Instrucciones y Recomendaciones</button>
-                <button class="danger" onclick="handleSignOut()" id="btnLogout" style="font-size: 14px; display: none;">Cerrar Sesión</button>
             </div>
         </div> <!-- Fin container -->
     </div> <!-- Fin screenWelcome -->
@@ -969,7 +954,6 @@
                     <button class="primary" onclick="renameRubric()">✏️ Renombrar</button>
                     <button class="warning" onclick="triggerImportRubricEdit()">📂 Importar Rúbrica</button>
                     <button class="info" onclick="associateRubricToGroup()">👥 Asociar a Grupo</button>
-                    <button class="info" onclick="saveRubricToCloud()">☁️ Guardar en Nube</button>
                     <input type="file" id="importRubricEditFile" accept=".json" style="display: none;" onchange="importRubricEdit()">
                 </div>
             </div>
@@ -1017,7 +1001,6 @@
                 </div>
                 <div class="evaluation-header-actions">
                     <button class="secondary" onclick="exportRubricWithAllData()">📥 Exportar Rúbrica Completa</button>
-                    <button class="success" onclick="saveRubricCompleteToCloud()">☁️ Guardar Todo en Nube</button>
                 </div>
             </div>
 
@@ -1074,33 +1057,6 @@
             </div>
         </div> <!-- Fin container -->
     </div> <!-- Fin screenEvaluate -->
-
-    <!-- ═══════════════════════════════════════════════════════════════════════════════
-         MODAL: Lista de Nube
-         ═══════════════════════════════════════════════════════════════════════════════ -->
-    <div id="modalCloudList" class="modal">
-        <div class="modal-content" style="max-width: 600px;">
-            <div class="modal-header" id="cloudModalTitle">☁️ Mis Archivos en la Nube</div>
-            <div id="cloudFilterInfo" style="padding: 10px; background: #e3f2fd; border-left: 4px solid #2196F3; margin-bottom: 10px; border-radius: 4px; font-size: 13px; color: #1565c0; display: none;"></div>
-            
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e9ecef;">
-                <label style="font-size: 13px; font-weight: bold; color: #555; display: block; margin-bottom: 5px;">📥 Importar por Código Compartido:</label>
-                <div style="display: flex; gap: 8px;">
-                    <input type="text" id="importCodeInput" placeholder="Pega el código aquí (ej: rubrica_123...)" style="flex: 1; margin: 0; font-size: 13px;">
-                    <button class="primary" onclick="importCloudItemByCode()" style="margin: 0; padding: 8px 15px; font-size: 13px;">Importar</button>
-                </div>
-            </div>
-
-            <div id="cloudLoading" style="text-align: center; padding: 20px; display: none;">Cargando...</div>
-            <div id="cloudItemsList" style="max-height: 400px; overflow-y: auto;">
-                <!-- Items se insertan aquí -->
-            </div>
-            <!-- Nota eliminada: ahora todas las rúbricas pueden cargarse desde la nube -->
-            <div class="modal-footer">
-                <button class="secondary" onclick="closeModal('modalCloudList')">Cerrar</button>
-            </div>
-        </div>
-    </div>
 
     <!-- ═══════════════════════════════════════════════════════════════════════════════
          MODAL: Guardar como Plantilla
@@ -1176,8 +1132,6 @@
             <div style="margin: 20px 0;">
                 <button class="success" style="width: 100%; margin-bottom: 10px;" onclick="exportGroups()">📤 Exportar Todos los Grupos</button>
                 <button class="primary" style="width: 100%;" onclick="triggerImportGroups()">📥 Importar Grupos</button>
-                <button class="info" style="width: 100%; margin-top: 10px;" onclick="saveActiveGroupToCloud()">☁️ Guardar Grupo Activo en Nube</button>
-                <button class="info" style="width: 100%; margin-top: 10px;" onclick="openCloudListModal('group')">☁️ Cargar Grupo de la Nube</button>
                 <input type="file" id="importGroupsFile" accept=".json" style="display: none;" onchange="importGroups()">
             </div>
             <div class="modal-footer">
@@ -1308,11 +1262,7 @@
         // VARIABLES GLOBALES
         // ═══════════════════════════════════════════════════════════════════════════════
 
-        // ⚠️ CONFIGURACIÓN DE SUPABASE (¡Reemplaza con tus datos!)
-        const SUPABASE_URL = 'https://savditlbandjevayuebc.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_eZdc8YU1N_HJ-hIeHL91fA_pudyO7Sd';
-        
-        let supabaseClient = null;
+        const LOCAL_USERNAME_KEY = 'rubrica_local_username';
         let currentUser = null;
 
         let appData = {
@@ -1461,17 +1411,7 @@
         // ═══════════════════════════════════════════════════════════════════════════════
 
         window.addEventListener('load', () => {
-            // Inicializar Supabase si hay credenciales
-            if (SUPABASE_URL && SUPABASE_URL !== 'TU_SUPABASE_URL_AQUI') {
-                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                checkSession();
-            } else {
-                console.warn('Supabase no configurado. Modo Offline por defecto.');
-                // Si no hay config, cargar local y mostrar bienvenida directamente (comportamiento original)
-                loadFromStorage();
-                loadGroupsFromStorage();
-                updateWelcomeStatus();
-            }
+            startOfflineMode();
 
             // Navegación con teclado para evaluación
             document.addEventListener('keydown', (e) => {
@@ -1487,858 +1427,55 @@
         });
 
         // ═══════════════════════════════════════════════════════════════════════════════
-        // LÓGICA DE AUTENTICACIÓN Y NUBE
+        // MODO LOCAL (SIN SERVICIOS REMOTOS)
         // ═══════════════════════════════════════════════════════════════════════════════
 
         async function checkSession() {
-            console.log('Conectando a la nube...');
-            try {
-                const { data: { session }, error } = await supabaseClient.auth.getSession();
-                if (error) throw error;
-
-                if (session) {
-                    currentUser = session.user;
-                    console.log('Usuario autenticado:', currentUser.email);
-                    const displayName = currentUser.user_metadata.username || currentUser.email.split('@')[0];
-                    document.getElementById('userInfoDisplay').textContent = `Hola, ${displayName}`;
-                    document.getElementById('btnLogout').style.display = 'inline-block';
-                    document.getElementById('btnUpdateUsername').style.display = 'inline-block';
-
-                    // Cargar datos locales primero
-                    loadFromStorage();
-                    loadGroupsFromStorage();
-
-                    // Actualizar UI
-                    updateWelcomeStatus();
-
-                    showScreen('screenWelcome');
-                } else {
-                    showScreen('screenLogin');
-                }
-            } catch (err) {
-                console.warn('Error conectando a Supabase, activando modo offline:', err);
-                startOfflineMode();
-            }
+            startOfflineMode();
         }
 
         async function handleLogin() {
-            const email = document.getElementById('emailInput').value;
-            const password = document.getElementById('passwordInput').value;
-            
-            try {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                if (error) throw error;
-                checkSession();
-            } catch (error) {
-                alert('Error al iniciar sesión: ' + error.message);
-            }
+            startOfflineMode();
         }
 
         async function handleSignUp() {
-            const email = document.getElementById('emailInput').value;
-            const password = document.getElementById('passwordInput').value;
-            const username = document.getElementById('usernameInput').value.trim();
-
-            if (!username) {
-                alert('Por favor, introduce un nombre de usuario para registrarte.');
-                return;
-            }
-            
-            try {
-                const { data, error } = await supabaseClient.auth.signUp({
-                    email, 
-                    password,
-                    options: {
-                        data: { username: username }
-                    }
-                });
-                if (error) throw error;
-                alert('Registro exitoso. Por favor verifica tu correo e inicia sesión.');
-            } catch (error) {
-                alert('Error al registrarse: ' + error.message);
-            }
+            startOfflineMode();
         }
 
         async function handleSignOut() {
-            await supabaseClient.auth.signOut();
             currentUser = null;
-            window.location.reload();
+            localStorage.removeItem(LOCAL_USERNAME_KEY);
+            showScreen('screenLogin');
         }
 
         function startOfflineMode() {
+            const savedUsername = localStorage.getItem(LOCAL_USERNAME_KEY) || 'Usuario local';
+            currentUser = { user_metadata: { username: savedUsername } };
             loadFromStorage();
             loadGroupsFromStorage();
+            const userInfo = document.getElementById('userInfoDisplay');
+            if (userInfo) userInfo.textContent = `Hola, ${savedUsername}`;
+            const btnUpdate = document.getElementById('btnUpdateUsername');
+            if (btnUpdate) btnUpdate.style.display = 'inline-block';
+            updateWelcomeStatus();
             showScreen('screenWelcome');
         }
 
-        // ═══════════════════════════════════════════════════════════════════════════════
-        // GESTIÓN DE ARCHIVOS EN LA NUBE (NUEVO SISTEMA)
-        // ═══════════════════════════════════════════════════════════════════════════════
-
-        async function saveToCloudGeneric(type, data, defaultName) {
-            if (!currentUser || !supabaseClient) return;
-
-            let fileId = null;
-            let name = defaultName;
-            let isUpdate = false;
-
-            // Verificar si ya existe una versión en la nube activa y es del mismo tipo
-            if (activeCloudId && activeCloudType === type) {
-                const wantToUpdate = confirm(`☁️ NUBE: Ya existe una versión de este archivo.\n\n[Aceptar] = ACTUALIZAR el archivo existente\n[Cancelar] = GUARDAR COMO uno nuevo`);
-                
-                if (wantToUpdate) {
-                    isUpdate = true;
-                    fileId = activeCloudId;
-                    name = prompt(`Confirmar nombre para actualizar:`, defaultName);
-                } else {
-                    name = prompt(`Ingresa un nombre para el nuevo archivo:`, defaultName);
-                }
-            } else {
-                name = prompt(`Ingresa un nombre para guardar este ${type}:`, defaultName);
-            }
-
-            if (!name) return; // Usuario canceló
-
-            if (!isUpdate) {
-                fileId = `${type.toLowerCase()}_${Date.now()}`;
-            }
-
-            const payload = {
-                type: type, // 'RÚBRICA', 'GRUPO', 'EVALUACIÓN'
-                name: name,
-                content: data,
-                savedAt: new Date().toISOString()
-            };
-
-            try {
-                const { error } = await supabaseClient
-                    .from('mis_evaluaciones')
-                    .upsert({
-                        id: fileId,
-                        user_id: currentUser.id,
-                        data: payload,
-                        updated_at: new Date()
-                    });
-
-                if (error) throw error;
-                // Actualizar seguimiento
-                activeCloudId = fileId;
-                activeCloudType = type;
-                
-                alert(`✅ ${type} "${name}" ${isUpdate ? 'actualizado' : 'guardado'} en la nube correctamente.`);
-            } catch (err) {
-                console.error('Error guardando en nube:', err);
-                alert('❌ Error al guardar en la nube: ' + err.message);
-            }
+        async function saveToCloudGeneric() {
+            alert('Función remota deshabilitada. Usa exportación e importación local.');
+            return null;
         }
 
-        async function saveRubricToCloud() {
-            if (!currentRubric) return alert('No hay rúbrica activa.');
-            await saveToCloudGeneric('RÚBRICA', currentRubric, currentRubric.name);
-        }
-
-        async function saveActiveGroupToCloud() {
-            if (!currentGroup) return alert('No hay grupo activo seleccionado. Crea o importa uno primero.');
-            await saveToCloudGeneric('GRUPO', currentGroup, currentGroup.name);
-        }
-
-        async function saveEvaluationToCloud() {
-            if (!currentEvaluation.studentName) return alert('No hay evaluación activa.');
-            // Guardamos la evaluación actual completa
-            const evalData = {
-                rubricName: currentRubric.name,
-                student: currentEvaluation.studentName,
-                scores: currentEvaluation.scores,
-                date: new Date().toISOString()
-            };
-            await saveToCloudGeneric('EVALUACIÓN', evalData, `${currentEvaluation.studentName} - ${currentRubric.name}`);
-        }
-
-        async function saveRubricCompleteToCloud() {
-            if (!currentRubric || currentRubric.criteria.length === 0) {
-                return alert('No hay rúbrica para guardar');
-            }
-
-            // Recopilar todas las calificaciones de los estudiantes
-            let allStudentScores = {};
-            if (importedStudents && importedStudents.length > 0) {
-                importedStudents.forEach(student => {
-                    const studentName = typeof student === 'string' ? student : student.name;
-                    const scores = loadEvaluationFromStorage(studentName);
-                    if (scores && Object.keys(scores).length > 0) {
-                        allStudentScores[studentName] = scores;
-                    }
-                });
-            }
-
-            // Exportar rúbrica COMPLETA con alumnos y calificaciones
-            const assoc = getRubricAssociationData(currentRubric);
-            if (currentRubric) {
-                currentRubric.associatedGroupId = assoc.associatedGroupId;
-                currentRubric.associatedGroupName = assoc.associatedGroupName;
-            }
-            const exportData = {
-                ...currentRubric,
-                students: importedStudents || [],
-                studentScores: allStudentScores,
-                associatedGroupId: assoc.associatedGroupId,
-                associatedGroupName: assoc.associatedGroupName,
-                exportedAt: new Date().toISOString()
-            };
-
-            await saveToCloudGeneric('RÚBRICA', exportData, currentRubric.name);
-            setLastCompleteSaveStatus('Nube', assoc.associatedGroupName, Object.keys(allStudentScores).length);
-            alert(`✅ Guardado completo en nube\n👥 Grupo: ${assoc.associatedGroupName || 'Sin grupo'}\n✏️ Evaluados: ${Object.keys(allStudentScores).length}`);
-        }
-
-        async function openCloudListModal(filterMode = 'all') {
-            currentCloudFilterMode = filterMode;
-            if (!currentUser || !supabaseClient) return alert('Debes iniciar sesión para ver tus archivos en la nube.');
-            
-            openModal('modalCloudList');
-            const listContainer = document.getElementById('cloudItemsList');
-            const loader = document.getElementById('cloudLoading');
-            const legend = document.getElementById('cloudListLegend');
-            const titleEl = document.getElementById('cloudModalTitle');
-            const filterInfoEl = document.getElementById('cloudFilterInfo');
-            
-            // Establecer título y información según filterMode
-            const modeInfo = {
-                'generic': {
-                    title: '📂 Cargar Rúbrica',
-                    info: 'Muestra todas las rúbricas guardadas. Las rúbricas con 🔗 están asociadas a un grupo y se cargarán en modo de solo lectura.'
-                },
-                'group': {
-                    title: '👥 Cargar Grupo',
-                    info: 'Cargue un grupo de alumnos guardado anteriormente.'
-                },
-                'all': {
-                    title: '☁️ Todos mis Archivos',
-                    info: 'Muestra todos tus archivos en la nube: rúbricas, grupos y evaluaciones.'
-                }
-            };
-            
-            const info = modeInfo[filterMode] || modeInfo['all'];
-            titleEl.textContent = info.title;
-            filterInfoEl.textContent = info.info;
-            filterInfoEl.style.display = 'block';
-            
-            listContainer.innerHTML = '';
-            loader.style.display = 'block';
-            if (legend) legend.style.display = 'none';
-
-
-            try {
-                const { data, error } = await supabaseClient
-                    .from('mis_evaluaciones')
-                    .select('id, data, updated_at, user_id')
-                    .eq('user_id', currentUser.id)
-                    .order('updated_at', { ascending: false });
-
-                if (error) throw error;
-
-                loader.style.display = 'none';
-
-                if (!data || data.length === 0) {
-                    listContainer.innerHTML = '<p style="text-align:center; color:#666;">No tienes archivos guardados en la nube.</p>';
-                    return;
-                }
-
-                let hasLockedItems = false;
-
-                // Filtrar items según el modo (ya solo son del usuario actual)
-                const filteredItems = data.filter(item => {
-                    const file = item.data;
-                    if (!file || !file.type) return false;
-                    let content = file.content;
-                    if (typeof content === 'string') {
-                        try { content = JSON.parse(content); } catch(e) {}
-                    }
-                    if (filterMode === 'generic') {
-                        if (file.type === 'RÚBRICA') return true;
-                        if (file.type === 'EVALUACIÓN' && content) {
-                            if (content.criteria && Array.isArray(content.criteria)) return true;
-                            if (content.rubricData && content.rubricData.criteria) return true;
-                            if (content.students && Array.isArray(content.students)) return true;
-                            if (content.rubricName) return true;
-                        }
-                        return false;
-                    }
-                    if (filterMode === 'group') {
-                        return file.type === 'GRUPO';
-                    }
-                    return true;
-                });
-
-                if (filteredItems.length === 0) {
-                    listContainer.innerHTML = '<p style="text-align:center; color:#666;">No se encontraron archivos para esta categoría.</p>';
-                    return;
-                }
-
-                listContainer.innerHTML = filteredItems.map(item => {
-                    const file = item.data;
-                    let content = file.content;
-                    if (typeof content === 'string') {
-                        try { content = JSON.parse(content); } catch(e) {}
-                    }
-
-                    let icon = '📄';
-                    let isLocked = false;
-                    let status = 'normal';
-                    let hasData = false;
-
-                    if (file.type === 'RÚBRICA') {
-                        // Verificar si tiene datos (alumnos y/o calificaciones)
-                        if ((content && content.students && content.students.length > 0) || 
-                            (content && content.studentScores && Object.keys(content.studentScores).length > 0)) {
-                            icon = '✅'; // Rúbrica con datos
-                            hasData = true;
-                        } else {
-                            icon = '📝'; // Rúbrica vacía
-                        }
-                    }
-                    
-                    // Si es EVALUACIÓN pero contiene criteria, es una rúbrica con datos
-                    if (file.type === 'EVALUACIÓN' && content && content.criteria) {
-                        icon = '✅'; // Rúbrica ya evaluada
-                        hasData = true;
-                    }
-                    
-                    // Si es EVALUACIÓN con rubricData, es rúbrica guardada con datos
-                    if (file.type === 'EVALUACIÓN' && content && content.rubricData && content.rubricData.criteria) {
-                        icon = '✅'; // Rúbrica evaluada (estructura antigua)
-                        hasData = true;
-                    }
-                    
-                    // Si es EVALUACIÓN que tiene estudiantes, es evaluación múltiple
-                    if (file.type === 'EVALUACIÓN' && content && content.students && content.students.length > 0) {
-                        icon = '✅'; // Evaluación con múltiples estudiantes
-                        hasData = true;
-                    }
-                    
-                    if (file.type === 'RÚBRICA' && filterMode === 'generic' && content && (content.associatedGroupId || content.associatedGroupName)) {
-                        icon = '🔗';
-                        // Ya no se bloquea la carga, solo se muestra el icono
-                    }
-                    
-                    if (file.type === 'GRUPO') icon = '👥';
-
-                    const dateStr = new Date(item.updated_at).toLocaleDateString();
-                    
-                    let actionButtons = '';
-                    actionButtons = `<button class="primary" style="padding: 5px 10px; font-size: 12px;" onclick="loadCloudItem('${item.id}')">📂 Cargar</button>`;
-                    actionButtons += ` <button class="info" style="padding: 5px 10px; font-size: 12px;" onclick="shareCloudItem('${item.id}')" title="Copiar código de importación">🔗</button>`;
-                    
-                    actionButtons += ` <button class="danger" style="padding: 5px 10px; font-size: 12px;" onclick="deleteCloudItem('${item.id}')">🗑️</button>`;
-
-                    const bgColor = isLocked && filterMode === 'generic' ? '#fef3e2' : (hasData ? '#f0f7ff' : '#fff');
-                    const borderColor = isLocked && filterMode === 'generic' ? '#e8c547' : (hasData ? '#0066cc' : '#ddd');
-                    
-                    // Información adicional sobre datos
-                    let dataInfo = '';
-                    if (hasData && content) {
-                        let studentCount = 0;
-                        let scoreCount = 0;
-                        
-                        // Contar estudiantes según la estructura
-                        if (content.students && Array.isArray(content.students)) {
-                            studentCount = content.students.length;
-                        }
-                        
-                        // Contar evaluaciones según la estructura
-                        if (content.studentScores && typeof content.studentScores === 'object') {
-                            scoreCount = Object.keys(content.studentScores).length;
-                        }
-                        
-                        // Para evaluaciones antiguas, contar de forma diferente
-                        if (file.type === 'EVALUACIÓN' && content.rubricData && content.rubricData.studentScores) {
-                            scoreCount = Object.keys(content.rubricData.studentScores).length;
-                            if (content.rubricData.students) {
-                                studentCount = content.rubricData.students.length;
-                            }
-                        }
-                        
-                        if (studentCount > 0 || scoreCount > 0) {
-                            dataInfo = ` • 👥 ${studentCount} alumnos • ✏️ ${scoreCount} evaluados`;
-                        }
-                    }
-
-                    return `
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-left: 4px solid ${borderColor}; border-bottom: 1px solid #eee; background: ${bgColor};">
-                            <div>
-                                <div style="font-weight: bold; color: var(--dark); display: flex; align-items: center; gap: 8px;">
-                                    ${icon} ${file.name}
-                                    ${isLocked && filterMode === 'generic' ? '<span style="font-size: 10px; background: #fff3cd; padding: 3px 8px; border-radius: 4px; color: #856404; font-weight: 500;">⚠️ Asociada</span>' : ''}
-                                    ${hasData && filterMode === 'generic' ? '<span style="font-size: 10px; background: #d4edff; padding: 3px 8px; border-radius: 4px; color: #0066cc; font-weight: 500;">📊 Con datos</span>' : ''}
-                                </div>
-                                <div style="font-size: 12px; color: #666; margin-top: 3px;">${file.type} • ${dateStr} ${content?.associatedGroupName ? '• Grupo: ' + content.associatedGroupName : ''}${dataInfo}</div>
-                            </div>
-                            <div style="display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end;">
-                                ${actionButtons}
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-                if (hasLockedItems && legend && filterMode === 'generic') {
-                    legend.style.display = 'block';
-                }
-
-
-            } catch (err) {
-                loader.style.display = 'none';
-                listContainer.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
-            }
-        }
-
-        async function loadCloudItem(id) {
-            try {
-                console.log('🌐 Iniciando carga desde nube, ID:', id);
-                
-                // Mostrar loading visualmente si es posible
-                const loader = document.getElementById('cloudLoading');
-                if(loader) loader.style.display = 'block';
-                
-                const { data, error } = await supabaseClient
-                    .from('mis_evaluaciones')
-                    .select('data')
-                    .eq('id', id)
-                    .single();
-
-                if(loader) loader.style.display = 'none';
-
-                if (error) throw error;
-                if (!data || !data.data) throw new Error('El archivo no contiene datos válidos.');
-
-                // Establecer ID activo para futuras actualizaciones
-                activeCloudId = id;
-                activeCloudType = data.data.type;
-
-                const file = data.data;
-                console.log('📦 Archivo recibido:', file);
-                console.log('📦 Tipo de contenido:', typeof file.content);
-                
-                // Asegurar que el contenido esté parseado
-                let parsedContent = file.content;
-                if (typeof file.content === 'string') {
-                    console.log('🔄 Parseando contenido desde string...');
-                    try {
-                        parsedContent = JSON.parse(file.content);
-                        console.log('✅ Contenido parseado correctamente');
-                    } catch(e) {
-                        console.error('❌ Error parseando contenido:', e);
-                        parsedContent = file.content;
-                    }
-                }
-                
-                if (file.type === 'RÚBRICA') {
-                    console.log('📝 Tipo detectado: RÚBRICA');
-                    
-                    // ✅ CORRECCIÓN CRÍTICA: No limpiar currentRubric antes de asignarlo
-                    // Asignar directamente del contenido
-                    currentRubric = parsedContent;
-                    
-                    // Validar que sea un objeto válido
-                    if (!currentRubric || typeof currentRubric !== 'object') {
-                        throw new Error('El contenido de la rúbrica no es válido.');
-                    }
-                    
-                    console.log('✅ Rúbrica asignada:', currentRubric.name);
-                    
-                    // Si la rúbrica tiene un grupo de alumnos asociado, cargarlo en memoria
-                    if (currentRubric.students && Array.isArray(currentRubric.students)) {
-                        importedStudents = currentRubric.students;
-                        console.log('✅ Estudiantes cargados:', importedStudents.length);
-                    }
-                    
-                    // Cargar calificaciones si existen
-                    if (currentRubric.studentScores && typeof currentRubric.studentScores === 'object') {
-                        const scoreCount = Object.keys(currentRubric.studentScores).length;
-                        Object.entries(currentRubric.studentScores).forEach(([studentName, scores]) => {
-                            saveEvaluationToStorage(studentName, scores);
-                        });
-                        console.log(`✏️ Se cargaron ${scoreCount} evaluaciones desde la rúbrica`);
-                    }
-                    
-                    // Restaurar grupo asociado por ID o por nombre
-                    restoreAssociatedGroupFromRubric(currentRubric);
-                    if (currentGroup) {
-                        console.log('✅ Grupo asociado restaurado:', currentGroup.name);
-                    }
-
-                    console.log('💾 Guardando en storage...');
-                    await saveToStorage(false);
-                    console.log('✅ Guardado completado');
-                    
-                    console.log('🔄 Actualizando UI...');
-                    updateWelcomeStatus();
-                    closeModal('modalCloudList');
-                    console.log('✅ Modal cerrado, UI actualizada');
-                    
-                    // Validar que la rúbrica tenga criterios antes de evaluar
-                    if (!currentRubric.criteria || currentRubric.criteria.length === 0) {
-                        console.error('❌ La rúbrica no tiene criterios');
-                        alert('⚠️ La rúbrica cargada no tiene criterios definidos. Por favor edítala primero.');
-                        return;
-                    }
-                    
-                    console.log('✅ Criterios validados:', currentRubric.criteria.length);
-                    console.log('📊 Estado antes de navegar:');
-                    console.log('  - Rúbrica:', currentRubric.name);
-                    console.log('  - Criterios:', currentRubric.criteria.length);
-                    console.log('  - Estudiantes:', importedStudents?.length || 0);
-                    
-                    // ⚡ NAVEGACIÓN DIRECTA (sin setTimeout)
-                    console.log('🚀 Navegando a evaluación INMEDIATAMENTE...');
-                    renderEvaluationScreen();
-                    renderStudentsList(); // Mostrar lista de alumnos cargados desde la nube
-                    showScreen('screenEvaluate');
-                    console.log('✅ Pantalla de evaluación mostrada');
-
-                } else if (file.type === 'GRUPO') {
-                    console.log('👥 Tipo detectado: GRUPO');
-                    // Añadir a grupos creados y activar
-                    const group = parsedContent;
-                    // Evitar duplicados por ID
-                    const exists = createdGroups.find(g => g.id === group.id);
-                    if (!exists) createdGroups.push(group);
-                    
-                    currentGroup = group;
-                    importedStudents = group.students; // Cargar estudiantes para evaluar
-                    saveGroupsToStorage();
-                    updateWelcomeStatus();
-                    closeModal('modalCloudList');
-
-                } else if (file.type === 'EVALUACIÓN') {
-                    console.log('🎓 Tipo detectado: EVALUACIÓN');
-                    console.log('📋 Contenido de EVALUACIÓN:', parsedContent);
-                    
-                    // Intentar extraer rúbrica de la evaluación antigua
-                    const evalData = parsedContent;
-                    
-                    // Opción 1: Si tiene criteria directamente (rúbrica con datos guardada)
-                    if (evalData.criteria && Array.isArray(evalData.criteria)) {
-                        console.log('✅ Opción 1: Se encontró criteria directamente');
-                        currentRubric = evalData;
-                        
-                        // Cargar estudiantes si existen
-                        if (evalData.students && Array.isArray(evalData.students)) {
-                            importedStudents = evalData.students;
-                            console.log(`👥 Estudiantes cargados: ${evalData.students.length}`);
-                        }
-                        
-                        // Cargar calificaciones si existen
-                        if (evalData.studentScores && typeof evalData.studentScores === 'object') {
-                            const scoreCount = Object.keys(evalData.studentScores).length;
-                            Object.entries(evalData.studentScores).forEach(([studentName, scores]) => {
-                                saveEvaluationToStorage(studentName, scores);
-                            });
-                            console.log(`✏️ Calificaciones cargadas: ${scoreCount}`);
-                        }
-                        
-                        await saveToStorage(false);
-                        updateWelcomeStatus();
-                        closeModal('modalCloudList');
-                        
-                        console.log('🚀 Navegando a evaluación...');
-                        renderEvaluationScreen();
-                        renderStudentsList(); // Mostrar lista de alumnos
-                        showScreen('screenEvaluate');
-                        console.log('✅ Pantalla de evaluación mostrada');
-                        
-                        // Mostrar mensaje informativo
-                        const studentCount1 = importedStudents?.length || 0;
-                        const scoredCount1 = evalData.studentScores ? Object.keys(evalData.studentScores).length : 0;
-                        let message1 = `✅ Rúbrica "${currentRubric.name}" cargada exitosamente`;
-                        if (studentCount1 > 0) {
-                            message1 += `\n👥 ${studentCount1} estudiante(s) cargado(s)`;
-                        }
-                        if (scoredCount1 > 0) {
-                            message1 += `\n✏️ ${scoredCount1} evaluación(es) restaurada(s)`;
-                        }
-                        alert(message1);
-                        return;
-                    }
-                    
-                    // Opción 2: Si la evaluación tiene estructura completa, intentar usarla
-                    if (evalData.rubricData && evalData.rubricData.criteria) {
-                        console.log('✅ Opción 2: Se encontró rúbrica en rubricData');
-                        currentRubric = evalData.rubricData;
-                        
-                        if (evalData.groupData && evalData.groupData.students) {
-                            importedStudents = evalData.groupData.students;
-                            console.log(`👥 Estudiantes del grupo: ${evalData.groupData.students.length}`);
-                        }
-                        
-                        // Cargar calificaciones de rubricData si existen
-                        if (evalData.rubricData.studentScores && typeof evalData.rubricData.studentScores === 'object') {
-                            Object.entries(evalData.rubricData.studentScores).forEach(([studentName, scores]) => {
-                                saveEvaluationToStorage(studentName, scores);
-                            });
-                        }
-                        
-                        await saveToStorage(false);
-                        updateWelcomeStatus();
-                        closeModal('modalCloudList');
-                        
-                        console.log('🚀 Navegando a evaluación...');
-                        renderEvaluationScreen();
-                        renderStudentsList(); // Mostrar lista de alumnos
-                        showScreen('screenEvaluate');
-                        console.log('✅ Pantalla de evaluación mostrada');
-                        
-                        // Mostrar mensaje informativo
-                        const studentCount2 = importedStudents?.length || 0;
-                        const scoredCount2 = evalData.rubricData.studentScores ? Object.keys(evalData.rubricData.studentScores).length : 0;
-                        let message2 = `✅ Rúbrica "${currentRubric.name}" cargada exitosamente`;
-                        if (studentCount2 > 0) {
-                            message2 += `\n👥 ${studentCount2} estudiante(s) cargado(s)`;
-                        }
-                        if (scoredCount2 > 0) {
-                            message2 += `\n✏️ ${scoredCount2} evaluación(es) restaurada(s)`;
-                        }
-                        alert(message2);
-                        return;
-                    }
-                    
-                    // Opción 3: Si tiene students array (estructura de evaluación múltiple)
-                    if (evalData.students && Array.isArray(evalData.students)) {
-                        console.log('✅ Opción 3: Se encontró estructura con múltiples estudiantes');
-                        importedStudents = evalData.students;
-                        
-                        // Intentar extraer el nombre de la rúbrica
-                        if (evalData.rubricName) {
-                            console.log('📝 Nombre de rúbrica:', evalData.rubricName);
-                        }
-                        
-                        // En caso de que sí tenga criteria (aunque sea extraño)
-                        if (evalData.criteria) {
-                            console.log('✅ Se encontró criteria en Opción 3');
-                            currentRubric = evalData;
-                            
-                            // Cargar calificaciones si existen
-                            if (evalData.studentScores && typeof evalData.studentScores === 'object') {
-                                Object.entries(evalData.studentScores).forEach(([studentName, scores]) => {
-                                    saveEvaluationToStorage(studentName, scores);
-                                });
-                            }
-                            
-                            await saveToStorage(false);
-                            updateWelcomeStatus();
-                            closeModal('modalCloudList');
-                            renderEvaluationScreen();
-                            renderStudentsList(); // Mostrar lista de alumnos
-                            showScreen('screenEvaluate');
-                            
-                            // Mostrar mensaje informativo
-                            const studentCount3 = importedStudents?.length || 0;
-                            const scoredCount3 = evalData.studentScores ? Object.keys(evalData.studentScores).length : 0;
-                            let message3 = `✅ Rúbrica "${currentRubric.name}" cargada exitosamente`;
-                            if (studentCount3 > 0) {
-                                message3 += `\n👥 ${studentCount3} estudiante(s) cargado(s)`;
-                            }
-                            if (scoredCount3 > 0) {
-                                message3 += `\n✏️ ${scoredCount3} evaluación(es) restaurada(s)`;
-                            }
-                            alert(message3);
-                            return;
-                        } else {
-                            console.warn('⚠️ Opción 3: Tiene estudiantes pero NO tiene criteria');
-                        }
-                    }
-                    
-                    // Opción 4: Intento final - mostrar toda la estructura para debugging
-                    console.log('🔍 DEBUGGING - Estructura completa de evalData:');
-                    console.log('  - Keys principales:', Object.keys(evalData));
-                    console.log('  - ¿Tiene criteria?', !!evalData.criteria);
-                    console.log('  - ¿Tiene rubricData?', !!evalData.rubricData);
-                    console.log('  - ¿Tiene students?', !!evalData.students);
-                    console.log('  - ¿Tiene rubricName?', !!evalData.rubricName);
-                    console.log('  - Contenido completo:', evalData);
-                    
-                    // Si no tiene rúbrica completa, mostrar error y opción
-                    console.log('❌ No se encontró rúbrica válida en esta EVALUACIÓN');
-                    closeModal('modalCloudList');
-                    
-                    // Opcionalmente, guardar la evaluación en historial
-                    const evaluationRecord = {
-                        id: Date.now(),
-                        rubricName: evalData.rubricName,
-                        studentName: evalData.student,
-                        scores: evalData.scores,
-                        timestamp: evalData.date
-                    };
-                    appData.evaluations.push(evaluationRecord);
-                    saveToStorage(false);
-                    console.log('📝 Evaluación anterior guardada en historial');
-
-
-                } else {
-                    console.error('❌ Tipo de archivo no reconocido:', file.type);
-                }
-            } catch (err) {
-                console.error('❌ ERROR en loadCloudItem:', err);
-                const loader = document.getElementById('cloudLoading');
-                if(loader) loader.style.display = 'none';
-            }
-        }
-
-        async function deleteCloudItem(id) {
-            if (!confirm('¿Estás seguro de eliminar este archivo de la nube?')) return;
-            try {
-                const { data, error } = await supabaseClient
-                    .from('mis_evaluaciones')
-                    .delete()
-                    .eq('id', id)
-                    .select();
-
-                if (error) throw error;
-
-                if (!data || data.length === 0) {
-                    alert('⚠️ No se pudo eliminar el archivo. Es posible que no tengas permisos o ya haya sido eliminado.');
-                }
-                openCloudListModal(currentCloudFilterMode); // Recargar lista manteniendo el filtro
-            } catch (err) {
-                alert('Error al eliminar: ' + err.message);
-            }
-        }
-
-        async function shareCloudItem(id) {
-            if (!supabaseClient || !currentUser) {
-                alert('Debes iniciar sesión para compartir.');
-                return;
-            }
-            // Buscar el registro
-            const { data, error } = await supabaseClient
-                .from('mis_evaluaciones')
-                .select('codigo_compartido')
-                .eq('id', id)
-                .single();
-            if (error) {
-                alert('Error al buscar la rúbrica: ' + error.message);
-                return;
-            }
-            let codigo = data && data.codigo_compartido;
-            // Si no existe, generar y guardar uno
-            if (!codigo) {
-                codigo = crypto.randomUUID();
-                const { error: updateError } = await supabaseClient
-                    .from('mis_evaluaciones')
-                    .update({ codigo_compartido: codigo })
-                    .eq('id', id);
-                if (updateError) {
-                    alert('Error al generar código: ' + updateError.message);
-                    return;
-                }
-            }
-            navigator.clipboard.writeText(codigo).then(() => {
-                alert('✅ Código de importación copiado al portapapeles:\n' + codigo + '\n\nCompártelo con quien quieras dar acceso.');
-            }).catch(err => {
-                prompt('Copia este código manualmente:', codigo);
-            });
-        }
-
-        async function importCloudItemByCode() {
-            const code = document.getElementById('importCodeInput').value.trim();
-            if (!code) return alert('Por favor ingresa un código de importación.');
-            if (!currentUser || !supabaseClient) return alert('Debes iniciar sesión para importar archivos.');
-            const btn = document.querySelector('#modalCloudList button[onclick="importCloudItemByCode()"]');
-            const originalText = btn.textContent;
-            btn.textContent = '⏳';
-            btn.disabled = true;
-            try {
-                // Buscar el archivo por codigo_compartido
-                const { data, error } = await supabaseClient
-                    .from('mis_evaluaciones')
-                    .select('*')
-                    .eq('codigo_compartido', code)
-                    .single();
-                if (error || !data) throw new Error('Archivo no encontrado o no tienes permisos para verlo.');
-                const fileData = data.data;
-                // Crear una copia para el usuario actual
-                const newId = `${fileData.type.toLowerCase()}_imported_${Date.now()}`;
-                const { error: saveError } = await supabaseClient
-                    .from('mis_evaluaciones')
-                    .insert({
-                        id: newId,
-                        user_id: currentUser.id,
-                        data: fileData,
-                        updated_at: new Date()
-                    });
-                if (saveError) throw saveError;
-                alert(`✅ Archivo "${fileData.name}" importado exitosamente a tu nube.`);
-                document.getElementById('importCodeInput').value = '';
-                openCloudListModal(currentCloudFilterMode);
-            } catch (err) {
-                console.error(err);
-                alert('❌ Error al importar: ' + err.message);
-            } finally {
-                btn.textContent = originalText;
-                btn.disabled = false;
-            }
-        }
-
-        async function exportItem(id, format) {
-            try {
-                const { data, error } = await supabaseClient
-                    .from('mis_evaluaciones')
-                    .select('data')
-                    .eq('id', id)
-                    .single();
-
-                if (error) throw error;
-                if (!data || !data.data) throw new Error('El archivo no contiene datos válidos.');
-
-                const file = data.data;
-                const content = typeof file.content === 'string' ? JSON.parse(file.content) : file.content;
-                
-                if (format === 'json') {
-                    // Exportar como JSON
-                    const jsonContent = JSON.stringify(content, null, 2);
-                    const filename = `${file.name.replace(/[^a-z0-9]/gi, '_')}_${Date.now()}.json`;
-                    downloadFile(jsonContent, filename);
-                } else if (format === 'excel') {
-                    // Exportar como Excel/CSV
-                    let csvContent = "\uFEFF"; // BOM para acentos
-                    
-                    if (file.type === 'EVALUACIÓN' || (file.type === 'RÚBRICA' && content.associatedGroupId)) {
-                        // Para evaluaciones o rúbricas asociadas, exportar calificaciones
-                        csvContent += "Alumno,Calificación Final";
-                        
-                        // Si es evaluación, usar sus datos
-                        if (file.type === 'EVALUACIÓN') {
-                            if (content.scores && Object.keys(content.scores).length > 0) {
-                                // Hacer headers de criterios si existen
-                                Object.keys(content.scores).forEach((key, idx) => {
-                                    csvContent += `,"Criterio ${idx + 1}"`;
-                                });
-                                csvContent += "\n";
-                                
-                                const finalGrade = Object.values(content.scores).reduce((a, b) => a + (b || 0), 0) / Object.keys(content.scores).length;
-                                csvContent += `"${content.student || 'Estudiante'}",${finalGrade.toFixed(2)}`;
-                                Object.values(content.scores).forEach(score => {
-                                    csvContent += `,${score || '-'}`;
-                                });
-                                csvContent += "\n";
-                            }
-                        } else if (content.criteria && Array.isArray(content.criteria)) {
-                            // Para rúbrica asociada
-                            content.criteria.forEach(c => {
-                                csvContent += `,"${c.title.replace(/"/g, '""')}"`;
-                            });
-                            csvContent += "\n";
-                        }
-                    }
-                    
-                    const filename = `${file.name.replace(/[^a-z0-9]/gi, '_')}_${Date.now()}.csv`;
-                    downloadFile(csvContent, filename);
-                }
-                
-                alert(`✅ Archivo exportado: ${file.name}`);
-            } catch (err) {
-                alert('Error al exportar: ' + err.message);
-            }
-        }
+        async function saveRubricToCloud() { return saveToCloudGeneric(); }
+        async function saveActiveGroupToCloud() { return saveToCloudGeneric(); }
+        async function saveEvaluationToCloud() { return saveToCloudGeneric(); }
+        async function saveRubricCompleteToCloud() { return saveToCloudGeneric(); }
+        async function openCloudListModal() { return saveToCloudGeneric(); }
+        async function loadCloudItem() { return saveToCloudGeneric(); }
+        async function deleteCloudItem() { return saveToCloudGeneric(); }
+        async function shareCloudItem() { return saveToCloudGeneric(); }
+        async function importCloudItemByCode() { return saveToCloudGeneric(); }
+        async function exportItem() { return saveToCloudGeneric(); }
 
         function updateWelcomeStatus() {
             const rubricEl = document.getElementById('statusRubric');
@@ -2763,28 +1900,11 @@
                 alert('Por favor, introduce un nombre de usuario.');
                 return;
             }
-
-            if (!supabaseClient || !currentUser) {
-                alert('No estás conectado. No se puede actualizar el nombre.');
-                return;
-            }
-
-            try {
-                const { data: { user }, error } = await supabaseClient.auth.updateUser({
-                    data: { username: newUsername }
-                });
-
-                if (error) throw error;
-
-                // Actualizar el objeto de usuario global con los datos nuevos
-                currentUser = user;
-                document.getElementById('userInfoDisplay').textContent = `Hola, ${user.user_metadata.username}`;
-
-                alert('Nombre de usuario actualizado correctamente.');
-                closeModal('modalUpdateUsername');
-            } catch (error) {
-                alert('Error al actualizar el nombre de usuario: ' + error.message);
-            }
+            currentUser = { user_metadata: { username: newUsername } };
+            localStorage.setItem(LOCAL_USERNAME_KEY, newUsername);
+            document.getElementById('userInfoDisplay').textContent = `Hola, ${newUsername}`;
+            alert('Nombre local actualizado correctamente.');
+            closeModal('modalUpdateUsername');
         }
 
         function saveRubricAsTemplate() {
@@ -3464,7 +2584,7 @@
                     isGraded = true;
                 }
                 
-                // Buscar en appData (evaluaciones importadas de nube)
+                // Buscar en appData (evaluaciones importadas previamente)
                 if (!isGraded) {
                     const prevEval = appData.evaluations.find(e => 
                         e.studentName === studentName && 
@@ -3519,7 +2639,7 @@
             // Cargar evaluación del nuevo alumno (PRIMERO de localStorage, LUEGO de appData)
             let previousScores = loadEvaluationFromStorage(studentName);
             
-            // Si no está en localStorage, buscar en appData (evaluaciones de la nube)
+            // Si no está en localStorage, buscar en appData (evaluaciones importadas)
             if (!previousScores || Object.keys(previousScores).length === 0) {
                 console.log('🔍 Buscando evaluación en appData.evaluations...');
                 const prevEval = appData.evaluations.find(e => 
@@ -4146,7 +3266,7 @@
                     // CARGAR LOS DATOS
                     // ═════════════════════════════════════════════════════════════
                     
-                    activeCloudId = null; // Resetear ID de nube al cargar local
+                    activeCloudId = null; // Resetear referencia remota al cargar local
                     activeCloudType = null;
                     currentRubric = rubricToLoad;
                     
@@ -4201,7 +3321,7 @@
         // ═══════════════════════════════════════════════════════════════════════════════
 
         async function saveToStorage(syncToCloud = false) {
-            // NOTA: syncToCloud ahora es false por defecto porque usamos guardado explícito
+            // NOTA: syncToCloud se mantiene por compatibilidad histórica
             
             // 1. Guardado Local (Original)
             localStorage.setItem('rubrica_app_data', JSON.stringify(appData));
