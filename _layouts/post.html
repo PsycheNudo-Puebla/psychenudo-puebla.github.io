@@ -1,86 +1,64 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ page.title }} | {{ site.title }}</title>
-    <link rel="stylesheet" href="{{ '/css/estilos.css' | relative_url }}">
-</head>
-<body>
-
-    <header class="site-header">
-        <a href="{{ '/' | relative_url }}" class="logo-link">
-            <img src="{{ '/assets/logo-psychenudo.png' | relative_url }}" alt="PsycheNudo Puebla Logo" class="logo-img">
-        </a>
-        <p><a href="{{ '/' | relative_url }}" style="color: #fff; text-decoration: underline;">← Volver al inicio</a></p>
+---
+layout: default
+---
+<article class="articulo-lector">
+    <header>
+        <h1>{{ page.title }}</h1>
+        <div class="meta-info">
+            <span>👤 Autor: {{ page.autor }}</span> | 
+            <span>📅 {{ page.date | date: "%d de %B, %Y" }}</span> | 
+            <span>🏷️ {{ page.categoria }}</span>
+        </div>
+        {% if page.resumen %}
+        <p class="resumen">{{ page.resumen }}</p>
+        {% endif %}
     </header>
 
-    <main class="contenedor">
-        <article class="articulo-lector">
-            <header>
-                <h1>{{ page.title }}</h1>
-                <div class="meta-info">
-                    <span>👤 Autor: {{ page.autor }}</span> | 
-                    <span>📅 {{ page.date | date: "%d de %B, %Y" }}</span> | 
-                    <span>🏷️ {{ page.categoria }}</span>
-                </div>
-                {% if page.resumen %}
-                <p class="resumen">{{ page.resumen }}</p>
-                {% endif %}
-            </header>
+    <hr class="separador">
 
-            <hr class="separador">
+    <div class="articulo-contenido">
+        {{ content }}
+    </div>
 
-            <div class="articulo-contenido">
-                {{ content }}
-            </div>
+    <hr class="separador">
 
-            <hr class="separador">
+    <footer class="articulo-footer">
+        <h3>📚 Referencias</h3>
+        {% if page.referencias %}
+            {{ page.referencias | markdownify }}
+        {% else %}
+            <p><em>Sin referencias especificadas.</em></p>
+        {% endif %}
 
-            <footer class="articulo-footer">
-                <h3>📚 Referencias</h3>
-                {% if page.referencias %}
-                    {{ page.referencias | markdownify }}
-                {% else %}
-                    <p><em>Sin referencias especificadas.</em></p>
-                {% endif %}
-
-                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
-                    <p><strong>👤 Sobre el autor:</strong> {{ page.sobre_autor }}</p>
-                    {% if page.perfil_link %}
-                    <a href="{{ page.perfil_link }}" class="boton" target="_blank">Ver perfil profesional</a>
-                    {% endif %}
-                </div>
-            </footer>
-
-            <hr class="separador">
-
-            <section class="comentarios">
-                <h3>💬 Comentarios</h3>
-                <p>Comparte tus reflexiones sobre este artículo. Los comentarios se gestionan a través de GitHub Discussions para respetar la privacidad de datos.</p>
-                <script src="https://giscus.app/client.js"
-                        data-repo="PsycheNudo-Puebla/psychenudo-puebla.github.io"
-                        data-repo-id="R_kgDOSDvR4w"
-                        data-category="General"
-                        data-category-id="DIC_kwDOSDvR484C6_US"
-                        data-mapping="pathname"
-                        data-strict="0"
-                        data-reactions-enabled="1"
-                        data-emit-metadata="0"
-                        data-input-position="bottom"
-                        data-theme="preferred_color_scheme"
-                        data-lang="es"
-                        crossorigin="anonymous"
-                        async>
-                </script>
-            </section>
-        </article>
-    </main>
-
-    <footer class="site-footer">
-        <p>{{ site.title }} &copy; 2026 | <a href="{{ '/' | relative_url }}">Volver al inicio</a></p>
-        <p><em>Este texto tiene fines divulgativos y no sustituye la consulta profesional.</em></p>
+        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+            <p><strong>👤 Sobre el autor:</strong> {{ page.sobre_autor }}</p>
+            {% if page.perfil_link %}
+            <a href="{{ page.perfil_link }}" class="boton" target="_blank">Ver perfil profesional</a>
+            {% endif %}
+        </div>
     </footer>
 
-</body>
-</html>
+    <hr class="separador">
+
+    <section class="comentarios">
+        <h3>💬 Comentarios</h3>
+        <p>Comparte tus reflexiones sobre este artículo. Los comentarios se gestionan a través de GitHub Discussions para respetar la privacidad de datos.</p>
+        <div class="giscus"></div>
+        <script src="https://giscus.app/client.js"
+                data-repo="psychenudo-puebla/psychenudo-puebla.github.io"
+                data-repo-id="R_kgDOSDvR4w"
+                data-category="General"
+                data-category-id="DIC_kwDOSDvR484C6_US"
+                data-mapping="pathname"
+                data-strict="0"
+                data-reactions-enabled="1"
+                data-emit-metadata="0"
+                data-input-position="bottom"
+                data-theme="preferred_color_scheme"
+                data-lang="es"
+                data-loading="lazy"
+                crossorigin="anonymous"
+                async>
+        </script>
+    </section>
+</article>
