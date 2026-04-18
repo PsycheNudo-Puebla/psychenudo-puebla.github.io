@@ -29,6 +29,18 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Lógica para cambiar entre pestañas (Tabs)
+            window.openTab = function(evt, tabName) {
+                const contents = document.querySelectorAll('.tab-content');
+                const tabs = document.querySelectorAll('.tab');
+                
+                contents.forEach(content => content.classList.remove('active'));
+                tabs.forEach(tab => tab.classList.remove('active'));
+                
+                document.getElementById(tabName).classList.add('active');
+                evt.currentTarget.classList.add('active');
+            };
+
             const enlaces = document.querySelectorAll('a[href^="http"]');
             enlaces.forEach(function(enlace) {
                 const href = enlace.getAttribute('href');

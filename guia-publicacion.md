@@ -82,7 +82,7 @@ Estructura de archivo:
 **Front Matter** (YAML):
 ```yaml
 ---
-layout: post
+layout: articulo
 title: "El Impacto de la Tecnología en la Práctica Clínica"
 autor: "Mtro. Adrián González"
 date: 2026-03-12
