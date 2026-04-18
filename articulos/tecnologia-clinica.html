@@ -1,88 +1,15 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>El impacto de la tecnología en la práctica clínica | PsycheNudo Puebla</title>
-    <!-- Nota las dos puntos ".." para regresar a la carpeta principal y encontrar la css -->
-    <link rel="stylesheet" href="../css/estilos.css">
-</head>
-<body>
-
-    <header class="site-header">
-        <div class="logo-link">
-            <a href="../index.html">
-                <img src="../assets/logo-psychenudo.png" alt="PsycheNudo Puebla - Nodo de difusión de psicología clínica y ética" class="logo-img">
-            </a>
-        </div>
-        <h1>PsycheNudo Puebla</h1>
-        <p><a href="../index.html" style="color: #fff; text-decoration: underline;">← Volver al inicio</a></p>
-    </header>
-
-    <div class="contenedor">
-        <article class="articulo-lector">
-            <header>
-                <h1>El impacto de la tecnología en la práctica clínica contemporánea</h1>
-                <div class="meta-info">
-                    <span>👤 Autor: Mtro. Adrián González</span> | 
-                    <span>📅 12 de marzo, 2026</span> | 
-                    <span>🏷️ Categoría: Ética y Telepsicología</span>
-                </div>
-                <p class="resumen">
-                    Este artículo explora los desafíos éticos y técnicos que enfrentan los psicólogos al integrar herramientas digitales en la intervención clínica, con enfoque en poblaciones urbanas de Puebla.
-                </p>
-            </header>
-
-            <hr class="separador">
-
-            <div class="articulo-contenido">
-                <h2>1. Introducción</h2>
-                <p>La digitalización de la salud mental ha transformado radicalmente los canales de contacto entre profesional y paciente. En Puebla, donde la brecha digital se cruza con la demanda de servicios psicológicos accesibles, es fundamental analizar cómo la tecnología puede potenciar —o complicar— la relación terapéutica.</p>
-
-                <h2>2. Marco Teórico</h2>
-                <p>Diversos autores sostienen que la teleintervención no solo es viable, sino necesaria cuando se respetan protocolos de confidencialidad, consentimiento informado y límites profesionales claros. La literatura reciente destaca que la eficacia clínica se mantiene siempre que se adapten las técnicas a entornos virtuales.</p>
-
-                <h3>2.1 Regulación en México</h3>
-                <p>La NOM-024-SSA3-2012 y los lineamientos del Consejo Nacional de Ciencia y Tecnología establecen criterios mínimos para el manejo de datos clínicos digitales. Sin embargo, muchos profesionales aún carecen de formación técnica para garantizar la seguridad de la información.</p>
-
-                <h2>3. Reflexión Final</h2>
-                <p>La tecnología no reemplaza la empatía clínica, pero sí exige una actualización constante en competencias digitales. Como red académica, PsycheNudo promueve la formación ética y técnica para una práctica responsable en la era digital.</p>
-            </div>
-
-            <hr class="separador">
-
-            <footer class="articulo-footer">
-                <h3>📚 Referencias</h3>
-                <ol>
-                    <li>APA (2023). <em>Guidelines for the Practice of Telepsychology</em>. American Psychological Association.</li>
-                    <li>Secretaría de Salud (2021). <em>Lineamientos para la telemedicina en México</em>.</li>
-                    <li>CONACyT (2022). <em>Ética en la investigación con tecnologías de la información</em>.</li>
-                </ol>
-
-                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
-                    <p><strong>👤 Sobre el autor:</strong> Psicólogo Clínico y Catedrático. Cédula Profesional: XXXXXXXX</p>
-                    <a href="https://linkedin.com/in/tu-perfil" class="boton" target="_blank">Ver perfil profesional</a>
-                </div>
-            </footer>
-
-            <hr class="separador">
-
-            <section class="comentarios">
-                <h3>💬 Comentarios</h3>
-                <p>Los comentarios directos están temporalmente deshabilitados porque la integración con giscus no pudo establecer conexión. Si quieres dejar tu opinión o proponer una colaboración, usa GitHub Discussions:</p>
-                <a href="https://github.com/PsycheNudo-Puebla/psychenudo-puebla.github.io/discussions" class="boton" target="_blank">Ir a GitHub Discussions</a>
-            </section>
-        </article>
-    </div>
-
-    <footer class="site-footer">
-        <p>PsycheNudo Puebla &copy; 2026 | <a href="../index.html">Volver al inicio</a></p>
-        <p style="font-size: 0.85rem; margin-top: 15px; color: var(--color-texto-claro); max-width: 800px; margin-left: auto; margin-right: auto; line-height: 1.4;">
-            <strong>Aviso Legal:</strong> PsycheNudo Puebla es una plataforma de difusión académica y gremial. 
-            El contenido de los artículos y perfiles es responsabilidad exclusiva de sus autores y no constituye supervisión clínica. 
-            Se recomienda al usuario verificar la vigencia de las cédulas profesionales en el Registro Nacional de Profesionistas.
-        </p>
-    </footer>
-
-</body>
-</html>
+---
+layout: articulo
+title: "El impacto de la tecnología en la práctica clínica contemporánea"
+autor: "Mtro. Adrián González"
+fecha: "12 de marzo, 2026"
+categoria: "Ética y Telepsicología"
+resumen: "Este artículo explora los desafíos éticos y técnicos que enfrentan los psicólogos al integrar herramientas digitales en la intervención clínica, con enfoque en poblaciones urbanas de Puebla."
+sobre_autor: "Psicólogo Clínico y Catedrático. Cédula Profesional: XXXXXXXX"
+perfil_link: "https://linkedin.com/in/tu-perfil"
+referencias: |
+  1. APA (2023). *Guidelines for the Practice of Telepsychology*. American Psychological Association.
+  2. Secretaría de Salud (2021). *Lineamientos para la telemedicina en México*.
+  3. CONACyT (2022). *Ética en la investigación con tecnologías de la información*.
+---
+{% include_relative _articulos/tecnologia-clinica.md %}

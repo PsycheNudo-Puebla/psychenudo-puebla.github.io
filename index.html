@@ -9,8 +9,8 @@
 <body>
 
     <header class="site-header">
-        <a href="index.html" class="logo-link">
-            <img src="assets/logo-psychenudo.png" alt="PsycheNudo Puebla - Inicio" class="logo-img">
+        <a href="{{ '/' | relative_url }}" class="logo-link">
+            <img src="{{ '/assets/logo-psychenudo.png' | relative_url }}" alt="PsycheNudo Puebla - Inicio" class="logo-img">
         </a>
         <p>Nodo de Difusión Académica, Tecnología Educativa y Ética Clínica</p>
     </header>
@@ -51,46 +51,28 @@
                 <p>Colaboradores validados para atención y orientación:</p>
 
                 <div class="grid-colegas">
-                    <div class="tarjeta-colega">
-                        <h3>Mtro. Adrián González</h3>
-                        <p class="especialidad-colega">Psicólogo Clínico · Catedrático Universitario · Innovador en Tecnología Educativa</p>
-                        <p>Maestro en Psicoanálisis y Cultura con licenciatura en Psicología General. Mi labor se centra en la intersección de la clínica, la docencia y la innovación tecnológica en Puebla, México.</p>
-                        <p><strong>Invitado por:</strong> el equipo de PsycheNudo Puebla</p>
-                        <p><strong>Cédula Profesional:</strong> 12345678</p>
-                        <button class="boton" type="button" data-toggle="perfil-detalle">Ver perfil completo</button>
-                        <a href="https://www.linkedin.com/in/adrian-gonzalez-3b725b318" class="boton boton-secundario" target="_blank">Trayectoria Profesional</a>
-                        <div id="perfil-detalle" style="display: none; margin-top: 20px; padding: 18px; background: #ffffff; border-radius: 10px; border: 1px solid #d9e7e0;">
-                            <p>Mi trabajo combina investigación aplicada y formación profesional para fortalecer comunidades educativas y clínicas. Desarrollo herramientas digitales para gestión clínica y gamificación del aprendizaje.</p>
-                            <p>Mi enfoque privilegia el rigor ético, la pluralidad metodológica y el diálogo entre psicologías clínicas, educativas y tecnológicas.</p>
+                    {% assign colegas = site.profesionales | sort: 'nombre' %}
+                    {% for colega in colegas %}
+                    <article class="tarjeta-colega">
+                        <h3>{{ colega.nombre }}</h3>
+                        <p class="especialidad-colega">{{ colega.especialidad }}</p>
+                        <p>{{ colega.content | strip_html | truncatewords: 25 }}</p>
+                        <p><strong>Invitado por:</strong> {{ colega.invitado_por }}</p>
+                        <p><strong>Cédula:</strong> {{ colega.cedula }}</p>
+                        
+                        <div class="acciones-tarjeta">
+                            <button class="boton" type="button" data-toggle="perfil-{{ colega.nombre | slugify }}">Detalles</button>
+                            {% if colega.external_url %}
+                            <a href="{{ colega.external_url }}" class="boton boton-secundario" target="_blank">Trayectoria</a>
+                            {% endif %}
                         </div>
-                    </div>
 
-                    <div class="tarjeta-colega">
-                        <h3>Clínica Kieri</h3>
-                        <p class="especialidad-colega">Atención Psicológica y Salud Mental</p>
-                        <p>Institución dedicada a la salud emocional en Puebla, enfocada en la práctica clínica ética y el bienestar integral de la comunidad.</p>
-                        <p><strong>Invitado por:</strong> Mtro. Adrián González</p>
-                        <p><strong>Cédula Profesional:</strong> Institucional</p>
-                        <button class="boton" type="button" data-toggle="perfil-kieri">Ver perfil completo</button>
-                        <a href="https://www.linkedin.com/in/cl%C3%ADnica-kieri-undefined-0b1430404/" class="boton boton-secundario" target="_blank">Trayectoria Profesional</a>
-                        <div id="perfil-kieri" style="display: none; margin-top: 20px; padding: 18px; background: #ffffff; border-radius: 10px; border: 1px solid #d9e7e0;">
-                            <p>Clínica Kieri ofrece un espacio de acompañamiento profesional especializado. Su labor contribuye al fortalecimiento del nudo académico y clínico en la región mediante un enfoque interdisciplinario.</p>
+                        <div id="perfil-{{ colega.nombre | slugify }}" style="display: none; margin-top: 20px; padding: 18px; background: #ffffff; border-radius: 10px; border: 1px solid #d9e7e0;">
+                            {{ colega.content }}
+                            <p style="margin-top:15px;"><a href="{{ colega.url | relative_url }}">Ir a página de perfil individual →</a></p>
                         </div>
-                    </div>
-
-                    <div class="tarjeta-colega">
-                        <h3>Javier Bermúdez Bermúdez</h3>
-                        <p class="especialidad-colega">Psicología Clínica y Salud Mental</p>
-                        <p>Javier Bermúdez Bermúdez es un profesional de la psicología enfocado en la intervención clínica y el desarrollo de estrategias para el bienestar emocional.</p>
-                        <p><strong>Invitado por:</strong> Mtro. Adrián González</p>
-                        <p><strong>Cédula Profesional:</strong> XXXXXXXX</p>
-                        <button class="boton" type="button" data-toggle="perfil-javier">Ver perfil completo</button>
-                        <a href="https://www.linkedin.com/in/javier-bermudez-bermudez-608253162" class="boton boton-secundario" target="_blank">Trayectoria Profesional</a>
-                        <div id="perfil-javier" style="display: none; margin-top: 20px; padding: 18px; background: #ffffff; border-radius: 10px; border: 1px solid #d9e7e0;">
-                            <p>Javier Bermúdez Bermúdez es un profesional de la psicología enfocado en la intervención clínica y el desarrollo de estrategias para el bienestar emocional. Su práctica se distingue por un enfoque ético y humano, orientado a brindar herramientas prácticas para el manejo de la salud mental en diversos contextos.</p>
-                            <p>A través de su colaboración en PsycheNudo Puebla, Javier busca contribuir al intercambio de conocimientos y al fortalecimiento de redes profesionales que permitan elevar la calidad de la atención psicológica en la comunidad, promoviendo siempre una práctica basada en la evidencia y el respeto profesional.</p>
-                        </div>
-                    </div>
+                    </article>
+                    {% endfor %}
                 </div>
 
                 <div id="nudo-content" style="margin-top: 30px; padding: 32px; background: #f3fcf8; border-radius: 12px; border-left: 4px solid var(--color-secundario);">
@@ -122,10 +104,12 @@
                 <p>Textos de divulgación y reflexión clínica. Haz clic en el título para leer en pantalla.</p>
                 <input type="text" id="busqueda-articulos" placeholder="Buscar artículos..." style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px;">
                 <ul class="lista-articulos" id="lista-articulos">
+                    {% for articulo in site.articulos %}
                     <li>
-                        📄 <a href="articulos/tecnologia-clinica.html">El impacto de la tecnología en la práctica clínica contemporánea</a>
-                        <small>Mtro. Adrián González · Marzo 2026 · Ética y Telepsicología</small>
+                        📄 <a href="{{ articulo.url | relative_url }}">{{ articulo.title }}</a>
+                        <small>{{ articulo.autor }} · {{ articulo.fecha }} · {{ articulo.categoria }}</small>
                     </li>
+                    {% endfor %}
                 </ul>
                 <div style="margin-top: 30px; padding: 20px; background: #f0f4f8; border-radius: 8px; border-left: 4px solid var(--color-primario);">
                     <h3 style="color: var(--color-primario); margin-top: 0;">¿Quieres publicar con nosotros?</h3>
