@@ -23,6 +23,13 @@ layout: default
                 <span>Cédula Profesional:</span>
                 <strong>{{ page.cedula }}</strong>
             </div>
+            <div class="tarjeta-colega__verificar tarjeta-colega__verificar--perfil">
+                <span class="tarjeta-colega__verificar-label">Verificación manual</span>
+                <div class="verificacion-enlaces verificacion-enlaces--tarjeta" role="navigation" aria-label="Registros oficiales">
+                    <a href="https://www.cedulaprofesional.sep.gob.mx/cedula/presidencia/indexAvanzada.action" class="boton-verificacion boton-verificacion--compact" target="_blank" rel="noopener noreferrer">Cédula SEP</a>
+                    <a href="https://redam.puebla.gob.mx/" class="boton-verificacion boton-verificacion--compact" target="_blank" rel="noopener noreferrer">REDAM Puebla</a>
+                </div>
+            </div>
             {% if page.external_url %}
             <a href="{{ page.external_url }}" class="boton perfil-boton">Ver trayectoria completa</a>
             {% endif %}

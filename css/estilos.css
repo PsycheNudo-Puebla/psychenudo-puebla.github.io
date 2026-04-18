@@ -9,6 +9,8 @@
     --borde-suave: #d9e7e0;
     --fuente-ui: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     --fuente-cuerpo: Georgia, 'Times New Roman', serif;
+    /* Mismo ancho visual para encabezado, contenido y pie */
+    --ancho-layout: min(1180px, 100%);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -21,18 +23,23 @@ body {
     padding: 20px;
 }
 
-/* ===== ENCABEZADO ===== */
-header.site-header {
-    background: linear-gradient(135deg, var(--color-primario) 0%, var(--color-secundario) 100%);
-    color: var(--blanco);
-    padding: 40px 20px;
-    text-align: center;
-    border-radius: 0;
-    margin-bottom: 20px;
-    max-width: 100%;
+.layout-shell {
+    width: 100%;
+    max-width: var(--ancho-layout);
     margin-left: auto;
     margin-right: auto;
-    box-shadow: 0 6px 20px rgba(13, 43, 84, 0.2);
+}
+
+/* ===== ENCABEZADO ===== */
+header.site-header {
+    background: linear-gradient(135deg, var(--color-primario) 0%, #1a4a7a 42%, var(--color-secundario) 100%);
+    color: var(--blanco);
+    padding: 40px 28px;
+    text-align: center;
+    border-radius: 20px;
+    margin-bottom: 24px;
+    width: 100%;
+    box-shadow: 0 10px 40px rgba(13, 43, 84, 0.22);
 }
 header.site-header .logo-link {
     display: flex;
@@ -72,12 +79,12 @@ nav.site-nav {
     margin-bottom: 30px;
     background: var(--blanco);
     padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(13, 43, 84, 0.06);
     position: sticky;
     top: 10px;
     z-index: 100;
-    max-width: 900px;
+    max-width: var(--ancho-layout);
     margin-left: auto;
     margin-right: auto;
 }
@@ -95,12 +102,13 @@ nav.site-nav a:hover { background-color: #ecf0f1; }
 /* ===== CONTENEDOR PRINCIPAL ===== */
 .contenedor {
     background: var(--blanco);
-    padding: 40px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    max-width: 900px;
-    margin-left: auto;
-    margin-right: auto;
+    padding: clamp(28px, 4vw, 48px);
+    border-radius: 20px;
+    box-shadow:
+        0 1px 2px rgba(13, 43, 84, 0.04),
+        0 12px 40px rgba(13, 43, 84, 0.08);
+    width: 100%;
+    border: 1px solid rgba(13, 43, 84, 0.06);
 }
 
 .seccion { margin-bottom: 60px; scroll-margin-top: 100px; }
@@ -121,11 +129,56 @@ nav.site-nav a:hover { background-color: #ecf0f1; }
     margin-bottom: 30px;
 }
 .grid-colegas .tarjeta-colega {
-    background: #f3fcf8;
+    background: linear-gradient(180deg, #fbfffe 0%, #f3fcf8 100%);
     border: 1px solid var(--borde-suave);
     border-left: 4px solid var(--color-secundario);
+    border-radius: 14px;
     display: flex;
     flex-direction: column;
+    transition: box-shadow 0.25s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+.grid-colegas .tarjeta-colega:hover {
+    box-shadow: 0 10px 32px rgba(13, 43, 84, 0.1);
+    transform: translateY(-2px);
+    border-color: rgba(95, 216, 182, 0.45);
+}
+.acciones-tarjeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+}
+.grid-colegas .tarjeta-colega .acciones-tarjeta {
+    margin-top: auto;
+}
+.tarjeta-colega__verificar {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--borde-suave);
+}
+.tarjeta-colega__verificar--perfil {
+    margin-top: 0;
+    padding: 16px;
+    background: var(--blanco);
+    border-radius: 10px;
+    border: 1px solid var(--borde-suave);
+}
+.tarjeta-colega__verificar-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-texto-claro);
+    margin-bottom: 8px;
+}
+.verificacion-enlaces--tarjeta {
+    justify-content: flex-start;
+    gap: 8px;
+}
+.boton-verificacion--compact {
+    padding: 6px 12px;
+    font-size: 0.78rem;
 }
 .grid-colegas .tarjeta-colega h3 {
     margin-top: 0;
@@ -143,14 +196,19 @@ nav.site-nav a:hover { background-color: #ecf0f1; }
     margin-bottom: 12px;
 }
 .grid-colegas .tarjeta-colega p {
-    flex-grow: 1;
     font-size: 0.95rem;
     color: var(--color-texto-claro);
     margin-bottom: 10px;
 }
+.grid-colegas .tarjeta-colega p.especialidad-colega {
+    flex-grow: 0;
+}
+/* El resumen ocupa el espacio flexible entre datos y acciones */
+.grid-colegas .tarjeta-colega > p:nth-of-type(2) {
+    flex-grow: 1;
+}
 .grid-colegas .tarjeta-colega .boton {
     align-self: flex-start;
-    margin-top: auto;
 }
 .boton {
     display: inline-block;
@@ -223,11 +281,12 @@ nav.site-nav a:hover { background-color: #ecf0f1; }
 
 /* ===== IDENTIDAD ===== */
 .identidad {
-    background: #ffffff;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.06);
+    background: linear-gradient(180deg, #ffffff 0%, #fafcfb 100%);
+    padding: clamp(22px, 3vw, 36px);
+    border-radius: 16px;
+    box-shadow: 0 2px 20px rgba(13, 43, 84, 0.06);
     margin-bottom: 30px;
+    border: 1px solid var(--borde-suave);
 }
 .identidad h2 {
     color: var(--color-primario);
@@ -433,14 +492,14 @@ nav.site-nav a:hover { background-color: #ecf0f1; }
 /* ===== FOOTER ===== */
 footer.site-footer {
     text-align: center;
-    margin-top: 50px;
+    margin-top: 40px;
     font-size: 0.9em;
     color: var(--color-texto-claro);
     border-top: 1px solid var(--borde-suave);
-    padding-top: 24px;
-    max-width: 900px;
-    margin-left: auto;
-    margin-right: auto;
+    padding-top: 28px;
+    width: 100%;
+    padding-left: clamp(8px, 2vw, 16px);
+    padding-right: clamp(8px, 2vw, 16px);
 }
 .site-footer__marca {
     margin-bottom: 8px;
@@ -465,8 +524,12 @@ footer.site-footer {
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
+    .bloque-identidad {
+        grid-template-columns: 1fr;
+    }
     header.site-header {
         padding: 30px 15px;
+        border-radius: 16px;
     }
     header.site-header .logo-img {
         max-width: 250px;

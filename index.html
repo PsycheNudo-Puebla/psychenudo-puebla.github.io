@@ -34,16 +34,7 @@ title: Inicio
 
     <section id="nudo" class="tab-content" role="tabpanel">
         <h2>El Nudo (Red de Profesionales)</h2>
-        <p>Colaboradores validados para atención y orientación:</p>
-
-        <div class="verificacion-bloque">
-            <p class="verificacion-bloque__titulo">Verificación profesional</p>
-            <p class="verificacion-bloque__texto">Consulta los registros oficiales antes de acudir a un profesional.</p>
-            <div class="verificacion-enlaces" role="navigation" aria-label="Canales oficiales de verificación">
-                <a href="https://www.cedulaprofesional.sep.gob.mx/cedula/presidencia/indexAvanzada.action" class="boton-verificacion" target="_blank" rel="noopener noreferrer">Cédula SEP</a>
-                <a href="https://redam.puebla.gob.mx/" class="boton-verificacion" target="_blank" rel="noopener noreferrer">REDAM Puebla</a>
-            </div>
-        </div>
+        <p>Colaboradores validados para atención y orientación. En cada tarjeta puedes abrir los registros oficiales para comprobar cédula y REDAM.</p>
 
         <div class="grid-colegas">
             {% assign colegas = site.profesionales | sort: 'nombre' %}
@@ -60,6 +51,14 @@ title: Inicio
                     {% if colega.external_url %}
                     <a href="{{ colega.external_url }}" class="boton boton-secundario" target="_blank">Trayectoria</a>
                     {% endif %}
+                </div>
+
+                <div class="tarjeta-colega__verificar">
+                    <span class="tarjeta-colega__verificar-label">Verificación manual</span>
+                    <div class="verificacion-enlaces verificacion-enlaces--tarjeta" role="navigation" aria-label="Registros oficiales">
+                        <a href="https://www.cedulaprofesional.sep.gob.mx/cedula/presidencia/indexAvanzada.action" class="boton-verificacion boton-verificacion--compact" target="_blank" rel="noopener noreferrer">Cédula SEP</a>
+                        <a href="https://redam.puebla.gob.mx/" class="boton-verificacion boton-verificacion--compact" target="_blank" rel="noopener noreferrer">REDAM Puebla</a>
+                    </div>
                 </div>
 
                 <div id="perfil-{{ colega.nombre | slugify }}" style="display: none; margin-top: 20px; padding: 18px; background: #ffffff; border-radius: 10px; border: 1px solid #d9e7e0;">
