@@ -3,116 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mtro. Adrián González | PsycheNudo Puebla</title>
-    <link rel="stylesheet" href="css/estilos.css">
+    <title>Mtro. Alfredo Adrián González Lazcano | Psicólogo Clínico</title>
     <style>
-        /* Estilos específicos para resaltar tu perfil */
-        .foto-perfil {
-            width: 150px;
-            height: 150px;
-            background-color: #34495e;
-            border-radius: 50%;
-            margin: 0 auto 20px;
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --bg-light: #f8f9fa;
+            --text-main: #333;
+            --text-muted: #666;
+            --white: #ffffff;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --radius: 10px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.65;
+            color: var(--text-main);
+            background-color: var(--bg-light);
+        }
+
+        a { color: var(--accent); text-decoration: none; transition: color 0.3s; }
+        a:hover { color: #1d6fa5; text-decoration: underline; }
+
+        .container { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+
+        /* Header */
+        header {
+            background: var(--white);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 1rem 0;
+        }
+        nav { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .logo { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
+        .nav-links { display: flex; gap: 1.5rem; }
+        .nav-links a { color: var(--text-main); font-weight: 500; }
+        .nav-links a:hover { color: var(--accent); text-decoration: none; }
+
+        /* Hero / Perfil */
+        .hero {
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 3rem;
-            border: 5px solid white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            gap: 2rem;
+            padding: 3rem 0;
+            border-bottom: 1px solid #e0e0e0;
         }
-        .boton-discord {
+        .profile-photo {
+            flex: 0 0 220px;
+            text-align: center;
+        }
+        .profile-photo img {
+            width: 100%;
+            max-width: 220px;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid var(--white);
+            box-shadow: var(--shadow);
+        }
+        .hero-text h1 { font-size: 2rem; color: var(--primary); margin-bottom: 0.3rem; }
+        .hero-text h2 { font-size: 1.15rem; color: var(--text-muted); font-weight: 400; margin-bottom: 1rem; }
+
+        /* Sections */
+        section {
+            background: var(--white);
+            margin: 2rem 0;
+            padding: 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+        h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent);
             display: inline-block;
-            background-color: #5865F2; /* Color oficial de Discord */
-            color: white;
-            padding: 18px 35px;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4);
-            margin-top: 20px;
         }
-        .boton-discord:hover {
-            background-color: #4752c4;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(88, 101, 242, 0.6);
+        ul { margin-left: 1.2rem; margin-bottom: 1rem; }
+        li { margin-bottom: 0.6rem; }
+        p { margin-bottom: 1rem; }
+        .highlight { font-weight: 600; color: var(--primary); }
+
+        /* Grid for Location & Social */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        @media (max-width: 768px) { 
+            .grid-2 { grid-template-columns: 1fr; } 
+            .hero { flex-direction: column; text-align: center; }
+            .nav-links { gap: 1rem; font-size: 0.9rem; }
         }
-        .bio-profesional {
-            text-align: left;
-            background: #f9f9f9;
-            padding: 25px;
-            border-left: 5px solid #2c3e50;
-            border-radius: 4px;
+
+        .location-box {
+            background: #f0f4f8;
+            border: 2px dashed #cbd5e0;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            text-align: center;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
+        .location-box .address { font-weight: 600; margin: 0.5rem 0; }
+        .location-box a.btn-map {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.6rem 1.2rem;
+            background: var(--accent);
+            color: var(--white);
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .location-box a.btn-map:hover { background: #2980b9; text-decoration: none; }
+
+        .social-box {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .social-links { display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; }
+        .social-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.7rem 1.2rem;
+            background: var(--primary);
+            color: var(--white);
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        .social-btn:hover { background: var(--accent); color: var(--white); text-decoration: none; }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2.5rem 0;
+            color: var(--text-muted);
+            border-top: 1px solid #e0e0e0;
+            margin-top: 2rem;
+        }
+        blockquote {
+            font-style: italic;
+            border-left: 4px solid var(--accent);
+            padding-left: 1rem;
+            margin: 1.5rem auto;
+            max-width: 600px;
+            color: #444;
+        }
+        .disclaimer { font-size: 0.85rem; color: #888; margin-top: 1rem; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="foto-perfil">A</div>
-        <h1>Mtro. Adrián González</h1>
-        <p>Psicólogo Clínico | Catedrático Universitario | Desarrollador de Software</p>
+        <div class="container">
+            <nav>
+                <div class="logo">PsycheNudo Puebla</div>
+                <div class="nav-links">
+                    <a href="#formacion">Formación</a>
+                    <a href="#practica">Práctica</a>
+                    <a href="#experiencia">Experiencia</a>
+                    <a href="#ubicacion">Ubicación</a>
+                    <a href="#redes">Redes</a>
+                </div>
+            </nav>
+        </div>
     </header>
 
-    <nav>
-        <a href="index.html">← Volver al Inicio</a>
-        <a href="#proyectos">Proyectos</a>
-        <a href="#comunidad">Comunidad</a>
-    </nav>
-
-    <main class="contenedor">
-        <section class="seccion">
-            <h2>Perfil Profesional</h2>
-            <div class="bio-profesional">
-                <p>Maestro en Psicoanálisis y Cultura con licenciatura en Psicología General. Mi labor se centra en la intersección de la clínica, la docencia y la innovación tecnológica en <strong>Puebla, México</strong>.</p>
-                <p>Actualmente desarrollo herramientas digitales para la gestión clínica y la gamificación del aprendizaje, buscando fortalecer los nudos académicos entre colegas y estudiantes.</p>
+    <main class="container">
+        <!-- Perfil y Formación -->
+        <section class="hero" id="formacion">
+            <div class="profile-photo">
+                <img src="foto-adrian.jpeg" alt="Mtro. Alfredo Adrián González Lazcano">
+            </div>
+            <div class="hero-text">
+                <h1>Mtro. Alfredo Adrián González Lazcano</h1>
+                <h2>Psicólogo Clínico | Especialista en Psicoanálisis y Cultura</h2>
+                
+                <h3>Formación Académica</h3>
+                <ul>
+                    <li>Licenciatura en Psicología General (ELP).</li>
+                    <li>Maestría en Psicoanálisis y Cultura (UPAEP).</li>
+                    <li>Participante activo en congresos de salud mental (INPRFM).</li>
+                    <li>Certificación por la OPS en Prevención de Autolesión y Suicidio.</li>
+                </ul>
             </div>
         </section>
 
-        <section id="comunidad" class="seccion" style="text-align: center;">
-            <h2>Nodo de Discusión</h2>
-            <p>He creado un espacio en tiempo real para asesorías, debate ético y colaboración profesional. Puedes unirte directamente aquí:</p>
-            
-            <a href="https://discord.gg/7dD7QNDA" class="boton-discord" target="_blank">
-                💬 Entrar al Discord de PsycheNudo
-            </a>
-            
-            <p style="margin-top: 15px; font-size: 0.9rem; color: #666;">
-                *No necesitas descargar nada, puedes entrar desde tu navegador.
-            </p>
+        <!-- Sobre mi práctica -->
+        <section id="practica">
+            <h3>Sobre mi práctica</h3>
+            <p><span class="highlight">Áreas de Acompañamiento Terapéutico:</span><br>
+            Mi práctica se centra en el estudio de la subjetividad y el malestar psíquico. Acompaño procesos relacionados con:</p>
+            <ul>
+                <li><strong>Procesos de Autoconocimiento:</strong> Exploración de la propia narrativa y el deseo auténtico.</li>
+                <li><strong>Dinámicas Vinculares:</strong> Análisis de patrones recurrentes en relaciones personales y profesionales.</li>
+                <li><strong>Elaboración de Duelo y Trauma:</strong> Espacio seguro para el procesamiento de pérdidas y vivencias de alto impacto emocional.</li>
+                <li><strong>Conflictos de la Identidad y el Deseo:</strong> Abordaje de la ambivalencia frente a decisiones vitales y crisis existenciales.</li>
+                <li><strong>Gestión del Malestar Subjetivo:</strong> Trabajo sobre sentimientos de culpa, angustia o vacío que interfieren en la plenitud del individuo.</li>
+            </ul>
         </section>
 
-        <hr>
-
-        <section id="comentarios" class="seccion">
-            <h3>Foro de Consultas</h3>
-            <p>Si tienes alguna duda académica o profesional, puedes dejarla aquí abajo. (Requiere cuenta de GitHub).</p>
-            
-            <div id="giscus-container">
-                <div class="giscus"></div>
-                <script src="https://giscus.app/client.js"
-                        data-repo="PsycheNudo-Puebla/psychenudo-puebla.github.io"
-                        data-repo-id="R_kgDOSDvR4w"
-                        data-category="General"
-                        data-category-id="DIC_kwDOSDvR484C6_US"
-                        data-mapping="pathname"
-                        data-strict="0"
-                        data-reactions-enabled="1"
-                        data-emit-metadata="0"
-                        data-input-position="bottom"
-                        data-theme="preferred_color_scheme"
-                        data-lang="es"
-                        crossorigin="anonymous"
-                        async>
-                </script>
-            </div>
+        <!-- La Experiencia Terapéutica -->
+        <section id="experiencia">
+            <h3>La Experiencia Terapéutica (Cómo es trabajar conmigo)</h3>
+            <p><strong>La consulta: Un espacio para la palabra</strong><br>
+            Mi enfoque prioriza la creación de un encuadre seguro y estrictamente confidencial. Bajo la premisa de la asociación libre, invito a la persona a hablar sin censura, permitiendo que emerjan aquellos elementos inconscientes que configuran su realidad actual.</p>
+            <p>No busco soluciones estandarizadas ni "recetas" de bienestar. El proceso conmigo es un camino hacia la autonomía emocional, donde a través de la escucha y la interpretación, trabajamos para desanudar patrones repetitivos y fortalecer la posición del sujeto frente a su propio deseo.</p>
         </section>
+
+        <!-- Perspectiva Personal y Aficiones -->
+        <section id="perspectiva">
+            <h3>Perspectiva Personal y Aficiones</h3>
+            <p><strong>El valor de la propia terapia</strong><br>
+            Para mí, la psicoterapia ha sido el eje de mi propia transformación. El psicoanálisis me ha permitido tolerar la complejidad de la mente humana y cultivar una autenticidad que hoy es el pilar de mi ética profesional. Entiendo la terapia no solo como un recurso ante el dolor, sino como una herramienta de libertad.</p>
+            <p><strong>Intereses:</strong><br>
+            Fuera de la clínica, soy un apasionado de la intersección entre el arte, la filosofía y la tecnología. Disfruto escribir sobre la condición humana y participar en seminarios de psicología profunda que mantengan mi escucha siempre actualizada.</p>
+        </section>
+
+        <!-- Ubicación y Redes -->
+        <div class="grid-2" id="ubicacion-redes">
+            <section id="ubicacion">
+                <h3>Ubicación del Consultorio</h3>
+                <div class="location-box">
+                    <p>📍 <span class="address">Calle 7 Sur 1507, Col. Centro, Puebla, Pue.</span></p>
+                    <p style="font-size: 0.9rem; color: #666;">Fácil acceso, zona céntrica con estacionamientos cercanos.</p>
+                    <!-- Enlace directo a Google Maps -->
+                    <a class="btn-map" href="https://www.google.com/maps/search/?api=1&query=7+Sur+1507+Centro+Puebla+Pue" target="_blank" rel="noopener noreferrer">Ver en Google Maps</a>
+                </div>
+            </section>
+
+            <section id="redes">
+                <h3>Redes Profesionales</h3>
+                <p>Conéctate para contenido, artículos y novedades:</p>
+                <div class="social-links">
+                    <!-- Reemplaza los # con tus enlaces reales -->
+                    <a href="#" class="social-btn" target="_blank" rel="noopener noreferrer">🔗 LinkedIn</a>
+                    <a href="#" class="social-btn" target="_blank" rel="noopener noreferrer">🎵 TikTok</a>
+                </div>
+            </section>
+        </div>
     </main>
 
-    <footer style="text-align: center; padding: 20px; color: #666;">
-        <p>PsycheNudo Puebla © 2026 - Difusión Académica y Tecnológica</p>
+    <!-- Footer / Cierre -->
+    <footer>
+        <div class="container">
+            <blockquote>"Explorar el inconsciente es abrir puertas hacia la libertad emocional."</blockquote>
+            <p class="disclaimer">
+                Aviso importante: Este perfil es de carácter informativo y profesional. El seguimiento terapéutico requiere de un encuadre clínico formal y no se sustituye por la información aquí expuesta.
+            </p>
+            <p style="margin-top: 1rem; font-size: 0.85rem;">PsycheNudo Puebla © 2026 - Difusión Académica y Tecnológica</p>
+        </div>
     </footer>
 
 </body>
