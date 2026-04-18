@@ -11,11 +11,32 @@ layout: default
     </div>
 
     <div id="mision" class="tab-content active">
-        <section class="seccion">
-            <h2>Nuestra Misión</h2>
-            <p>Un espacio dedicado a la divulgación científica y tecnológica en el área de la salud mental. En <strong>PsycheNudo Puebla</strong>, conectamos la formación académica universitaria con la responsabilidad social, ofreciendo recursos validados y una red de profesionales éticos.</p>
-        </section>
+        <div class="identidad">
+            <h2>Acerca de PsycheNudo Puebla</h2>
+            <div class="bloque-identidad">
+                <div class="bloque-texto">
+                    <h3>Un Nudo de Conocimiento y Conexión</h3>
+                    <p>En PsycheNudo Puebla, creemos firmemente en la intersección entre la academia, la tecnología y la responsabilidad social. Somos un punto de encuentro para profesionales y estudiantes de psicología, comprometidos con la difusión de conocimiento validado y la creación de una red de apoyo mutuo en la región.</p>
+                    <p>Nuestra plataforma busca trascender las aulas, llevando la teoría a la práctica y fomentando un espacio para el diálogo ético y la innovación en el campo de la salud mental.</p>
+                </div>
+                <div class="mision-vision">
+                    <div class="tarjeta-identidad">
+                        <h3>Nuestra Misión</h3>
+                        <p>Ser un epicentro para la divulgación científica y tecnológica en salud mental, conectando la formación universitaria con el compromiso social y ofreciendo recursos validados por profesionales éticos.</p>
+                    </div>
+                    <div class="tarjeta-identidad">
+                        <h3>Nuestra Visión</h3>
+                        <p>Promover una comunidad informada y conectada de profesionales en psicología en Puebla, impulsando prácticas innovadoras y éticas que impacten positivamente en el bienestar de la sociedad.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <section id="mas-alla-escuelas" class="seccion">
+            <h2>Más allá de las Escuelas</h2>
+            <p>PsycheNudo Puebla es un proyecto que nace de la necesidad de expandir el conocimiento psicológico más allá de los confines académicos. Buscamos fomentar una cultura de aprendizaje continuo y colaboración entre la comunidad profesional, integrando las nuevas tecnologías como herramientas para el desarrollo y la difusión del saber. Nuestro objetivo es crear un puente entre la investigación y la aplicación práctica, beneficiando tanto a estudiantes como a profesionales y, en última instancia, a la sociedad poblana.</p>
+        </section>
+        
         <section id="comunidad" class="seccion">
             <h2>Comunidad Profesional</h2>
             <p>Únete a nuestras discusiones y comparte experiencias con colegas.</p>
