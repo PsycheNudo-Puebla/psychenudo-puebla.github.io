@@ -2,7 +2,7 @@
 layout: articulo
 title: "El impacto de la tecnología en la práctica clínica contemporánea"
 autor: "Mtro. Adrián González"
-fecha: "12 de marzo, 2026"
+date: 2026-03-12
 categoria: "Ética y Telepsicología"
 resumen: "Este artículo explora los desafíos éticos y técnicos que enfrentan los psicólogos al integrar herramientas digitales en la intervención clínica, con enfoque en poblaciones urbanas de Puebla."
 sobre_autor: "Psicólogo Clínico y Catedrático. Cédula Profesional: XXXXXXXX"

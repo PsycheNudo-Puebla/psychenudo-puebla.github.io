@@ -1,192 +1,184 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PsycheNudo Puebla | Red de Difusión</title>
-    <link rel="stylesheet" href="css/estilos.css">
-</head>
-<body>
+---
+layout: default
+title: Inicio
+---
+<div class="tabs-panel">
+    <div class="tabs" role="tablist" aria-label="Secciones principales">
+        <button class="tab active" data-tab="mision" type="button">Misión</button>
+        <button class="tab" data-tab="nudo" type="button">Nudo</button>
+        <button class="tab" data-tab="recursos" type="button">Recursos</button>
+        <button class="tab" data-tab="articulos" type="button">Artículos</button>
+    </div>
 
-    <header class="site-header">
-        <a href="{{ '/' | relative_url }}" class="logo-link">
-            <img src="{{ '/assets/logo-psychenudo.png' | relative_url }}" alt="PsycheNudo Puebla - Inicio" class="logo-img">
-        </a>
-        <p>Nodo de Difusión Académica, Tecnología Educativa y Ética Clínica</p>
-    </header>
-
-    <main class="contenedor">
-        <div class="tabs-panel">
-            <div class="tabs" role="tablist" aria-label="Secciones principales">
-                <button class="tab active" data-tab="mision" type="button">Misión</button>
-                <button class="tab" data-tab="nudo" type="button">Nudo</button>
-                <button class="tab" data-tab="recursos" type="button">Recursos</button>
-                <button class="tab" data-tab="articulos" type="button">Artículos</button>
+    <section id="mision" class="tab-content active" role="tabpanel">
+        <section class="identidad">
+            <h2>Un Espacio de Encuentro Profesional</h2>
+            <div class="bloque-identidad">
+                <div class="bloque-texto">
+                    <h3>Más allá de las Escuelas: El Diálogo Ético</h3>
+                    <p>En <strong>PsycheNudo Puebla</strong>, dejamos de lado el conflicto de egos. Reconocemos que la psicología es una disciplina compleja que requiere pluralidad. Aquí, el rigor no nace de la imposición de un método sobre otro, sino del cuestionamiento constante de nuestra propia práctica y objetividad.</p>
+                </div>
+                <div class="mision-vision">
+                    <div class="tarjeta-identidad">
+                        <h3>Nuestra Misión</h3>
+                        <p>Fomentar un diálogo interdisciplinario gratuito y validado por pares, donde la prioridad sea la difusión de conocimiento honesto y el desarrollo de herramientas útiles para la comunidad y los profesionales.</p>
+                    </div>
+                    <div class="tarjeta-identidad">
+                        <h3>Nuestra Visión</h3>
+                        <p>Ser una comunidad donde psicólogos de diversos enfoques compartan su labor y orienten a las nuevas generaciones bajo un estándar de respeto mutuo, rigor ético y rechazo a prácticas oportunistas.</p>
+                    </div>
+                </div>
             </div>
+        </section>
+    </section>
 
-            <section id="mision" class="tab-content active" role="tabpanel">
-                <section class="identidad">
-                    <h2>Un Espacio de Encuentro Profesional</h2>
-                    <div class="bloque-identidad">
-                        <div class="bloque-texto">
-                            <h3>Más allá de las Escuelas: El Diálogo Ético</h3>
-                            <p>En <strong>PsycheNudo Puebla</strong>, dejamos de lado el conflicto de egos. Reconocemos que la psicología es una disciplina compleja que requiere pluralidad. Aquí, el rigor no nace de la imposición de un método sobre otro, sino del cuestionamiento constante de nuestra propia práctica y objetividad.</p>
-                        </div>
-                        <div class="mision-vision">
-                            <div class="tarjeta-identidad">
-                                <h3>Nuestra Misión</h3>
-                                <p>Fomentar un diálogo interdisciplinario gratuito y validado por pares, donde la prioridad sea la difusión de conocimiento honesto y el desarrollo de herramientas útiles para la comunidad y los profesionales.</p>
-                            </div>
-                            <div class="tarjeta-identidad">
-                                <h3>Nuestra Visión</h3>
-                                <p>Ser una comunidad donde psicólogos de diversos enfoques compartan su labor y orienten a las nuevas generaciones bajo un estándar de respeto mutuo, rigor ético y rechazo a prácticas oportunistas.</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </section>
+    <section id="nudo" class="tab-content" role="tabpanel">
+        <h2>El Nudo (Red de Profesionales)</h2>
+        <p>Colaboradores validados para atención y orientación:</p>
 
-            <section id="nudo" class="tab-content" role="tabpanel">
-                <h2>El Nudo (Red de Profesionales)</h2>
-                <p>Colaboradores validados para atención y orientación:</p>
-
-                <div class="grid-colegas">
-                    {% assign colegas = site.profesionales | sort: 'nombre' %}
-                    {% for colega in colegas %}
-                    <article class="tarjeta-colega">
-                        <h3>{{ colega.nombre }}</h3>
-                        <p class="especialidad-colega">{{ colega.especialidad }}</p>
-                        <p>{{ colega.content | strip_html | truncatewords: 25 }}</p>
-                        <p><strong>Invitado por:</strong> {{ colega.invitado_por }}</p>
-                        <p><strong>Cédula:</strong> {{ colega.cedula }}</p>
-                        
-                        <div class="acciones-tarjeta">
-                            <button class="boton" type="button" data-toggle="perfil-{{ colega.nombre | slugify }}">Detalles</button>
-                            {% if colega.external_url %}
-                            <a href="{{ colega.external_url }}" class="boton boton-secundario" target="_blank">Trayectoria</a>
-                            {% endif %}
-                        </div>
-
-                        <div id="perfil-{{ colega.nombre | slugify }}" style="display: none; margin-top: 20px; padding: 18px; background: #ffffff; border-radius: 10px; border: 1px solid #d9e7e0;">
-                            {{ colega.content }}
-                            <p style="margin-top:15px;"><a href="{{ colega.url | relative_url }}">Ir a página de perfil individual →</a></p>
-                        </div>
-                    </article>
-                    {% endfor %}
-                </div>
-
-                <div id="nudo-content" style="margin-top: 30px; padding: 32px; background: #f3fcf8; border-radius: 12px; border-left: 4px solid var(--color-secundario);">
-                    <h3 style="color: var(--color-primario); margin-top: 0;">Únete al Nudo</h3>
-                    <p>Si eres psicólogo titulado y deseas colaborar con PsycheNudo, queremos conocerte.</p>
-                    <button class="boton" type="button" id="toggle-form">Mostrar Formulario de Colaboración</button>
-                    <div id="formulario-colaboracion" style="display: none; margin-top: 24px;">
-                        <iframe data-tally-src="https://tally.so/embed/A7bL1D?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1" loading="lazy" width="100%" height="482" frameborder="0" marginheight="0" marginwidth="0" title="Invitación"></iframe>
-                    </div>
-                </div>
-                <script>
-                    var d=document,w="https://tally.so/widgets/embed.js",v=function(){
-                        "undefined"!=typeof Tally?Tally.loadEmbeds():d.querySelectorAll("iframe[data-tally-src]:not([src])").forEach(function(e){e.src=e.dataset.tallySrc});
-                    };
-                    if("undefined"!=typeof Tally)v();else if(d.querySelector('script[src="'+w+'"]')==null){
-                        var s=d.createElement("script");s.src=w;s.onload=v;s.onerror=v;d.body.appendChild(s);
-                    }
-                </script>
-            </section>
-
-            <section id="recursos" class="tab-content" role="tabpanel">
-                <h2>Proyectos Pedagógicos e Interactivos</h2>
-                <p>Recursos digitales y aplicaciones desarrolladas por alumnos de psicología bajo supervisión académica.</p>
-                <p><em>Próximamente: Galería de herramientas HTML/Python.</em></p>
-            </section>
-
-            <section id="articulos" class="tab-content" role="tabpanel">
-                <h2>Biblioteca de Artículos</h2>
-                <p>Textos de divulgación y reflexión clínica. Haz clic en el título para leer en pantalla.</p>
-                <input type="text" id="busqueda-articulos" placeholder="Buscar artículos..." style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px;">
-                <ul class="lista-articulos" id="lista-articulos">
-                    {% for articulo in site.articulos %}
-                    <li>
-                        📄 <a href="{{ articulo.url | relative_url }}">{{ articulo.title }}</a>
-                        <small>{{ articulo.autor }} · {{ articulo.fecha }} · {{ articulo.categoria }}</small>
-                    </li>
-                    {% endfor %}
-                </ul>
-                <div style="margin-top: 30px; padding: 20px; background: #f0f4f8; border-radius: 8px; border-left: 4px solid var(--color-primario);">
-                    <h3 style="color: var(--color-primario); margin-top: 0;">¿Quieres publicar con nosotros?</h3>
-                    <p>Revisa nuestros estándares académicos, éticos y técnicos para colaboradores.</p>
-                    <a href="guia-publicacion.html" class="boton">Leer Guía de Publicación</a>
-                    <a href="https://github.com/PsycheNudo-Puebla/psychenudo-puebla.github.io/discussions" class="boton" target="_blank">Proponer Artículo</a>
-                </div>
-            </section>
+        <!-- Cabecero de Verificación -->
+        <div class="verificacion-nudo" style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #eee; text-align: center;">
+            <p style="margin-bottom: 15px; font-weight: bold; color: var(--color-primario);">🔍 Verificación Ética y Profesional</p>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <a href="https://www.cedulaprofesional.sep.gob.mx/cedula/presidencia/indexAvanzada.action" target="_blank" class="boton" style="background-color: #2c3e50; font-size: 0.8rem; color: white;">Verificar Cédula SEP</a>
+                <a href="https://redam.puebla.gob.mx/" target="_blank" class="boton" style="background-color: #a93226; font-size: 0.8rem; color: white;">Registro Deudores (REDAM)</a>
+            </div>
         </div>
-    </main>
 
-    <footer class="site-footer">
-        <p>PsycheNudo Puebla &copy; 2026 | <a href="index.html">Inicio</a></p>
-        <p style="font-size: 0.85rem; margin-top: 15px; color: var(--color-texto-claro); max-width: 800px; margin-left: auto; margin-right: auto; line-height: 1.4;">
-            <strong>Aviso Legal:</strong> PsycheNudo Puebla es una plataforma de difusión académica y gremial. 
-            El contenido de los artículos y perfiles es responsabilidad exclusiva de sus autores y no constituye supervisión clínica. 
-            Se recomienda al usuario verificar la vigencia de las cédulas profesionales en el Registro Nacional de Profesionistas.
-        </p>
-    </footer>
+        <div class="grid-colegas">
+            {% assign colegas = site.profesionales | sort: 'nombre' %}
+            {% for colega in colegas %}
+            <article class="tarjeta-colega">
+                <h3>{{ colega.nombre }}</h3>
+                <p class="especialidad-colega">{{ colega.especialidad }}</p>
+                <p>{{ colega.content | strip_html | truncatewords: 25 }}</p>
+                <p><strong>Invitado por:</strong> {{ colega.invitado_por }}</p>
+                <p><strong>Cédula:</strong> {{ colega.cedula }}</p>
+                
+                <div class="acciones-tarjeta">
+                    <button class="boton" type="button" data-toggle="perfil-{{ colega.nombre | slugify }}">Detalles</button>
+                    {% if colega.external_url %}
+                    <a href="{{ colega.external_url }}" class="boton boton-secundario" target="_blank">Trayectoria</a>
+                    {% endif %}
+                </div>
 
-    <script>
-        const tabs = document.querySelectorAll('.tab');
-        const tabContents = document.querySelectorAll('.tab-content');
+                <div id="perfil-{{ colega.nombre | slugify }}" style="display: none; margin-top: 20px; padding: 18px; background: #ffffff; border-radius: 10px; border: 1px solid #d9e7e0;">
+                    {{ colega.content }}
+                    <p style="margin-top:15px;"><a href="{{ colega.url | relative_url }}">Ir a página de perfil individual →</a></p>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
 
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                tabs.forEach(btn => btn.classList.remove('active'));
-                tab.classList.add('active');
+        <div id="nudo-content" style="margin-top: 30px; padding: 32px; background: #f3fcf8; border-radius: 12px; border-left: 4px solid var(--color-secundario);">
+            <h3 style="color: var(--color-primario); margin-top: 0;">Únete al Nudo</h3>
+            <p>Si eres psicólogo titulado y deseas colaborar con PsycheNudo, queremos conocerte.</p>
+            <button class="boton" type="button" id="toggle-form">Mostrar Formulario de Colaboración</button>
+            <div id="formulario-colaboracion" style="display: none; margin-top: 24px;">
+                <iframe data-tally-src="https://tally.so/embed/A7bL1D?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1" loading="lazy" width="100%" height="482" frameborder="0" marginheight="0" marginwidth="0" title="Invitación"></iframe>
+            </div>
+        </div>
+    </section>
 
-                const target = tab.dataset.tab;
-                tabContents.forEach(content => {
-                    content.classList.toggle('active', content.id === target);
-                });
+    <section id="recursos" class="tab-content" role="tabpanel">
+        <h2>Proyectos Pedagógicos e Interactivos</h2>
+        <p>Recursos digitales y aplicaciones desarrolladas por alumnos de psicología bajo supervisión académica.</p>
+        <p><em>Próximamente: Galería de herramientas HTML/Python.</em></p>
+    </section>
+
+    <section id="articulos" class="tab-content" role="tabpanel">
+        <h2>Biblioteca de Artículos</h2>
+        <p>Textos de divulgación y reflexión clínica. Haz clic en el título para leer en pantalla.</p>
+        <input type="text" id="busqueda-articulos" placeholder="Buscar artículos por título, autor o categoría..." style="width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid var(--borde-suave); border-radius: 8px; font-size: 16px; outline: none; transition: border-color 0.3s;">
+        <ul class="lista-articulos" id="lista-articulos">
+            {% for articulo in site.articulos %}
+            <li>
+                <div class="articulo-item">
+                    <span class="emoji-doc">📄</span>
+                    <div class="articulo-info">
+                        <a href="{{ articulo.url | relative_url }}" class="articulo-link">{{ articulo.title }}</a>
+                        <div class="articulo-meta-small">
+                            <small>👤 {{ articulo.autor }}</small> • <small>📅 {{ articulo.fecha }}</small> • <small>🏷️ {{ articulo.categoria }}</small>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        <div style="margin-top: 30px; padding: 20px; background: #f0f4f8; border-radius: 8px; border-left: 4px solid var(--color-primario);">
+            <h3 style="color: var(--color-primario); margin-top: 0;">¿Quieres publicar con nosotros?</h3>
+            <p>Revisa nuestros estándares académicos, éticos y técnicos para colaboradores.</p>
+            <a href="guia-publicacion.html" class="boton">Leer Guía de Publicación</a>
+            <a href="https://github.com/PsycheNudo-Puebla/psychenudo-puebla.github.io/discussions" class="boton" target="_blank">Proponer Artículo</a>
+        </div>
+    </section>
+</div>
+
+<script>
+    // Tally Loader
+    var d=document,w="https://tally.so/widgets/embed.js",v=function(){
+        "undefined"!=typeof Tally?Tally.loadEmbeds():d.querySelectorAll("iframe[data-tally-src]:not([src])").forEach(function(e){e.src=e.dataset.tallySrc});
+    };
+    if("undefined"!=typeof Tally)v();else if(d.querySelector('script[src="'+w+'"]')==null){
+        var s=d.createElement("script");s.src=w;s.onload=v;s.onerror=v;d.body.appendChild(s);
+    }
+</script>
+
+<script>
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(btn => btn.classList.remove('active'));
+            tab.classList.add('active');
+
+            const target = tab.dataset.tab;
+            tabContents.forEach(content => {
+                content.classList.toggle('active', content.id === target);
             });
         });
+    });
 
-        document.querySelectorAll('[data-toggle]').forEach(button => {
-            button.addEventListener('click', () => {
-                const target = document.getElementById(button.getAttribute('data-toggle'));
-                if (!target) return;
-                const isVisible = target.style.display === 'block';
-                target.style.display = isVisible ? 'none' : 'block';
-                button.textContent = isVisible ? 'Ver perfil completo' : 'Ocultar perfil';
-            });
+    document.querySelectorAll('[data-toggle]').forEach(button => {
+        button.addEventListener('click', () => {
+            const target = document.getElementById(button.getAttribute('data-toggle'));
+            if (!target) return;
+            const isVisible = target.style.display === 'block';
+            target.style.display = isVisible ? 'none' : 'block';
+            button.textContent = isVisible ? 'Ver perfil completo' : 'Ocultar perfil';
         });
+    });
 
-        document.getElementById('toggle-form').addEventListener('click', () => {
-            const form = document.getElementById('formulario-colaboracion');
-            const isVisible = form.style.display === 'block';
-            form.style.display = isVisible ? 'none' : 'block';
-            document.getElementById('toggle-form').textContent = isVisible ? 'Mostrar Formulario de Colaboración' : 'Ocultar Formulario';
-        });
+    document.getElementById('toggle-form').addEventListener('click', () => {
+        const form = document.getElementById('formulario-colaboracion');
+        const isVisible = form.style.display === 'block';
+        form.style.display = isVisible ? 'none' : 'block';
+        document.getElementById('toggle-form').textContent = isVisible ? 'Mostrar Formulario de Colaboración' : 'Ocultar Formulario';
+    });
 
-        // Búsqueda y shuffle de artículos
-        const busqueda = document.getElementById('busqueda-articulos');
-        const lista = document.getElementById('lista-articulos');
-        const items = Array.from(lista.querySelectorAll('li'));
+    // Búsqueda y shuffle de artículos
+    const busqueda = document.getElementById('busqueda-articulos');
+    const lista = document.getElementById('lista-articulos');
+    const items = Array.from(lista.querySelectorAll('li'));
 
-        // Función Fisher-Yates shuffle
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
+    // Función Fisher-Yates shuffle
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
         }
+        return array;
+    }
 
-        // Shuffle inicial
-        shuffle(items).forEach(item => lista.appendChild(item));
+    // Shuffle inicial
+    shuffle(items).forEach(item => lista.appendChild(item));
 
-        busqueda.addEventListener('input', () => {
-            const query = busqueda.value.toLowerCase();
-            items.forEach(item => {
-                const text = item.textContent.toLowerCase();
-                item.style.display = text.includes(query) ? '' : 'none';
-            });
+    busqueda.addEventListener('input', () => {
+        const query = busqueda.value.toLowerCase();
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = text.includes(query) ? '' : 'none';
         });
-    </script>
-</body>
-</html>
+    });
+</script>

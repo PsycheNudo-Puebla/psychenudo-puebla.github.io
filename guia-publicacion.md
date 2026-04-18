@@ -98,7 +98,7 @@ perfil_link: "https://linkedin.com/in/tu-perfil"
 
 ### Envío de Artículos
 
-1. **Opción 1 (Recomendada)**: Fork del repositorio en GitHub, agregar tu archivo `.md` en la carpeta `_posts/`, y crear un Pull Request.
+1. **Opción 1 (Recomendada)**: Fork del repositorio en GitHub, agregar tu archivo `.md` en la carpeta `_articulos/`, y crear un Pull Request.
 2. **Opción 2**: Contactar a `contacto@psychenudo-puebla.github.io` con el archivo adjunto.
 
 ### Revisión Editorial
