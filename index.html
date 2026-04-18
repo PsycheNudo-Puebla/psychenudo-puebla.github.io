@@ -34,7 +34,15 @@ title: Inicio
 
     <section id="nudo" class="tab-content" role="tabpanel">
         <h2>El Nudo (Red de Profesionales)</h2>
-        <p>Colaboradores validados para atención y orientación. En cada tarjeta puedes abrir los registros oficiales para comprobar cédula y REDAM.</p>
+        <p>Colaboradores validados para atención y orientación. Compara la cédula de cada tarjeta con la SEP; la barra superior de esta sección permanece visible al hacer scroll para abrir los enlaces oficiales cuando los necesites.</p>
+
+        <div class="verificacion-nudo-bar" role="navigation" aria-label="Registros oficiales (SEP y REDAM Puebla)">
+            <span class="verificacion-nudo-bar__hint">Verificación manual</span>
+            <div class="verificacion-enlaces verificacion-enlaces--nudo-bar">
+                <a href="https://www.cedulaprofesional.sep.gob.mx/cedula/presidencia/indexAvanzada.action" class="boton-verificacion boton-verificacion--compact" target="_blank" rel="noopener noreferrer">Cédula SEP</a>
+                <a href="https://redam.puebla.gob.mx/" class="boton-verificacion boton-verificacion--compact" target="_blank" rel="noopener noreferrer">REDAM Puebla</a>
+            </div>
+        </div>
 
         <div class="grid-colegas">
             {% assign colegas = site.profesionales | sort: 'nombre' %}
@@ -51,14 +59,6 @@ title: Inicio
                     {% if colega.external_url %}
                     <a href="{{ colega.external_url }}" class="boton boton-secundario" target="_blank">Trayectoria</a>
                     {% endif %}
-                </div>
-
-                <div class="tarjeta-colega__verificar">
-                    <span class="tarjeta-colega__verificar-label">Verificación manual</span>
-                    <div class="verificacion-enlaces verificacion-enlaces--tarjeta" role="navigation" aria-label="Registros oficiales">
-                        <a href="https://www.cedulaprofesional.sep.gob.mx/cedula/presidencia/indexAvanzada.action" class="boton-verificacion boton-verificacion--compact" target="_blank" rel="noopener noreferrer">Cédula SEP</a>
-                        <a href="https://redam.puebla.gob.mx/" class="boton-verificacion boton-verificacion--compact" target="_blank" rel="noopener noreferrer">REDAM Puebla</a>
-                    </div>
                 </div>
 
                 <div id="perfil-{{ colega.nombre | slugify }}" style="display: none; margin-top: 20px; padding: 18px; background: #ffffff; border-radius: 10px; border: 1px solid #d9e7e0;">
@@ -126,17 +126,39 @@ title: Inicio
 <script>
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
+    const tabIds = ['mision', 'nudo', 'recursos', 'articulos'];
+
+    function activateTab(tabId, updateHash) {
+        const tab = document.querySelector('.tab[data-tab="' + tabId + '"]');
+        if (!tab) return;
+        tabs.forEach(btn => btn.classList.remove('active'));
+        tab.classList.add('active');
+        tabContents.forEach(content => {
+            content.classList.toggle('active', content.id === tabId);
+        });
+        if (updateHash && tabIds.includes(tabId)) {
+            history.replaceState(null, '', '#' + tabId);
+        }
+    }
 
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
-            tabs.forEach(btn => btn.classList.remove('active'));
-            tab.classList.add('active');
-
-            const target = tab.dataset.tab;
-            tabContents.forEach(content => {
-                content.classList.toggle('active', content.id === target);
-            });
+            activateTab(tab.dataset.tab, true);
         });
+    });
+
+    (function syncHashTab() {
+        const raw = window.location.hash.replace(/^#/, '');
+        if (tabIds.includes(raw)) {
+            activateTab(raw, false);
+        }
+    })();
+
+    window.addEventListener('hashchange', function () {
+        const raw = window.location.hash.replace(/^#/, '');
+        if (tabIds.includes(raw)) {
+            activateTab(raw, false);
+        }
     });
 
     document.querySelectorAll('[data-toggle]').forEach(button => {
@@ -149,35 +171,38 @@ title: Inicio
         });
     });
 
-    document.getElementById('toggle-form').addEventListener('click', () => {
-        const form = document.getElementById('formulario-colaboracion');
-        const isVisible = form.style.display === 'block';
-        form.style.display = isVisible ? 'none' : 'block';
-        document.getElementById('toggle-form').textContent = isVisible ? 'Mostrar Formulario de Colaboración' : 'Ocultar Formulario';
-    });
+    const toggleFormBtn = document.getElementById('toggle-form');
+    if (toggleFormBtn) {
+        toggleFormBtn.addEventListener('click', () => {
+            const form = document.getElementById('formulario-colaboracion');
+            const isVisible = form.style.display === 'block';
+            form.style.display = isVisible ? 'none' : 'block';
+            toggleFormBtn.textContent = isVisible ? 'Mostrar Formulario de Colaboración' : 'Ocultar Formulario';
+        });
+    }
 
     // Búsqueda y shuffle de artículos
     const busqueda = document.getElementById('busqueda-articulos');
     const lista = document.getElementById('lista-articulos');
-    const items = Array.from(lista.querySelectorAll('li'));
+    if (busqueda && lista) {
+        const items = Array.from(lista.querySelectorAll('li'));
 
-    // Función Fisher-Yates shuffle
-    function shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
         }
-        return array;
-    }
 
-    // Shuffle inicial
-    shuffle(items).forEach(item => lista.appendChild(item));
+        shuffle(items).forEach(item => lista.appendChild(item));
 
-    busqueda.addEventListener('input', () => {
-        const query = busqueda.value.toLowerCase();
-        items.forEach(item => {
-            const text = item.textContent.toLowerCase();
-            item.style.display = text.includes(query) ? '' : 'none';
+        busqueda.addEventListener('input', () => {
+            const query = busqueda.value.toLowerCase();
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(query) ? '' : 'none';
+            });
         });
-    });
+    }
 </script>

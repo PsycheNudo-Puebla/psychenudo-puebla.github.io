@@ -4,9 +4,9 @@ url: "https://psychenudo-puebla.github.io"
 baseurl: ""
 
 # Build settings
+# Sin theme de terceros: el sitio usa _layouts/default.html y css/estilos.css (evita solaparse con Minima en GitHub Pages).
 markdown: kramdown
 highlighter: rouge
-theme: minima
 plugins:
   - jekyll-feed
 
