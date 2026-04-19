@@ -1,117 +1,412 @@
 ---
 layout: null
-permalink: /adrian/
+permalink: /adrian-gonzalez/
 ---
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Perfil profesional del Mtro. Alfredo Adrián González Lazcano, psicólogo clínico en Puebla. Especialista en Psicoanálisis y Cultura.">
-    <meta name="keywords" content="Alfredo Adrián González Lazcano, Psicólogo Puebla, Psicoanálisis Puebla, Cédula Profesional, Psicoterapia">
+    <meta name="description" content="Perfil profesional del Mtro. Alfredo Adrián González Lazcano, psicólogo clínico en Puebla. Especialista en Psicoanálisis y Cultura, ofreciendo psicoterapia y acompañamiento ético.">
+    <meta name="keywords" content="Mtro. Alfredo Adrián González Lazcano, psicólogo clínico Puebla, psicoterapia Puebla, psicoanálisis, salud mental, terapia individual">
     <meta name="author" content="Mtro. Alfredo Adrián González Lazcano">
     <title>Mtro. Alfredo Adrián González Lazcano | Psicólogo Clínico</title>
     <style>
         :root {
             --primary: #1a252f;
+            --primary-light: #2c3e50;
             --accent: #3498db;
+            --accent-hover: #2980b9;
             --gold: #c9a961;
             --bg-light: #f9fbfd;
-            --white: #ffffff;
+            --bg-card: #ffffff;
             --text-main: #2d3748;
-            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --text-muted: #4a5568;
+            --text-light: #718096;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 25px rgba(0,0,0,0.12);
             --radius: 12px;
+            --radius-lg: 20px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        html { scroll-behavior: smooth; }
+        
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
             line-height: 1.7;
             color: var(--text-main);
-            background: var(--bg-light);
+            background: linear-gradient(135deg, var(--bg-light) 0%, #edf2f7 100%);
+            -webkit-font-smoothing: antialiased;
         }
 
-        .container { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+        a { 
+            color: var(--accent); 
+            text-decoration: none; 
+            transition: var(--transition);
+            position: relative;
+        }
+        a:hover { 
+            color: var(--accent-hover); 
+        }
+        a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background: var(--accent);
+            transition: var(--transition);
+        }
+        a:hover::after { width: 100%; }
 
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            padding: 0 24px; 
+        }
+
+        /* Header Minimalista */
         header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
             position: sticky;
             top: 0;
             z-index: 1000;
-            padding: 1rem 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            padding: 0.8rem 0;
+            transition: var(--transition);
+        }
+        header.scrolled {
+            padding: 0.5rem 0;
+            box-shadow: var(--shadow-sm);
+        }
+        nav { 
+            display: flex; 
+            justify-content: flex-end; 
+            align-items: center; 
+            gap: 1.2rem; 
+        }
+        .nav-links { 
+            display: flex; 
+            gap: 1.8rem; 
+            font-size: 0.95rem;
+        }
+        .nav-links a { 
+            color: var(--text-muted); 
+            font-weight: 500;
+            padding: 0.3rem 0;
+        }
+        .nav-links a:hover { 
+            color: var(--primary);
+        }
+        .nav-links a::after {
+            background: var(--gold);
         }
 
-        nav { display: flex; justify-content: flex-end; gap: 1.5rem; }
-        nav a { color: var(--text-main); text-decoration: none; font-weight: 500; font-size: 0.9rem; }
-        nav a:hover { color: var(--accent); }
-
+        /* Hero Section Modernizado */
         .hero {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
-            gap: 3rem;
-            padding: 4rem 0;
+            gap: 2.5rem;
+            padding: 4rem 0 3rem;
         }
-
+        .profile-photo {
+            flex: 0 0 240px;
+            text-align: center;
+            position: relative;
+        }
+        .profile-photo::before {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--gold));
+            z-index: -1;
+            opacity: 0.2;
+            filter: blur(10px);
+        }
         .profile-photo img {
-            width: 240px;
-            height: 240px;
+            width: 100%;
+            max-width: 240px;
+            aspect-ratio: 1/1;
             object-fit: cover;
             border-radius: 50%;
-            border: 5px solid var(--white);
-            box-shadow: var(--shadow);
+            border: 4px solid var(--bg-card);
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition);
+        }
+        .profile-photo img:hover {
+            transform: scale(1.02);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+        }
+        .hero-text h1 { 
+            font-size: 2.1rem; 
+            color: var(--primary); 
+            margin-bottom: 0.4rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        .hero-text h2 { 
+            font-size: 1.1rem; 
+            color: var(--text-muted); 
+            font-weight: 400; 
+            margin-bottom: 1.2rem;
+            border-left: 3px solid var(--gold);
+            padding-left: 1rem;
         }
 
+        /* Cards/Sections */
         section {
-            background: var(--white);
-            margin-bottom: 2rem;
-            padding: 2.5rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
+            background: var(--bg-card);
+            margin: 1.8rem 0;
+            padding: 2.2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.04);
         }
-
-        h1 { font-size: 2.2rem; color: var(--primary); margin-bottom: 0.5rem; }
-        h2 { font-size: 1.2rem; color: var(--gold); font-weight: 400; margin-bottom: 1.5rem; }
-        h3 { color: var(--primary); margin-bottom: 1.2rem; border-bottom: 2px solid var(--accent); display: inline-block; }
-
-        ul { list-style: none; margin-bottom: 1rem; }
-        li { margin-bottom: 0.8rem; position: relative; padding-left: 1.5rem; }
-        li::before { content: "•"; color: var(--gold); position: absolute; left: 0; font-weight: bold; }
-
-        .verificacion-enlaces { display: flex; gap: 1rem; margin-top: 1.5rem; }
-        .btn-verif {
-            padding: 0.5rem 1rem;
-            background: #f0f4f8;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            text-decoration: none;
-            color: #4a5568;
+        section:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
         }
-
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-
-        .btn-primary {
+        
+        h3 {
+            color: var(--primary);
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.7rem;
+            border-bottom: 2px solid var(--accent);
             display: inline-block;
-            background: var(--accent);
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border-radius: 8px;
-            text-decoration: none;
+            font-size: 1.3rem;
             font-weight: 600;
-            transition: 0.3s;
         }
-        .btn-primary:hover { background: #2980b9; transform: translateY(-2px); }
-
-        footer { text-align: center; padding: 4rem 0; color: #718096; }
-        blockquote { font-style: italic; color: var(--primary); margin: 2rem 0; font-size: 1.1rem; }
-
-        @media (max-width: 768px) {
-            .hero { flex-direction: column; text-align: center; }
-            .grid-2 { grid-template-columns: 1fr; }
+        
+        ul { 
+            margin-left: 1.4rem; 
+            margin-bottom: 1.2rem; 
+            list-style-type: none;
         }
+        li { 
+            margin-bottom: 0.8rem; 
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--gold);
+            font-weight: bold;
+            font-size: 1.4rem;
+            top: -3px;
+        }
+        li strong { color: var(--primary-light); }
+        
+        p { 
+            margin-bottom: 1.1rem; 
+            color: var(--text-muted);
+        }
+        .highlight { 
+            font-weight: 600; 
+            color: var(--primary); 
+        }
+
+        /* Grid Layout */
+        .grid-2 { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 2rem; 
+        }
+        @media (max-width: 768px) { 
+            .grid-2 { grid-template-columns: 1fr; } 
+            .hero { 
+                flex-direction: column; 
+                text-align: center; 
+                padding: 2.5rem 0 2rem;
+            }
+            .hero-text h2 {
+                border-left: none;
+                border-bottom: 3px solid var(--gold);
+                padding-left: 0;
+                padding-bottom: 0.8rem;
+                display: inline-block;
+            }
+            .nav-links { 
+                gap: 1rem; 
+                font-size: 0.9rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            nav { justify-content: center; }
+        }
+
+        /* Location Box */
+        .location-box {
+            background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+            border: 2px dashed #cbd5e1;
+            border-radius: var(--radius);
+            padding: 1.8rem;
+            text-align: center;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: var(--transition);
+        }
+        .location-box:hover {
+            border-color: var(--accent);
+            background: linear-gradient(135deg, #f0f7ff 0%, #e6f2ff 100%);
+        }
+        .location-box .address { 
+            font-weight: 600; 
+            margin: 0.6rem 0; 
+            color: var(--primary);
+            font-size: 1.05rem;
+        }
+        .location-box a.btn-map {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.2rem;
+            padding: 0.7rem 1.4rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            color: var(--bg-card);
+            border-radius: 8px;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+            transition: var(--transition);
+        }
+        .location-box a.btn-map:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.45);
+            color: var(--bg-card);
+        }
+
+        /* Social Links */
+        .social-links { 
+            display: flex; 
+            gap: 0.9rem; 
+            margin-top: 1.2rem; 
+            flex-wrap: wrap; 
+        }
+        .social-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.75rem 1.3rem;
+            background: var(--primary);
+            color: var(--bg-card);
+            border-radius: 8px;
+            font-weight: 500;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+        .social-btn:hover { 
+            background: var(--bg-card);
+            color: var(--primary);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        .social-btn.primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+        .social-btn.primary:hover {
+            background: var(--bg-card);
+            color: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 6px 18px rgba(52, 152, 219, 0.4);
+        }
+
+        /* Verification Buttons */
+        .verificacion-enlaces {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem;
+            margin-top: 1.3rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0,0,0,0.08);
+        }
+        .boton-verificacion {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            background: #ebf5fb;
+            color: #2c5282;
+            border: 1px solid #bee3f8;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        .boton-verificacion:hover { 
+            background: #3182ce; 
+            color: var(--bg-card); 
+            border-color: #3182ce;
+            transform: translateY(-1px);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            color: var(--text-light);
+            border-top: 1px solid rgba(0,0,0,0.08);
+            margin-top: 3rem;
+            background: var(--bg-card);
+        }
+        blockquote {
+            font-style: italic;
+            border-left: 4px solid var(--gold);
+            padding-left: 1.3rem;
+            margin: 1.8rem auto;
+            max-width: 650px;
+            color: var(--primary-light);
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+        .disclaimer { 
+            font-size: 0.85rem; 
+            color: #a0aec0; 
+            margin-top: 1.2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        /* Animaciones de entrada */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        section {
+            animation: fadeInUp 0.5s ease-out forwards;
+            opacity: 0;
+        }
+        section:nth-child(1) { animation-delay: 0.1s; opacity: 1; }
+        section:nth-child(2) { animation-delay: 0.2s; }
+        section:nth-child(3) { animation-delay: 0.3s; }
+        section:nth-child(4) { animation-delay: 0.4s; }
+        .grid-2 { animation: fadeInUp 0.5s ease-out 0.5s forwards; opacity: 0; }
+
+        /* Utilidades */
+        .text-center { text-align: center; }
+        .mt-2 { margin-top: 2rem; }
+        .mb-1 { margin-bottom: 1rem; }
     </style>
 </head>
 <body>
@@ -119,78 +414,158 @@ permalink: /adrian/
     <header>
         <div class="container">
             <nav>
-                <a href="#formacion">Formación</a>
-                <a href="#practica">Práctica</a>
-                <a href="#experiencia">Experiencia</a>
-                <a href="#redes">Contacto</a>
+                <div class="nav-links">
+                    <a href="#formacion">Formación</a>
+                    <a href="#practica">Práctica</a>
+                    <a href="#experiencia">Experiencia</a>
+                    <a href="#ubicacion">Ubicación</a>
+                    <a href="#redes">Contacto</a>
+                </div>
             </nav>
         </div>
     </header>
 
     <main class="container">
+        <!-- Perfil y Formación -->
         <section class="hero" id="formacion">
             <div class="profile-photo">
-                <img src="{{ '/assets/foto-adrian.jpeg' | relative_url }}" alt="Mtro. Adrián González" onerror="this.src='https://via.placeholder.com/240'">
+                <img src="{{ '/assets/foto-adrian.jpeg' | relative_url }}" alt="Mtro. Alfredo Adrián González Lazcano" onerror="this.src='https://via.placeholder.com/240x240/e2e8f0/4a5568?text=Foto'">
             </div>
             <div class="hero-text">
                 <h1>Mtro. Alfredo Adrián González Lazcano</h1>
                 <h2>Psicólogo Clínico | Especialista en Psicoanálisis y Cultura</h2>
+                
                 <h3>Formación Académica</h3>
                 <ul>
-                    <li><strong>Maestría en Psicoanálisis y Cultura</strong> (UPAEP)</li>
-                    <li><strong>Licenciatura en Psicología</strong> (Escuela Libre de Psicología)</li>
-                    <li>Participante en congresos de salud mental (INPRFM)</li>
-                    <li>Certificación OPS en Prevención de Suicidio</li>
+                    <li><strong>Licenciatura en Psicología General</strong> — Universidad Popular Autónoma del Estado de Puebla (UPAEP).</li>
+                    <li><strong>Maestría en Psicoanálisis y Cultura</strong> — Escuela Libre de Psicología (ELP).</li>
+                    <li>Participante activo en congresos de salud mental (INPRFM).</li>
+                    <li>Certificación por la OPS en Prevención de Autolesión y Suicidio.</li>
                 </ul>
+                
+                <!-- Verificación de credenciales -->
                 <div class="verificacion-enlaces">
-                    <a href="https://www.cedulaprofesional.sep.gob.mx/" class="btn-verif" target="_blank">🎓 Cédula SEP</a>
-                    <a href="https://redam.puebla.gob.mx/" class="btn-verif" target="_blank">🏥 REDAM Puebla</a>
+                    <a href="https://www.cedulaprofesional.sep.gob.mx/cedula/presidencia/indexAvanzada.action" class="boton-verificacion" target="_blank" rel="noopener noreferrer">
+                        🎓 Cédula SEP
+                    </a>
+                    <a href="https://redam.puebla.gob.mx/" class="boton-verificacion" target="_blank" rel="noopener noreferrer">
+                        🏥 REDAM Puebla
+                    </a>
                 </div>
             </div>
         </section>
 
+        <!-- Sobre mi práctica -->
         <section id="practica">
             <h3>Sobre mi práctica</h3>
-            <p>Acompaño procesos terapéuticos desde la escucha clínica y la ética profesional, abordando:</p>
+            <p><span class="highlight">Áreas de Acompañamiento Terapéutico:</span><br>
+            Mi práctica se centra en el estudio de la subjetividad y el malestar psíquico. Acompaño procesos relacionados con:</p>
             <ul>
-                <li><strong>Procesos de Autoconocimiento:</strong> Exploración del deseo y la narrativa personal.</li>
-                <li><strong>Dinámicas Vinculares:</strong> Análisis de patrones en relaciones personales.</li>
-                <li><strong>Duelo y Trauma:</strong> Espacio seguro para procesar vivencias de alto impacto emocional.</li>
-                <li><strong>Gestión del Malestar:</strong> Trabajo sobre la angustia, culpa o vacío subjetivo.</li>
+                <li><strong>Procesos de Autoconocimiento:</strong> Exploración de la propia narrativa y el deseo auténtico.</li>
+                <li><strong>Dinámicas Vinculares:</strong> Análisis de patrones recurrentes en relaciones personales y profesionales.</li>
+                <li><strong>Elaboración de Duelo y Trauma:</strong> Espacio seguro para el procesamiento de pérdidas y vivencias de alto impacto emocional.</li>
+                <li><strong>Conflictos de la Identidad y el Deseo:</strong> Abordaje de la ambivalencia frente a decisiones vitales y crisis existenciales.</li>
+                <li><strong>Gestión del Malestar Subjetivo:</strong> Trabajo sobre sentimientos de culpa, angustia o vacío que interfieren en la plenitud del individuo.</li>
             </ul>
         </section>
 
+        <!-- La Experiencia Terapéutica -->
         <section id="experiencia">
             <h3>La Experiencia Terapéutica</h3>
-            <p>Mi enfoque prioriza un encuadre confidencial basado en la <strong>asociación libre</strong>. No busco aplicar recetas genéricas; mi objetivo es que cada persona encuentre su propia autonomía emocional a través de la palabra y la comprensión de su inconsciente.</p>
+            <p><strong>La consulta: Un espacio para la palabra</strong><br>
+            Mi enfoque prioriza la creación de un encuadre seguro y estrictamente confidencial. Bajo la premisa de la asociación libre, invito a la persona a hablar sin censura, permitiendo que emerjan aquellos elementos inconscientes que configuran su realidad actual.</p>
+            <p>No busco soluciones estandarizadas ni "recetas" de bienestar. El proceso conmigo es un camino hacia la autonomía emocional, donde a través de la escucha y la interpretación, trabajamos para desanudar patrones repetitivos y fortalecer la posición del sujeto frente a su propio deseo.</p>
         </section>
 
-        <div class="grid-2">
+        <!-- Perspectiva Personal y Aficiones -->
+        <section id="perspectiva">
+            <h3>Perspectiva Personal y Aficiones</h3>
+            <p><strong>El valor de la propia terapia</strong><br>
+            Para mí, la psicoterapia ha sido el eje de mi propia transformación. El psicoanálisis me ha permitido tolerar la complejidad de la mente humana y cultivar una autenticidad que hoy es el pilar de mi ética profesional. Entiendo la terapia no solo como un recurso ante el dolor, sino como una herramienta de libertad.</p>
+            <p><strong>Intereses:</strong><br>
+            Fuera de la clínica, soy un apasionado de la intersección entre el arte, la filosofía y la tecnología. Disfruto escribir sobre la condición humana y participar en seminarios de psicología profunda que mantengan mi escucha siempre actualizada.</p>
+        </section>
+
+        <!-- Ubicación y Redes -->
+        <div class="grid-2" id="ubicacion-redes">
             <section id="ubicacion">
-                <h3>Ubicación</h3>
-                <p>📍 Calle 7 Sur 1507, Col. Centro, Puebla, Pue.</p>
-                <p style="font-size: 0.8rem; color: #718096; margin-top: 0.5rem;">Zona céntrica con estacionamiento cercano.</p>
-                <a href="https://maps.google.com" target="_blank" style="display:block; margin-top:1rem; color:var(--accent);">Ver en mapa →</a>
+                <h3>Ubicación del Consultorio</h3>
+                <div class="location-box">
+                    <p style="font-size: 1.8rem;">📍</p>
+                    <p class="address">Calle 7 Sur 1507<br>Col. Centro, Puebla, Pue.</p>
+                    <p style="font-size: 0.9rem; color: var(--text-light);">Fácil acceso • Zona céntrica • Estacionamiento cercano</p>
+                    <a class="btn-map" href="https://www.google.com/maps/search/?api=1&query=7+Sur+1507+Centro+Puebla+Pue" target="_blank" rel="noopener noreferrer">
+                        🗺️ Ver en Google Maps
+                    </a>
+                </div>
             </section>
 
             <section id="redes">
-                <h3>Contacto</h3>
-                <p>Si deseas iniciar un proceso o solicitar informes, utiliza el canal seguro:</p>
-                <a href="https://tally.so/r/tu-id-aqui" class="btn-primary" target="_blank">📅 Solicitar Cita</a>
-                <div style="margin-top: 1.5rem;">
-                    <a href="https://www.linkedin.com/in/adrian-gonzalez-3b725b318" target="_blank" style="margin-right: 1rem;">LinkedIn</a>
-                    <a href="https://www.tiktok.com/@adrian.gonzalez6263" target="_blank">TikTok</a>
+                <h3>Conecta Conmigo</h3>
+                <p style="margin-bottom: 1.4rem;">Agenda una cita o sígueme para contenido especializado:</p>
+                <div class="social-links">
+                    <a href="https://tally.so/r/YOUR_FORM_ID" class="social-btn primary" target="_blank" rel="noopener noreferrer">
+                        📅 Solicitar Cita
+                    </a>
+                    <a href="https://www.linkedin.com/in/adrian-gonzalez-3b725b318" class="social-btn" target="_blank" rel="noopener noreferrer">
+                        🔗 LinkedIn
+                    </a>
+                    <a href="https://www.tiktok.com/@adrian.gonzalez6263" class="social-btn" target="_blank" rel="noopener noreferrer">
+                        🎵 TikTok
+                    </a>
                 </div>
             </section>
         </div>
     </main>
 
+    <!-- Footer / Cierre -->
     <footer>
         <div class="container">
             <blockquote>"Explorar el inconsciente es abrir puertas hacia la libertad emocional."</blockquote>
-            <p>© 2026 Mtro. Alfredo Adrián González Lazcano • Puebla, México</p>
-            <p style="font-size: 0.7rem; margin-top: 1rem;">Aviso: Este perfil es informativo y no sustituye una evaluación clínica formal.</p>
+            <p class="disclaimer">
+                <strong>Aviso importante:</strong> Este perfil es de carácter informativo y profesional. El seguimiento terapéutico requiere de un encuadre clínico formal y no se sustituye por la información aquí expuesta. Para iniciar un proceso terapéutico, es necesaria una evaluación presencial o virtual.
+            </p>
+            <p style="margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-light);">
+                © 2026 Mtro. Alfredo Adrián González Lazcano • Puebla, México
+            </p>
         </div>
     </footer>
+
+    <script>
+        // Efecto de header al hacer scroll
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Animación de entrada al hacer scroll (Intersection Observer)
+        document.addEventListener('DOMContentLoaded', function() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('section').forEach(section => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+                section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(section);
+            });
+        });
+    </script>
 </body>
 </html>
