@@ -28,6 +28,7 @@ cedula: "12345678"
 - **invitado_por**: Quién lo invitó al nudo
 - **cedula**: Número de cédula profesional
 - **external_url**: LinkedIn, blog o sitio web personal (opcional)
+- **calendario_url**: Enlace a la agenda de citas de Google Calendar o herramienta similar (opcional)
 
 ## 3. Contenido
 
