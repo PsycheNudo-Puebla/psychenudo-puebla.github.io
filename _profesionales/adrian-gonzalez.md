@@ -4,7 +4,7 @@ nombre: "Mtro. Adrián González"
 especialidad: "Psicólogo Clínico · Catedrático Universitario · Innovador en Tecnología Educativa"
 invitado_por: "el equipo de PsycheNudo Puebla"
 external_url: "https://www.linkedin.com/in/adrian-gonzalez-3b725b318"
-cedula: "12345678"
+cedula: "09279684"
 ---
 
 Maestro en Psicoanálisis y Cultura con licenciatura en Psicología General. Mi labor se centra en la intersección de la clínica, la docencia y la innovación tecnológica en Puebla, México.
