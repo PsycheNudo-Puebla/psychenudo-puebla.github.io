@@ -1,0 +1,48 @@
+/** SISTEMA DE ESTADÍSTICAS GLOBAL **/
+window.gameStats = {
+    startTime: 0,
+    totalHits: 0,
+    totalAttempts: 0,
+    levelStats: {}, // Registro por índice de nivel: { attempts: 0, hits: 0, time: 0 }
+
+    initLevel: function(levelIndex) {
+        if (!this.levelStats[levelIndex]) {
+            this.levelStats[levelIndex] = { attempts: 0, hits: 0, time: 0, startTime: Date.now() };
+        }
+        this.levelStats[levelIndex].attempts++;
+        this.levelStats[levelIndex].startTime = Date.now();
+        this.totalAttempts++;
+        console.log(`[STATS] Iniciando Nivel ${levelIndex + 1}. Intento #${this.levelStats[levelIndex].attempts}`);
+    },
+
+    recordHit: function(levelIndex) {
+        if (this.levelStats[levelIndex]) this.levelStats[levelIndex].hits++;
+        this.totalHits++;
+    },
+
+    recordLevelComplete: function(levelIndex) {
+        if (this.levelStats[levelIndex]) {
+            const duration = (Date.now() - this.levelStats[levelIndex].startTime) / 1000;
+            this.levelStats[levelIndex].time += duration;
+            console.log(`[STATS] Nivel ${levelIndex + 1} completado en ${duration.toFixed(2)}s`);
+        }
+    },
+
+    getSummary: function() {
+        let summary = `--- RESUMEN DE PARTIDA ---\n`;
+        summary += `Aciertos Totales: ${this.totalHits}\n`;
+        summary += `Intentos Totales: ${this.totalAttempts}\n`;
+        Object.keys(this.levelStats).forEach(idx => {
+            const s = this.levelStats[idx];
+            summary += `Nivel ${parseInt(idx)+1}: ${s.attempts} intentos, ${s.hits} aciertos, ${s.time.toFixed(1)}s\n`;
+        });
+        return summary;
+    },
+
+    resetGlobal: function() {
+        this.totalHits = 0;
+        this.totalAttempts = 0;
+        this.levelStats = {};
+        this.startTime = Date.now();
+    }
+};
