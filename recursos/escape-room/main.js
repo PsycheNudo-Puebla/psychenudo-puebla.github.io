@@ -190,7 +190,6 @@ const state = {
     inventory: null,
     inputModo: false,
     currentInput: "",
-    paused: false
     paused: false,
     soundEnabled: true
 };
