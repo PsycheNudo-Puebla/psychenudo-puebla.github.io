@@ -1,5 +1,6 @@
 /** GLOBALES Y REGISTRO **/
 let canvas, ctx, ui, menu, jsonInput, startBtn;
+let uiMinimized = false;
 
 // Registro de lógica de niveles (Debe estar al principio)
 window.levelLogics = window.levelLogics || {};
@@ -221,13 +222,14 @@ window.addEventListener('load', () => {
     jsonInput = document.getElementById('jsonInput');
     startBtn = document.getElementById('startBtn');
 
-    // Estilo de la barra de diálogo superior (no obstruye el juego)
+    // Estilo de la barra de diálogo superior (compacta y animada)
     ui.style.cssText = `
-        position: absolute; top: 0; left: 0; width: 100%; height: 60px;
+        position: absolute; top: 0; left: 0; width: 100%; height: 50px;
         background: rgba(0,0,0,0.85); color: white; display: flex; 
         align-items: center; justify-content: center; text-align: center;
-        font-size: 11px; z-index: 5000; pointer-events: none; border-bottom: 2px solid #f8b800;
+        font-size: 10px; z-index: 5000; pointer-events: none; border-bottom: 2px solid #f8b800;
         box-sizing: border-box; padding: 0 10px; font-family: 'Press Start 2P', monospace;
+        transition: height 0.3s, background 0.3s; overflow: hidden;
     `;
 
     // Inicializar soporte para móviles
@@ -324,6 +326,16 @@ function processJSON(data, fileName) {
         alert("Error al procesar el JSON: " + err.message);
     }
 }
+
+function toggleUI() {
+    uiMinimized = !uiMinimized;
+    ui.style.height = uiMinimized ? "20px" : "50px";
+    ui.style.background = uiMinimized ? "rgba(0,0,0,0.4)" : "rgba(0,0,0,0.85)";
+    
+    if (state.inputModo) actualizarDialogoInput();
+    else if (currentLevelData) ui.innerHTML = uiMinimized ? "..." : currentLevelData.title;
+}
+window.toggleUI = toggleUI; // Hacerlo accesible desde el botón móvil
 
 function toggleFullScreen() {
     const doc = window.document;
@@ -528,6 +540,8 @@ function handleKeyboardInput(e) {
 function actualizarDialogoInput() {
     if (state.inputModo) toggleMobileKeyboard(true);
     if (!state.inputModo) return;
+    if (uiMinimized) { ui.innerHTML = "<div style='color:#f8b800; font-size:8px;'>[MODO ESCRITURA ACTIVO]</div>"; return; }
+
     let length = currentLevelData.longitudClave || 4;
     let display = "";
     for (let i = 0; i < length; i++) {
@@ -749,7 +763,6 @@ function setupMobileControls() {
         }
         e.target.value = ""; // Resetear valor del input invisible
     });
-    hiddenInput.addEventListener('keydown', handleKeyboardInput);
 
     if (!isMobile) return;
 
@@ -772,8 +785,10 @@ function setupMobileControls() {
             .btn-action { width: 80px; height: 80px; border-radius: 50%; background: #a80020; border: 4px solid #500000; color: white; font-weight: bold; font-size: 18px; box-shadow: 0 5px #500000; }
             .btn-action:active { transform: translateY(3px); box-shadow: 0 2px #500000; }
             .btn-fs { position: fixed; top: 10px; left: 10px; width: 40px; height: 40px; background: rgba(0,0,0,0.5); border: 1px solid white; color: white; border-radius: 5px; z-index: 10000; pointer-events: auto; }
+            .btn-ui-toggle { position: fixed; top: 10px; right: 10px; width: 40px; height: 40px; background: rgba(0,0,0,0.5); border: 1px solid white; color: white; border-radius: 5px; z-index: 10000; pointer-events: auto; font-size: 18px; }
         </style>
         <button class="btn-fs" onclick="toggleFullScreen()">⛶</button>
+        <button class="btn-ui-toggle" onclick="toggleUI()">👁️</button>
         <div class="dpad">
             <div></div><div class="btn-mobile" data-key="ArrowUp">▲</div><div></div>
             <div class="btn-mobile" data-key="ArrowLeft">◀</div><div></div><div class="btn-mobile" data-key="ArrowRight">▶</div>
