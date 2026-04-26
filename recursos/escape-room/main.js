@@ -809,11 +809,20 @@ function setupMobileControls() {
     canvas.style.maxWidth = '100%';
     canvas.style.height = 'auto';
     canvas.style.touchAction = 'none'; // Previene scroll accidental al jugar
-    
-    // Asegurar que el cuadro de diálogo sea legible y tenga scroll si el texto es largo
-    ui.style.maxHeight = '120px';
+
+    // Aumentar tamaño y posicionar entre el juego y los controles
+    ui.style.position = 'fixed';
+    ui.style.bottom = '220px'; // Justo encima de la altura de los controles (220px)
+    ui.style.left = '0';
+    ui.style.right = '0';
+    ui.style.width = '100%';
+    ui.style.height = '160px'; // Altura aumentada para mejor lectura
+    ui.style.maxHeight = '200px';
     ui.style.overflowY = 'auto';
     ui.style.pointerEvents = 'auto';
+    ui.style.padding = '15px';
+    ui.style.borderTop = '4px solid #7c7c7c';
+    ui.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
 
     // Crear un input invisible para disparar el teclado del celular
     const hiddenInput = document.createElement('input');
