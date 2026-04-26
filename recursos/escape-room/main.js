@@ -237,51 +237,77 @@ window.addEventListener('load', () => {
     // Lector de JSON
     jsonInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            try {
-                const data = JSON.parse(event.target.result);
-                if (!data.levels || data.levels.length === 0) {
-                    throw new Error("El archivo no contiene un array de 'levels' válido.");
-                }
-                state.allLevels = data.levels;
-                state.levelIndex = 0; // Reiniciar al primer nivel siempre
-                loadCurrentLevel();
-                
-                // Interfaz
-                startBtn.style.display = 'none'; // Ocultamos el botón de inicio genérico
-                jsonInput.style.display = 'none';
-                
-                const menuP = document.querySelector('#menu p');
-                menuP.innerHTML = `<strong>${file.name}</strong> cargado.<br>Selecciona un nivel:`;
-
-                // Generar botones para cada nivel
-                state.allLevels.forEach((lvl, idx) => {
-                    const btn = document.createElement('button');
-                    btn.innerText = `NIVEL ${idx + 1}: ${lvl.title || lvl.type}`;
-                    btn.style.display = 'block';
-                    btn.style.margin = '10px auto';
-                    btn.style.padding = '10px';
-                    btn.onclick = () => {
-                        state.levelIndex = idx;
-                        loadCurrentLevel();
-                        startGame();
-                    };
-                    menu.appendChild(btn);
-                });
-            } catch (err) {
-                alert("Error al cargar el JSON: " + err.message);
-                console.error("Error detallado:", err);
-                document.querySelector('#menu p').innerText = "Error en el formato del archivo.";
-            }
-        };
-        reader.readAsText(file);
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => processJSON(JSON.parse(event.target.result), file.name);
+            reader.readAsText(file);
+        }
     });
+
+    // Generar botones para desafíos predefinidos automáticamente
+    const challengeContainer = document.createElement('div');
+    challengeContainer.style.margin = "15px 0";
+    PREDEFINED_CHALLENGES.forEach(ch => {
+        const btn = document.createElement('button');
+        btn.innerText = "🚀 " + ch.name;
+        btn.style.margin = "5px";
+        btn.style.padding = "10px";
+        btn.onclick = () => {
+            fetch(ch.path)
+                .then(response => response.json())
+                .then(data => processJSON(data, ch.name))
+                .catch(err => alert("Error al cargar nivel automático: " + err));
+        };
+        challengeContainer.appendChild(btn);
+    });
+    menu.insertBefore(challengeContainer, startBtn);
 
     startBtn.addEventListener('click', startGame);
 });
+
+function processJSON(data, fileName) {
+    try {
+        if (!data.levels || data.levels.length === 0) {
+            throw new Error("El archivo no contiene un array de 'levels' válido.");
+        }
+        state.allLevels = data.levels;
+        state.levelIndex = 0;
+        loadCurrentLevel();
+        
+        startBtn.style.display = 'none';
+        jsonInput.style.display = 'none';
+        if (document.getElementById('predefined-challenges')) document.getElementById('predefined-challenges').style.display = 'none';
+        
+        const menuP = document.querySelector('#menu p') || document.createElement('p');
+        menuP.innerHTML = `<strong>${fileName}</strong> cargado.<br>Elige un nivel:`;
+        if (!menuP.parentNode) menu.appendChild(menuP);
+
+        state.allLevels.forEach((lvl, idx) => {
+            const btn = document.createElement('button');
+            btn.innerText = `NIVEL ${idx + 1}: ${lvl.title || lvl.type}`;
+            btn.style.display = 'block';
+            btn.style.margin = '10px auto';
+            btn.onclick = () => {
+                state.levelIndex = idx;
+                loadCurrentLevel();
+                startGame();
+            };
+            menu.appendChild(btn);
+        });
+    } catch (err) {
+        alert("Error al procesar el JSON: " + err.message);
+    }
+}
+
+function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+            console.warn(`Error al activar pantalla completa: ${err.message}`);
+        });
+    } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+    }
+}
 
 function loadCurrentLevel() {
     state.inventory = null;
@@ -663,6 +689,12 @@ function setupMobileControls() {
     canvas.style.maxWidth = '100%';
     canvas.style.height = 'auto';
     canvas.style.touchAction = 'none'; // Previene scroll accidental al jugar
+
+    // Evitar zoom forzado por el navegador (especialmente en inputs)
+    const viewportMeta = document.createElement('meta');
+    viewportMeta.name = 'viewport';
+    viewportMeta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+    document.getElementsByTagName('head')[0].appendChild(viewportMeta);
 
     // Crear un input invisible para disparar el teclado del celular
     const hiddenInput = document.createElement('input');
