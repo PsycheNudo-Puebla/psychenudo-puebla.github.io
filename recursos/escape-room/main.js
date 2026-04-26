@@ -816,7 +816,7 @@ function setupMobileControls() {
     ui.style.left = '0';
     ui.style.right = '0';
     ui.style.width = '100%';
-    ui.style.height = '300px'; // Altura ampliada para mejorar la lectura de textos largos
+    ui.style.height = '350px'; // Altura ampliada para mejorar la lectura de textos largos
     ui.style.maxHeight = '350px'; // Límite más generoso antes de activar el scrollbar
     ui.style.overflowY = 'auto';
     ui.style.pointerEvents = 'auto';
