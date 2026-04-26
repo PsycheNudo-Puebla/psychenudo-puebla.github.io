@@ -5,6 +5,11 @@ let canvas, ctx, ui, menu, jsonInput, startBtn;
 window.levelLogics = window.levelLogics || {};
 let currentLevelData = null;
 
+// Lista de desafíos disponibles en el servidor
+const PREDEFINED_CHALLENGES = [
+    { name: "Psicometría Clínica", path: "levels/psicometria.json" }
+];
+
 // Configuración Visual Global NES
 const NES_PALETTE = {
     black: '#000000', white: '#ffffff',
@@ -474,8 +479,8 @@ function actualizarDialogoInput() {
     ui.innerHTML = `
         <div style="background: rgba(0,0,0,0.8); padding: 20px; border: 2px solid white; text-align: center;">
             SISTEMA DE SEGURIDAD<br>INGRESE CÓDIGO (${length} caracteres):<br><br>
-            <span style="letter-spacing:10px; font-size: 24px; color: #f8b800;">${display}</span><br><br>
-            <small>[ENTER] Confirmar - [ESC] Salir</small><br>
+            <span style="letter-spacing:10px; font-size: 20px; color: #f8b800;">${display}</span><br><br>
+            <small style="font-size:10px;">[ENTER] Confirmar - [ESC] Salir</small><br>
             <button id="mobile-kb-btn" style="margin-top:15px; padding:10px; font-family:inherit; display:none; background:#3cbcfc; border:none; color:white; border-radius:5px; font-size:12px;">ABRIR TECLADO</button>
         </div>`;
 
@@ -679,13 +684,14 @@ function setupMobileControls() {
     mobileUI.id = 'mobile-controls';
     mobileUI.innerHTML = `
         <style>
-            #mobile-controls { position: fixed; bottom: 20px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: flex-end; pointer-events: none; z-index: 9999; }
-            .dpad { display: grid; grid-template-columns: repeat(3, 55px); grid-template-rows: repeat(3, 55px); pointer-events: auto; }
-            .btn-mobile { width: 55px; height: 55px; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.4); color: white; display: flex; align-items: center; justify-content: center; user-select: none; font-size: 20px; border-radius: 8px; -webkit-tap-highlight-color: transparent; }
-            .btn-mobile:active { background: rgba(255,255,255,0.4); }
-            .actions { display: flex; align-items: center; pointer-events: auto; margin-bottom: 10px; }
-            .btn-action { width: 80px; height: 80px; border-radius: 50%; background: rgba(248, 184, 0, 0.2); border: 3px solid #f8b800; color: #f8b800; font-weight: bold; font-family: sans-serif; font-size: 16px; }
+            #mobile-controls { position: fixed; bottom: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: flex-end; pointer-events: none; z-index: 9999; }
+            .dpad { display: grid; grid-template-columns: repeat(3, 45px); grid-template-rows: repeat(3, 45px); pointer-events: auto; opacity: 0.7; }
+            .btn-mobile { width: 45px; height: 45px; background: rgba(255,255,255,0.2); border: 1px solid white; color: white; display: flex; align-items: center; justify-content: center; user-select: none; font-size: 18px; border-radius: 5px; }
+            .actions { display: flex; flex-direction: column; gap: 10px; align-items: center; pointer-events: auto; }
+            .btn-action { width: 60px; height: 60px; border-radius: 50%; background: rgba(248, 184, 0, 0.3); border: 2px solid #f8b800; color: #f8b800; font-size: 14px; }
+            .btn-fs { width: 40px; height: 40px; background: rgba(0,0,0,0.5); border: 1px solid white; color: white; border-radius: 5px; font-size: 12px; }
         </style>
+        <button class="btn-fs" onclick="toggleFullScreen()" style="position:fixed; top:10px; right:10px; pointer-events:auto;">⛶</button>
         <div class="dpad">
             <div></div><div class="btn-mobile" data-key="ArrowUp">▲</div><div></div>
             <div class="btn-mobile" data-key="ArrowLeft">◀</div><div></div><div class="btn-mobile" data-key="ArrowRight">▶</div>
