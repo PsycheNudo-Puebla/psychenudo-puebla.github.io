@@ -1,0 +1,3308 @@
+<!-- Herramienta de Rúbrica - Versión Offline Local -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 Rúbrica - Evaluación Local</title>
+    <!-- PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary: #3498db;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --accent: #9b59b6;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            position: relative;
+            z-index: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 5;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           ESTILOS GENERALES
+           ═══════════════════════════════════════════════════════════════════════════════ */
+
+        h1, h2, h3 { color: var(--dark); }
+        h1 { margin-top: 0; font-size: 32px; }
+        h2 { font-size: 24px; margin: 20px 0 15px 0; }
+        h3 { font-size: 18px; margin: 15px 0 10px 0; }
+
+        p { color: #666; line-height: 1.6; }
+
+        button {
+            padding: 10px 18px;
+            margin: 4px 2px;
+            cursor: pointer;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        button:hover { 
+            opacity: 0.9; 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        button.secondary { background-color: #95a5a6; }
+        button.success { background-color: var(--success); }
+        button.warning { background-color: var(--warning); }
+        button.danger { background-color: var(--danger); }
+        button.large {
+            padding: 15px 30px;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        input, textarea, select {
+            padding: 10px 12px;
+            margin: 6px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        .signature {
+            text-align: right;
+            font-size: 12px;
+            color: #999;
+            font-style: italic;
+            margin: 20px 0;
+        }
+        .signature strong { color: var(--dark); font-style: normal; }
+
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           PANTALLAS
+           ═══════════════════════════════════════════════════════════════════════════════ */
+
+        .screen {
+            display: none;
+            width: 100%;
+            min-height: auto;
+            position: relative;
+            z-index: 1;
+        }
+        .screen.active {
+            display: block !important;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           PANTALLA 0: LOGIN / REGISTRO
+           ═══════════════════════════════════════════════════════════════════════════════ */
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .login-container h1 { color: var(--primary); margin-bottom: 10px; }
+        .login-container input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        .login-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .offline-mode-btn {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #666;
+            background: none;
+            border: none;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           PANTALLA 1: INICIO
+           ═══════════════════════════════════════════════════════════════════════════════ */
+
+        .welcome-section {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .welcome-section h1 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+        .welcome-section p {
+            font-size: 18px;
+            margin-bottom: 40px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .option-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 40px 30px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .option-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+        .option-card h2 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 28px;
+        }
+        .option-card p {
+            color: #666;
+            margin-bottom: 20px;
+            min-height: 50px;
+        }
+        .option-card button {
+            width: 100%;
+        }
+
+        .divider {
+            margin: 50px 0;
+            padding: 30px 0;
+            border-top: 2px solid #ddd;
+            border-bottom: 2px solid #ddd;
+            background: #f9f9f9;
+        }
+        .divider h3 {
+            margin-top: 0;
+            color: #667eea;
+            text-align: center;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           PANTALLA 2: CREAR/EDITAR RÚBRICA
+           ═══════════════════════════════════════════════════════════════════════════════ */
+
+        .rubric-editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .rubric-editor-header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .rubric-name-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--dark);
+            padding: 10px 15px;
+            background: #f0f0f0;
+            border-radius: 6px;
+        }
+
+        .rubric-editor-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .rubric-editor-actions button {
+            padding: 10px 16px;
+            font-size: 14px;
+        }
+
+        .rubric-info {
+            background: #f0f8ff;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .rubric-info p {
+            margin: 5px 0;
+        }
+
+        .criteria-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .criteria-section h3 {
+            margin-top: 0;
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+        }
+
+        .add-criterion-btn {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .criterion-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .criterion-item-header {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .criterion-item-title {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .criterion-item-points {
+            width: 100px;
+        }
+
+        .criterion-item-title input,
+        .criterion-item-points input {
+            width: 100%;
+        }
+
+        .criterion-levels {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .criterion-levels label {
+            display: block;
+            margin: 10px 0 5px 0;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .criterion-levels textarea {
+            width: 100%;
+            margin-bottom: 10px;
+            min-height: 50px;
+            resize: vertical;
+        }
+
+        .level-row {
+            background: white;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .level-row-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr 150px 150px 100px;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: end;
+        }
+
+        .level-row-header label {
+            font-weight: 600;
+            color: var(--primary);
+            margin: 0 0 5px 0;
+            display: block;
+        }
+
+        .level-row-header input[type="text"],
+        .level-row-header input[type="number"] {
+            margin: 0;
+        }
+
+        .level-row-desc {
+            margin-top: 10px;
+        }
+
+        .level-row-desc label {
+            font-weight: 600;
+            color: var(--primary);
+            margin: 0 0 5px 0;
+            display: block;
+        }
+
+        .level-row-desc textarea {
+            width: 100%;
+            min-height: 50px;
+            resize: vertical;
+            margin: 0;
+        }
+
+        .level-points-input {
+            width: 100%;
+        }
+
+        .level-row-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .level-row-actions button {
+            flex: 1;
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+
+        .add-level-btn {
+            background: #e8f5e9;
+            color: var(--success);
+            border: 2px dashed var(--success);
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .add-level-btn:hover {
+            background: var(--success);
+            color: white;
+            border-style: solid;
+        }
+
+        .criterion-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .criterion-actions button {
+            flex: 1;
+        }
+
+        .criterion-item.collapsed .criterion-levels {
+            display: none;
+        }
+
+        .criterion-item.collapsed .criterion-item-header::after {
+            content: " (Contraído)";
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           PANTALLA 3: EVALUAR/CALIFICAR
+           ═══════════════════════════════════════════════════════════════════════════════ */
+
+        .evaluation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .evaluation-header-info {
+            background: #e8f8f5;
+            padding: 15px 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--success);
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .evaluation-header-info p {
+            margin: 5px 0;
+            font-weight: 500;
+        }
+
+        .evaluation-header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .evaluation-layout {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 1024px) {
+            .evaluation-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .evaluation-sidebar {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            height: fit-content;
+        }
+
+        .evaluation-sidebar h3 {
+            margin-top: 0;
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+        }
+
+        .group-selector-section {
+            margin-bottom: 20px;
+        }
+
+        .group-selector-section label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .group-selector-section select {
+            width: 100%;
+        }
+
+        .student-list {
+            margin-top: 15px;
+        }
+
+        .student-item {
+            padding: 10px 12px;
+            margin: 5px 0;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .student-item:hover {
+            border-color: var(--primary);
+            background: #f0f8ff;
+        }
+
+        .student-item.graded {
+            border-left: 4px solid var(--success);
+            background-color: #f0fff4;
+        }
+
+        .student-item.active {
+            border-color: var(--success);
+            background: #e8f8f5;
+            color: var(--success);
+        }
+
+        .student-name-input {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+
+        .evaluation-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .evaluation-content h3 {
+            margin-top: 0;
+            color: var(--dark);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .criterion-evaluation {
+            background: #f9f9f9;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .criterion-evaluation-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--dark);
+            margin-bottom: 12px;
+        }
+
+        .criterion-evaluation-points {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        .levels-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .level-button {
+            padding: 12px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .level-button:hover {
+            border-color: var(--primary);
+            background: #f0f8ff;
+        }
+
+        .level-button.selected {
+            border-color: var(--success);
+            background: #e8f8f5;
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .level-button-name {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .level-button-points {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .level-button.selected .level-button-points {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .level-range-slider-container {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .level-range-slider-container.active {
+            display: block;
+        }
+
+        .level-range-slider-container h4 {
+            margin: 0 0 10px 0;
+            color: var(--primary);
+        }
+
+        .slider-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .range-slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--success);
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .range-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--success);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .range-value {
+            min-width: 60px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--success);
+            font-size: 16px;
+        }
+
+        .summary-section {
+            background: linear-gradient(135deg, #f0f7ff 0%, #e8f8f5 100%);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            border: 2px solid #d0e8ff;
+        }
+
+        .summary-section h3 {
+            margin-top: 0;
+            color: var(--primary);
+        }
+
+        .summary-item {
+            padding: 12px;
+            margin: 10px 0;
+            background: white;
+            border-left: 4px solid var(--primary);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .summary-item .label {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .summary-item .value {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .final-grade {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 15px;
+            border: 2px solid var(--success);
+        }
+
+        .final-grade .label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .final-grade .score {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--success);
+            margin: 10px 0;
+        }
+
+        .student-nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .student-nav-buttons button {
+            flex: 1;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           MODAL
+           ═══════════════════════════════════════════════════════════════════════════════ */
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        .modal input, .modal textarea, .modal select {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           UTILIDADES
+           ═══════════════════════════════════════════════════════════════════════════════ */
+
+        .back-button {
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+
+        .hidden { display: none; }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            .evaluation-layout {
+                grid-template-columns: 1fr;
+            }
+            .rubric-editor-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .evaluation-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .levels-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ═══════════════════════════════════════════════════════════════════════════════
+         PANTALLA 1: INICIO
+         ═══════════════════════════════════════════════════════════════════════════════ -->
+    <div id="screenWelcome" class="screen active">
+        <div class="container">
+            <div class="welcome-section">
+                <h1>🎓 Rúbrica de Evaluación</h1>
+                <p>Herramienta local para evaluar con rúbricas personalizadas</p>
+                <div class="signature">
+                    Creado por <strong>Alfredo Adrián González Lazcano</strong>
+                </div>
+                <div id="user-info-container" style="margin-top: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <span id="userInfoDisplay" style="color: var(--primary);"></span>
+                    <button id="btnUpdateUsername" class="secondary" onclick="openUpdateUsernameModal()" title="Cambiar nombre de usuario" style="font-size: 12px; padding: 4px 8px; margin: 0; display: none;">✏️</button>
+                </div>
+                <div id="activeStatusDisplay" style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef; display: inline-block; text-align: left; min-width: 300px;">
+                    <div style="margin-bottom: 5px;"><strong>📂 Rúbrica Activa:</strong> <span id="statusRubric" style="color: var(--primary);">Ninguna</span></div>
+                    <div><strong>👥 Grupo Activo:</strong> <span id="statusGroup" style="color: var(--success);">Ninguno</span></div>
+                    <div style="margin-top: 5px;"><strong>💾 Último Guardado Completo:</strong> <span id="statusLastCompleteSave" style="color: #555;">Sin registro</span></div>
+                    <button id="btnContinueEvaluation" class="primary" onclick="goToEvaluateRubric()" style="width: 100%; margin-top: 10px; display: none;">➡️ Continuar Evaluando</button>
+                </div>
+            </div>
+
+            <div class="options-grid">
+                <div class="option-card">
+                    <h2>✨ Crear Rúbrica</h2>
+                    <p>Crea una rúbrica desde cero con tus propios criterios de evaluación.</p>
+                    <button class="success large" onclick="goToNewRubric()">Crear Rúbrica</button>
+                </div>
+
+                <div class="option-card">
+                    <h2>📂 Cargar Rúbrica</h2>
+                    <p>Carga una rúbrica: vacía, con alumnos, o con calificaciones ya hechas.</p>
+                    <button class="primary large" onclick="goToLoadRubric()">📂 Cargar desde Equipo</button>
+                </div>
+
+                <div class="option-card">
+                    <h2>👥 Crear Grupo</h2>
+                    <p>Crea un grupo de alumnos para usar en tus evaluaciones.</p>
+                    <button class="info large" onclick="openModal('modalCreateGroup')">Crear Grupo</button>
+                </div>
+
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="secondary" onclick="openModal('modalInstructions')" style="font-size: 14px;">ℹ️ Instrucciones y Recomendaciones</button>
+            </div>
+        </div> <!-- Fin container -->
+    </div> <!-- Fin screenWelcome -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════════
+         PANTALLA 2: CREAR/EDITAR RÚBRICA
+         ═══════════════════════════════════════════════════════════════════════════════ -->
+    <div id="screenRubricEditor" class="screen">
+        <div class="container">
+            <!-- Header con botones -->
+            <div class="rubric-editor-header">
+                <div class="rubric-editor-header-left">
+                    <button class="secondary back-button" onclick="goBackToWelcome()">⬅️ Volver</button>
+                    <span class="rubric-name-display" id="rubricNameDisplay">Nueva Rúbrica</span>
+                </div>
+                <div class="rubric-editor-actions">
+                    <button class="primary" onclick="renameRubric()">✏️ Renombrar</button>
+                    <button class="warning" onclick="triggerImportRubricEdit()">📂 Importar Rúbrica</button>
+                    <button class="info" onclick="associateRubricToGroup()">👥 Asociar a Grupo</button>
+                    <input type="file" id="importRubricEditFile" accept=".json" style="display: none;" onchange="importRubricEdit()">
+                </div>
+            </div>
+
+            <!-- Info sobre la rúbrica -->
+            <div class="rubric-info">
+                <p><strong>📌 Instrucciones:</strong> Agrega criterios de evaluación a tu rúbrica. Cada criterio puede tener múltiples niveles de desempeño.</p>
+                <p><strong>💡 Tip:</strong> Define claramente los niveles (Insuficiente, Suficiente, Bien, Excelente) para cada criterio.</p>
+                <p><strong>⚖️ Rangos vs Valor Fijo:</strong> Marca la casilla "Usar Rango" para definir un mínimo y máximo (ej: 8-10). Si la desmarcas, el valor será fijo.</p>
+            </div>
+
+            <!-- Sección de criterios -->
+            <div class="criteria-section">
+                <h3>📝 Criterios de Evaluación</h3>
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <button class="secondary" onclick="toggleAllRanges(true)" style="flex: 1; padding: 8px; font-size: 12px;">✅ Habilitar Rangos (Todos)</button>
+                    <button class="secondary" onclick="toggleAllRanges(false)" style="flex: 1; padding: 8px; font-size: 12px;">🚫 Usar Puntos Fijos (Todos)</button>
+                </div>
+                <button class="add-criterion-btn success" onclick="addNewCriterion()">➕ Agregar Criterio</button>
+                
+                <div id="criteriaList"></div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div style="display: flex; gap: 10px; margin-top: 30px; flex-wrap: wrap;">
+                <button class="secondary" onclick="goBackToWelcome()" style="flex: 1;">⬅️ Volver</button>
+                <button class="info" onclick="exportRubric()" style="flex: 1;">📤 Exportar (JSON)</button>
+                <button class="warning" onclick="exportRubricToPDF()" style="flex: 1;">📄 Exportar a PDF</button>
+                <button class="warning" id="btnExportWithGroup" onclick="exportRubricWithGroup()" style="flex: 1; display: none;">📤 Exportar con Grupo</button>
+                <button class="primary" onclick="goToEvaluateRubric()" style="flex: 1;">➡️ Ir a Evaluar</button>
+            </div>
+        </div> <!-- Fin container -->
+    </div> <!-- Fin screenRubricEditor -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════════
+         PANTALLA 3: EVALUAR/CALIFICAR
+         ═══════════════════════════════════════════════════════════════════════════════ -->
+    <div id="screenEvaluate" class="screen">
+        <div class="container">
+            <!-- Header -->
+            <div class="evaluation-header">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button class="secondary back-button" onclick="goBackToWelcome()">⬅️ Volver</button>
+                    <h1 style="margin: 0;">Evaluar</h1>
+                </div>
+                <div class="evaluation-header-actions">
+                    <button class="secondary" onclick="exportRubricWithAllData()">📥 Exportar Rúbrica Completa</button>
+                </div>
+            </div>
+
+            <!-- Info de la rúbrica -->
+            <div class="evaluation-header-info">
+                <p><strong>Rúbrica:</strong> <span id="evalRubricName">-</span></p>
+                <p><strong>Alumno:</strong> <span id="evalStudentName">-</span></p>
+            </div>
+
+            <!-- Layout: Sidebar + Contenido -->
+            <div class="evaluation-layout">
+                <!-- Sidebar -->
+                <div class="evaluation-sidebar">
+                    <h3>👥 Alumnos</h3>
+                    
+                    <div class="group-selector-section">
+                        <button class="primary" onclick="triggerImportStudents()" style="width: 100%; margin-bottom: 10px;">📥 Importar Alumnos</button>
+                        <input type="file" id="importStudentsFile" accept=".json" style="display: none;" onchange="importStudents()">
+                        <button class="success" onclick="exportToExcel()" style="width: 100%; margin-bottom: 15px;">📊 Exportar a Excel</button>
+                        <button class="info" onclick="openEvaluationHistory()" style="width: 100%; margin-bottom: 15px;">📖 Ver Historial de Evaluaciones</button>
+                    </div>
+                    
+                    <div class="group-selector-section" id="studentsList"></div>
+                    
+                    <div class="group-selector-section">
+                        <label>O ingresa nombre del alumno:</label>
+                        <input type="text" class="student-name-input" id="manualStudentName" placeholder="Nombre del alumno" onchange="updateManualStudentName()">
+                    </div>
+                </div>
+
+                <!-- Contenido principal -->
+                <div class="evaluation-content">
+                    <h3>Criterios a Evaluar</h3>
+                    <div id="evaluationCriteria"></div>
+
+                    <!-- Resumen -->
+                    <div class="summary-section">
+                        <h3>📊 Resumen de Calificación</h3>
+                        <div id="summaryStudentDisplay" style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #d0e8ff; font-size: 1.1em;"></div>
+                        <div id="summaryItems"></div>
+                        <div class="final-grade">
+                            <div class="label">Calificación Final</div>
+                            <div class="score"><span id="finalScore">0.0</span> / 10</div>
+                            <div id="totalPointsSummary" style="color: #666; font-size: 14px; margin-bottom: 15px;"></div>
+                            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                                <button class="secondary" onclick="prevStudent()" style="flex: 1;">⬅️ Alumno Anterior</button>
+                                <button class="secondary" onclick="nextStudent()" style="flex: 1;">Alumno Siguiente ➡️</button>
+                            </div>
+                            <button class="success" onclick="saveEvaluation()" style="width: 100%; margin-top: 10px;">💾 Guardar Progreso (Local)</button>
+                            <button class="secondary" onclick="exportEvaluation()" style="width: 100%; margin-top: 8px;">📤 Exportar Esta Evaluación</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- Fin container -->
+    </div> <!-- Fin screenEvaluate -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════════
+         MODAL: Guardar como Plantilla
+         ═══════════════════════════════════════════════════════════════════════════════ -->
+    <div id="modalSaveTemplate" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Guardar como Plantilla</div>
+            <p>¿Quieres guardar esta rúbrica como plantilla para usarla en el futuro?</p>
+            <label><strong>Nombre de la Plantilla:</strong></label>
+            <input type="text" id="templateNameInput" placeholder="Ej: Evaluación de Matemáticas">
+            <div class="modal-footer">
+                <button class="secondary" onclick="closeModal('modalSaveTemplate')">Cancelar</button>
+                <button class="success" onclick="confirmSaveTemplate()">Guardar ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════════
+         MODAL: Renombrar Rúbrica
+         ═══════════════════════════════════════════════════════════════════════════════ -->
+    <div id="modalRenameRubric" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Renombrar Rúbrica</div>
+            <label><strong>Nuevo nombre:</strong></label>
+            <input type="text" id="rubricNewNameInput" placeholder="Nombre de la rúbrica">
+            <div class="modal-footer">
+                <button class="secondary" onclick="closeModal('modalRenameRubric')">Cancelar</button>
+                <button class="success" onclick="confirmRenameRubric()">Renombrar ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════════
+         MODAL: Actualizar Nombre de Usuario
+         ═══════════════════════════════════════════════════════════════════════════════ -->
+    <div id="modalUpdateUsername" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Actualizar Nombre de Usuario</div>
+            <label><strong>Nuevo nombre de usuario:</strong></label>
+            <input type="text" id="newUsernameInput" placeholder="Tu nombre de usuario">
+            <div class="modal-footer">
+                <button class="secondary" onclick="closeModal('modalUpdateUsername')">Cancelar</button>
+                <button class="success" onclick="confirmUpdateUsername()">Actualizar ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════════
+         MODAL: Crear Grupo
+         ═══════════════════════════════════════════════════════════════════════════════ -->
+    <div id="modalCreateGroup" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Crear Nuevo Grupo</div>
+            <label><strong>Nombre del Grupo:</strong></label>
+            <input type="text" id="groupNameInput" placeholder="Ej: 1º ESO - Grupo A">
+            
+            <label><strong>Nombres de Alumnos (uno por línea):</strong></label>
+            <textarea id="studentsInput" placeholder="Juan&#10;María&#10;Pedro&#10;Ana" style="height: 150px;"></textarea>
+            
+            <div class="modal-footer">
+                <button class="secondary" onclick="closeModal('modalCreateGroup')">Cancelar</button>
+                <button class="success" onclick="confirmCreateGroup()">Crear Grupo ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════════
+         MODAL: Importar/Exportar Grupos
+         ═══════════════════════════════════════════════════════════════════════════════ -->
+    <div id="modalGroupsIO" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Importar/Exportar Grupos</div>
+            <div style="margin: 20px 0;">
+                <button class="success" style="width: 100%; margin-bottom: 10px;" onclick="exportGroups()">📤 Exportar Todos los Grupos</button>
+                <button class="primary" style="width: 100%;" onclick="triggerImportGroups()">📥 Importar Grupos</button>
+                <input type="file" id="importGroupsFile" accept=".json" style="display: none;" onchange="importGroups()">
+            </div>
+            <div class="modal-footer">
+                <button class="secondary" onclick="closeModal('modalGroupsIO')">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════════
+         MODAL: Seleccionar Plantilla
+         ═══════════════════════════════════════════════════════════════════════════════ -->
+    <div id="modalSelectTemplate" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Selecciona una Plantilla</div>
+            <div id="templatesList"></div>
+            <div class="modal-footer">
+                <button class="secondary" onclick="closeModal('modalSelectTemplate')">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════════
+         MODAL: Importar Rúbrica
+         ═══════════════════════════════════════════════════════════════════════════════ -->
+    <div id="modalImportRubric" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Cargar Rúbrica o Evaluación</div>
+            <p>Selecciona un archivo JSON. Puede ser:</p>
+            <ul style="font-size: 14px; color: #666; margin: 10px 0; padding-left: 20px;">
+                <li>📝 Una rúbrica vacía</li>
+                <li>📝 Una rúbrica con alumnos</li>
+                <li>📝 Una rúbrica con alumnos y calificaciones</li>
+                <li>🎓 Una evaluación guardada</li>
+            </ul>
+            <input type="file" id="importRubricFile" accept=".json" style="display: block; margin: 15px 0;" onchange="confirmImportRubric()">
+            <div class="modal-footer">
+                <button class="secondary" onclick="closeModal('modalImportRubric')">Cancelar</button>
+                <button class="success" onclick="confirmImportRubric()">Importar ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Crear Grupo -->
+    <!-- MODAL: Importar Grupo -->
+    <div id="modalImportGroup" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Importar Grupo</div>
+            <p>Selecciona un archivo JSON de grupo:</p>
+            <input type="file" id="importGroupFile" accept=".json" style="display: block; margin: 15px 0;">
+            <input type="file" id="importGroupFileHidden" accept=".json" style="display: none;" onchange="handleImportGroup()">
+            <div class="modal-footer">
+                <button class="secondary" onclick="closeModal('modalImportGroup')">Cancelar</button>
+                <button class="success" onclick="document.getElementById('importGroupFileHidden').click()">Seleccionar Archivo ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════════
+         MODAL: Asociar Rúbrica a Grupo
+         ═══════════════════════════════════════════════════════════════════════════════ -->
+    <div id="modalAssociateRubricGroup" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">📝 Asociar Rúbrica a Grupo</div>
+            <p style="color: #666; margin-bottom: 15px;">
+                <strong>Rúbrica:</strong> <span id="modalRubricName" style="color: var(--primary); font-weight: bold;">-</span><br>
+                <strong>Descripción:</strong> Selecciona un grupo para asociarlo a esta rúbrica. Los estudiantes del grupo se cargarán automáticamente al evaluar.
+            </p>
+            <div id="associationGroupsList" style="max-height: 300px; overflow-y: auto;"></div>
+            <div class="modal-footer">
+                <button class="secondary" onclick="closeModal('modalAssociateRubricGroup')">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════════
+         MODAL: Instrucciones
+         ═══════════════════════════════════════════════════════════════════════════════ -->
+    <div id="modalInstructions" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">📖 Guía de Uso y Recomendaciones</div>
+            <div style="text-align: left; line-height: 1.6; color: #444;">
+                <p>Bienvenido a la <strong>Rúbrica de Evaluación</strong>. Aquí tienes algunos consejos clave para aprovechar al máximo la herramienta:</p>
+                
+                <h4 style="color: var(--primary); margin-bottom: 5px; margin-top: 15px;">💾 Almacenamiento (¡Importante!)</h4>
+                <div style="background: #fff3cd; padding: 10px; border-left: 4px solid #ffc107; border-radius: 4px; margin-bottom: 10px;">
+                    <strong>⚠️ Atención:</strong> Esta aplicación guarda tus datos temporalmente en la memoria del navegador (<em>LocalStorage</em>). 
+                    <strong>Si borras el historial, caché o usas modo incógnito, podrías perder tus datos al cerrar.</strong>
+                </div>
+                <ul style="margin-top: 5px; padding-left: 20px;">
+                    <li>Usa el botón <strong>"Guardar Evaluación"</strong> frecuentemente para no perder progreso si cierras la pestaña accidentalmente.</li>
+                    <li>Al terminar una sesión, <strong>SIEMPRE EXPORTA</strong> tus resultados (Excel o JSON) a tu computadora.</li>
+                    <li>El archivo exportado es tu única copia de seguridad permanente.</li>
+                </ul>
+
+                <h4 style="color: var(--primary); margin-bottom: 5px; margin-top: 15px;">🚀 Flujo de Trabajo Recomendado</h4>
+                <ol style="margin-top: 5px; padding-left: 20px;">
+                    <li><strong>Crear Rúbrica:</strong> Define criterios y niveles. Puedes usar rangos (ej: 8-10) o puntos fijos.</li>
+                    <li><strong>Grupos:</strong> Crea o importa listas de alumnos para agilizar la evaluación.</li>
+                    <li><strong>Evaluar:</strong> Selecciona la rúbrica y el alumno. Califica criterio por criterio.</li>
+                    <li><strong>Exportar:</strong> Descarga el reporte final en Excel o JSON.</li>
+                </ol>
+            </div>
+            <div class="modal-footer">
+                <button class="primary" onclick="closeModal('modalInstructions')">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════════
+         MODAL: Historial de Evaluaciones
+         ═══════════════════════════════════════════════════════════════════════════════ -->
+    <div id="modalEvaluationHistory" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">📖 Historial de Evaluaciones</div>
+            <div style="max-height: 500px; overflow-y: auto;">
+                <div id="evaluationHistoryContent" style="padding: 15px;">
+                    <!-- Se llena dinámicamente -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="secondary" onclick="closeModal('modalEvaluationHistory')">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // VARIABLES GLOBALES
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let currentRubric = null;
+        let currentGroup = null; // Nuevo: Grupo activo
+        let currentEvaluation = {
+            studentName: '',
+            groupId: null,
+            studentIndex: null,
+            scores: {}
+        };
+        let currentCriterionIndex = 0;
+        let isAllCriteriaView = false;
+
+        function normalizeGroupId(groupId) {
+            if (groupId === null || groupId === undefined || groupId === '') return null;
+            return String(groupId);
+        }
+
+        function findMatchingGroupForRubric(rubric) {
+            if (!rubric || !Array.isArray(createdGroups) || createdGroups.length === 0) return null;
+
+            const targetId = normalizeGroupId(rubric.associatedGroupId);
+            const targetName = (rubric.associatedGroupName || '').trim().toLowerCase();
+
+            return createdGroups.find(group => {
+                const groupId = normalizeGroupId(group.id);
+                const groupName = (group.name || '').trim().toLowerCase();
+
+                if (targetId && groupId === targetId) return true;
+                if (targetName && groupName === targetName) return true;
+                return false;
+            }) || null;
+        }
+
+        function restoreAssociatedGroupFromRubric(rubric) {
+            if (!rubric) {
+                currentGroup = null;
+                return;
+            }
+
+            const hasAssociation = !!(rubric.associatedGroupId || rubric.associatedGroupName);
+            if (!hasAssociation) {
+                currentGroup = null;
+                if ((!importedStudents || importedStudents.length === 0) && Array.isArray(rubric.students) && rubric.students.length > 0) {
+                    importedStudents = rubric.students;
+                }
+                return;
+            }
+
+            const matchedGroup = findMatchingGroupForRubric(rubric);
+            if (matchedGroup) {
+                currentGroup = matchedGroup;
+                rubric.associatedGroupId = matchedGroup.id;
+                rubric.associatedGroupName = matchedGroup.name;
+
+                if (!importedStudents || importedStudents.length === 0) {
+                    importedStudents = matchedGroup.students || rubric.students || [];
+                }
+                return;
+            }
+
+            currentGroup = {
+                id: rubric.associatedGroupId || `virtual_${Date.now()}`,
+                name: rubric.associatedGroupName || 'Grupo asociado',
+                students: rubric.students || [],
+                isVirtual: true
+            };
+
+            if (!importedStudents || importedStudents.length === 0) {
+                importedStudents = currentGroup.students;
+            }
+        }
+
+        function getRubricAssociationData(rubric) {
+            const inferredGroup = inferGroupFromCurrentContext(rubric || currentRubric);
+            const source = inferredGroup || currentGroup || rubric || currentRubric;
+            return {
+                associatedGroupId: source ? source.id || source.associatedGroupId || null : null,
+                associatedGroupName: source ? source.name || source.associatedGroupName || null : null
+            };
+        }
+
+        function normalizeStudentName(name) {
+            return String(name || '').trim().toLowerCase();
+        }
+
+        function studentsSignature(students) {
+            if (!Array.isArray(students) || students.length === 0) return '';
+            return students
+                .map(s => typeof s === 'string' ? s : s?.name)
+                .map(normalizeStudentName)
+                .filter(Boolean)
+                .sort()
+                .join('|');
+        }
+
+        function inferGroupFromCurrentContext(rubric) {
+            if (currentGroup && currentGroup.id !== undefined && currentGroup.name) {
+                return currentGroup;
+            }
+
+            const matchedByRubric = findMatchingGroupForRubric(rubric);
+            if (matchedByRubric) {
+                return matchedByRubric;
+            }
+
+            if (!Array.isArray(createdGroups) || createdGroups.length === 0) return null;
+
+            const currentStudentsSignature = studentsSignature(importedStudents);
+            if (!currentStudentsSignature) return null;
+
+            const exactMatches = createdGroups.filter(g => studentsSignature(g.students) === currentStudentsSignature);
+            if (exactMatches.length === 1) return exactMatches[0];
+
+            if (exactMatches.length > 1 && rubric?.associatedGroupName) {
+                const byName = exactMatches.find(g => normalizeStudentName(g.name) === normalizeStudentName(rubric.associatedGroupName));
+                if (byName) return byName;
+            }
+
+            return null;
+        }
+
+        function setLastCompleteSaveStatus(source, groupName, gradedCount) {
+            const groupText = groupName || 'Sin grupo';
+            const safeCount = Number.isFinite(gradedCount) ? gradedCount : 0;
+            const text = `${source} • Grupo: ${groupText} • Evaluados: ${safeCount}`;
+            const statusEl = document.getElementById('statusLastCompleteSave');
+
+            if (statusEl) {
+                statusEl.textContent = text;
+                statusEl.style.color = '#1f7a3a';
+            }
+
+            localStorage.setItem('rubrica_last_complete_save', text);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // INICIALIZACIÓN
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        window.addEventListener('load', () => {
+            loadFromStorage();
+            loadGroupsFromStorage();
+            updateWelcomeStatus();
+
+            // Navegación con teclado para evaluación
+            document.addEventListener('keydown', (e) => {
+                const screenEvaluate = document.getElementById('screenEvaluate');
+                if (screenEvaluate && screenEvaluate.classList.contains('active')) {
+                    // Permitir Enter para avanzar, excepto si se está escribiendo texto
+                    if (e.key === 'Enter' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                        e.preventDefault();
+                        nextCriterion();
+                    }
+                }
+            });
+        });
+
+        function updateWelcomeStatus() {
+            const rubricEl = document.getElementById('statusRubric');
+            const groupEl = document.getElementById('statusGroup');
+            const saveStatusEl = document.getElementById('statusLastCompleteSave');
+            const btnContinue = document.getElementById('btnContinueEvaluation');
+            
+            // Mostrar nombre de rúbrica y si está asociada a un grupo
+            if (rubricEl) {
+                let rubricText = currentRubric ? currentRubric.name : 'Ninguna';
+                if (currentRubric && currentRubric.associatedGroupName) {
+                    rubricText += ` <span style="color: #27ae60; font-size: 12px;">✅ (Grupo: ${currentRubric.associatedGroupName})</span>`;
+                }
+                rubricEl.innerHTML = rubricText;
+            }
+            
+            if (groupEl) {
+                if (currentGroup) {
+                    groupEl.textContent = currentGroup.name;
+                } else if (currentRubric && currentRubric.associatedGroupName) {
+                    groupEl.textContent = currentRubric.associatedGroupName;
+                } else {
+                    groupEl.textContent = 'Ninguno';
+                }
+            }
+
+            if (saveStatusEl) {
+                const lastSave = localStorage.getItem('rubrica_last_complete_save');
+                saveStatusEl.textContent = lastSave || 'Sin registro';
+                saveStatusEl.style.color = lastSave ? '#1f7a3a' : '#555';
+            }
+            
+            if (btnContinue) {
+                if (currentRubric && currentRubric.criteria && currentRubric.criteria.length > 0) {
+                    btnContinue.style.display = 'block';
+                } else {
+                    btnContinue.style.display = 'none';
+                }
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // NAVEGACIÓN DE PANTALLAS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function showScreen(screenId) {
+            console.log('👁️ showScreen llamado con:', screenId);
+            try {
+                document.querySelectorAll('.screen').forEach(s => {
+                    s.classList.remove('active');
+                });
+                const screen = document.getElementById(screenId);
+                if (screen) {
+                    screen.classList.add('active');
+                    console.log('✅ Clase active añadida a:', screenId);
+                    const displayStyle = window.getComputedStyle(screen).display;
+                    console.log('Display CSS:', displayStyle);
+                } else {
+                    console.error('❌ Pantalla no encontrada:', screenId);
+                    throw new Error(`Pantalla "${screenId}" no existe en el DOM`);
+                }
+                window.scrollTo(0, 0);
+                console.log('✅ Navegación completada a pantalla:', screenId);
+            } catch(err) {
+                console.error('❌ Error CRÍTICO en showScreen:', err);
+                alert('Error al cambiar de pantalla: ' + err.message);
+            }
+        }
+
+        function goBackToWelcome() {
+            showScreen('screenWelcome');
+        }
+
+        function goToNewRubric() {
+            console.log('goToNewRubric iniciado');
+            currentRubric = {
+                id: Date.now(),
+                name: 'Nueva Rúbrica',
+                criteria: []
+            };
+            activeCloudId = null;
+            activeCloudType = null;
+            console.log('currentRubric creado:', currentRubric);
+            updateWelcomeStatus();
+            renderRubricEditor();
+            console.log('renderRubricEditor completado');
+            showScreen('screenRubricEditor');
+            console.log('showScreen completado');
+        }
+
+        function goToLoadRubric() {
+            document.getElementById('importRubricFile').click();
+        }
+
+        function goToEvaluateRubric() {
+            try {
+                console.log('goToEvaluateRubric iniciado');
+                console.log('currentRubric:', currentRubric);
+                
+                if (!currentRubric) {
+                    alert('❌ Error: No hay rúbrica cargada. Por favor, crea o importa una rúbrica primero.');
+                    return;
+                }
+                
+                if (!currentRubric.criteria || currentRubric.criteria.length === 0) {
+                    alert('❌ Error: La rúbrica no tiene criterios definidos. Por favor, agrega al menos un criterio antes de evaluar.');
+                    return;
+                }
+                
+                console.log('Validación OK, creando evaluación...');
+                
+                currentEvaluation = {
+                    studentName: '',
+                    groupId: null,
+                    studentIndex: null,
+                    scores: {}
+                };
+                currentCriterionIndex = 0;
+
+                // Si hay grupo activo, cargar estudiantes automáticamente
+                if (currentGroup && (!importedStudents || importedStudents.length === 0)) {
+                    importedStudents = currentGroup.students;
+                    console.log('Estudiantes del grupo cargados:', importedStudents.length);
+                }
+
+                console.log('Renderizando pantalla de evaluación...');
+                renderEvaluationScreen();
+                
+                console.log('Mostrando pantalla de evaluación...');
+                showScreen('screenEvaluate');
+                console.log('Pantalla mostrada correctamente');
+            } catch(err) {
+                console.error('Error en goToEvaluateRubric:', err);
+                alert('❌ Error al intentar ir a evaluar: ' + err.message);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // EDITOR DE RÚBRICA
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function renderRubricEditor() {
+            console.log('renderRubricEditor llamado');
+            try {
+                const nameDisplay = document.getElementById('rubricNameDisplay');
+                if (nameDisplay) {
+                    nameDisplay.textContent = currentRubric.name;
+                    console.log('Nombre actualizado:', currentRubric.name);
+                    updateWelcomeStatus();
+                } else {
+                    console.error('No se encontró rubricNameDisplay');
+                }
+                
+                // Mostrar u ocultar botón de exportar con grupo
+                const btnExportWithGroup = document.getElementById('btnExportWithGroup');
+                if (btnExportWithGroup) {
+                    if (currentRubric.associatedGroupId || currentRubric.associatedGroupName) {
+                        btnExportWithGroup.style.display = 'block';
+                        btnExportWithGroup.textContent = `📤 Exportar con Grupo "${currentRubric.associatedGroupName}"`;
+                    } else {
+                        btnExportWithGroup.style.display = 'none';
+                    }
+                }
+                
+                renderCriteria();
+            } catch(err) {
+                console.error('Error en renderRubricEditor:', err);
+                alert('Error al renderizar editor: ' + err.message);
+            }
+        }
+
+        function renderCriteria() {
+            console.log('renderCriteria llamado');
+            try {
+                const container = document.getElementById('criteriaList');
+                if (!container) {
+                    console.error('No se encontró criteriaList');
+                    return;
+                }
+                if (!currentRubric) {
+                    console.error('currentRubric no está definido');
+                    return;
+                }
+
+                if (currentRubric.criteria.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: #999; padding: 20px; background: #f5f5f5; border-radius: 8px; margin: 20px 0;"><p style="margin: 0; font-size: 16px;">📭 No hay criterios aún.</p><p style="margin: 5px 0 0 0; font-size: 14px;">Haz clic en "Agregar Criterio" para empezar.</p></div>';
+                    console.log('Sin criterios, mostrando mensaje vacío');
+                    return;
+                }
+
+                container.innerHTML = currentRubric.criteria.map((criterion, idx) => `
+                    <div class="criterion-item ${criterion.isCollapsed ? 'collapsed' : ''}" id="criterion-${idx}">
+                        <div class="criterion-item-header">
+                            <div class="criterion-item-title">
+                                <label>Criterio:</label>
+                                <input type="text" value="${criterion.title}" 
+                                       onchange="updateCriterionTitle(${idx}, this.value)">
+                            </div>
+                            <div class="criterion-item-points">
+                                <label>Puntos Máximos:</label>
+                                <input type="number" value="${criterion.maxPoints}" step="0.01" min="0.01" 
+                                       onchange="updateCriterionMaxPoints(${idx}, this.value)">
+                            </div>
+                            <button class="danger" onclick="deleteCriterion(${idx})" style="margin-top: 20px;">🗑️ Eliminar</button>
+                        </div>
+                        <div class="criterion-levels">
+                            <p style="margin: 0 0 15px 0; color: #666;"><strong>Niveles de Desempeño:</strong> Define cada nivel con nombre, rango de puntos y descripción.</p>
+                            ${criterion.levels.map((level, levelIdx) => `
+                                <div class="level-row">
+                                    <div class="level-row-header">
+                                        <div>
+                                            <label>Nombre del Nivel:</label>
+                                            <input type="text" placeholder="Ej: Excelente" value="${level.name}" 
+                                                   onchange="updateLevelName(${idx}, ${levelIdx}, this.value)">
+                                        </div>
+                                        <div>
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                                <label style="margin:0;">Puntos:</label>
+                                                <label style="font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px; color: #555; background: #eef; padding: 2px 5px; border-radius: 4px;">
+                                                    <input type="checkbox" ${level.isRange || (level.minPoints !== level.maxPoints && level.minPoints !== undefined) ? 'checked' : ''} 
+                                                           onchange="toggleLevelRange(${idx}, ${levelIdx}, this.checked)" style="margin:0;"> 
+                                                    Usar Rango
+                                                </label>
+                                            </div>
+                                            ${level.isRange || (level.minPoints !== level.maxPoints && level.minPoints !== undefined) ? `
+                                            <div style="display: flex; gap: 5px;">
+                                                <input type="number" placeholder="Mín" value="${level.minPoints !== undefined ? level.minPoints : (level.points || 0)}" step="0.01" min="0" 
+                                                       onchange="updateLevelMinPoints(${idx}, ${levelIdx}, this.value)" style="flex: 1;">
+                                                <span style="align-self: center;">-</span>
+                                                <input type="number" placeholder="Máx" value="${level.maxPoints !== undefined ? level.maxPoints : (level.points || 0)}" step="0.01" min="0" 
+                                                       onchange="updateLevelMaxPoints(${idx}, ${levelIdx}, this.value)" style="flex: 1;">
+                                            </div>
+                                            ` : `
+                                            <input type="number" placeholder="Puntos" value="${level.maxPoints !== undefined ? level.maxPoints : (level.points || 0)}" step="0.01" min="0" 
+                                                   onchange="updateLevelFixedPoints(${idx}, ${levelIdx}, this.value)" style="width: 100%;">
+                                            `}
+                                        </div>
+                                        <button class="danger" onclick="deleteLevel(${idx}, ${levelIdx})" style="margin-top: 20px; height: fit-content;">🗑️</button>
+                                    </div>
+                                    <div class="level-row-desc">
+                                        <label>Descripción:</label>
+                                        <textarea placeholder="Describe qué significa este nivel..." 
+                                                  onchange="updateLevelDescription(${idx}, ${levelIdx}, this.value)">${level.description}</textarea>
+                                    </div>
+                                </div>
+                            `).join('')}
+                            <button class="add-level-btn" onclick="addLevel(${idx})">➕ Agregar Nivel</button>
+                        </div>
+                        <button class="secondary" id="collapse-btn-${idx}" onclick="toggleCollapseCriterion(${idx})" style="width: 100%; margin-top: 10px;">${criterion.isCollapsed ? '📂 Expandir' : '📁 Contraer'}</button>
+                    </div>
+                `).join('');
+                console.log('Criterios renderizados:', currentRubric.criteria.length);
+            } catch(err) {
+                console.error('Error en renderCriteria:', err);
+                alert('Error al renderizar criterios: ' + err.message);
+            }
+        }
+
+        function toggleCollapseCriterion(idx) {
+            // Actualizar el estado en el modelo para persistencia
+            if (currentRubric.criteria[idx]) {
+                currentRubric.criteria[idx].isCollapsed = !currentRubric.criteria[idx].isCollapsed;
+            }
+
+            const criterion = document.getElementById(`criterion-${idx}`);
+            if (criterion) {
+                // Usar el estado del modelo
+                const isCollapsed = currentRubric.criteria[idx] ? currentRubric.criteria[idx].isCollapsed : false;
+                
+                if (isCollapsed) criterion.classList.add('collapsed');
+                else criterion.classList.remove('collapsed');
+
+                const button = document.getElementById(`collapse-btn-${idx}`);
+                if (button) {
+                    button.innerHTML = isCollapsed ? '📂 Expandir' : '📁 Contraer';
+                }
+            }
+        }
+
+        function addNewCriterion() {
+            currentRubric.criteria.push({
+                title: 'Nuevo Criterio',
+                maxPoints: 10.0,
+                levels: [
+                    { name: 'Insuficiente', description: '', minPoints: 0, maxPoints: 0 },
+                    { name: 'Suficiente', description: '', minPoints: 3.33, maxPoints: 3.33 },
+                    { name: 'Bien', description: '', minPoints: 6.67, maxPoints: 6.67 },
+                    { name: 'Excelente', description: '', minPoints: 10, maxPoints: 10 }
+                ]
+            });
+            renderCriteria();
+        }
+
+        function updateCriterionTitle(idx, title) {
+            if (currentRubric.criteria[idx]) {
+                currentRubric.criteria[idx].title = title;
+            }
+        }
+
+        function updateCriterionMaxPoints(idx, points) {
+            if (currentRubric.criteria[idx]) {
+                currentRubric.criteria[idx].maxPoints = parseFloat(points) || 1.0;
+            }
+        }
+
+        function updateLevelName(idx, levelIdx, name) {
+            if (currentRubric.criteria[idx] && currentRubric.criteria[idx].levels[levelIdx]) {
+                currentRubric.criteria[idx].levels[levelIdx].name = name;
+            }
+        }
+
+        function toggleLevelRange(idx, levelIdx, isChecked) {
+            if (currentRubric.criteria[idx] && currentRubric.criteria[idx].levels[levelIdx]) {
+                const level = currentRubric.criteria[idx].levels[levelIdx];
+                level.isRange = isChecked;
+                if (!isChecked) {
+                    // Al desactivar rango, igualar min y max (usando max como referencia)
+                    level.minPoints = level.maxPoints !== undefined ? level.maxPoints : 0;
+                }
+                renderCriteria();
+            }
+        }
+
+        function toggleAllRanges(enable) {
+            if (!currentRubric) return;
+            
+            currentRubric.criteria.forEach(criterion => {
+                criterion.levels.forEach(level => {
+                    level.isRange = enable;
+                    if (!enable) {
+                        // Al desactivar rango, igualar min y max (usando max como referencia)
+                        const val = level.maxPoints !== undefined ? level.maxPoints : (level.points || 0);
+                        level.minPoints = val;
+                        level.maxPoints = val;
+                    }
+                });
+            });
+            renderCriteria();
+        }
+
+        function updateLevelFixedPoints(idx, levelIdx, value) {
+            if (currentRubric.criteria[idx] && currentRubric.criteria[idx].levels[levelIdx]) {
+                const val = parseFloat(value) || 0;
+                currentRubric.criteria[idx].levels[levelIdx].minPoints = val;
+                currentRubric.criteria[idx].levels[levelIdx].maxPoints = val;
+            }
+        }
+
+        function updateLevelMinPoints(idx, levelIdx, points) {
+            if (currentRubric.criteria[idx] && currentRubric.criteria[idx].levels[levelIdx]) {
+                currentRubric.criteria[idx].levels[levelIdx].minPoints = parseFloat(points) || 0;
+            }
+        }
+
+        function updateLevelMaxPoints(idx, levelIdx, points) {
+            if (currentRubric.criteria[idx] && currentRubric.criteria[idx].levels[levelIdx]) {
+                currentRubric.criteria[idx].levels[levelIdx].maxPoints = parseFloat(points) || 0;
+            }
+        }
+
+        function updateLevelDescription(idx, levelIdx, description) {
+            if (currentRubric.criteria[idx] && currentRubric.criteria[idx].levels[levelIdx]) {
+                currentRubric.criteria[idx].levels[levelIdx].description = description;
+            }
+        }
+
+        function addLevel(idx) {
+            if (currentRubric.criteria[idx]) {
+                currentRubric.criteria[idx].levels.push({
+                    name: `Nivel ${currentRubric.criteria[idx].levels.length + 1}`,
+                    description: '',
+                    minPoints: 0,
+                    maxPoints: 0
+                });
+                renderCriteria();
+            }
+        }
+
+        function deleteLevel(idx, levelIdx) {
+            if (confirm('¿Estás seguro de que quieres eliminar este nivel?')) {
+                if (currentRubric.criteria[idx] && currentRubric.criteria[idx].levels.length > 1) {
+                    currentRubric.criteria[idx].levels.splice(levelIdx, 1);
+                    renderCriteria();
+                } else {
+                    alert('Cada criterio debe tener al menos un nivel');
+                }
+            }
+        }
+
+        function deleteCriterion(idx) {
+            if (confirm('¿Estás seguro de que quieres eliminar este criterio?')) {
+                currentRubric.criteria.splice(idx, 1);
+                renderCriteria();
+            }
+        }
+
+        function renameRubric() {
+            document.getElementById('rubricNewNameInput').value = currentRubric.name;
+            openModal('modalRenameRubric');
+        }
+
+        function confirmRenameRubric() {
+            const newName = document.getElementById('rubricNewNameInput').value.trim();
+            if (newName) {
+                currentRubric.name = newName;
+                document.getElementById('rubricNameDisplay').textContent = newName;
+                updateWelcomeStatus();
+                closeModal('modalRenameRubric');
+            }
+        }
+
+        function openUpdateUsernameModal() {
+            if (!currentUser) return;
+            const currentUsername = currentUser.user_metadata.username || '';
+            document.getElementById('newUsernameInput').value = currentUsername;
+            openModal('modalUpdateUsername');
+        }
+
+        async function confirmUpdateUsername() {
+            const newUsername = document.getElementById('newUsernameInput').value.trim();
+            if (!newUsername) {
+                alert('Por favor, introduce un nombre de usuario.');
+                return;
+            }
+
+            if (!supabaseClient || !currentUser) {
+                alert('No estás conectado. No se puede actualizar el nombre.');
+                return;
+            }
+
+            try {
+                const { data: { user }, error } = await supabaseClient.auth.updateUser({
+                    data: { username: newUsername }
+                });
+
+                if (error) throw error;
+
+                // Actualizar el objeto de usuario global con los datos nuevos
+                currentUser = user;
+                document.getElementById('userInfoDisplay').textContent = `Hola, ${user.user_metadata.username}`;
+
+                alert('Nombre de usuario actualizado correctamente.');
+                closeModal('modalUpdateUsername');
+            } catch (error) {
+                alert('Error al actualizar el nombre de usuario: ' + error.message);
+            }
+        }
+
+        function saveRubricAsTemplate() {
+            if (currentRubric.criteria.length === 0) {
+                alert('Por favor, agrega al menos un criterio antes de guardar como plantilla');
+                return;
+            }
+            document.getElementById('templateNameInput').value = currentRubric.name;
+            openModal('modalSaveTemplate');
+        }
+
+
+
+        function exportRubric() {
+            if (!currentRubric || currentRubric.criteria.length === 0) {
+                alert('No hay nada que exportar');
+                return;
+            }
+            downloadFile(JSON.stringify(currentRubric, null, 2), `rubrica_${currentRubric.name}_${Date.now()}.json`);
+        }
+
+        async function exportRubricToPDF() {
+            if (!currentRubric || currentRubric.criteria.length === 0) {
+                alert('No hay rúbrica para exportar a PDF.');
+                return;
+            }
+
+            // 1. Get the PDF generation libraries
+            const { jsPDF } = window.jspdf;
+            const html2canvas = window.html2canvas;
+
+            if (!jsPDF || !html2canvas) {
+                alert('Error: No se pudieron cargar las librerías para generar PDF. Revisa tu conexión a internet.');
+                return;
+            }
+
+            // 2. Get the hidden container and prepare the HTML content
+            const pdfContainer = document.getElementById('pdf-content');
+            if (!pdfContainer) {
+                console.error('El contenedor para el PDF no existe.');
+                return;
+            }
+
+            let content = `
+                <style>
+                    #pdf-content { color: #333; }
+                    #pdf-content h1 { font-size: 24px; color: #2c3e50; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+                    #pdf-content .pdf-criterion { border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px; overflow: hidden; page-break-inside: avoid; }
+                    #pdf-content .pdf-criterion-title { background-color: #f2f2f2; padding: 10px; font-weight: bold; font-size: 16px; border-bottom: 1px solid #ccc; }
+                    #pdf-content .pdf-levels-table { width: 100%; border-collapse: collapse; }
+                    #pdf-content .pdf-levels-table th, #pdf-content .pdf-levels-table td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
+                    #pdf-content .pdf-levels-table th { background-color: #e9ecef; font-size: 14px; }
+                    #pdf-content .pdf-level-name { font-weight: bold; font-size: 13px; color: #3498db; }
+                    #pdf-content .pdf-level-points { font-size: 12px; color: #555; font-weight: bold; }
+                    #pdf-content .pdf-level-desc { font-size: 12px; color: #666; white-space: pre-wrap; }
+                </style>
+                <h1>Rúbrica: ${currentRubric.name}</h1>
+            `;
+
+            currentRubric.criteria.forEach(criterion => {
+                content += `
+                    <div class="pdf-criterion">
+                        <div class="pdf-criterion-title">${criterion.title} (Puntuación Máxima: ${criterion.maxPoints} pts)</div>
+                        <table class="pdf-levels-table">
+                            <thead>
+                                <tr>
+                                    ${criterion.levels.map(level => `<th><div class="pdf-level-name">${level.name}</div><div class="pdf-level-points">${level.minPoints === level.maxPoints ? level.maxPoints : `${level.minPoints} - ${level.maxPoints}`} pts</div></th>`).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    ${criterion.levels.map(level => `<td><div class="pdf-level-desc">${level.description || '(Sin descripción)'}</div></td>`).join('')}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            });
+
+            pdfContainer.innerHTML = content;
+
+            // 3. Use html2canvas to capture the content
+            try {
+                const canvas = await html2canvas(pdfContainer, { scale: 2, useCORS: true, logging: false });
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: 'a4' });
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                const ratio = canvas.width / canvas.height;
+                let finalImgWidth = pdfWidth - 40;
+                let finalImgHeight = finalImgWidth / ratio;
+                if (finalImgHeight > pdfHeight - 40) {
+                    finalImgHeight = pdfHeight - 40;
+                    finalImgWidth = finalImgHeight * ratio;
+                }
+                const x = (pdfWidth - finalImgWidth) / 2;
+                const y = (pdfHeight - finalImgHeight) / 2;
+                pdf.addImage(imgData, 'PNG', x, y, finalImgWidth, finalImgHeight);
+                pdf.save(`rubrica_${currentRubric.name.replace(/[^a-z0-9]/gi, '_')}.pdf`);
+            } catch (error) {
+                console.error('Error al generar el PDF:', error);
+                alert('Hubo un error al generar el PDF. Por favor, inténtalo de nuevo.');
+            } finally {
+                pdfContainer.innerHTML = '';
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // NUEVO: ASOCIAR RÚBRICA A GRUPO
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function associateRubricToGroup() {
+            if (!currentRubric || currentRubric.criteria.length === 0) {
+                alert('❌ Debes tener una rúbrica cargada con criterios primero');
+                return;
+            }
+            
+            if (createdGroups.length === 0) {
+                alert('❌ No hay grupos disponibles. Crea un grupo primero.');
+                return;
+            }
+
+            // Mostrar modal para seleccionar grupo
+            showGroupSelectionForAssociation();
+        }
+
+        function showGroupSelectionForAssociation() {
+            const groupsList = createdGroups.map((g, idx) => `
+                <button class="primary" style="width: 100%; margin: 10px 0; padding: 12px; text-align: left;" 
+                        onclick="confirmRubricGroupAssociation(${g.id})">
+                    <strong>👥 ${g.name}</strong><br>
+                    <span style="font-size: 12px; color: #666;">${g.students.length} alumnos</span>
+                </button>
+            `).join('');
+
+            const modal = document.getElementById('modalAssociateRubricGroup');
+            if (!modal) {
+                alert('Modal no encontrado. Actualiza la página.');
+                return;
+            }
+
+            // Limpiar y rellenar el contenedor de grupos
+            let groupsContainer = modal.querySelector('#associationGroupsList');
+            if (!groupsContainer) {
+                // Si no existe, crearla dentro del modal
+                groupsContainer = document.createElement('div');
+                groupsContainer.id = 'associationGroupsList';
+                modal.querySelector('.modal-content').insertBefore(groupsContainer, modal.querySelector('.modal-footer'));
+            }
+            
+            groupsContainer.innerHTML = `
+                <h3>Selecciona el Grupo a Asociar:</h3>
+                <div style="max-height: 300px; overflow-y: auto;">
+                    ${groupsList}
+                </div>
+            `;
+
+            openModal('modalAssociateRubricGroup');
+        }
+
+        function confirmRubricGroupAssociation(groupId) {
+            const group = createdGroups.find(g => g.id === groupId);
+            if (!group) {
+                alert('❌ Grupo no encontrado');
+                return;
+            }
+
+            // Asociar grupo a la rúbrica
+            currentRubric.associatedGroupId = groupId;
+            currentRubric.associatedGroupName = group.name;
+            
+            // Cargar automáticamente los estudiantes del grupo
+            importedStudents = group.students;
+            currentGroup = group;
+            
+            // Guardar cambios
+            saveToStorage(false);
+            updateWelcomeStatus();
+            
+            closeModal('modalAssociateRubricGroup');
+            alert(`✅ Rúbrica "${currentRubric.name}" asociada al grupo "${group.name}"\n\n👥 Se cargarán automáticamente los ${group.students.length} estudiante(s) del grupo.`);
+        }
+
+        function exportRubricWithGroup() {
+            if (!currentRubric || currentRubric.criteria.length === 0) {
+                alert('No hay rúbrica para exportar');
+                return;
+            }
+
+            // Exportar rúbrica completa con información del grupo si existe
+            const assoc = getRubricAssociationData(currentRubric);
+            if (currentRubric) {
+                currentRubric.associatedGroupId = assoc.associatedGroupId;
+                currentRubric.associatedGroupName = assoc.associatedGroupName;
+            }
+            const exportData = {
+                ...currentRubric,
+                associatedGroupId: assoc.associatedGroupId,
+                associatedGroupName: assoc.associatedGroupName,
+                exportedAt: new Date().toISOString()
+            };
+
+            downloadFile(
+                JSON.stringify(exportData, null, 2), 
+                `rubrica_${currentRubric.name}${currentGroup ? '_grupo_' + currentGroup.name : ''}_${Date.now()}.json`
+            );
+            
+            alert('✅ Rúbrica exportada correctamente' + (currentGroup ? ` (asociada al grupo "${currentGroup.name}")` : ''));
+        }
+
+        function exportRubricWithAllData() {
+            if (!currentRubric || currentRubric.criteria.length === 0) {
+                alert('No hay rúbrica para exportar');
+                return;
+            }
+
+            // Recopilar todas las calificaciones de los estudiantes
+            let allStudentScores = {};
+            if (importedStudents && importedStudents.length > 0) {
+                importedStudents.forEach(student => {
+                    const studentName = typeof student === 'string' ? student : student.name;
+                    const scores = loadEvaluationFromStorage(studentName);
+                    if (scores && Object.keys(scores).length > 0) {
+                        allStudentScores[studentName] = scores;
+                    }
+                });
+            }
+
+            // Exportar rúbrica COMPLETA con alumnos y calificaciones
+            const assoc = getRubricAssociationData(currentRubric);
+            if (currentRubric) {
+                currentRubric.associatedGroupId = assoc.associatedGroupId;
+                currentRubric.associatedGroupName = assoc.associatedGroupName;
+            }
+            const exportData = {
+                ...currentRubric,
+                students: importedStudents || [],
+                studentScores: allStudentScores,
+                associatedGroupId: assoc.associatedGroupId,
+                associatedGroupName: assoc.associatedGroupName,
+                exportedAt: new Date().toISOString()
+            };
+
+            downloadFile(
+                JSON.stringify(exportData, null, 2), 
+                `rubrica_completa_${currentRubric.name}_${Date.now()}.json`
+            );
+
+            setLastCompleteSaveStatus('Local', assoc.associatedGroupName, Object.keys(allStudentScores).length);
+            alert(`✅ Rúbrica exportada\n👥 Grupo: ${assoc.associatedGroupName || 'Sin grupo'}\n✏️ Evaluados: ${Object.keys(allStudentScores).length}`);
+        }
+
+        function triggerImportRubricEdit() {
+            document.getElementById('importRubricEditFile').click();
+        }
+
+        function importRubricEdit() {
+            const file = document.getElementById('importRubricEditFile').files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    currentRubric = JSON.parse(e.target.result);
+                    updateWelcomeStatus();
+                    renderRubricEditor();
+                    activeCloudId = null;
+                    activeCloudType = null;
+                    alert('✅ Rúbrica cargada para editar correctamente');
+                } catch (err) {
+                    alert('❌ Error al importar: ' + err.message);
+                }
+                document.getElementById('importRubricEditFile').value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // PANTALLA DE EVALUACIÓN
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function renderEvaluationScreen() {
+            try {
+                console.log('renderEvaluationScreen iniciado');
+                
+                if (!currentRubric) {
+                    console.error('ERROR: currentRubric no está definida');
+                    throw new Error('No hay rúbrica cargada');
+                }
+                
+                const evalRubricNameEl = document.getElementById('evalRubricName');
+                if (!evalRubricNameEl) {
+                    console.error('ERROR: Elemento evalRubricName no encontrado en el DOM');
+                    throw new Error('Elemento de nombre de rúbrica no encontrado');
+                }
+                
+                evalRubricNameEl.textContent = currentRubric.name;
+                console.log('Nombre de rúbrica establecido:', currentRubric.name);
+                
+                renderEvaluationCriteria();
+                console.log('Criterios renderizados');
+                
+                updateSummary();
+                console.log('Resumen actualizado');
+                console.log('renderEvaluationScreen completado exitosamente');
+            } catch(err) {
+                console.error('FATAL ERROR en renderEvaluationScreen:', err);
+                alert('ERROR CRÍTICO al renderizar pantalla de evaluación: ' + err.message);
+            }
+        }
+
+        function updateManualStudentName() {
+            currentEvaluation.studentName = document.getElementById('manualStudentName').value;
+            updateEvaluationHeader();
+        }
+
+        function updateEvaluationHeader() {
+            document.getElementById('evalStudentName').textContent = currentEvaluation.studentName || '-';
+        }
+
+        function renderEvaluationCriteria() {
+            try {
+                const container = document.getElementById('evaluationCriteria');
+                if (!container) {
+                    console.error('ERROR: Elemento evaluationCriteria no encontrado');
+                    throw new Error('Contenedor de criterios no encontrado en el DOM');
+                }
+                
+                if (!currentRubric || !currentRubric.criteria) {
+                    console.error('ERROR: currentRubric o criteria no existen');
+                    throw new Error('Rúbrica sin criterios');
+                }
+                
+                const totalCriteria = currentRubric.criteria.length;
+                console.log('Total de criterios a renderizar:', totalCriteria);
+                
+                // Header with toggle button
+                let html = `
+                    <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+                        <button class="info" onclick="toggleCriteriaView()" style="font-size: 12px; padding: 5px 10px;">
+                            ${isAllCriteriaView ? '👁️ Ver uno por uno' : '👁️ Ver todos los criterios'}
+                        </button>
+                    </div>
+                `;
+
+                if (!isAllCriteriaView) {
+                    // Asegurar que el índice esté dentro de los límites
+                    if (currentCriterionIndex >= totalCriteria) currentCriterionIndex = totalCriteria - 1;
+                    if (currentCriterionIndex < 0) currentCriterionIndex = 0;
+
+                    html += `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <button class="secondary" onclick="prevCriterion()" ${currentCriterionIndex === 0 ? 'disabled' : ''}>⬅️ Anterior</button>
+                            <span style="font-weight: bold; color: #666;">Criterio ${currentCriterionIndex + 1} de ${totalCriteria}</span>
+                            <button class="primary" onclick="nextCriterion()" ${currentCriterionIndex === totalCriteria - 1 ? 'disabled' : ''}>Siguiente ➡️</button>
+                        </div>
+                        <div style="background: #e0e0e0; height: 6px; border-radius: 3px; margin-bottom: 20px;">
+                            <div style="background: var(--primary); height: 100%; border-radius: 3px; width: ${((currentCriterionIndex + 1) / totalCriteria) * 100}%"></div>
+                        </div>
+                    `;
+            }
+
+            const criteriaToRender = isAllCriteriaView ? currentRubric.criteria : [currentRubric.criteria[currentCriterionIndex]];
+            const startIndex = isAllCriteriaView ? 0 : currentCriterionIndex;
+
+            html += criteriaToRender.map((criterion, loopIdx) => {
+                const criterionIdx = isAllCriteriaView ? loopIdx : startIndex;
+                const selectedLevelIdx = currentEvaluation.scores[criterionIdx];
+                const selectedLevel = selectedLevelIdx !== undefined ? criterion.levels[selectedLevelIdx] : null;
+                
+                // Calcular min y max manejando undefined para evitar NaN !== NaN
+                let min = 0, max = 0;
+                if (selectedLevel) {
+                    min = selectedLevel.minPoints !== undefined ? parseFloat(selectedLevel.minPoints) : 0;
+                    max = selectedLevel.maxPoints !== undefined ? parseFloat(selectedLevel.maxPoints) : 0;
+                }
+
+                // Aseguramos que se comparen como números para ocultar la barra si min == max
+                const hasRange = selectedLevel && (min !== max);
+                const selectedPoints = currentEvaluation.scores[`${criterionIdx}_points`];
+                
+                return `
+                    <div class="criterion-evaluation" style="animation: fadeIn 0.3s ease;">
+                        <div class="criterion-evaluation-title">${criterion.title}</div>
+                        <div class="criterion-evaluation-points">Puntos máximos: ${criterion.maxPoints}</div>
+                        <div class="levels-container">
+                            ${criterion.levels.map((level, levelIdx) => {
+                                const minPts = level.minPoints !== undefined ? level.minPoints : 0;
+                                const maxPts = level.maxPoints !== undefined ? level.maxPoints : 0;
+                                const displayPoints = minPts === maxPts ? `${minPts} pts` : `${minPts}-${maxPts} pts`;
+                                
+                                return `
+                                    <button class="level-button ${selectedLevelIdx === levelIdx ? 'selected' : ''}"
+                                            onclick="selectLevel(${criterionIdx}, ${levelIdx})">
+                                        <span class="level-button-name">${level.name}</span>
+                                        <span class="level-button-points">${displayPoints}</span>
+                                        <small style="display: block; margin-top: 4px; font-size: 11px; color: #999;">${level.description || '(Sin descripción)'}</small>
+                                    </button>
+                                `;
+                            }).join('')}
+                        </div>
+                        ${hasRange ? `
+                            <div class="level-range-slider-container active">
+                                <h4>Selecciona puntos exactos para ${selectedLevel.name}</h4>
+                                <div class="slider-wrapper">
+                                    <span style="min-width: 40px;">Desde</span>
+                                    <input type="range" class="range-slider" id="slider-${criterionIdx}-${selectedLevelIdx}"
+                                           min="${selectedLevel.minPoints}" 
+                                           max="${selectedLevel.maxPoints}" 
+                                           step="0.01"
+                                           value="${selectedPoints !== undefined ? selectedPoints : selectedLevel.minPoints}"
+                                           oninput="updateLevelRangeValueRealTime(${criterionIdx}, ${selectedLevelIdx}, this.value, this.id)"
+                                           onkeydown="handleSliderKeydown(event, ${criterionIdx})">
+                                    <span class="range-value" id="range-display-${criterionIdx}-${selectedLevelIdx}">${(selectedPoints !== undefined ? selectedPoints : selectedLevel.minPoints).toFixed(2)}</span>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = html;
+            console.log('renderEvaluationCriteria completado');
+            } catch(err) {
+                console.error('ERROR en renderEvaluationCriteria:', err);
+                const container = document.getElementById('evaluationCriteria');
+                if (container) {
+                    container.innerHTML = `<div style="color: red; padding: 20px; background: #ffe0e0; border-radius: 8px; border: 1px solid #ff6b6b;"><strong>Error al cargar criterios:</strong> ${err.message}</div>`;
+                }
+            }
+        }
+
+        function toggleCriteriaView() {
+            isAllCriteriaView = !isAllCriteriaView;
+            renderEvaluationCriteria();
+        }
+
+        function nextCriterion() {
+            if (currentCriterionIndex < currentRubric.criteria.length - 1) {
+                currentCriterionIndex++;
+                renderEvaluationCriteria();
+            }
+        }
+
+        function prevCriterion() {
+            if (currentCriterionIndex > 0) {
+                currentCriterionIndex--;
+                renderEvaluationCriteria();
+            }
+        }
+
+        function selectLevel(criterionIdx, levelIdx) {
+            currentEvaluation.scores[criterionIdx] = levelIdx;
+            const criterion = currentRubric.criteria[criterionIdx];
+            const level = criterion.levels[levelIdx];
+            
+            let hasRange = false;
+
+            // Si el nivel tiene rango, usar el valor mínimo por defecto
+            if (level.minPoints !== undefined && level.maxPoints !== undefined) {
+                if (level.minPoints !== level.maxPoints) {
+                    currentEvaluation.scores[`${criterionIdx}_points`] = level.minPoints;
+                    hasRange = true;
+                } else {
+                    currentEvaluation.scores[`${criterionIdx}_points`] = level.minPoints;
+                }
+            }
+            
+            renderEvaluationCriteria();
+            updateSummary();
+
+            // Auto-avance si no hay rango (puntos fijos) para agilizar
+            if (!hasRange && !isAllCriteriaView) {
+                setTimeout(() => {
+                    if (currentCriterionIndex === criterionIdx) {
+                        nextCriterion();
+                    }
+                }, 200);
+            }
+        }
+
+        function handleSliderKeydown(event, criterionIdx) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                nextCriterion();
+            }
+        }
+
+        function updateLevelRangeValueRealTime(criterionIdx, levelIdx, value, sliderId) {
+            currentEvaluation.scores[`${criterionIdx}_points`] = parseFloat(value);
+            const displayElement = document.getElementById(`range-display-${criterionIdx}-${levelIdx}`);
+            if (displayElement) {
+                displayElement.textContent = parseFloat(value).toFixed(2);
+            }
+            updateSummary();
+        }
+
+        function updateLevelRangeValue(criterionIdx, levelIdx, value) {
+            currentEvaluation.scores[`${criterionIdx}_points`] = parseFloat(value);
+            updateSummary();
+        }
+
+        function updateSummary() {
+            try {
+                const summaryContainer = document.getElementById('summaryItems');
+                if (!summaryContainer) {
+                    console.warn('⚠️ Elemento summaryItems no encontrado, omitiendo actualización');
+                    return;
+                }
+                
+                // Actualizar nombre del alumno en el resumen
+                const studentDisplay = document.getElementById('summaryStudentDisplay');
+                if (studentDisplay) {
+                    const name = currentEvaluation.studentName || "Sin Nombre";
+                    studentDisplay.innerHTML = `<strong>Alumno:</strong> ${name}`;
+                }
+
+            let totalPoints = 0;
+            let maxPoints = 0;
+
+            const items = currentRubric.criteria.map((criterion, idx) => {
+                const levelIdx = currentEvaluation.scores[idx];
+                const level = levelIdx !== undefined ? criterion.levels[levelIdx] : null;
+                const levelName = level ? level.name : 'No calificado';
+                const levelDescription = level ? level.description : '';
+                
+                let points = 0;
+                if (level) {
+                    if (level.minPoints !== undefined && level.maxPoints !== undefined && level.minPoints !== level.maxPoints) {
+                        points = currentEvaluation.scores[`${idx}_points`] !== undefined ? currentEvaluation.scores[`${idx}_points`] : level.minPoints;
+                    } else {
+                        points = level.minPoints !== undefined ? level.minPoints : level.points;
+                    }
+                }
+                
+                totalPoints += points;
+                maxPoints += criterion.maxPoints;
+
+                return `
+                    <div class="summary-item">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 4px;">
+                            <span class="label" style="font-weight: bold;">${criterion.title}:</span>
+                            <span class="value">${levelName} (${points.toFixed(2)}/${criterion.maxPoints} pts)</span>
+                        </div>
+                        ${levelDescription ? `<div style="font-size: 12px; color: #666; margin-bottom: 8px; padding-left: 5px; border-left: 3px solid #ddd; padding: 0 0 0 8px;">${levelDescription}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            summaryContainer.innerHTML = items;
+
+            // Calcular porcentaje basado en puntos máximos
+            const percentage = maxPoints > 0 ? (totalPoints / maxPoints) * 10 : 0;
+            document.getElementById('finalScore').textContent = percentage.toFixed(2);
+
+            // Actualizar puntos totales
+            const totalPointsSummary = document.getElementById('totalPointsSummary');
+            if (totalPointsSummary) {
+                totalPointsSummary.innerHTML = `<strong>Puntos Totales:</strong> ${totalPoints.toFixed(2)} / ${maxPoints.toFixed(2)}`;
+            }
+            } catch(err) {
+                console.error('❌ Error en updateSummary:', err);
+                // No interrumpimos el flujo, solo advertimos
+            }
+        }
+
+        function saveEvaluation() {
+            if (!currentEvaluation.studentName) {
+                alert('Por favor ingresa el nombre del alumno');
+                return;
+            }
+
+            const evaluation = {
+                id: Date.now(),
+                rubricName: currentRubric.name,
+                studentName: currentEvaluation.studentName,
+                scores: currentEvaluation.scores,
+                timestamp: new Date().toISOString()
+            };
+
+            appData.evaluations.push(evaluation);
+            saveToStorage();
+            saveEvaluationToStorage(currentEvaluation.studentName, currentEvaluation.scores);
+            renderStudentsList(); // Actualizar lista para mostrar check y progreso
+            alert('✅ Evaluación guardada correctamente');
+        }
+
+        function exportEvaluation() {
+            const evaluation = {
+                rubric: currentRubric.name,
+                student: currentEvaluation.studentName,
+                timestamp: new Date().toISOString(),
+                scores: currentRubric.criteria.map((c, idx) => {
+                    const levelIdx = currentEvaluation.scores[idx];
+                    const level = levelIdx !== undefined ? c.levels[levelIdx] : null;
+                    
+                    let points = 0;
+                    if (level) {
+                        if (level.minPoints !== undefined && level.maxPoints !== undefined && level.minPoints !== level.maxPoints) {
+                            points = currentEvaluation.scores[`${idx}_points`] !== undefined ? currentEvaluation.scores[`${idx}_points`] : level.minPoints;
+                        } else {
+                            points = level.minPoints !== undefined ? level.minPoints : 0;
+                        }
+                    }
+                    
+                    return {
+                        criterion: c.title,
+                        level: level ? level.name : 'No calificado',
+                        description: level ? level.description : '',
+                        points: points,
+                        maxPoints: c.maxPoints
+                    };
+                })
+            };
+
+            downloadFile(JSON.stringify(evaluation, null, 2), `evaluacion_${currentEvaluation.studentName}_${Date.now()}.json`);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // GESTIÓN DE ALUMNOS Y RESULTADOS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let importedStudents = [];
+
+        function triggerImportStudents() {
+            document.getElementById('importStudentsFile').click();
+        }
+
+        function importStudents() {
+            const file = document.getElementById('importStudentsFile').files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (Array.isArray(data)) {
+                        importedStudents = data;
+                    } else if (data.students && Array.isArray(data.students)) {
+                        importedStudents = data.students;
+                    } else if (data.name && Array.isArray(data.students)) {
+                        importedStudents = data.students;
+                    } else {
+                        importedStudents = [data.name || 'Alumno'];
+                    }
+                    
+                    renderStudentsList();
+                    alert(`✅ ${importedStudents.length} alumno(s) importado(s) correctamente`);
+                } catch (err) {
+                    alert('❌ Error al importar: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function renderStudentsList() {
+            const container = document.getElementById('studentsList');
+            
+            if (importedStudents.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #999; padding: 15px; font-size: 13px;">📭 Sin alumnos cargados</div>';
+                return;
+            }
+
+            // Calcular progreso
+            let gradedCount = 0;
+            const studentHTML = importedStudents.map((student, idx) => {
+                const studentName = typeof student === 'string' ? student : student.name;
+                const isActive = studentName === currentEvaluation.studentName;
+                
+                // Verificar si ya está calificado (EN STORAGE LOCAL O EN APPDATA)
+                let isGraded = false;
+                
+                // Buscar en localStorage
+                const savedEval = loadEvaluationFromStorage(studentName);
+                if (savedEval && Object.keys(savedEval).length > 0) {
+                    isGraded = true;
+                }
+                
+                // Buscar en appData (evaluaciones importadas de nube)
+                if (!isGraded) {
+                    const prevEval = appData.evaluations.find(e => 
+                        e.studentName === studentName && 
+                        e.rubricName === currentRubric.name
+                    );
+                    if (prevEval) {
+                        isGraded = true;
+                    }
+                }
+                
+                if (isGraded) gradedCount++;
+
+                const statusClass = isGraded ? 'graded' : '';
+                const icon = isGraded ? '✅' : '⬜';
+
+                return `
+                <div class="student-item ${isActive ? 'active' : ''} ${statusClass}" onclick="selectImportedStudent('${studentName}')" title="${isGraded ? 'Click para editar evaluación' : 'Click para evaluar'}">
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${studentName}</span>
+                        <span style="font-size: 14px;">${icon}</span>
+                    </div>
+                </div>
+            `;
+            }).join('');
+
+            const progressPercent = Math.round((gradedCount / importedStudents.length) * 100);
+            const headerHTML = `
+                <div style="margin-bottom: 15px; padding: 10px; background: #f5f5f5; border-radius: 6px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12px;">
+                        <strong>Progreso:</strong>
+                        <span>${gradedCount}/${importedStudents.length} (${progressPercent}%)</span>
+                    </div>
+                    <div style="background: #ddd; height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: var(--success); width: ${progressPercent}%; height: 100%; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+                <label style="margin-bottom: 10px; display: block;"><strong>Lista de Alumnos:</strong></label>
+            `;
+
+            container.innerHTML = headerHTML + studentHTML;
+        }
+
+        function selectImportedStudent(studentName) {
+            console.log('📍 selectImportedStudent:', studentName);
+            
+            // Guardar evaluación actual del alumno anterior
+            if (currentEvaluation.studentName) {
+                console.log('💾 Guardando evaluación anterior de:', currentEvaluation.studentName);
+                saveEvaluationToStorage(currentEvaluation.studentName, currentEvaluation.scores);
+            }
+            
+            // Cargar evaluación del nuevo alumno (PRIMERO de localStorage, LUEGO de appData)
+            let previousScores = loadEvaluationFromStorage(studentName);
+            
+            // Si no está en localStorage, buscar en appData (evaluaciones de la nube)
+            if (!previousScores || Object.keys(previousScores).length === 0) {
+                console.log('🔍 Buscando evaluación en appData.evaluations...');
+                const prevEval = appData.evaluations.find(e => 
+                    e.studentName === studentName && 
+                    e.rubricName === currentRubric.name
+                );
+                
+                if (prevEval) {
+                    console.log('✅ Evaluación anterior encontrada:', prevEval);
+                    previousScores = prevEval.scores;
+                    alert(`📖 Cargando evaluación anterior de ${studentName}\n\nPuedes editar y guardar cambios.`);
+                }
+            }
+            
+            currentEvaluation.studentName = studentName;
+            currentEvaluation.scores = previousScores || {};
+            currentCriterionIndex = 0; // Reiniciar al primer criterio
+            document.getElementById('manualStudentName').value = studentName;
+            
+            console.log('🎯 Evaluación cargada para:', studentName, '- Criterios:', Object.keys(currentEvaluation.scores).length);
+            
+            renderStudentsList();
+            updateEvaluationHeader();
+            renderEvaluationCriteria();
+            updateSummary();
+        }
+
+        function getCurrentStudentIndex() {
+            if (!currentEvaluation.studentName || importedStudents.length === 0) return -1;
+            return importedStudents.findIndex(s => {
+                const sName = typeof s === 'string' ? s : s.name;
+                return sName === currentEvaluation.studentName;
+            });
+        }
+
+        function prevStudent() {
+            const idx = getCurrentStudentIndex();
+            if (idx === -1) {
+                alert('No se puede navegar: El alumno actual no está en la lista importada.');
+                return;
+            }
+            if (idx > 0) {
+                const prevS = importedStudents[idx - 1];
+                const prevName = typeof prevS === 'string' ? prevS : prevS.name;
+                selectImportedStudent(prevName);
+            } else {
+                alert('Es el primer alumno de la lista.');
+            }
+        }
+
+        function nextStudent() {
+            const idx = getCurrentStudentIndex();
+            if (idx === -1) {
+                alert('No se puede navegar: El alumno actual no está en la lista importada.');
+                return;
+            }
+            if (idx < importedStudents.length - 1) {
+                const nextS = importedStudents[idx + 1];
+                const nextName = typeof nextS === 'string' ? nextS : nextS.name;
+                selectImportedStudent(nextName);
+            } else {
+                alert('Es el último alumno de la lista.');
+            }
+        }
+
+        function saveEvaluationToStorage(studentName, scores) {
+            const key = `eval_${currentRubric.id}_${studentName}`;
+            localStorage.setItem(key, JSON.stringify(scores));
+        }
+
+        function loadEvaluationFromStorage(studentName) {
+            const key = `eval_${currentRubric.id}_${studentName}`;
+            const saved = localStorage.getItem(key);
+            return saved ? JSON.parse(saved) : null;
+        }
+
+        function triggerExportResults() {
+            // Guardar evaluación actual antes de exportar
+            if (currentEvaluation.studentName && Object.keys(currentEvaluation.scores).length > 0) {
+                saveEvaluationToStorage(currentEvaluation.studentName, currentEvaluation.scores);
+            }
+
+            // Recopilar todas las evaluaciones guardadas de alumnos importados
+            let allResults = [];
+            
+            // Incluir evaluaciones de alumnos importados desde localStorage
+            importedStudents.forEach(student => {
+                const studentName = typeof student === 'string' ? student : student.name;
+                const scores = loadEvaluationFromStorage(studentName);
+                
+                if (scores && Object.keys(scores).length > 0) {
+                    const finalGrade = calculateFinalGrade(scores);
+                    const result = {
+                        rubric: currentRubric.name,
+                        student: studentName,
+                        timestamp: new Date().toISOString(),
+                        finalGrade: finalGrade,
+                        scores: currentRubric.criteria.map((c, idx) => {
+                            const levelIdx = scores[idx];
+                            const level = levelIdx !== undefined ? c.levels[levelIdx] : null;
+                            
+                            let points = 0;
+                            if (level) {
+                                if (level.minPoints !== undefined && level.maxPoints !== undefined && level.minPoints !== level.maxPoints) {
+                                    points = scores[`${idx}_points`] !== undefined ? scores[`${idx}_points`] : level.minPoints;
+                                } else {
+                                    points = level.minPoints !== undefined ? level.minPoints : 0;
+                                }
+                            }
+                            
+                            return {
+                                criterion: c.title,
+                                level: level ? level.name : 'No calificado',
+                                description: level ? level.description : '',
+                                points: points,
+                                maxPoints: c.maxPoints
+                            };
+                        })
+                    };
+                    allResults.push(result);
+                }
+            });
+            
+            // Incluir también evaluaciones guardadas en appData
+            appData.evaluations.forEach(eval => {
+                if (eval.rubricName === currentRubric.name) {
+                    allResults.push({
+                        rubric: eval.rubricName,
+                        student: eval.studentName,
+                        timestamp: eval.timestamp,
+                        finalGrade: calculateFinalGrade(eval.scores),
+                        scores: currentRubric.criteria.map((c, idx) => {
+                            const levelIdx = eval.scores[idx];
+                            const level = levelIdx !== undefined ? c.levels[levelIdx] : null;
+                            
+                            let points = 0;
+                            if (level) {
+                                if (level.minPoints !== undefined && level.maxPoints !== undefined && level.minPoints !== level.maxPoints) {
+                                    points = eval.scores[`${idx}_points`] !== undefined ? eval.scores[`${idx}_points`] : level.minPoints;
+                                } else {
+                                    points = level.minPoints !== undefined ? level.minPoints : 0;
+                                }
+                            }
+                            
+                            return {
+                                criterion: c.title,
+                                level: level ? level.name : 'No calificado',
+                                description: level ? level.description : '',
+                                points: points,
+                                maxPoints: c.maxPoints
+                            };
+                        })
+                    });
+                }
+            });
+            
+            if (allResults.length === 0) {
+                alert('No hay evaluaciones para exportar');
+                return;
+            }
+
+            downloadFile(JSON.stringify(allResults, null, 2), `resultados_evaluaciones_${Date.now()}.json`);
+            alert(`✅ ${allResults.length} evaluación(es) exportada(s) correctamente`);
+        }
+
+        function exportToExcel() {
+            // Guardar evaluación actual antes de exportar
+            if (currentEvaluation.studentName && Object.keys(currentEvaluation.scores).length > 0) {
+                saveEvaluationToStorage(currentEvaluation.studentName, currentEvaluation.scores);
+            }
+
+            // Recopilar datos (misma lógica que exportResults)
+            let allResults = [];
+            importedStudents.forEach(student => {
+                const studentName = typeof student === 'string' ? student : student.name;
+                const scores = loadEvaluationFromStorage(studentName);
+                if (scores && Object.keys(scores).length > 0) {
+                    allResults.push({ student: studentName, scores: scores });
+                }
+            });
+            
+            // Agregar evaluaciones manuales no importadas
+            appData.evaluations.forEach(eval => {
+                if (eval.rubricName === currentRubric.name && !allResults.find(r => r.student === eval.studentName)) {
+                    allResults.push({ student: eval.studentName, scores: eval.scores });
+                }
+            });
+
+            if (allResults.length === 0) {
+                alert('No hay evaluaciones para exportar');
+                return;
+            }
+
+            // Construir CSV
+            let csvContent = "\uFEFF"; // BOM para que Excel reconozca acentos
+            
+            // Encabezados
+            csvContent += "Alumno,Calificación Final";
+            currentRubric.criteria.forEach(c => {
+                csvContent += `,"${c.title.replace(/"/g, '""')}"`;
+            });
+            csvContent += "\n";
+
+            // Filas
+            allResults.forEach(r => {
+                const finalGrade = calculateFinalGrade(r.scores);
+                csvContent += `"${r.student.replace(/"/g, '""')}",${finalGrade.toFixed(2)}`;
+                
+                currentRubric.criteria.forEach((c, idx) => {
+                    const levelIdx = r.scores[idx];
+                    const level = levelIdx !== undefined ? c.levels[levelIdx] : null;
+                    const levelText = level ? `${level.name}` : "-";
+                    csvContent += `,"${levelText}"`;
+                });
+                csvContent += "\n";
+            });
+
+            downloadFile(csvContent, `reporte_calificaciones_${currentRubric.name.replace(/[^a-z0-9]/gi, '_')}.csv`);
+        }
+
+        function openEvaluationHistory() {
+            console.log('📖 Abriendo historial de evaluaciones');
+            
+            // Recopilar todas las evaluaciones de la rúbrica actual
+            const evaluationsOfCurrentRubric = appData.evaluations.filter(e => 
+                e.rubricName === currentRubric.name
+            );
+            
+            console.log('Evaluaciones encontradas:', evaluationsOfCurrentRubric.length);
+            
+            if (evaluationsOfCurrentRubric.length === 0) {
+                alert('No hay evaluaciones guardadas para esta rúbrica aún.');
+                return;
+            }
+            
+            // Construir HTML con el historial
+            let historyHTML = `
+                <div>
+                    <p style="color: #666; margin-bottom: 15px;">
+                        <strong>Rúbrica:</strong> ${currentRubric.name}<br>
+                        <strong>Total de evaluaciones:</strong> ${evaluationsOfCurrentRubric.length}
+                    </p>
+                    <div style="border-top: 1px solid #ddd; margin-bottom: 15px;"></div>
+            `;
+            
+            evaluationsOfCurrentRubric.forEach((eval, idx) => {
+                const finalGrade = calculateFinalGrade(eval.scores);
+                const date = new Date(eval.timestamp).toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                historyHTML += `
+                    <div style="background: #f9f9f9; padding: 12px; margin-bottom: 10px; border-radius: 6px; border-left: 4px solid var(--primary);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <strong>${eval.studentName}</strong>
+                            <span style="color: var(--success); font-weight: bold; font-size: 14px;">${finalGrade.toFixed(1)}/10</span>
+                        </div>
+                        <div style="font-size: 12px; color: #888;">
+                            ${date}
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <button class="primary" style="padding: 4px 12px; font-size: 12px;" onclick="loadEvaluationFromHistory('${eval.studentName}', '${eval.rubricName}')">
+                                ✏️ Ver/Editar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            historyHTML += '</div>';
+            
+            // Mostrar en modal
+            document.getElementById('evaluationHistoryContent').innerHTML = historyHTML;
+            openModal('modalEvaluationHistory');
+            console.log('✅ Modal de historial abierto');
+        }
+
+        function loadEvaluationFromHistory(studentName, rubricName) {
+            console.log('📖 Cargando evaluación de historial:', studentName);
+            
+            const evaluation = appData.evaluations.find(e => 
+                e.studentName === studentName && 
+                e.rubricName === rubricName
+            );
+            
+            if (evaluation) {
+                currentEvaluation.studentName = studentName;
+                currentEvaluation.scores = evaluation.scores;
+                currentCriterionIndex = 0;
+                
+                document.getElementById('manualStudentName').value = studentName;
+                
+                closeModal('modalEvaluationHistory');
+                renderStudentsList();
+                updateEvaluationHeader();
+                renderEvaluationCriteria();
+                updateSummary();
+                
+                alert(`✏️ Evaluación cargada de ${studentName}\n\nPuedes editar y guardar cambios nuevamente.`);
+                console.log('✅ Evaluación cargada:', evaluation);
+            } else {
+                alert('Evaluación no encontrada');
+            }
+        }
+
+        function calculateFinalGrade(scores) {
+            let totalPoints = 0;
+            let maxPoints = 0;
+            
+            currentRubric.criteria.forEach((criterion, idx) => {
+                const levelIdx = scores[idx];
+                if (levelIdx !== undefined) {
+                    const level = criterion.levels[levelIdx];
+                    if (level) {
+                        if (level.minPoints !== undefined && level.maxPoints !== undefined && level.minPoints !== level.maxPoints) {
+                            totalPoints += scores[`${idx}_points`] !== undefined ? scores[`${idx}_points`] : level.minPoints;
+                        } else {
+                            totalPoints += level.minPoints !== undefined ? level.minPoints : 0;
+                        }
+                    }
+                }
+                maxPoints += criterion.maxPoints;
+            });
+            
+            return maxPoints > 0 ? (totalPoints / maxPoints) * 10 : 0;
+        }
+
+
+
+
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // GESTIÓN DE GRUPOS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let createdGroups = [];
+
+        function loadGroupsFromStorage() {
+            const saved = localStorage.getItem('rubrica_groups');
+            if (saved) {
+                createdGroups = JSON.parse(saved);
+            }
+            updateExportGroupsButton();
+        }
+
+        function saveGroupsToStorage() {
+            localStorage.setItem('rubrica_groups', JSON.stringify(createdGroups));
+        }
+
+        function confirmCreateGroup() {
+            console.log('confirmCreateGroup iniciado');
+            
+            const name = document.getElementById('groupNameInput').value.trim();
+            const studentsText = document.getElementById('studentsInput').value.trim();
+            
+            console.log('Nombre:', name);
+            console.log('Alumnos text:', studentsText);
+
+            if (!name) {
+                alert('Por favor ingresa un nombre para el grupo');
+                return;
+            }
+
+            const students = studentsText.split('\n').map(s => s.trim()).filter(s => s);
+            console.log('Array de alumnos:', students);
+            
+            if (students.length === 0) {
+                alert('Por favor agrega al menos un alumno');
+                return;
+            }
+
+            console.log('Validación pasada, creando grupo...');
+            
+            // Crear grupo
+            const group = {
+                id: Date.now(),
+                name: name,
+                students: students,
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                createdGroups.push(group);
+                currentGroup = group; // Activar grupo recién creado
+                updateWelcomeStatus();
+                console.log('Grupo añadido a array:', group);
+                saveGroupsToStorage();
+                console.log('Grupo guardado en storage');
+            } catch(err) {
+                console.error('Error guardando:', err);
+                alert('Error al guardar grupo: ' + err.message);
+                return;
+            }
+            
+            // Preparar datos para exportar
+            const groupFile = {
+                name: name,
+                students: students,
+                createdAt: new Date().toISOString()
+            };
+            
+            console.log('Cerrando modal y limpiando inputs...');
+            
+            // Cerrar modal y limpiar inputs
+            closeModal('modalCreateGroup');
+            document.getElementById('groupNameInput').value = '';
+            document.getElementById('studentsInput').value = '';
+            
+            console.log('Pidiendo seleccionar ubicación de descarga...');
+            
+            // Intentar usar File System Access API
+            if (window.showSaveFilePicker) {
+                console.log('Usando showSaveFilePicker...');
+                (async () => {
+                    try {
+                        const handle = await window.showSaveFilePicker({
+                            suggestedName: `grupo_${name}_${Date.now()}.json`,
+                            types: [{
+                                description: 'Archivo JSON',
+                                accept: {'application/json': ['.json']}
+                            }]
+                        });
+                        
+                        const writable = await handle.createWritable();
+                        await writable.write(JSON.stringify(groupFile, null, 2));
+                        await writable.close();
+                        
+                        console.log('Archivo guardado exitosamente');
+                        alert(`✅ Grupo "${name}" creado y exportado correctamente en:\n${handle.name}\n\nPuedes importarlo después en la pantalla de evaluación.`);
+                    } catch(err) {
+                        if (err.name !== 'AbortError') {
+                            console.error('Error en File System API:', err);
+                            // Fallback a descarga automática
+                            downloadFile(JSON.stringify(groupFile, null, 2), `grupo_${name}_${Date.now()}.json`);
+                            alert(`✅ Grupo "${name}" creado y exportado correctamente.\n\nPuedes importarlo después en la pantalla de evaluación.`);
+                        } else {
+                            console.log('Usuario canceló la selección de carpeta');
+                        }
+                    }
+                })();
+            } else {
+                console.log('File System API no disponible, usando descarga automática');
+                // Fallback a descarga automática
+                downloadFile(JSON.stringify(groupFile, null, 2), `grupo_${name}_${Date.now()}.json`);
+                alert(`✅ Grupo "${name}" creado y exportado correctamente.\n\nPuedes importarlo después en la pantalla de evaluación.`);
+            }
+        }
+
+        function triggerImportGroup() {
+            openModal('modalImportGroup');
+        }
+
+        function handleImportGroup() {
+            const file = document.getElementById('importGroupFileHidden').files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (data.students && Array.isArray(data.students)) {
+                        const group = {
+                            id: Date.now(),
+                            name: data.name || 'Grupo Importado',
+                            students: data.students,
+                            createdAt: new Date().toISOString()
+                        };
+                        
+                        createdGroups.push(group);
+                        currentGroup = group; // Activar grupo importado
+                        updateWelcomeStatus();
+                        saveGroupsToStorage();
+                        updateExportGroupsButton();
+                        
+                        closeModal('modalImportGroup');
+                        alert(`✅ Grupo "${group.name}" importado correctamente.\n\nTienes ${createdGroups.length} grupo(s) disponible(s).`);
+                    } else {
+                        alert('❌ Formato de archivo no válido. Debe contener un array de "students".');
+                    }
+                } catch (err) {
+                    alert('❌ Error al importar: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function getGroupsList() {
+            return createdGroups.map(g => g.name).join(', ') || 'Ninguno';
+        }
+
+        function exportAllGroups() {
+            if (createdGroups.length === 0) {
+                alert('No hay grupos para exportar');
+                return;
+            }
+
+            const groupsData = createdGroups.map(g => ({
+                name: g.name,
+                students: g.students,
+                createdAt: g.createdAt
+            }));
+
+            downloadFile(JSON.stringify(groupsData, null, 2), `mis_grupos_${Date.now()}.json`);
+            alert(`✅ ${createdGroups.length} grupo(s) exportado(s) correctamente`);
+        }
+
+        function updateExportGroupsButton() {
+            const btn = document.getElementById('btnExportGroups');
+            if (btn) {
+                if (createdGroups.length > 0) {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.textContent = `📤 Exportar ${createdGroups.length} Grupo(s)`;
+                } else {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.5';
+                    btn.textContent = '📤 Exportar Grupos';
+                }
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // IMPORTAR RÚBRICA
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function confirmImportRubric() {
+            const file = document.getElementById('importRubricFile').files[0];
+            if (!file) {
+                alert('Por favor selecciona un archivo');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    let rubricToLoad = null;
+                    let studentsToLoad = [];
+                    let scoresToLoad = {};
+                    let message = '✅ Rúbrica cargada correctamente';
+                    
+                    // ═════════════════════════════════════════════════════════════
+                    // DETECTAR TIPO DE ARCHIVO
+                    // ═════════════════════════════════════════════════════════════
+                    
+                    // TIPO 1: Rúbrica completa exportada (tiene "criteria" directamente)
+                    if (data.criteria && Array.isArray(data.criteria)) {
+                        console.log('📝 Detectado: Rúbrica completa');
+                        rubricToLoad = data;
+                        
+                        // Cargar estudiantes si existen
+                        if (data.students && Array.isArray(data.students)) {
+                            studentsToLoad = data.students;
+                        }
+                        
+                        // Cargar calificaciones si existen
+                        if (data.studentScores && typeof data.studentScores === 'object') {
+                            scoresToLoad = data.studentScores;
+                            message = `✅ Rúbrica + ${Object.keys(scoresToLoad).length} estudiante(s) con calificaciones`;
+                        } else if (studentsToLoad.length > 0) {
+                            message = `✅ Rúbrica + ${studentsToLoad.length} estudiante(s)`;
+                        }
+                    }
+                    
+                    // TIPO 2: Evaluación con estructura completa
+                    else if (data.rubricData && data.rubricData.criteria) {
+                        console.log('🎓 Detectado: Evaluación con rúbrica');
+                        rubricToLoad = data.rubricData;
+                        
+                        if (data.groupData && data.groupData.students) {
+                            studentsToLoad = data.groupData.students;
+                        }
+                        message = '✅ Evaluación cargada (se abrirá en modo edición)';
+                    }
+                    
+                    // TIPO 3: Evaluación simple
+                    else if (data.rubric && data.student && data.scores) {
+                        console.log('📋 Detectado: Evaluación simple');
+                        // Intentar recuperar rúbrica del almacenamiento o crear una mínima
+                        if (currentRubric && currentRubric.criteria) {
+                            rubricToLoad = currentRubric;
+                            if (data.student) {
+                                studentsToLoad = [data.student];
+                                scoresToLoad[data.student] = data.scores;
+                            }
+                            message = `✅ Evaluación de ${data.student} cargada`;
+                        } else {
+                            alert('⚠️ Esta es una evaluación individual, pero no hay rúbrica base.\n\nPor favor, exporta usando "Exportar Rúbrica Completa" para incluir la rúbrica.');
+                            return;
+                        }
+                    }
+                    
+                    // TIPO 4: Array de evaluaciones
+                    else if (Array.isArray(data) && data.length > 0) {
+                        console.log('📚 Detectado: Array de evaluaciones');
+                        if (currentRubric && currentRubric.criteria) {
+                            rubricToLoad = currentRubric;
+                            data.forEach(eval => {
+                                if (eval.student && eval.scores) {
+                                    scoresToLoad[eval.student] = eval.scores;
+                                    studentsToLoad.push(eval.student);
+                                }
+                            });
+                            message = `✅ ${data.length} evaluación(es) cargada(s)`;
+                        } else {
+                            alert('⚠️ Archivo no válido.\n\nExporta usando "Exportar Rúbrica Completa" para que incluya la rúbrica.');
+                            return;
+                        }
+                    }
+                    
+                    // Si no se detectó nada válido
+                    if (!rubricToLoad) {
+                        alert('❌ Error: El archivo no es una rúbrica válida.\n\n✓ Debe contener "criteria" (criterios de evaluación)\n✓ O ser una evaluación con estructura completa\n\nExporta desde "Exportar Rúbrica Completa" si quieres incluir todo.');
+                        return;
+                    }
+                    
+                    // ═════════════════════════════════════════════════════════════
+                    // CARGAR LOS DATOS
+                    // ═════════════════════════════════════════════════════════════
+                    
+                    activeCloudId = null; // Resetear ID de nube al cargar local
+                    activeCloudType = null;
+                    currentRubric = rubricToLoad;
+                    
+                    // Cargar estudiantes
+                    if (studentsToLoad && studentsToLoad.length > 0) {
+                        importedStudents = studentsToLoad;
+                        console.log('✅ Estudiantes:', importedStudents.length);
+                    }
+                    
+                    // Cargar calificaciones en storage
+                    if (Object.keys(scoresToLoad).length > 0) {
+                        Object.entries(scoresToLoad).forEach(([studentName, scores]) => {
+                            saveEvaluationToStorage(studentName, scores);
+                        });
+                        console.log('✅ Calificaciones restauradas:', Object.keys(scoresToLoad).length);
+                    }
+                    
+                    // Cargar grupo asociado por ID o por nombre
+                    restoreAssociatedGroupFromRubric(rubricToLoad);
+                    if (currentGroup) {
+                        console.log('✅ Grupo:', currentGroup.name);
+                    }
+                    
+                    updateWelcomeStatus();
+                    closeModal('modalImportRubric');
+                    renderEvaluationScreen();
+                    showScreen('screenEvaluate');
+                    alert(message);
+                    
+                } catch (err) {
+                    console.error('❌ Error:', err);
+                    alert('❌ Error al importar: ' + err.message + '\n\nVerifica que sea un archivo JSON válido.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // MODALES
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // ALMACENAMIENTO
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        async function saveToStorage(syncToCloud = false) {
+            // NOTA: syncToCloud ahora es false por defecto porque usamos guardado explícito
+            
+            // 1. Guardado Local (Original)
+            localStorage.setItem('rubrica_app_data', JSON.stringify(appData));
+            localStorage.setItem('rubrica_current', JSON.stringify(currentRubric));
+            // Ya no sincronizamos automáticamente 'main_data' para evitar conflictos con el nuevo sistema de archivos
+        }
+
+        function loadFromStorage() {
+            const data = localStorage.getItem('rubrica_app_data');
+            if (data) {
+                const saved = JSON.parse(data);
+                appData.evaluations = saved.evaluations || [];
+            }
+
+            const saveStatusEl = document.getElementById('statusLastCompleteSave');
+            const lastSave = localStorage.getItem('rubrica_last_complete_save');
+            if (saveStatusEl && lastSave) {
+                saveStatusEl.textContent = lastSave;
+                saveStatusEl.style.color = '#1f7a3a';
+            }
+
+            const current = localStorage.getItem('rubrica_current');
+            if (current) {
+                currentRubric = JSON.parse(current);
+                if (currentRubric && Array.isArray(currentRubric.students) && currentRubric.students.length > 0) {
+                    importedStudents = currentRubric.students;
+                }
+                restoreAssociatedGroupFromRubric(currentRubric);
+                updateWelcomeStatus();
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // UTILIDADES
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function downloadFile(content, filename) {
+            const blob = new Blob([content], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+
+    <!-- Contenedor oculto para generar el PDF -->
+    <div id="pdf-content" style="position: absolute; left: -9999px; top: auto; width: 1100px; background: white; padding: 20px; font-family: 'Segoe UI', sans-serif;">
+    </div>
+</body>
+</html>
