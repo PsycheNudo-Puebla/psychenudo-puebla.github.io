@@ -816,13 +816,14 @@ function setupMobileControls() {
     ui.style.right = '0';
     ui.style.width = '100%';
     ui.style.bottom = '220px'; // Unida a la parte superior de los botones (altura de controles)
+    ui.style.margin = '0';
     ui.style.boxSizing = 'border-box';
 
     // Función para ajustar dinámicamente la posición superior unida al canvas
     const updateUIPosition = () => {
         const canvasRect = canvas.getBoundingClientRect();
-        ui.style.top = canvasRect.bottom + 'px'; // Unida a la parte inferior del juego
-        ui.style.height = (window.innerHeight - 220 - canvasRect.bottom) + 'px';
+        ui.style.top = Math.floor(canvasRect.bottom) + 'px'; // Unida exactamente a la base del canvas
+        ui.style.height = 'auto'; // Permite que el cuadro se estire hasta el bottom de 220px
     };
 
     window.addEventListener('resize', updateUIPosition);
