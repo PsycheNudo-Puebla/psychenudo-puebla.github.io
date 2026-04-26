@@ -812,15 +812,26 @@ function setupMobileControls() {
 
     // Aumentar tamaño y posicionar entre el juego y los controles
     ui.style.position = 'fixed';
-    ui.style.bottom = '220px'; // Justo encima de la altura de los controles (220px)
     ui.style.left = '0';
     ui.style.right = '0';
     ui.style.width = '100%';
-    ui.style.height = '350px'; // Altura ampliada para mejorar la lectura de textos largos
-    ui.style.maxHeight = '350px'; // Límite más generoso antes de activar el scrollbar
+    ui.style.bottom = '220px'; // Unida a la parte superior de los botones (altura de controles)
+    ui.style.boxSizing = 'border-box';
+
+    // Función para ajustar dinámicamente la posición superior unida al canvas
+    const updateUIPosition = () => {
+        const canvasRect = canvas.getBoundingClientRect();
+        ui.style.top = canvasRect.bottom + 'px'; // Unida a la parte inferior del juego
+        ui.style.height = (window.innerHeight - 220 - canvasRect.bottom) + 'px';
+    };
+
+    window.addEventListener('resize', updateUIPosition);
+    setTimeout(updateUIPosition, 150); // Retardo para asegurar el renderizado inicial
+
+    ui.style.maxHeight = 'none';
     ui.style.overflowY = 'auto';
     ui.style.pointerEvents = 'auto';
-    ui.style.padding = '20px'; // Mayor margen interno para mejorar la legibilidad
+    ui.style.padding = '20px';
     ui.style.borderTop = '4px solid #7c7c7c';
     ui.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
 
