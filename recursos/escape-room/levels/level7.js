@@ -116,7 +116,7 @@ levelLogics['dragon'] = {
         }));
     },
 
-    update: function() {
+    update: function(dt) {
         if (this.gameOver || this.won) return;
 
         // Actualizar caja de colisión del cañón (sólo colisiona si no está cargado)
@@ -141,12 +141,12 @@ levelLogics['dragon'] = {
 
         // Movimiento del Dragón
         if (this.dragon.state === 'normal') {
-            this.dragon.y += this.dragon.speed * this.dragon.dir;
+            this.dragon.y += this.dragon.speed * this.dragon.dir * dt;
             // Ajustamos límites de rebote para un dragón de 600px
             if (this.dragon.y > 380 || this.dragon.y < 220) this.dragon.dir *= -1;
             
             // Incrementar temporizador para el ataque de embestida
-            this.dragon.dashTimer++;
+            this.dragon.dashTimer += dt;
 
             // Efecto de temblor antes de atacar (aviso visual)
             if (this.dragon.dashTimer > 350) {
@@ -159,11 +159,11 @@ levelLogics['dragon'] = {
             }
         } else if (this.dragon.state === 'dashing') {
             // Embestida hacia la izquierda
-            this.dragon.x -= 15; 
+            this.dragon.x -= 15 * dt; 
             if (this.dragon.x < 100) this.dragon.state = 'returning';
         } else if (this.dragon.state === 'returning') {
             // Regreso a la posición original
-            this.dragon.x += 7;
+            this.dragon.x += 7 * dt;
             if (this.dragon.x >= 650) {
                 this.dragon.x = 650;
                 this.dragon.state = 'normal';
@@ -227,7 +227,7 @@ levelLogics['dragon'] = {
 
         // Movimiento de la bala y colisión con el dragón
         if (this.activeBullet.active) {
-            this.activeBullet.x += 35; // Bala más veloz
+            this.activeBullet.x += 35 * dt; // Bala más veloz
             if (this.activeBullet.x > 850) {
                 this.activeBullet.active = false; // Desactivar la bala
                 // REPARACIÓN: Si la bala sale de la pantalla, la bala correcta vuelve a aparecer en el suelo
@@ -271,9 +271,9 @@ levelLogics['dragon'] = {
             player.heldItem.y = player.y + 10;
         }
 
-        if (this.textTimer > 0) this.textTimer--;
+        if (this.textTimer > 0) this.textTimer -= dt;
         if (this.explosion.active) {
-            this.explosion.timer--;
+            this.explosion.timer -= dt;
             if (this.explosion.timer <= 0) this.explosion.active = false;
         }
     },

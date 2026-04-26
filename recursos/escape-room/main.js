@@ -195,7 +195,8 @@ const state = {
     allLevels: [],
     inventory: null,
     inputModo: false,
-    currentInput: ""
+    currentInput: "",
+    lastTime: 0
 };
 
 const player = {
@@ -576,10 +577,10 @@ function actualizarDialogoInput() {
     }
 }
 
-function update() {
+function update(dt) {
     // Actualización específica del nivel (ej. techo bajando)
     if (currentLevelData && levelLogics[currentLevelData.type] && levelLogics[currentLevelData.type].update) {
-        levelLogics[currentLevelData.type].update();
+        levelLogics[currentLevelData.type].update(dt);
     }
 
     if (state.inputModo || (player.isCaptured)) return; // Bloquear movimiento si escribe o está capturado
@@ -602,19 +603,19 @@ function update() {
         else { player.moving = false; }
     } else {
     // Movimiento (Prioridad: Arriba/Abajo)
-    if (keys['ArrowUp']) { dy = -player.speed; player.direction = "up"; player.moving = true; }
-    else if (keys['ArrowDown']) { dy = player.speed; player.direction = "down"; player.moving = true; }
-    else if (keys['ArrowLeft']) { dx = -player.speed; player.direction = "left"; player.moving = true; }
-    else if (keys['ArrowRight']) { dx = player.speed; player.direction = "right"; player.moving = true; }
+    if (keys['ArrowUp']) { dy = -player.speed * dt; player.direction = "up"; player.moving = true; }
+    else if (keys['ArrowDown']) { dy = player.speed * dt; player.direction = "down"; player.moving = true; }
+    else if (keys['ArrowLeft']) { dx = -player.speed * dt; player.direction = "left"; player.moving = true; }
+    else if (keys['ArrowRight']) { dx = player.speed * dt; player.direction = "right"; player.moving = true; }
 
     // Aplicar movimiento
     }
-    nextX += dx;
-    nextY += dy;
+    nextX += dx; // dx ya tiene el factor dt aplicado arriba
+    nextY += dy; // dy ya tiene el factor dt aplicado arriba
 
     // Ciclo de animación (Quieto -> PieA -> Quieto -> PieB)
     if (player.moving) {
-        player.animCounter++;
+        player.animCounter += dt;
         // Velocidad del paso (más bajo = más rápido)
         if (player.animCounter > 15) { 
             player.animCounter = 0;

@@ -99,10 +99,10 @@ levelLogics['atomic'] = {
         });
         return base;
     },
-    update: () => {
+    update: (dt) => {
         // El fuego sube
         if (!currentLevelData.doorOpen && !currentLevelData.gameOver) {
-            currentLevelData.fireY -= currentLevelData.fireSpeed;
+            currentLevelData.fireY -= currentLevelData.fireSpeed * dt;
 
             // Game Over si el fuego alcanza al jugador
             if (player.y + player.h > currentLevelData.fireY) {
