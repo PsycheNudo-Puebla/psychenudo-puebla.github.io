@@ -1,0 +1,81 @@
+{
+  "levels": [
+    {
+      "id": 1,
+      "type": "date",
+      "title": "Nivel 1: El Diagnóstico",
+      "object": "Expediente Clínico",
+      "pistaLibrero": "EXPEDIENTE: Paciente con tristeza profunda y anhedonia. ¿Código CIE-11?",
+      "claveCIE": "6A70",
+      "longitudClave": 4,
+      "bookshelfHints": [
+        "PISTA: El bloque 6A corresponde a Trastornos Mentales.",
+        "PISTA: La letra 'A' en el código suele referirse a subcategorías de humor.",
+        "PISTA: El manual indica que el segundo dígito '7' agrupa episodios depresivos."
+      ]
+    },
+    {
+      "id": 2,
+      "type": "atomic",
+      "title": "Nivel 2: El Pedestal de Valor",
+      "pistaLibrero": "ESTATUAS: Ansiedad(6B00), Depresión(6A70), Mutismo(6C23). La de mayor valor es la clave.",
+      "claveCIE": "6C23",
+      "longitudClave": 4
+    },
+    {
+      "id": 3,
+      "type": "art",
+      "title": "Nivel 3: Galería de Categorías",
+      "cuadros": [
+        {"tileX": 5, "nombre": "Trastorno Bipolar (6A60)", "descripcion": "PINTURA: Un sol y una tormenta en el mismo lienzo. Oscilaciones extremas del ánimo.", "cat": "Humor"},
+        {"tileX": 12, "nombre": "Episodio Depresivo (6A70)", "descripcion": "PINTURA: Una figura gris en un vacío infinito. Tristeza profunda y pérdida de energía.", "cat": "Humor"},
+        {"tileX": 19, "nombre": "Ataque de Pánico (6B01)", "descripcion": "PINTURA: Un reloj rompiéndose y manos oprimiendo un pecho. Miedo intenso súbito.", "cat": "Ansiedad"}
+      ],
+      "claveCIE": "6B01",
+      "longitudClave": 4
+    },
+    {
+      "id": 4,
+      "type": "tower",
+      "title": "Nivel 4: El Nido de la Araña",
+      "description": "Ordena los elementos de menor a mayor para abrir la salida. ¡No te quedes quieto!",
+      "items": [
+        {"id": 1, "name": "Pieza 1", "color": "#ff0000", "size": 1},
+        {"id": 2, "name": "Pieza 2", "color": "#00ff00", "size": 2},
+        {"id": 3, "name": "Pieza 3", "color": "#0000ff", "size": 3},
+        {"id": 4, "name": "Pieza 4", "color": "#f8b800", "size": 4},
+        {"id": 5, "name": "Pieza 5", "color": "#3cbcfc", "size": 5},
+        {"id": 3, "name": "Pieza 3", "color": "#0000ff", "size": 3},
+        {"id": 4, "name": "Pieza 4", "color": "#f8b800", "size": 4},
+        {"id": 5, "name": "Pieza 5", "color": "#3cbcfc", "size": 5},
+        {"id": 6, "name": "Pieza 6", "color": "#ff00ff", "size": 6}
+      ]
+    },
+    {
+      "id": 5,
+      "type": "snakes",
+      "title": "Nivel 5: El Templo de las Serpientes",
+      "description": "Diferencia los criterios diagnósticos. ¡No te demores!",
+      "roomA": [
+        {"id": "A1", "name": "Signo", "desc": "Manifestación objetiva de la enfermedad observable por el clínico.", "correct": true},
+        {"id": "A2", "name": "Síntoma", "desc": "Referencia subjetiva que da el paciente sobre su percepción.", "correct": false},
+        {"id": "A3", "name": "Síndrome", "desc": "Conjunto de síntomas que ocurren en un tiempo determinado.", "correct": false}
+      ],
+      "roomB": [
+        {"id": "B1", "name": "Etiología", "desc": "Estudio de las causas u orígenes de las enfermedades.", "correct": true},
+        {"id": "B2", "name": "Patogenia", "desc": "Mecanismos biológicos que llevan al estado de enfermedad.", "correct": false},
+        {"id": "B3", "name": "Pronóstico", "desc": "Juicio hipotético sobre la evolución de la enfermedad.", "correct": false}
+      ]
+    },
+    {
+      "id": 6,
+      "type": "bridge",
+      "title": "Nivel 6: El Abismo del Diagnóstico",
+      "questions": [
+        { "prompt": "¿La anhedonia es la incapacidad de sentir placer?", "correct": "V" },
+        { "prompt": "¿El CIE-11 es publicado por la Asociación Americana de Psiquiatría?", "correct": "F" },
+        { "prompt": "¿Las alucinaciones son percepciones sin objeto?", "correct": "V" }
+      ]
+    }
+  ]
+}
