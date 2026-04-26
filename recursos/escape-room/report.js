@@ -198,6 +198,8 @@ window.reportSystem = {
                 border-radius: 8px;
                 text-align: center;
                 max-width: 400px;
+                max-height: 90vh;
+                overflow-y: auto;
                 font-family: 'Press Start 2P', monospace;
                 box-shadow: 0 0 20px rgba(248, 184, 0, 0.3);
             `;
