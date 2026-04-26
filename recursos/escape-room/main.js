@@ -535,6 +535,7 @@ function handleKeyboardInput(e) {
     } else if (e.key === "Backspace") {
         state.currentInput = state.currentInput.slice(0, -1);
         actualizarDialogoInput();
+    }
 }
 
 function actualizarDialogoInput() {
