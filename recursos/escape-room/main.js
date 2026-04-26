@@ -7,7 +7,8 @@ let currentLevelData = null;
 
 // Lista de desafíos disponibles en el servidor
 const PREDEFINED_CHALLENGES = [
-    { name: "Psicometría Clínica", path: "levels/psicometria.json" }
+    { name: "Psicometría Clínica", path: "levels/psicometria.json" },
+    { name: "Psicopatología", path: "levels/psicopatologia.json" }
 ];
 
 // Configuración Visual Global NES
@@ -237,33 +238,49 @@ window.addEventListener('load', () => {
     // Lector de JSON
     jsonInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => processJSON(JSON.parse(event.target.result), file.name);
-            reader.readAsText(file);
-        }
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                processJSON(JSON.parse(event.target.result), file.name);
+            } catch(e) { alert("Error en JSON"); }
+        };
+        reader.readAsText(file);
     });
 
-    // Generar botones para desafíos predefinidos automáticamente
-    const challengeContainer = document.createElement('div');
-    challengeContainer.style.margin = "15px 0";
-    PREDEFINED_CHALLENGES.forEach(ch => {
-        const btn = document.createElement('button');
-        btn.innerText = "🚀 " + ch.name;
-        btn.style.margin = "5px";
-        btn.style.padding = "10px";
-        btn.onclick = () => {
-            fetch(ch.path)
-                .then(response => response.json())
-                .then(data => processJSON(data, ch.name))
-                .catch(err => alert("Error al cargar nivel automático: " + err));
-        };
-        challengeContainer.appendChild(btn);
-    });
-    menu.insertBefore(challengeContainer, startBtn);
+    // Cargar automáticamente la lista de desafíos
+    renderChallengeMenu();
 
     startBtn.addEventListener('click', startGame);
 });
+
+function renderChallengeMenu() {
+    const existingList = document.getElementById('predefined-list');
+    if (existingList) existingList.remove();
+
+    const container = document.createElement('div');
+    container.id = 'predefined-list';
+    container.style.cssText = "margin: 20px 0; display: flex; flex-direction: column; gap: 10px; width: 100%; align-items: center;";
+    
+    const title = document.createElement('p');
+    title.innerText = "--- SELECCIONA UN DESAFÍO ---";
+    container.appendChild(title);
+
+    PREDEFINED_CHALLENGES.forEach(ch => {
+        const btn = document.createElement('button');
+        btn.innerText = "🕹️ " + ch.name;
+        btn.style.cssText = "width: 80%; padding: 15px; font-family: inherit; background: #3cbcfc; color: white; border: 4px solid #000; cursor: pointer;";
+        btn.onclick = () => {
+            fetch(ch.path)
+                .then(r => r.json())
+                .then(data => processJSON(data, ch.name))
+                .catch(err => alert("No se pudo cargar el archivo del servidor. Verifica la ruta."));
+        };
+        container.appendChild(btn);
+    });
+
+    menu.insertBefore(container, startBtn);
+}
 
 function processJSON(data, fileName) {
     try {
@@ -276,7 +293,7 @@ function processJSON(data, fileName) {
         
         startBtn.style.display = 'none';
         jsonInput.style.display = 'none';
-        if (document.getElementById('predefined-challenges')) document.getElementById('predefined-challenges').style.display = 'none';
+        if (document.getElementById('predefined-list')) document.getElementById('predefined-list').style.display = 'none';
         
         const menuP = document.querySelector('#menu p') || document.createElement('p');
         menuP.innerHTML = `<strong>${fileName}</strong> cargado.<br>Elige un nivel:`;
@@ -286,7 +303,7 @@ function processJSON(data, fileName) {
             const btn = document.createElement('button');
             btn.innerText = `NIVEL ${idx + 1}: ${lvl.title || lvl.type}`;
             btn.style.display = 'block';
-            btn.style.margin = '10px auto';
+            btn.style.cssText = "width: 80%; margin: 10px auto; padding: 12px; font-family: inherit; background: #f8b800; border: 4px solid black;";
             btn.onclick = () => {
                 state.levelIndex = idx;
                 loadCurrentLevel();
@@ -300,12 +317,21 @@ function processJSON(data, fileName) {
 }
 
 function toggleFullScreen() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => {
-            console.warn(`Error al activar pantalla completa: ${err.message}`);
-        });
+    const doc = window.document;
+    const docEl = doc.documentElement;
+
+    // Soporte para múltiples navegadores (Chrome, Safari, Firefox, IE)
+    const request = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+    const exit = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+    if (!doc.fullscreenElement && !doc.webkitFullscreenElement && !doc.mozFullScreenElement && !doc.msFullscreenElement) {
+        if (request) {
+            request.call(docEl).catch(err => {
+                console.warn("Error al intentar pantalla completa:", err);
+            });
+        }
     } else {
-        if (document.exitFullscreen) document.exitFullscreen();
+        if (exit) exit.call(doc);
     }
 }
 
@@ -688,20 +714,24 @@ function setupMobileControls() {
     // Hacer el canvas responsivo
     canvas.style.maxWidth = '100%';
     canvas.style.height = 'auto';
-    canvas.style.touchAction = 'none'; // Previene scroll accidental al jugar
+    canvas.style.touchAction = 'none'; 
+    canvas.style.display = 'block';
+    canvas.style.margin = '0 auto';
 
-    // Evitar zoom forzado por el navegador (especialmente en inputs)
-    const viewportMeta = document.createElement('meta');
-    viewportMeta.name = 'viewport';
-    viewportMeta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
-    document.getElementsByTagName('head')[0].appendChild(viewportMeta);
+    // Asegurar que el viewport esté configurado correctamente para evitar zoom
+    let meta = document.querySelector('meta[name="viewport"]');
+    if (!meta) {
+        meta = document.createElement('meta');
+        meta.name = 'viewport';
+        document.head.appendChild(meta);
+    }
+    meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
 
     // Crear un input invisible para disparar el teclado del celular
     const hiddenInput = document.createElement('input');
     hiddenInput.id = 'hidden-mobile-input';
     hiddenInput.style.cssText = 'position:absolute; opacity:0; top:-100px; left:-100px; font-size:16px;';
     document.body.appendChild(hiddenInput);
-    hiddenInput.addEventListener('keydown', handleKeyboardInput);
 
     if (!isMobile) return;
 
@@ -716,21 +746,23 @@ function setupMobileControls() {
     mobileUI.id = 'mobile-controls';
     mobileUI.innerHTML = `
         <style>
-            #mobile-controls { position: fixed; bottom: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: flex-end; pointer-events: none; z-index: 9999; }
-            .dpad { display: grid; grid-template-columns: repeat(3, 45px); grid-template-rows: repeat(3, 45px); pointer-events: auto; opacity: 0.7; }
-            .btn-mobile { width: 45px; height: 45px; background: rgba(255,255,255,0.2); border: 1px solid white; color: white; display: flex; align-items: center; justify-content: center; user-select: none; font-size: 18px; border-radius: 5px; }
-            .actions { display: flex; flex-direction: column; gap: 10px; align-items: center; pointer-events: auto; }
-            .btn-action { width: 60px; height: 60px; border-radius: 50%; background: rgba(248, 184, 0, 0.3); border: 2px solid #f8b800; color: #f8b800; font-size: 14px; }
-            .btn-fs { width: 40px; height: 40px; background: rgba(0,0,0,0.5); border: 1px solid white; color: white; border-radius: 5px; font-size: 12px; }
+            #mobile-controls { position: relative; width: 100%; height: 280px; background: #8b8b8b; display: flex; justify-content: space-around; align-items: center; padding: 20px 0; border-top: 8px solid #333; pointer-events: auto; box-sizing: border-box; }
+            .dpad { display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(3, 60px); }
+            .btn-mobile { width: 60px; height: 60px; background: #333; color: white; display: flex; align-items: center; justify-content: center; user-select: none; font-size: 24px; border-radius: 5px; border: 2px solid #000; box-shadow: 0 4px #000; -webkit-tap-highlight-color: transparent; }
+            .btn-mobile:active { transform: translateY(2px); box-shadow: 0 2px #000; background: #444; }
+            .actions { display: flex; gap: 20px; margin-bottom: 20px; }
+            .btn-action { width: 80px; height: 80px; border-radius: 50%; background: #a80020; border: 4px solid #500000; color: white; font-weight: bold; font-size: 18px; box-shadow: 0 5px #500000; }
+            .btn-action:active { transform: translateY(3px); box-shadow: 0 2px #500000; }
+            .btn-fs { position: fixed; top: 10px; left: 10px; width: 40px; height: 40px; background: rgba(0,0,0,0.5); border: 1px solid white; color: white; border-radius: 5px; z-index: 10000; pointer-events: auto; }
         </style>
-        <button class="btn-fs" onclick="toggleFullScreen()" style="position:fixed; top:10px; right:10px; pointer-events:auto;">⛶</button>
+        <button class="btn-fs" onclick="toggleFullScreen()">⛶</button>
         <div class="dpad">
             <div></div><div class="btn-mobile" data-key="ArrowUp">▲</div><div></div>
             <div class="btn-mobile" data-key="ArrowLeft">◀</div><div></div><div class="btn-mobile" data-key="ArrowRight">▶</div>
             <div></div><div class="btn-mobile" data-key="ArrowDown">▼</div><div></div>
         </div>
         <div class="actions">
-            <div class="btn-mobile btn-action" data-key="Space">OK</div>
+            <button class="btn-mobile btn-action" data-key="Space">A</button>
         </div>
     `;
     document.body.appendChild(mobileUI);
