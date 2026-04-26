@@ -377,7 +377,7 @@ levelLogics['dragon'] = {
                 ctx.beginPath(); ctx.arc(b.x - 3, b.y - 3, 3, 0, Math.PI*2); ctx.fill();
 
                 ctx.fillStyle = this.palette.black;
-                ctx.font = "bold 10px monospace";
+                ctx.font = "bold 14px monospace";
                 ctx.fillText(b.option.substring(0, 15), b.x - 30, b.y + 30);
             }
         });

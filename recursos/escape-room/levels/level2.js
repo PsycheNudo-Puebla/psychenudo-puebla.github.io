@@ -160,8 +160,8 @@ levelLogics['atomic'] = {
                 levelLogics['atomic'].drawChem(f);
                 // Mostrar nombre al acercarse
                 if (checkProximity(f)) {
-                    ctx.fillStyle = NES_PALETTE.white;
-                    ctx.font = "10px 'Press Start 2P'";
+                    ctx.fillStyle = NES_PALETTE.black;
+                    ctx.font = "14px 'Press Start 2P'";
                     ctx.fillText(f.name, f.x, f.y - 10);
                 }
             }

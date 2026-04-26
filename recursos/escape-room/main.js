@@ -191,7 +191,12 @@ const state = {
     inputModo: false,
     currentInput: "",
     paused: false
+    paused: false,
+    soundEnabled: true
 };
+
+// Inicialización del sonido de pasos (Asegúrate de tener el archivo en assets/)
+const footstepSound = new Audio('assets/footstep.mp3');
 
 const player = {
     x: 400, y: 300, w: 64, h: 64, speed: 5, 
@@ -655,6 +660,13 @@ function update() {
         if (player.animCounter > 15) { 
             player.animCounter = 0;
             player.animFrame = (player.animFrame + 1) % 4; // Ciclo 0, 1, 2, 3
+            
+            // Reproducir sonido de pasos en los frames de contacto (1 y 3)
+            if (state.soundEnabled && (player.animFrame === 1 || player.animFrame === 3)) {
+                footstepSound.currentTime = 0; // Reiniciar para permitir pasos rápidos
+                footstepSound.volume = 0.2;     // Volumen moderado
+                footstepSound.play().catch(() => {}); // El catch evita errores si el navegador bloquea audio inicial
+            }
         }
     } else {
         player.animFrame = 0; // Estado quieto
@@ -798,6 +810,11 @@ function setupMobileControls() {
     canvas.style.maxWidth = '100%';
     canvas.style.height = 'auto';
     canvas.style.touchAction = 'none'; // Previene scroll accidental al jugar
+    
+    // Asegurar que el cuadro de diálogo sea legible y tenga scroll si el texto es largo
+    ui.style.maxHeight = '120px';
+    ui.style.overflowY = 'auto';
+    ui.style.pointerEvents = 'auto';
 
     // Crear un input invisible para disparar el teclado del celular
     const hiddenInput = document.createElement('input');
