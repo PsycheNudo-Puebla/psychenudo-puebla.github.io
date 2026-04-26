@@ -221,6 +221,15 @@ window.addEventListener('load', () => {
     jsonInput = document.getElementById('jsonInput');
     startBtn = document.getElementById('startBtn');
 
+    // Estilo de la barra de diálogo superior (no obstruye el juego)
+    ui.style.cssText = `
+        position: absolute; top: 0; left: 0; width: 100%; height: 60px;
+        background: rgba(0,0,0,0.85); color: white; display: flex; 
+        align-items: center; justify-content: center; text-align: center;
+        font-size: 11px; z-index: 5000; pointer-events: none; border-bottom: 2px solid #f8b800;
+        box-sizing: border-box; padding: 0 10px; font-family: 'Press Start 2P', monospace;
+    `;
+
     // Inicializar soporte para móviles
     setupMobileControls();
 
@@ -493,27 +502,27 @@ function drawCommonRoom() {
 function handleKeyboardInput(e) {
     if (!state.inputModo) return;
 
-    if (e.key === "Enter") {
+    // Enter o Space (Botón A del móvil) para confirmar
+    if (e.key === "Enter" || e.code === "Space") {
+        if (e.code === "Space") e.preventDefault();
         const pass = (currentLevelData.claveCIE || currentLevelData.discoveryYear || "").toString().toUpperCase();
         if (state.currentInput === pass) {
-            ui.innerHTML = "✅ ¡CLAVE CORRECTA! Puerta abierta.";
+            ui.innerHTML = "✅ ¡CÓDIGO CORRECTO!";
             state.inputModo = false;
+            toggleMobileKeyboard(false);
             if (currentLevelData.type === 'date') currentLevelData.doorUnlocked = true;
         } else {
             state.currentInput = "";
-            ui.innerHTML = "❌ CLAVE INCORRECTA. Intenta de nuevo.";
+            ui.innerHTML = "❌ ERROR: CÓDIGO INCORRECTO";
             setTimeout(actualizarDialogoInput, 1000);
         }
-    } else if (e.key === "Escape" || e.code === "Space") {
+    } else if (e.key === "Escape") {
         state.inputModo = false;
-        ui.innerHTML = currentLevelData.title + ". Explora la habitación.";
+        toggleMobileKeyboard(false);
+        ui.innerHTML = currentLevelData.title;
     } else if (e.key === "Backspace") {
         state.currentInput = state.currentInput.slice(0, -1);
         actualizarDialogoInput();
-    } else if (e.key.length === 1 && e.key !== " " && state.currentInput.length < (currentLevelData.longitudClave || 4)) {
-        state.currentInput += e.key.toUpperCase();
-        actualizarDialogoInput();
-    }
 }
 
 function actualizarDialogoInput() {
@@ -522,18 +531,14 @@ function actualizarDialogoInput() {
     let length = currentLevelData.longitudClave || 4;
     let display = "";
     for (let i = 0; i < length; i++) {
-        if (i < state.currentInput.length) {
-            display += state.currentInput[i] + " ";
-        } else {
-            display += "_ ";
-        }
+        display += (i < state.currentInput.length ? state.currentInput[i] : "_") + " ";
     }
+    
     ui.innerHTML = `
-        <div style="background: rgba(0,0,0,0.8); padding: 20px; border: 2px solid white; text-align: center;">
-            SISTEMA DE SEGURIDAD<br>INGRESE CÓDIGO (${length} caracteres):<br><br>
-            <span style="letter-spacing:10px; font-size: 20px; color: #f8b800;">${display}</span><br><br>
-            <small style="font-size:10px;">[ENTER] Confirmar - [ESC] Salir</small><br>
-            <button id="mobile-kb-btn" style="margin-top:15px; padding:10px; font-family:inherit; display:none; background:#3cbcfc; border:none; color:white; border-radius:5px; font-size:12px;">ABRIR TECLADO</button>
+        <div style="pointer-events: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
+            <div style="font-size: 8px; color: #3cbcfc; margin-bottom: 2px;">SISTEMA DE SEGURIDAD</div>
+            <div style="letter-spacing: 5px; font-size: 16px; color: #f8b800;">${display}</div>
+            <button id="mobile-kb-btn" style="position: absolute; right: 10px; padding: 6px; background: #3cbcfc; color: white; border: none; font-size: 7px; border-radius: 4px;">TECLADO</button>
         </div>`;
 
     // iOS y Android a veces bloquean el focus automático. Ofrecemos un botón de respaldo.
@@ -732,6 +737,19 @@ function setupMobileControls() {
     hiddenInput.id = 'hidden-mobile-input';
     hiddenInput.style.cssText = 'position:absolute; opacity:0; top:-100px; left:-100px; font-size:16px;';
     document.body.appendChild(hiddenInput);
+
+    // Capturar caracteres individuales mediante el evento 'input'
+    // Esto soluciona el problema de "doble tecla" en muchos navegadores móviles
+    hiddenInput.addEventListener('input', (e) => {
+        if (!state.inputModo) return;
+        const char = e.target.value.slice(-1).toUpperCase();
+        if (char && char !== " " && state.currentInput.length < (currentLevelData.longitudClave || 4)) {
+            state.currentInput += char;
+            actualizarDialogoInput();
+        }
+        e.target.value = ""; // Resetear valor del input invisible
+    });
+    hiddenInput.addEventListener('keydown', handleKeyboardInput);
 
     if (!isMobile) return;
 
