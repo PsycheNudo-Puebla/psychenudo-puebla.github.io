@@ -1,9 +1,0 @@
-{
-  "name": "escape-room-psicologia",
-  "version": "1.0.0",
-  "description": "Juego de escape room psicométrico estilo NES",
-  "scripts": {
-    "start": "npx serve ."
-  },
-  "dependencies": {}
-}
