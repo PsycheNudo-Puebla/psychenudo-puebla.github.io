@@ -42,10 +42,16 @@ levelLogics['dragon'] = {
         // Inicializar objeto de colisión para el cañón
         this.cannonFurniture = { 
             id: 'cannon_phys', 
-            x: 100, y: 260, w: 100, h: 80, 
+            x: 130, y: 260, w: 70, h: 80, 
             collidable: true 
         };
-        levelData.furniture = [this.cannonFurniture];
+        // Paredes del refugio (Fortaleza superior)
+        this.refugeWalls = [
+            { id: 'ref_l', x: 32, y: 60, w: 10, h: 135, collidable: true },
+            { id: 'ref_r', x: 550, y: 60, w: 10, h: 135, collidable: true },
+            { id: 'ref_b', x: 94, y: 185, w: 466, h: 10, collidable: true }
+        ];
+        levelData.furniture = [this.cannonFurniture, ...this.refugeWalls];
         
         // Cargar las 4 imágenes del dragón
         this.dragonImages = [];
@@ -110,7 +116,8 @@ levelLogics['dragon'] = {
             type: levelData.type,
             map: this.map,
             tileObjects: [],
-            won: false
+            won: false,
+            furniture: levelData.furniture
         };
     },
 
@@ -130,7 +137,7 @@ levelLogics['dragon'] = {
         if (this.gameOver || this.won) return;
 
         // Actualizar caja de colisión del cañón (sólo colisiona si no está cargado)
-        this.cannonFurniture.x = this.cannon.x - 50;
+        this.cannonFurniture.x = this.cannon.x - 20; // Desplazado a la derecha para no atrapar al jugador
         this.cannonFurniture.y = this.cannon.y - 40;
         this.cannonFurniture.collidable = !this.cannon.loaded;
 
@@ -185,8 +192,10 @@ levelLogics['dragon'] = {
         const dragonHitX = this.dragon.x - 50; 
         const distToDragon = Math.hypot((player.x + player.w / 2) - dragonHitX, (player.y + player.h / 2) - this.dragon.y);
         
-        // Determinar si el jugador está en la zona segura (área superior protegida)
-        const inSafeZone = (player.y + player.h / 2) < 185;
+        // Zona segura: Dentro del rectángulo de la fortaleza
+        const px = player.x + player.w / 2;
+        const py = player.y + player.h / 2;
+        const inSafeZone = px > 32 && px < 550 && py > 60 && py < 185;
 
         if (!inSafeZone && distToDragon < 60) {
             this.gameOver = true;
@@ -224,6 +233,16 @@ levelLogics['dragon'] = {
         if (this.dragonFire.active) {
             this.dragonFire.x += this.dragonFire.vx * dt;
             this.dragonFire.y += this.dragonFire.vy * dt;
+
+            // Colisión de llamas con las paredes de la estructura
+            const fx = this.dragonFire.x;
+            const fy = this.dragonFire.y;
+            const hitRefugeWall = (fy > 180 && fy < 195 && fx > 94 && fx < 550) || // Fondo (hueco en 42-94)
+                                 (fx > 545 && fx < 560 && fy > 60 && fy < 185); // Lateral derecho
+            
+            if (hitRefugeWall) {
+                this.dragonFire.active = false;
+            }
             
             // Desactivar si sale de los límites (ampliado para abarcar toda la pantalla)
             if (this.dragonFire.x < -200 || this.dragonFire.x > 1000 || this.dragonFire.y < -200 || this.dragonFire.y > 800) {
@@ -231,7 +250,7 @@ levelLogics['dragon'] = {
             }
             
             // Colisión contra el personaje principal (con margen más amplio)
-            const hitRadius = 30; // Aumentado de 28 para una detección más segura
+            const hitRadius = 30; 
             if (!inSafeZone && Math.hypot((player.x + player.w / 2) - this.dragonFire.x, (player.y + player.h / 2) - this.dragonFire.y) < hitRadius) {
                 this.gameOver = true;
                 this.dragonFire.active = false;
@@ -308,7 +327,7 @@ levelLogics['dragon'] = {
             y: this.cannon.y - 40, 
             w: 100, 
             h: 80 
-        });
+        }, 75); // Radio de detección aumentado para facilitar la carga
 
         // 1. Disparar (si el cañón está cargado)
         if (this.cannon.loaded && atCannon) {
@@ -368,18 +387,28 @@ levelLogics['dragon'] = {
             player.direction = "right";
         }
 
-        // Dibujar Refugio Superior (Estructura fija para proteger al jugador)
-        ctx.fillStyle = "rgba(20, 20, 40, 0.4)"; // Sombra del balcón
-        ctx.fillRect(32, 60, canvas.width - 64, 125); 
-        
-        // Barrera visual (Línea de energía o barandal)
-        ctx.strokeStyle = "#3cbcfc";
-        ctx.lineWidth = 3;
-        ctx.setLineDash([5, 5]);
-        ctx.beginPath(); ctx.moveTo(32, 185); ctx.lineTo(canvas.width - 32, 185); ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.fillStyle = "#7c7c7c"; // Postes decorativos
-        ctx.fillRect(32, 180, 8, 12); ctx.fillRect(canvas.width - 40, 180, 8, 12);
+        // Dibujar la Fortaleza de Piedra (Refugio)
+        ctx.fillStyle = "#5a352a"; // Café oscuro cenizo (Piedra antigua)
+        ctx.strokeStyle = "#251510"; // Contorno muy oscuro
+        ctx.lineWidth = 2;
+
+        // Muro Izquierdo
+        ctx.fillRect(32, 60, 10, 135); ctx.strokeRect(32, 60, 10, 135);
+        // Muro Derecho
+        ctx.fillRect(550, 60, 10, 135); ctx.strokeRect(550, 60, 10, 135);
+        // Muro Inferior con entrada (Hueco ampliado a 52px para paso del jugador)
+        ctx.fillRect(94, 185, 466, 10); ctx.strokeRect(94, 185, 466, 10);
+
+        // Textura de bloques (Detalles visuales para que no sea un bloque liso)
+        ctx.strokeStyle = "rgba(0,0,0,0.2)";
+        ctx.beginPath();
+        for(let ty = 85; ty < 185; ty += 25) {
+            ctx.moveTo(32, ty); ctx.lineTo(42, ty); // Muro izq
+            ctx.moveTo(550, ty); ctx.lineTo(560, ty); // Muro der
+        }
+        ctx.stroke();
+
+        // (Sombreado interno eliminado para mejorar la lectura de preguntas)
 
         this.drawCannon();
         
