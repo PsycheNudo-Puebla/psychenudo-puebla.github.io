@@ -2703,21 +2703,21 @@
             });
             
             // Incluir también evaluaciones guardadas en appData
-            appData.evaluations.forEach(eval => {
-                if (eval.rubricName === currentRubric.name) {
+            appData.evaluations.forEach(evaluationItem => {
+                if (evaluationItem.rubricName === currentRubric.name) {
                     allResults.push({
-                        rubric: eval.rubricName,
-                        student: eval.studentName,
-                        timestamp: eval.timestamp,
-                        finalGrade: calculateFinalGrade(eval.scores),
+                        rubric: evaluationItem.rubricName,
+                        student: evaluationItem.studentName,
+                        timestamp: evaluationItem.timestamp,
+                        finalGrade: calculateFinalGrade(evaluationItem.scores),
                         scores: currentRubric.criteria.map((c, idx) => {
-                            const levelIdx = eval.scores[idx];
+                            const levelIdx = evaluationItem.scores[idx];
                             const level = levelIdx !== undefined ? c.levels[levelIdx] : null;
                             
                             let points = 0;
                             if (level) {
                                 if (level.minPoints !== undefined && level.maxPoints !== undefined && level.minPoints !== level.maxPoints) {
-                                    points = eval.scores[`${idx}_points`] !== undefined ? eval.scores[`${idx}_points`] : level.minPoints;
+                                    points = evaluationItem.scores[`${idx}_points`] !== undefined ? evaluationItem.scores[`${idx}_points`] : level.minPoints;
                                 } else {
                                     points = level.minPoints !== undefined ? level.minPoints : 0;
                                 }
@@ -2761,9 +2761,9 @@
             });
             
             // Agregar evaluaciones manuales no importadas
-            appData.evaluations.forEach(eval => {
-                if (eval.rubricName === currentRubric.name && !allResults.find(r => r.student === eval.studentName)) {
-                    allResults.push({ student: eval.studentName, scores: eval.scores });
+            appData.evaluations.forEach(evaluationItem => {
+                if (evaluationItem.rubricName === currentRubric.name && !allResults.find(r => r.student === evaluationItem.studentName)) {
+                    allResults.push({ student: evaluationItem.studentName, scores: evaluationItem.scores });
                 }
             });
 
@@ -2824,9 +2824,9 @@
                     <div style="border-top: 1px solid #ddd; margin-bottom: 15px;"></div>
             `;
             
-            evaluationsOfCurrentRubric.forEach((eval, idx) => {
-                const finalGrade = calculateFinalGrade(eval.scores);
-                const date = new Date(eval.timestamp).toLocaleDateString('es-ES', {
+            evaluationsOfCurrentRubric.forEach((evaluationItem, idx) => {
+                const finalGrade = calculateFinalGrade(evaluationItem.scores);
+                const date = new Date(evaluationItem.timestamp).toLocaleDateString('es-ES', {
                     year: 'numeric',
                     month: 'short',
                     day: 'numeric',
@@ -2837,14 +2837,14 @@
                 historyHTML += `
                     <div style="background: #f9f9f9; padding: 12px; margin-bottom: 10px; border-radius: 6px; border-left: 4px solid var(--primary);">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <strong>${eval.studentName}</strong>
+                            <strong>${evaluationItem.studentName}</strong>
                             <span style="color: var(--success); font-weight: bold; font-size: 14px;">${finalGrade.toFixed(1)}/10</span>
                         </div>
                         <div style="font-size: 12px; color: #888;">
                             ${date}
                         </div>
                         <div style="margin-top: 8px;">
-                            <button class="primary" style="padding: 4px 12px; font-size: 12px;" onclick="loadEvaluationFromHistory('${eval.studentName}', '${eval.rubricName}')">
+                            <button class="primary" style="padding: 4px 12px; font-size: 12px;" onclick="loadEvaluationFromHistory('${evaluationItem.studentName}', '${evaluationItem.rubricName}')">
                                 ✏️ Ver/Editar
                             </button>
                         </div>
@@ -3182,10 +3182,10 @@
                         console.log('📚 Detectado: Array de evaluaciones');
                         if (currentRubric && currentRubric.criteria) {
                             rubricToLoad = currentRubric;
-                            data.forEach(eval => {
-                                if (eval.student && eval.scores) {
-                                    scoresToLoad[eval.student] = eval.scores;
-                                    studentsToLoad.push(eval.student);
+                            data.forEach(evaluationEntry => {
+                                if (evaluationEntry.student && evaluationEntry.scores) {
+                                    scoresToLoad[evaluationEntry.student] = evaluationEntry.scores;
+                                    studentsToLoad.push(evaluationEntry.student);
                                 }
                             });
                             message = `✅ ${data.length} evaluación(es) cargada(s)`;

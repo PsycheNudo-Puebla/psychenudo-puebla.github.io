@@ -370,6 +370,15 @@ levelLogics['dragon'] = {
         // Dibujar balas (evitar que el jugador pase "por debajo" visualmente)
         this.bullets.forEach(b => {
             if (!b.collected || player.heldItem === b) {
+                // Dibujar Aura de Protección (Zona Segura)
+                if (!b.collected) {
+                    ctx.strokeStyle = "rgba(60, 188, 252, 0.5)"; // Celeste NES translúcido
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 5]); // Estilo retro punteado
+                    ctx.beginPath(); ctx.arc(b.x, b.y, 65, 0, Math.PI * 2); ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+
                 // Borde gris (Sombra/Contorno)
                 ctx.fillStyle = "#7c7c7c";
                 ctx.beginPath(); ctx.arc(b.x, b.y, 12, 0, Math.PI*2); ctx.fill();
