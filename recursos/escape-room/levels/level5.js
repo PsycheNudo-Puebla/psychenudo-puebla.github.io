@@ -5,6 +5,7 @@
             currentRoom: 'center',
             roomTimer: 0,
             maxTime: 900, // 15 segundos antes de que aparezca una serpiente
+            transitionCooldown: 0, // Evitar rebotes de entrada/salida
             snakes: [],
             progressA: false,
             entryPointX: 0, // Nuevo: Almacena la X del jugador al entrar a una sub-habitación
@@ -36,6 +37,9 @@
     update: () => {
         const data = currentLevelData;
         data.roomTimer++;
+        if (data.transitionCooldown > 0) data.transitionCooldown--;
+
+        const canTransition = data.transitionCooldown <= 0;
 
         // 1. Spawning de serpientes por tiempo
         if (data.roomTimer > data.maxTime && data.roomTimer % 300 === 0) {
@@ -91,7 +95,7 @@
         }
 
         // 4. Transición automática de habitaciones por puerta
-        if (data.currentRoom === 'center') {
+        if (data.currentRoom === 'center' && canTransition) {
             const doorA = data.tileObjects.find(o => o.target === 'A');
             const doorB = data.tileObjects.find(o => o.target === 'B');
             if (doorA && checkProximity(doorA)) {
@@ -106,7 +110,7 @@
                 enterSubRoom('B');
                 return;
             }
-        } else {
+        } else if (canTransition) {
             const backDoor = data.tileObjects.find(o => o.target === 'center');
             if (backDoor && checkProximity(backDoor)) {
                 returnToCenter();
@@ -197,6 +201,7 @@
 function enterSubRoom(room) {
     const data = currentLevelData;
     data.currentRoom = room;
+    data.transitionCooldown = 40; // Bloquea re-entradas por 40 frames
     data.roomTimer = 0; // Reiniciar tiempo al entrar
     
     // Cambiar mapa visual: marco con una sola puerta lateral según la habitación
@@ -236,6 +241,7 @@ function enterSubRoom(room) {
 function returnToCenter() {
     const data = currentLevelData;
     data.currentRoom = 'center';
+    data.transitionCooldown = 40; // Bloquea re-entradas por 40 frames
     data.roomItems = [];
     data.map = [
         [1,1,1,1,1,1,1,1,1,1,1,1,5,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -254,10 +260,10 @@ function returnToCenter() {
         { id: "exit", type: "door", tileX: 12, tileY: 0, interactive: true, target: 'exit' }
     ];
     // Restaurar la posición del jugador a un poco dentro del centro del lado de entrada
-    if (data.entryPointX < 100) {
-        player.x = 110; // Alejar de la zona de transición A (Oeste)
-    } else if (data.entryPointX > canvas.width - 100) {
-        player.x = canvas.width - 110 - player.w; // Alejar de la zona de transición B (Este)
+    if (data.entryPointX < 150) {
+        player.x = 150; // Aumentamos el margen para evitar el trigger de proximidad (60px)
+    } else if (data.entryPointX > canvas.width - 150) {
+        player.x = canvas.width - 150 - player.w;
     } else {
         player.x = data.entryPointX;
     }
