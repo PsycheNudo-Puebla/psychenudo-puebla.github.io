@@ -7,10 +7,14 @@ window.reportSystem = {
      * @param {boolean} completed - true si completó el juego, false si se rindió
      */
     generateReport: function(playerName, completed) {
-        const jsPDFConstructor = window.jspdf?.jsPDF || window.jsPDF; // Compatibilidad con diferentes versiones de la librería jsPDF
+        const jsPDFConstructor = window.jspdf?.jsPDF || (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
         if (!jsPDFConstructor) {
-            alert('Error: Librería PDF no cargada. Por favor recarga la página.');
-            console.error('jsPDF no encontrado. Asegúrate de tener el script en tu HTML.');
+            console.error('jsPDF no encontrado.');
+            // Intento de descarga de texto simple como respaldo si falla el PDF
+            const blob = new Blob([window.gameStats.getSummary()], {type: 'text/plain'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = 'reporte.txt'; a.click();
             return;
         }
 

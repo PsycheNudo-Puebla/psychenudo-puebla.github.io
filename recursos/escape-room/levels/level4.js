@@ -54,20 +54,27 @@
         }
 
         // Barajar hasta asegurar que NO empiece resuelto
-        let availableIndices;
-        let solvedAtStart = true;
-        // El orden esperado ya está en base.winOrder
+        let availableIndices = Array.from({length: numPedestals}, (_, i) => i);
+        
+        // Barajado robusto (Fisher-Yates)
+        const shuffle = (array) => {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        };
 
-        while (solvedAtStart) {
-            availableIndices = Array.from({length: numPedestals}, (_, i) => i).sort(() => Math.random() - 0.5);
-            
-            // Pre-verificación del orden resultante
-            const testOrder = new Array(numPedestals).fill(0);
-            jsonItems.forEach((item, idx) => {
-                testOrder[availableIndices[idx]] = item.size;
-            });
-            
-            solvedAtStart = testOrder.every((v, i) => v === base.winOrder[i]);
+        shuffle(availableIndices);
+
+        // Verificar si por azar quedó resuelto (muy improbable, pero posible)
+        const testOrder = new Array(numPedestals).fill(0);
+        jsonItems.forEach((item, idx) => { testOrder[availableIndices[idx]] = item.size; });
+        
+        const isSolved = testOrder.every((v, i) => v === base.winOrder[i]);
+        if (isSolved && numPedestals > 1) {
+            // Si está resuelto, simplemente intercambiamos los dos primeros índices
+            [availableIndices[0], availableIndices[1]] = [availableIndices[1], availableIndices[0]];
         }
 
         jsonItems.forEach((item, idx) => {
