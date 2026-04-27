@@ -284,17 +284,27 @@ window.addEventListener('load', () => {
 
     // Función para cargar JSON desde el servidor
     window.loadRemoteJSON = function(filename) {
+        // Detectar si se está ejecutando localmente sin servidor (CORS policy bypass)
+        if (window.location.protocol === 'file:') {
+            alert("⚠️ CARGA LOCAL BLOQUEADA:\n\nEl navegador no permite cargar archivos JSON automáticamente desde una carpeta local.\n\nSOLUCIONES:\n1. Usa el botón 'Elegir archivo' de abajo.\n2. Sube tus cambios a GitHub.\n3. Usa un servidor local (como la extensión Live Server de VS Code).");
+            return;
+        }
+
         fetch(`levels/${filename}`)
             .then(response => {
-                if (!response.ok) throw new Error("No se pudo encontrar el archivo " + filename);
+                if (!response.ok) throw new Error(`El archivo '${filename}' no existe en la carpeta /levels/. Verifica que el nombre coincida exactamente (mayúsculas/minúsculas) en GitHub.`);
                 return response.json();
             })
             .then(data => {
                 processJSONData(data, filename);
             })
             .catch(err => {
-                alert("Error: " + err.message);
-                console.error(err);
+                console.error("[ERROR DE CARGA]", err);
+                if (err.name === 'TypeError') {
+                    alert("Error de red o CORS. Si estás en local, usa el botón 'Elegir archivo'.");
+                } else {
+                    alert("Error: " + err.message);
+                }
             });
     };
 
@@ -351,8 +361,12 @@ window.addEventListener('load', () => {
     }
 
     // Agregar eventos a botones de presets
+    const level1Btn = document.getElementById('level1Btn');
+    if (level1Btn) level1Btn.onclick = () => loadRemoteJSON('level1.json');
+    
     document.getElementById('psicometriaBtn').onclick = () => loadRemoteJSON('psicometria.json');
-    document.getElementById('psicopatologiaBtn').onclick = () => loadRemoteJSON('psicopatologia.json');
+    const psicopatoBtn = document.getElementById('psicopatologiaBtn');
+    if (psicopatoBtn) psicopatoBtn.onclick = () => loadRemoteJSON('psicopatologia.json');
 
     // Mantener compatibilidad con input de archivo local
     jsonInput.addEventListener('change', function(e) {

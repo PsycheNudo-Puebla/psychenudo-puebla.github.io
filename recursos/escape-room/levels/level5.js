@@ -255,9 +255,9 @@ function returnToCenter() {
     ];
     // Restaurar la posición del jugador a un poco dentro del centro del lado de entrada
     if (data.entryPointX < 100) {
-        player.x = 60;
+        player.x = 110; // Alejar de la zona de transición A (Oeste)
     } else if (data.entryPointX > canvas.width - 100) {
-        player.x = canvas.width - 90;
+        player.x = canvas.width - 110 - player.w; // Alejar de la zona de transición B (Este)
     } else {
         player.x = data.entryPointX;
     }
