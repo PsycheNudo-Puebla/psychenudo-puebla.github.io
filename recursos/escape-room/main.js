@@ -551,33 +551,50 @@ function drawCommonRoom() {
     ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
 }
 
+function validarPassword() {
+    const pass = (currentLevelData.claveCIE || currentLevelData.discoveryYear || "").toString().toUpperCase();
+    if (state.currentInput === pass) {
+        ui.innerHTML = "✅ ¡CLAVE CORRECTA! Puerta abierta.";
+        state.inputModo = false;
+        toggleMobileKeyboard(false);
+        if (currentLevelData.type === 'date') currentLevelData.doorUnlocked = true;
+        if (window.gameStats) window.gameStats.recordQuestion(state.levelIndex, "Ingreso de código de seguridad", true);
+    } else {
+        state.currentInput = "";
+        const input = document.getElementById('hidden-mobile-input');
+        if (input) input.value = "";
+        ui.innerHTML = "❌ CLAVE INCORRECTA. Intenta de nuevo.";
+        if (window.gameStats) window.gameStats.recordQuestion(state.levelIndex, "Ingreso de código de seguridad", false);
+        setTimeout(actualizarDialogoInput, 1000);
+    }
+}
+
 function handleKeyboardInput(e) {
     if (!state.inputModo) return;
+
+    // Permitir que el input oculto en móviles capture caracteres sin interferencia
+    if (e.target && e.target.id === 'hidden-mobile-input' && e.key !== "Enter") {
+        return;
+    }
 
     e.preventDefault();
     e.stopPropagation();
 
     if (e.key === "Enter") {
-        const pass = (currentLevelData.claveCIE || currentLevelData.discoveryYear || "").toString().toUpperCase();
-        if (state.currentInput === pass) {
-            ui.innerHTML = "✅ ¡CLAVE CORRECTA! Puerta abierta.";
-            state.inputModo = false;
-            if (currentLevelData.type === 'date') currentLevelData.doorUnlocked = true;
-            if (window.gameStats) window.gameStats.recordQuestion(state.levelIndex, "Ingreso de código de seguridad", true);
-        } else {
-            state.currentInput = "";
-            ui.innerHTML = "❌ CLAVE INCORRECTA. Intenta de nuevo.";
-            if (window.gameStats) window.gameStats.recordQuestion(state.levelIndex, "Ingreso de código de seguridad", false);
-            setTimeout(actualizarDialogoInput, 1000);
-        }
+        validarPassword();
     } else if (e.key === "Escape" || e.code === "Space") {
         state.inputModo = false;
+        toggleMobileKeyboard(false);
         ui.innerHTML = currentLevelData.title + ". Explora la habitación.";
     } else if (e.key === "Backspace") {
         state.currentInput = state.currentInput.slice(0, -1);
+        const input = document.getElementById('hidden-mobile-input');
+        if (input) input.value = state.currentInput;
         actualizarDialogoInput();
     } else if (e.key.length === 1 && e.key !== " " && e.key.toLowerCase() !== 'p' && state.currentInput.length < (currentLevelData.longitudClave || 4)) {
         state.currentInput += e.key.toUpperCase();
+        const input = document.getElementById('hidden-mobile-input');
+        if (input) input.value = state.currentInput;
         actualizarDialogoInput();
     }
 }
@@ -839,8 +856,26 @@ function setupMobileControls() {
     // Crear un input invisible para disparar el teclado del celular
     const hiddenInput = document.createElement('input');
     hiddenInput.id = 'hidden-mobile-input';
-    hiddenInput.style.cssText = 'position:fixed; top:0; left:0; opacity:0; width:1px; height:1px; font-size:16px; border:none; outline:none;';
+    hiddenInput.type = 'text';
+    hiddenInput.setAttribute('autocorrect', 'off');
+    hiddenInput.setAttribute('autocapitalize', 'characters');
+    hiddenInput.style.cssText = 'position:fixed; top:0; left:0; opacity:0; width:1px; height:1px; font-size:16px; border:none; outline:none; z-index: -1;';
     document.body.appendChild(hiddenInput);
+
+    // Listener para capturar texto en móviles de forma nativa
+    hiddenInput.addEventListener('input', (e) => {
+        if (state.inputModo) {
+            state.currentInput = e.target.value.toUpperCase().slice(0, currentLevelData.longitudClave || 4);
+            actualizarDialogoInput();
+        }
+    });
+
+    // Enter en el teclado móvil para enviar
+    hiddenInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && state.inputModo) {
+            handleKeyboardInput(e);
+        }
+    });
 
     if (!isMobile) return;
 
@@ -906,7 +941,12 @@ function setupMobileControls() {
 function toggleMobileKeyboard(show) {
     const input = document.getElementById('hidden-mobile-input');
     if (input) {
-        if (show) input.focus();
+        if (show) {
+            if (document.activeElement !== input) {
+                input.value = state.currentInput;
+                input.focus();
+            }
+        }
         else input.blur();
     }
 }
