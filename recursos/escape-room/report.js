@@ -284,7 +284,10 @@ window.reportSystem = {
             
             // Permitir Enter para enviar
             input.onkeypress = (e) => {
-                if (e.key === 'Enter') acceptBtn.click();
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    acceptBtn.click();
+                }
             };
         });
     }

@@ -38,6 +38,11 @@
         };
 
         const jsonItems = scenario.items || [];
+        if (jsonItems.length === 0) return base; // Seguridad contra bloqueo/loop
+
+        // Cachear el orden de victoria para no recalcular en cada frame (optimización móvil)
+        base.winOrder = [0, ...jsonItems.map(i => i.size)];
+
         // Lógica N+1: Pedestales necesarios para mover piezas
         const numPedestals = jsonItems.length + 1;
         // Ajustamos el espaciado para que quepan más elementos (80px en lugar de 100px)
@@ -51,11 +56,10 @@
         // Barajar hasta asegurar que NO empiece resuelto
         let availableIndices;
         let solvedAtStart = true;
-        // El orden esperado es el orden definido en el arreglo 'items' del JSON
-        const expectedOrder = [0, ...jsonItems.map(i => i.size)];
+        // El orden esperado ya está en base.winOrder
 
         while (solvedAtStart) {
-            availableIndices = [...Array(numPedestals).keys()].sort(() => Math.random() - 0.5);
+            availableIndices = Array.from({length: numPedestals}, (_, i) => i).sort(() => Math.random() - 0.5);
             
             // Pre-verificación del orden resultante
             const testOrder = new Array(numPedestals).fill(0);
@@ -63,7 +67,7 @@
                 testOrder[availableIndices[idx]] = item.size;
             });
             
-            solvedAtStart = testOrder.every((v, i) => v === expectedOrder[i]);
+            solvedAtStart = testOrder.every((v, i) => v === base.winOrder[i]);
         }
 
         jsonItems.forEach((item, idx) => {
@@ -188,10 +192,9 @@
         // 3. Verificar condición de victoria: El primer pedestal DEBE estar vacío (0)
         // y el resto deben seguir el orden ascendente esperado.
         const currentOrder = currentLevelData.pedestals.map(p => p.tower ? p.tower.size : 0);
-        // Ahora sigue el orden EXACTO definido en el JSON
-        const winOrder = [0, ...(currentLevelData.items || []).map(i => i.size)];
+        const winOrder = currentLevelData.winOrder || [];
 
-        if (currentOrder.length === winOrder.length && currentOrder.every((v, i) => v === winOrder[i])) {
+        if (winOrder.length > 0 && currentOrder.every((v, i) => v === winOrder[i])) {
             if (!currentLevelData.solved) {
                 currentLevelData.solved = true;
                 if (window.gameStats) window.gameStats.recordHit(state.levelIndex);
