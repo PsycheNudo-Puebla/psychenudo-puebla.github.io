@@ -43,7 +43,7 @@
         this.playerPaddle = { x: player.x, y: player.y + player.h / 2, w: 80, h: 15 }; // Paleta dibujada alrededor del jugador
 
         // El Diablo es la paleta superior
-        this.diablo = { x: 400 - 40, y: 120, w: 80, h: 15, speed: window.isMobile ? 5 : 7 }; // Ajuste de velocidad para móvil
+        this.diablo = { x: 400 - 40, y: 120, w: 80, h: 15, speed: 10 };
         this.diabloPaddle = { x: this.diablo.x, y: this.diablo.y + 10, w: 80, h: 15 }; // Paleta dibujada frente al Diablo
         
         // La Pelota/Bomba
@@ -147,17 +147,17 @@
         this.gameState = "play";
     },
 
-    update: function() {
+    update: function(dt) {
         if (this.gameState !== "play" || this.won || this.gameOver) return;
 
         if (this.countdownActive) {
-            this.countdownTimer--;
+            this.countdownTimer -= dt;
             if (this.countdownTimer <= 0) {
                 this.countdownValue--;
                 this.countdownTimer = 60;
                 if (this.countdownValue <= 0) {
                     this.countdownActive = false;
-                    const initialSpeed = window.isMobile ? 3.5 : 6.5;
+                    const initialSpeed = 8;
                     this.bomb.vx = initialSpeed * (Math.random() > 0.5 ? 1 : -1);
                     this.bomb.vy = initialSpeed * (Math.random() > 0.5 ? 1 : -1);
                 }
@@ -178,8 +178,8 @@
         this.playerPaddle.y = player.y - 5; // Un poco arriba de los pies para que parezca que la carga
 
         // Movimiento de la bomba
-        this.bomb.x += this.bomb.vx;
-        this.bomb.y += this.bomb.vy;
+        this.bomb.x += this.bomb.vx * dt;
+        this.bomb.y += this.bomb.vy * dt;
 
         // Rebote paredes izquierda y derecha (Refinado)
         if (this.bomb.x - this.bomb.r < 32) {
@@ -192,8 +192,8 @@
 
         // IA del Diablo (horizontal) - con algo de imperfección
         let targetX = this.bomb.x - this.diablo.w / 2 + (Math.random() - 0.5) * 15; // Pequeño offset aleatorio
-        if (this.diablo.x < targetX) this.diablo.x += this.diablo.speed;
-        if (this.diablo.x > targetX) this.diablo.x -= this.diablo.speed;
+        if (this.diablo.x < targetX) this.diablo.x += this.diablo.speed * dt;
+        if (this.diablo.x > targetX) this.diablo.x -= this.diablo.speed * dt;
         
         // Restringir al Diablo a los bordes de la pantalla
         this.diablo.x = Math.max(32, Math.min(canvas.width - this.diablo.w - 32, this.diablo.x));
@@ -257,8 +257,8 @@
 
         // Partículas
         this.particles = this.particles.filter(p => {
-            p.x += p.vx; p.y += p.vy;
-            p.life--;
+            p.x += p.vx * dt; p.y += p.vy * dt;
+            p.life -= dt;
             return p.life > 0;
         });
     },

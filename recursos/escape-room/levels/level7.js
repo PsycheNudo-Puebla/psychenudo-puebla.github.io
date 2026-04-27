@@ -73,14 +73,14 @@ levelLogics['dragon'] = {
         this.damage = 0;
         this.gameOver = false;
         this.won = false;
-        this.dragon = { x: 650, y: 300, dir: 1, speed: window.isMobile ? 2 : 6, fireTimer: 0, animFrame: 0, health: this.questions.length || 3, state: 'normal', dashTimer: 0 };
+        this.dragon = { x: 650, y: 300, dir: 1, speed: 8, fireTimer: 0, animFrame: 0, health: this.questions.length || 3, state: 'normal', dashTimer: 0 };
         this.cannon = { x: 150, y: 300, w: 100, h: 80, loaded: false, bulletType: null, cooldown: 0 };
         this.bullets = [];
         this.activeBullet = { active: false, x: 0, y: 0 };
-        this.dragonFire = { active: false, x: 0, y: 0, vx: 0, vy: 0, speed: window.isMobile ? 9 : 10 };
-        this.bulletSpeed = window.isMobile ? 12 : 35;
-        this.dashSpeed = window.isMobile ? 5 : 15;
-        this.returnSpeed = window.isMobile ? 2 : 7;
+        this.dragonFire = { active: false, x: 0, y: 0, vx: 0, vy: 0, speed: 12 };
+        this.bulletSpeed = 35;
+        this.dashSpeed = 20;
+        this.returnSpeed = 8;
         this.showText = '';
         this.textTimer = 0;
         this.explosion = { active: false, x: 0, y: 0, timer: 0 };
@@ -120,7 +120,7 @@ levelLogics['dragon'] = {
         }));
     },
 
-    update: function() {
+    update: function(dt) {
         if (this.gameOver || this.won) return;
 
         // Actualizar caja de colisión del cañón (sólo colisiona si no está cargado)
@@ -145,12 +145,12 @@ levelLogics['dragon'] = {
 
         // Movimiento del Dragón
         if (this.dragon.state === 'normal') {
-            this.dragon.y += this.dragon.speed * this.dragon.dir;
+            this.dragon.y += this.dragon.speed * this.dragon.dir * dt;
             // Ajustamos límites de rebote para un dragón de 600px
             if (this.dragon.y > 380 || this.dragon.y < 220) this.dragon.dir *= -1;
             
             // Incrementar temporizador para el ataque de embestida
-            this.dragon.dashTimer++;
+            this.dragon.dashTimer += dt;
 
             // Efecto de temblor antes de atacar (aviso visual)
             if (this.dragon.dashTimer > 350) {
@@ -163,11 +163,11 @@ levelLogics['dragon'] = {
             }
         } else if (this.dragon.state === 'dashing') {
             // Embestida hacia la izquierda
-            this.dragon.x -= this.dashSpeed; 
+            this.dragon.x -= this.dashSpeed * dt; 
             if (this.dragon.x < 100) this.dragon.state = 'returning';
         } else if (this.dragon.state === 'returning') {
             // Regreso a la posición original
-            this.dragon.x += this.returnSpeed;
+            this.dragon.x += this.returnSpeed * dt;
             if (this.dragon.x >= 650) {
                 this.dragon.x = 650;
                 this.dragon.state = 'normal';
@@ -186,7 +186,7 @@ levelLogics['dragon'] = {
         }
 
         // Animación de disparo del Dragón (Más rápido aún)
-        this.dragon.fireTimer++;
+        this.dragon.fireTimer += dt;
         
         // Ciclo de animación normal (0, 1, 2, 3)
         this.dragon.animFrame = Math.floor(Date.now() / 150) % 4;
@@ -213,8 +213,8 @@ levelLogics['dragon'] = {
 
         // Movimiento de las llamas y colisión con jugador
         if (this.dragonFire.active) {
-            this.dragonFire.x += this.dragonFire.vx;
-            this.dragonFire.y += this.dragonFire.vy;
+            this.dragonFire.x += this.dragonFire.vx * dt;
+            this.dragonFire.y += this.dragonFire.vy * dt;
             
             // Desactivar si sale de los límites (ampliado para abarcar toda la pantalla)
             if (this.dragonFire.x < -200 || this.dragonFire.x > 1000 || this.dragonFire.y < -200 || this.dragonFire.y > 800) {
@@ -233,7 +233,7 @@ levelLogics['dragon'] = {
 
         // Movimiento de la bala y colisión con el dragón
         if (this.activeBullet.active) {
-            this.activeBullet.x += this.bulletSpeed; // Bala más veloz
+            this.activeBullet.x += this.bulletSpeed * dt; // Bala más veloz
             if (this.activeBullet.x > 850) {
                 this.activeBullet.active = false; // Desactivar la bala
                 // REPARACIÓN: Si la bala sale de la pantalla, la bala correcta vuelve a aparecer en el suelo
@@ -280,7 +280,7 @@ levelLogics['dragon'] = {
 
         if (this.textTimer > 0) this.textTimer--;
         if (this.explosion.active) {
-            this.explosion.timer--;
+            this.explosion.timer -= dt;
             if (this.explosion.timer <= 0) this.explosion.active = false;
         }
     },

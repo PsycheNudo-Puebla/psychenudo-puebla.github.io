@@ -25,7 +25,7 @@
             startGrace: 180,  // 3 segundos de gracia al iniciar
             spider: {
                 x: cW / 2, y: 30, state: "scanning", targetX: cW / 2, targetY: 30,
-                heldItem: null, animFrame: 0, animCounter: 0, speed: 2,
+                heldItem: null, animFrame: 0, animCounter: 0, speed: 4,
                 currentTargetPedestal: null
             },
             pedestals: []
@@ -68,7 +68,7 @@
         player.isCaptured = false;
         return base;
     },
-    update: () => {
+    update: (dt) => {
         if (currentLevelData.solved) return;
 
         // Información automática por proximidad (Estándar pedagógico)
@@ -78,11 +78,11 @@
         }
 
         // Decrementar periodo de gracia
-        if (currentLevelData.startGrace > 0) currentLevelData.startGrace--;
+        if (currentLevelData.startGrace > 0) currentLevelData.startGrace -= dt;
 
         // 1. Lógica de inactividad del jugador
         if (!player.moving) {
-            currentLevelData.idleTimer++;
+            currentLevelData.idleTimer += dt;
         } else {
             currentLevelData.idleTimer = 0;
         }
@@ -125,7 +125,7 @@
                 if (target) {
                     let tx = target.isPlayer ? target.x + 32 : target.x; // Apuntar al centro del jugador
                     if (Math.abs(s.x - tx) > 5) {
-                        s.x += (s.x < tx) ? s.speed : -s.speed;
+                        s.x += (s.x < tx) ? s.speed * dt : -s.speed * dt;
                     } else {
                         s.state = "descending";
                         s.targetY = target.y + 20;
@@ -136,7 +136,7 @@
                 break;
             
             case "descending":
-                s.y += 4; // Descenso un poco más agresivo
+                s.y += 7 * dt; // Descenso más agresivo
                 if (s.y >= s.targetY) {
                     // El contacto con el jugador ya se maneja globalmente arriba.
                     // Aquí solo procesamos la captura de piezas si el jugador no fue atrapado ya.
@@ -152,7 +152,7 @@
                 break;
 
             case "lifting":
-                s.y -= 3;
+                s.y -= 5 * dt;
                 if (s.heldItem === "PLAYER") {
                     player.x = s.x - 32; // Centrar al jugador de 64px de ancho
                     player.y = s.y + 25; // Colgarlo de las patas
@@ -172,7 +172,7 @@
                 }
                 break;
         }
-        s.animCounter++;
+        s.animCounter += dt;
         if(s.animCounter > 10) { 
             s.animCounter = 0; 
             s.animFrame = ((s.animFrame || 0) + 1) % 4; 
