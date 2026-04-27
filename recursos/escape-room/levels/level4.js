@@ -189,7 +189,7 @@
         // y el resto deben seguir el orden ascendente esperado.
         const currentOrder = currentLevelData.pedestals.map(p => p.tower ? p.tower.size : 0);
         // Ahora sigue el orden EXACTO definido en el JSON
-        const winOrder = [0, ...jsonItems.map(i => i.size)];
+        const winOrder = [0, ...(currentLevelData.items || []).map(i => i.size)];
 
         if (currentOrder.length === winOrder.length && currentOrder.every((v, i) => v === winOrder[i])) {
             if (!currentLevelData.solved) {

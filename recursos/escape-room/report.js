@@ -8,6 +8,7 @@ window.reportSystem = {
      */
     generateReport: function(playerName, completed) {
         const jsPDFConstructor = window.jspdf?.jsPDF || window.jsPDF; // Compatibilidad con diferentes versiones de la librería jsPDF
+        if (!jsPDFConstructor) {
             alert('Error: Librería PDF no cargada. Por favor recarga la página.');
             console.error('jsPDF no encontrado. Asegúrate de tener el script en tu HTML.');
             return;
@@ -288,3 +289,4 @@ window.reportSystem = {
         });
     }
 };
+      
