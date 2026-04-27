@@ -1,5 +1,5 @@
 /** GLOBALES Y REGISTRO **/
-let canvas, ctx, ui, menu, jsonInput, startBtn;
+let canvas, ctx, ui, menu, jsonInput, startBtn, lastTime = 0;
 
 // Registro de lógica de niveles (Debe estar al principio)
 window.levelLogics = window.levelLogics || {};
@@ -452,7 +452,8 @@ function startGame() {
         ui.innerHTML = state.allLevels[state.levelIndex].title + ". Explora la habitación.";
     }
     state.running = true;
-    gameLoop();
+    lastTime = performance.now();
+    requestAnimationFrame(gameLoop);
 }
 
 function checkProximity(obj) {
@@ -631,12 +632,12 @@ function actualizarDialogoInput() {
     }
 }
 
-function update() {
+function update(dt) {
     if (state.paused) return; // No actualizar si está pausado
 
     // Actualización específica del nivel (ej. techo bajando)
     if (currentLevelData && levelLogics[currentLevelData.type] && levelLogics[currentLevelData.type].update) {
-        levelLogics[currentLevelData.type].update();
+        levelLogics[currentLevelData.type].update(dt);
     }
 
     if (state.inputModo || (player.isCaptured)) return; // Bloquear movimiento si escribe o está capturado
@@ -654,15 +655,15 @@ function update() {
         player.y = 500; // Posición Y fija para el tenis
         // Forzar la dirección "up" para la animación de caminar
         player.direction = "up";
-        if (keys['ArrowLeft']) { dx = -player.speed; player.moving = true; }
-        else if (keys['ArrowRight']) { dx = player.speed; player.moving = true; }
+        if (keys['ArrowLeft']) { dx = -player.speed * dt; player.moving = true; }
+        else if (keys['ArrowRight']) { dx = player.speed * dt; player.moving = true; }
         else { player.moving = false; }
     } else {
     // Movimiento (Prioridad: Arriba/Abajo)
-    if (keys['ArrowUp']) { dy = -player.speed; player.direction = "up"; player.moving = true; }
-    else if (keys['ArrowDown']) { dy = player.speed; player.direction = "down"; player.moving = true; }
-    else if (keys['ArrowLeft']) { dx = -player.speed; player.direction = "left"; player.moving = true; }
-    else if (keys['ArrowRight']) { dx = player.speed; player.direction = "right"; player.moving = true; }
+    if (keys['ArrowUp']) { dy = -player.speed * dt; player.direction = "up"; player.moving = true; }
+    else if (keys['ArrowDown']) { dy = player.speed * dt; player.direction = "down"; player.moving = true; }
+    else if (keys['ArrowLeft']) { dx = -player.speed * dt; player.direction = "left"; player.moving = true; }
+    else if (keys['ArrowRight']) { dx = player.speed * dt; player.direction = "right"; player.moving = true; }
 
     // Aplicar movimiento
     }
@@ -671,7 +672,7 @@ function update() {
 
     // Ciclo de animación (Quieto -> PieA -> Quieto -> PieB)
     if (player.moving) {
-        player.animCounter++;
+        player.animCounter += dt;
         // Velocidad del paso (más bajo = más rápido)
         if (player.animCounter > 15) { 
             player.animCounter = 0;
@@ -750,9 +751,15 @@ function handleInteraction() {
     }
 }
 
-function gameLoop() {
+function gameLoop(timestamp) {
     if (!state.running) return;
-    update();
+
+    // Calcular Delta Time (dt) para normalizar velocidad (basado en 60fps)
+    const deltaTime = timestamp - lastTime;
+    lastTime = timestamp;
+    const dt = Math.min(deltaTime, 100) / (1000 / 60); 
+
+    update(dt);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     drawCommonRoom();
@@ -820,7 +827,7 @@ function gameOver(message) {
 
 /** SISTEMA DE ADAPTACIÓN PARA MÓVILES (iOS/Android) **/
 function setupMobileControls() {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (!window.isMobile) return;
     
     // Hacer el canvas responsivo
     canvas.style.maxWidth = '100%';
@@ -876,8 +883,6 @@ function setupMobileControls() {
             handleKeyboardInput(e);
         }
     });
-
-    if (!isMobile) return;
 
     // Evitar zoom y gestos del sistema que rompan la experiencia
     document.addEventListener('touchstart', (e) => {
