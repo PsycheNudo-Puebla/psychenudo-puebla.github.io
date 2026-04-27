@@ -78,14 +78,14 @@ levelLogics['dragon'] = {
         this.damage = 0;
         this.gameOver = false;
         this.won = false;
-        this.dragon = { x: 650, y: 300, dir: 1, speed: 8, fireTimer: 0, animFrame: 0, health: this.questions.length || 3, state: 'normal', dashTimer: 0 };
+        this.dragon = { x: 650, y: 300, dir: 1, speed: 4, fireTimer: 0, animFrame: 0, health: this.questions.length || 3, state: 'normal', dashTimer: 0 };
         this.cannon = { x: 150, y: 300, w: 100, h: 80, loaded: false, bulletType: null, cooldown: 0 };
         this.bullets = [];
         this.activeBullet = { active: false, x: 0, y: 0 };
-        this.dragonFire = { active: false, x: 0, y: 0, vx: 0, vy: 0, speed: 12 };
-        this.bulletSpeed = 35;
-        this.dashSpeed = 20;
-        this.returnSpeed = 8;
+        this.dragonFire = { active: false, x: 0, y: 0, vx: 0, vy: 0, speed: 6.5 };
+        this.bulletSpeed = 25;
+        this.dashSpeed = 10;
+        this.returnSpeed = 4;
         this.showText = '';
         this.textTimer = 0;
         this.explosion = { active: false, x: 0, y: 0, timer: 0 };
@@ -462,7 +462,7 @@ levelLogics['dragon'] = {
             let text = q.question;
             const nearBullet = this.bullets.find(b => !b.collected && checkProximity(b));
             if (nearBullet) {
-                text += "<br>Opción: " + nearBullet.option;
+                text += '<br><span style="color: #00ff00; font-weight: bold;">Opción: ' + nearBullet.option + '</span>';
             } else if (this.textTimer > 0) {
                 text += "<br>" + this.showText;
             }
