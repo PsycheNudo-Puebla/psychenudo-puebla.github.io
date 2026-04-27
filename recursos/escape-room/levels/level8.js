@@ -48,7 +48,7 @@
         this.playerPaddle = { x: player.x, y: player.y + player.h / 2, w: 80, h: 15 }; // Paleta dibujada alrededor del jugador
 
         // El Diablo es la paleta superior
-        this.diablo = { x: 400 - 40, y: 120, w: 80, h: 15, speed: 5.5 };
+        this.diablo = { x: 400 - 40, y: 120, w: 80, h: 15, speed: 4.5 }; // Reducida para que no llegue a tiros esquinados
         this.diabloPaddle = { x: this.diablo.x, y: this.diablo.y + 10, w: 80, h: 15 }; // Paleta dibujada frente al Diablo
         
         // La Pelota/Bomba
@@ -196,7 +196,7 @@
         }
 
         // IA del Diablo (horizontal) - con algo de imperfección
-        let targetX = this.bomb.x - this.diablo.w / 2 + (Math.random() - 0.5) * 55; // Aumentado error de IA
+        let targetX = this.bomb.x - this.diablo.w / 2 + (Math.random() - 0.5) * 90; // Mayor margen de error en la IA
         if (this.diablo.x < targetX) this.diablo.x += this.diablo.speed * dt;
         if (this.diablo.x > targetX) this.diablo.x -= this.diablo.speed * dt;
         
@@ -222,7 +222,7 @@
 
             // Calcular el punto de impacto relativo (-1 a 1)
             let hit = (this.bomb.x - (this.playerPaddle.x + this.playerPaddle.w / 2)) / (this.playerPaddle.w / 2);
-            this.bomb.vx = hit * 5.5; // Reducido rebote horizontal extremo
+            this.bomb.vx = hit * 8.5; // Aumentado para permitir ataques diagonales más agresivos
             this.bomb.vy = -Math.abs(this.bomb.vy) * speedMultiplier; 
             
             // Limitar velocidad máxima
