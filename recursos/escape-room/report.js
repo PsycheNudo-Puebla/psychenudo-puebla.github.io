@@ -7,15 +7,7 @@ window.reportSystem = {
      * @param {boolean} completed - true si completó el juego, false si se rindió
      */
     generateReport: function(playerName, completed) {
-        // Compatibilidad con diferentes versiones de la librería jsPDF
-        let jsPDFConstructor = null;
-        if (window.jspdf && window.jspdf.jsPDF) {
-            jsPDFConstructor = window.jspdf.jsPDF;
-        } else if (window.jsPDF) {
-            jsPDFConstructor = window.jsPDF;
-        }
-
-        if (!jsPDFConstructor) {
+        const jsPDFConstructor = window.jspdf?.jsPDF || window.jsPDF; // Compatibilidad con diferentes versiones de la librería jsPDF
             alert('Error: Librería PDF no cargada. Por favor recarga la página.');
             console.error('jsPDF no encontrado. Asegúrate de tener el script en tu HTML.');
             return;
@@ -76,8 +68,7 @@ window.reportSystem = {
         
         const stats = window.gameStats;
         const totalTime = Object.values(stats.levelStats).reduce((sum, s) => sum + s.time, 0);
-        const totalErrors = stats.totalAttempts - stats.totalHits;
-        const totalDeaths = Object.values(stats.levelStats).reduce((sum, s) => sum + (s.attempts - 1), 0);
+        const totalErrors = stats.totalAttempts - stats.totalHits; // Total de respuestas incorrectas o intentos fallidos
         const accuracy = stats.totalAttempts > 0 ? ((stats.totalHits / stats.totalAttempts) * 100).toFixed(1) : 0;
         
         doc.setFont(undefined, 'normal');
@@ -87,8 +78,7 @@ window.reportSystem = {
             { label: 'Tiempo Total Jugado', value: `${totalTime.toFixed(1)}s` },
             { label: 'Aciertos', value: `${stats.totalHits}` },
             { label: 'Errores', value: `${totalErrors}` },
-            { label: 'Precisión', value: `${accuracy}%` },
-            { label: 'Muertes Totales', value: `${totalDeaths}` }
+            { label: 'Precisión', value: `${accuracy}%` }
         ];
         
         const colWidth = (pageWidth - 2 * margin) / 2;

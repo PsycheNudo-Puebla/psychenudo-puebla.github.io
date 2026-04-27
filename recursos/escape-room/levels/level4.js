@@ -45,7 +45,8 @@
         // Barajar hasta asegurar que NO empiece resuelto
         let availableIndices;
         let solvedAtStart = true;
-        const expectedOrder = [0, ...jsonItems.map(i => i.size).sort((a, b) => a - b)];
+        // El orden esperado es el orden definido en el arreglo 'items' del JSON
+        const expectedOrder = [0, ...jsonItems.map(i => i.size)];
 
         while (solvedAtStart) {
             availableIndices = [...Array(numPedestals).keys()].sort(() => Math.random() - 0.5);
@@ -273,7 +274,7 @@
             if (currentLevelData.solved) {
                 nextLevel();
             } else {
-                ui.innerHTML = "La puerta está sellada por telarañas. Ordena las torres de menor a mayor.";
+                ui.innerHTML = "La puerta está sellada por telarañas. " + (currentLevelData.description || "Ordena las torres de menor a mayor.");
             }
         }
     }

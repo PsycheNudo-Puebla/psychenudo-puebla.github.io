@@ -18,37 +18,46 @@
       "id": 2,
       "type": "atomic",
       "title": "Nivel 2: El Pedestal de Valor",
-      "pistaLibrero": "ESTATUAS: Ansiedad(6B00), Depresión(6A70), Mutismo(6C23). La de mayor valor es la clave.",
       "claveCIE": "6C23",
-      "longitudClave": 4
+      "longitudClave": 4,
+      "challenges": [
+        {
+          "prompt": "El valor más alto es la solución.",
+          "targetValue": 3,
+          "items": [
+            {"name": "Mutismo", "val": 3, "shape": "statue", "color": "#a80020"},
+            {"name": "Ansiedad", "val": 2, "shape": "statue", "color": "#3cbcfc"},
+            {"name": "Depresión", "val": 1, "shape": "statue", "color": "#f8b800"}
+          ]
+        }
+      ]
     },
     {
       "id": 3,
       "type": "art",
-      "title": "Nivel 3: Galería de Categorías",
-      "cuadros": [
-        {"tileX": 5, "nombre": "Trastorno Bipolar (6A60)", "descripcion": "PINTURA: Un sol y una tormenta en el mismo lienzo. Oscilaciones extremas del ánimo.", "cat": "Humor"},
-        {"tileX": 12, "nombre": "Episodio Depresivo (6A70)", "descripcion": "PINTURA: Una figura gris en un vacío infinito. Tristeza profunda y pérdida de energía.", "cat": "Humor"},
-        {"tileX": 19, "nombre": "Ataque de Pánico (6B01)", "descripcion": "PINTURA: Un reloj rompiéndose y manos oprimiendo un pecho. Miedo intenso súbito.", "cat": "Ansiedad"}
+      "title": "Nivel 3: El Intruso Clínico",
+      "description": "Identifica el cuadro que NO pertenece al grupo de Trastornos del Neurodesarrollo.",
+      "targetStyle": "Neurocognitivo",
+      "paintings": [
+        {"tileX": 5, "name": "TEA", "description": "PINTURA: Patrones repetitivos de comportamiento y deficiencias persistentes en la comunicación social.", "style": "Neurodesarrollo"},
+        {"tileX": 12, "name": "TDAH", "description": "PINTURA: Patrón de inatención, desorganización y niveles excesivos de actividad motora.", "style": "Neurodesarrollo"},
+        {"tileX": 19, "name": "Trastorno Amnésico", "description": "PINTURA: Deterioro marcado de las funciones cognitivas y la memoria respecto a un nivel previo.", "style": "Neurocognitivo"}
       ],
-      "claveCIE": "6B01",
+      "claveCIE": "6D72",
       "longitudClave": 4
     },
     {
       "id": 4,
       "type": "tower",
-      "title": "Nivel 4: El Nido de la Araña",
-      "description": "Ordena los elementos de menor a mayor para abrir la salida. ¡No te quedes quieto!",
+      "title": "Nivel 4: La Secuencia CIE-11",
+      "description": "Ordena las categorías según su aparición en el CIE-11 para disolver la telaraña. ¡No te detengas!",
       "items": [
-        {"id": 1, "name": "Pieza 1", "color": "#ff0000", "size": 1},
-        {"id": 2, "name": "Pieza 2", "color": "#00ff00", "size": 2},
-        {"id": 3, "name": "Pieza 3", "color": "#0000ff", "size": 3},
-        {"id": 4, "name": "Pieza 4", "color": "#f8b800", "size": 4},
-        {"id": 5, "name": "Pieza 5", "color": "#3cbcfc", "size": 5},
-        {"id": 3, "name": "Pieza 3", "color": "#0000ff", "size": 3},
-        {"id": 4, "name": "Pieza 4", "color": "#f8b800", "size": 4},
-        {"id": 5, "name": "Pieza 5", "color": "#3cbcfc", "size": 5},
-        {"id": 6, "name": "Pieza 6", "color": "#ff00ff", "size": 6}
+        {"id": 1, "name": "Neurodesarrollo", "color": "#ff0000", "size": 3},
+        {"id": 2, "name": "Psicóticos", "color": "#00ff00", "size": 5},
+        {"id": 3, "name": "Humor", "color": "#0000ff", "size": 1},
+        {"id": 4, "name": "Ansiedad", "color": "#f8b800", "size": 6},
+        {"id": 5, "name": "Impulsos", "color": "#3cbcfc", "size": 2},
+        {"id": 6, "name": "Neurocognitivos", "color": "#ff00ff", "size": 4}
       ]
     },
     {
@@ -75,6 +84,50 @@
         { "prompt": "¿La anhedonia es la incapacidad de sentir placer?", "correct": "V" },
         { "prompt": "¿El CIE-11 es publicado por la Asociación Americana de Psiquiatría?", "correct": "F" },
         { "prompt": "¿Las alucinaciones son percepciones sin objeto?", "correct": "V" }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "dragon",
+      "title": "Nivel 7: El Guardián del Habla",
+      "questions": [
+        {
+          "question": "¿Cuál es el código CIE-11 para el Trastorno del desarrollo del lenguaje?",
+          "options": ["6A01", "6A02", "6A03"],
+          "correct": 0
+        },
+        {
+          "question": "El trastorno caracterizado por la repetición o prolongación frecuente de sonidos:",
+          "options": ["Trastorno fonológico", "Trastorno de fluidez del habla", "Disfasia"],
+          "correct": 1
+        },
+        {
+          "question": "Déficits en la adquisición, comprensión o producción del lenguaje hablado o escrito:",
+          "options": ["Trastorno del lenguaje", "Trastorno del desarrollo intelectual", "Dislexia"],
+          "correct": 0
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "tennis",
+      "title": "Nivel 8: Duelo de Ansiedad",
+      "questions": [
+        {
+          "question": "¿Qué trastorno se caracteriza por una preocupación excesiva y persistente?",
+          "options": ["Trastorno de Pánico", "Ansiedad Generalizada", "Fobia Específica"],
+          "correct": 1
+        },
+        {
+          "question": "Aparición súbita de miedo o malestar intenso que alcanza su pico en minutos:",
+          "options": ["Crisis de pánico", "Obsesiones", "Fobia social"],
+          "correct": 0
+        },
+        {
+          "question": "Miedo o ansiedad marcados acerca de situaciones donde escapar sea difícil:",
+          "options": ["Agorafobia", "Trastorno de separación", "Mutismo selectivo"],
+          "correct": 0
+        }
       ]
     }
   ]

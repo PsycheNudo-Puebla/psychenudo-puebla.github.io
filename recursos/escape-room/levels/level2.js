@@ -99,10 +99,10 @@ levelLogics['atomic'] = {
         });
         return base;
     },
-    update: () => {
+    update: (dt) => {
         // El fuego sube
         if (!currentLevelData.doorOpen && !currentLevelData.gameOver) {
-            currentLevelData.fireY -= currentLevelData.fireSpeed;
+            currentLevelData.fireY -= currentLevelData.fireSpeed * dt;
 
             // Game Over si el fuego alcanza al jugador
             if (player.y + player.h > currentLevelData.fireY) {
@@ -162,6 +162,7 @@ levelLogics['atomic'] = {
                 if (checkProximity(f)) {
                     ctx.fillStyle = NES_PALETTE.black;
                     ctx.font = "14px 'Press Start 2P'";
+                    ctx.font = "18px 'Press Start 2P'";
                     ctx.fillText(f.name, f.x, f.y - 10);
                 }
             }
