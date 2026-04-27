@@ -10,6 +10,11 @@
     },
 
     init: function(levelData) {
+        // Soporte para múltiples escenarios
+        if (levelData.scenarios && levelData.scenarios.length > 0) {
+            Object.assign(levelData, levelData.scenarios[Math.floor(Math.random() * levelData.scenarios.length)]);
+        }
+
         ui.innerHTML = "";
         this.originalSpeed = player.speed; // Guardar velocidad base del juego
         player.speed = 11; // Aumentar velocidad del personaje para el tenis

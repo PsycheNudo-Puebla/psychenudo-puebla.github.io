@@ -1,8 +1,14 @@
 (window.levelLogics = window.levelLogics || {})['tower'] = {
     init: (levelData) => {
+        // Soporte para múltiples escenarios aleatorios
+        let scenario = levelData;
+        if (levelData.scenarios && levelData.scenarios.length > 0) {
+            scenario = levelData.scenarios[Math.floor(Math.random() * levelData.scenarios.length)];
+        }
+
         const cW = (canvas && canvas.width) ? canvas.width : 800;
         const base = {
-            ...levelData,
+            ...scenario,
             map: [
                 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -31,7 +37,7 @@
             pedestals: []
         };
 
-        const jsonItems = levelData.items || [];
+        const jsonItems = scenario.items || [];
         // Lógica N+1: Pedestales necesarios para mover piezas
         const numPedestals = jsonItems.length + 1;
         // Ajustamos el espaciado para que quepan más elementos (80px en lugar de 100px)
@@ -183,7 +189,7 @@
         // y el resto deben seguir el orden ascendente esperado.
         const currentOrder = currentLevelData.pedestals.map(p => p.tower ? p.tower.size : 0);
         // Ahora sigue el orden EXACTO definido en el JSON
-        const winOrder = [0, ...(currentLevelData.items || []).map(i => i.size)];
+        const winOrder = [0, ...jsonItems.map(i => i.size)];
 
         if (currentOrder.length === winOrder.length && currentOrder.every((v, i) => v === winOrder[i])) {
             if (!currentLevelData.solved) {

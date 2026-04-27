@@ -1,7 +1,13 @@
 (window.levelLogics = window.levelLogics || {})['snakes'] = {
     init: (levelData) => {
+        // Soporte para múltiples escenarios aleatorios
+        let scenario = levelData;
+        if (levelData.scenarios && levelData.scenarios.length > 0) {
+            scenario = levelData.scenarios[Math.floor(Math.random() * levelData.scenarios.length)];
+        }
+
         const base = {
-            ...levelData,
+            ...scenario,
             currentRoom: 'center',
             roomTimer: 0,
             maxTime: 900, // 15 segundos antes de que aparezca una serpiente

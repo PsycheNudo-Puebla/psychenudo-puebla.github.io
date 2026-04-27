@@ -34,6 +34,11 @@ levelLogics['dragon'] = {
     init: function(levelData) {
         this.originalPlayerSpeed = player.speed; // Guardar velocidad original del jugador
 
+        // Soporte para múltiples escenarios
+        if (levelData.scenarios && levelData.scenarios.length > 0) {
+            Object.assign(levelData, levelData.scenarios[Math.floor(Math.random() * levelData.scenarios.length)]);
+        }
+
         // Inicializar objeto de colisión para el cañón
         this.cannonFurniture = { 
             id: 'cannon_phys', 

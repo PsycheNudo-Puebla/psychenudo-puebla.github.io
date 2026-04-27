@@ -1,7 +1,13 @@
 levelLogics['art'] = {
     init: (levelData) => {
+        // Soporte para múltiples escenarios aleatorios
+        let scenario = levelData;
+        if (levelData.scenarios && levelData.scenarios.length > 0) {
+            scenario = levelData.scenarios[Math.floor(Math.random() * levelData.scenarios.length)];
+        }
+
         const base = {
-            ...levelData,
+            ...scenario,
             map: [
                 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                 [1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,1],
@@ -39,8 +45,7 @@ levelLogics['art'] = {
         // Spawn seguro dentro de la Galería
         player.x = 400; player.y = 250;
 
-        // Usar 'cuadros' o 'paintings' indistintamente para compatibilidad
-        const listaCuadros = levelData.cuadros || levelData.paintings || [];
+        const listaCuadros = scenario.paintings || scenario.cuadros || [];
         
         listaCuadros.forEach((p, i) => {
             base.furniture.push({ 
