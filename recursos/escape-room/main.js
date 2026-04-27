@@ -631,7 +631,7 @@ function actualizarDialogoInput() {
             SISTEMA DE SEGURIDAD<br>INGRESE CÓDIGO (${length} caracteres):<br><br>
             <span style="letter-spacing:10px; font-size: 24px; color: #f8b800;">${display}</span><br><br>
             <small>[ENTER] Confirmar - [ESC] Salir</small><br>
-            <button id="mobile-kb-btn" style="margin-top:15px; padding:10px; font-family:inherit; display:none; background:#3cbcfc; border:none; color:white; border-radius:5px; font-size:12px;">ABRIR TECLADO</button>
+            <button id="mobile-kb-btn" style="margin-top:15px; padding:10px; font-family:inherit; display:none; background:#3cbcfc; border:none; color:white; border-radius:5px; font-size:12px; touch-action: manipulation;">ABRIR TECLADO</button>
         </div>`;
 
     // iOS y Android a veces bloquean el focus automático. Ofrecemos un botón de respaldo.
@@ -640,7 +640,15 @@ function actualizarDialogoInput() {
             const btn = document.getElementById('mobile-kb-btn');
             if (btn) {
                 btn.style.display = 'inline-block';
-                btn.onclick = () => document.getElementById('hidden-mobile-input').focus();
+                const focusInput = () => {
+                    const input = document.getElementById('hidden-mobile-input');
+                    if (input) {
+                        input.focus();
+                        input.click(); // Algunos navegadores Safari requieren click para disparar teclado
+                    }
+                };
+                btn.onclick = focusInput;
+                btn.ontouchstart = (e) => { e.preventDefault(); focusInput(); };
             }
         }, 50);
     }
@@ -879,8 +887,9 @@ function setupMobileControls() {
     hiddenInput.id = 'hidden-mobile-input';
     hiddenInput.type = 'text';
     hiddenInput.setAttribute('autocorrect', 'off');
-    hiddenInput.setAttribute('autocapitalize', 'characters');
-    hiddenInput.style.cssText = 'position:fixed; top:0; left:0; opacity:0; width:1px; height:1px; font-size:16px; border:none; outline:none; z-index: -1;';
+    hiddenInput.setAttribute('autocapitalize', 'none');
+    hiddenInput.setAttribute('spellcheck', 'false');
+    hiddenInput.style.cssText = 'position: absolute; left: -9999px; top: 0; width: 1px; height: 1px; font-size: 16px; opacity: 0; border: none; outline: none;';
     document.body.appendChild(hiddenInput);
 
     // Listener para capturar texto en móviles de forma nativa
