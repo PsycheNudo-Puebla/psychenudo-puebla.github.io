@@ -185,7 +185,10 @@ levelLogics['dragon'] = {
         const dragonHitX = this.dragon.x - 50; 
         const distToDragon = Math.hypot((player.x + player.w / 2) - dragonHitX, (player.y + player.h / 2) - this.dragon.y);
         
-        if (distToDragon < 60) {
+        // Determinar si el jugador está en la zona segura (área superior protegida)
+        const inSafeZone = (player.y + player.h / 2) < 185;
+
+        if (!inSafeZone && distToDragon < 60) {
             this.gameOver = true;
             player.speed = this.originalPlayerSpeed;
             gameOver("¡Has sido aplastado por el gran dragón!");
@@ -229,7 +232,7 @@ levelLogics['dragon'] = {
             
             // Colisión contra el personaje principal (con margen más amplio)
             const hitRadius = 30; // Aumentado de 28 para una detección más segura
-            if (Math.hypot((player.x + player.w / 2) - this.dragonFire.x, (player.y + player.h / 2) - this.dragonFire.y) < hitRadius) {
+            if (!inSafeZone && Math.hypot((player.x + player.w / 2) - this.dragonFire.x, (player.y + player.h / 2) - this.dragonFire.y) < hitRadius) {
                 this.gameOver = true;
                 this.dragonFire.active = false;
                 player.speed = this.originalPlayerSpeed; // Restaurar velocidad antes de Game Over
@@ -365,20 +368,24 @@ levelLogics['dragon'] = {
             player.direction = "right";
         }
 
+        // Dibujar Refugio Superior (Estructura fija para proteger al jugador)
+        ctx.fillStyle = "rgba(20, 20, 40, 0.4)"; // Sombra del balcón
+        ctx.fillRect(32, 60, canvas.width - 64, 125); 
+        
+        // Barrera visual (Línea de energía o barandal)
+        ctx.strokeStyle = "#3cbcfc";
+        ctx.lineWidth = 3;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath(); ctx.moveTo(32, 185); ctx.lineTo(canvas.width - 32, 185); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = "#7c7c7c"; // Postes decorativos
+        ctx.fillRect(32, 180, 8, 12); ctx.fillRect(canvas.width - 40, 180, 8, 12);
+
         this.drawCannon();
         
         // Dibujar balas (evitar que el jugador pase "por debajo" visualmente)
         this.bullets.forEach(b => {
             if (!b.collected || player.heldItem === b) {
-                // Dibujar Aura de Protección (Zona Segura)
-                if (!b.collected) {
-                    ctx.strokeStyle = "rgba(60, 188, 252, 0.5)"; // Celeste NES translúcido
-                    ctx.lineWidth = 2;
-                    ctx.setLineDash([5, 5]); // Estilo retro punteado
-                    ctx.beginPath(); ctx.arc(b.x, b.y, 65, 0, Math.PI * 2); ctx.stroke();
-                    ctx.setLineDash([]);
-                }
-
                 // Borde gris (Sombra/Contorno)
                 ctx.fillStyle = "#7c7c7c";
                 ctx.beginPath(); ctx.arc(b.x, b.y, 12, 0, Math.PI*2); ctx.fill();
