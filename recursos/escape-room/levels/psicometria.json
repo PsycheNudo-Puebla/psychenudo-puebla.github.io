@@ -133,7 +133,11 @@
       "title": "Nivel 9: Escape Psicométrico",
       "questions": [
         {
-          "prompt": "¿Un puntaje Z de 0 indica que el resultado se encuentra exactamente en la media de la población?",
+          "prompt": "¿El modelo OCEAN postula que la personalidad se estructura en cinco dimensiones independientes y universales?",
+          "correct": "V"
+        },
+        {
+          "prompt": "¿En el modelo de los cinco grandes, la 'C' (Conscientiousness) se asocia con la autodisciplina y la organización?",
           "correct": "V"
         }
       ]
