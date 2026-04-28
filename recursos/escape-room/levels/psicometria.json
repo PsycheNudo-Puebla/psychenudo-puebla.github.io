@@ -4,29 +4,62 @@
       "id": 1,
       "type": "date",
       "title": "Nivel 1: Análisis de Cleaver",
-      "object": "Reporte Cleaver",
-      "pistaLibrero": "REPORTE: El perfil muestra una alta orientación a resultados bajo presión, pero un bajo apego a normas. ¿Qué combinación de factores (D, I, S, C) define este 'Empuje'?",
-      "claveCIE": "D-C", 
-      "discoveryYear": "D-C",
-      "longitudClave": 3,
-      "bookshelfHints": [
-        "PISTA: La Dominancia (D) mide el empuje para obtener resultados en situaciones de oposición.",
-        "PISTA: El Cumplimiento (C) mide la evitación de riesgos y el apego a estándares.",
-        "PISTA: Un perfil con D alta y C baja indica una conducta independiente y audaz."
+      "scenarios": [
+        {
+          "object": "Reporte Cleaver",
+          "pistaLibrero": "REPORTE: El perfil muestra una alta orientación a resultados bajo presión, pero un bajo apego a normas. ¿Qué combinación de factores (D, I, S, C) define este 'Empuje'?",
+          "claveCIE": "D-C", 
+          "discoveryYear": "D-C",
+          "longitudClave": 3,
+          "bookshelfHints": [
+            "PISTA: La Dominancia (D) mide el empuje para obtener resultados en situaciones de oposición.",
+            "PISTA: El Cumplimiento (C) mide la evitación de riesgos y el apego a estándares.",
+            "PISTA: Un perfil con D alta y C baja indica una conducta independiente y audaz."
+          ]
+        },
+        {
+          "object": "Perfil de Ventas Cleaver",
+          "pistaLibrero": "REPORTE: El candidato es altamente sociable y persuasivo, pero muestra impaciencia por terminar tareas rutinarias. ¿Qué combinación (I, S) define este perfil?",
+          "claveCIE": "I-S",
+          "discoveryYear": "I-S",
+          "longitudClave": 3,
+          "bookshelfHints": [
+            "PISTA: La Influencia (I) se asocia con la persuasión y el optimismo.",
+            "PISTA: La Constancia (S) baja indica necesidad de cambio y ritmo rápido.",
+            "PISTA: El código es la unión de la letra de sociabilidad y la de paciencia."
+          ]
+        }
       ]
     },
     {
       "id": 2,
       "type": "atomic",
       "title": "Nivel 2: El Rasgo de Inestabilidad",
-      "challenges": [
+      "scenarios": [
         {
-          "prompt": "En el modelo Big Five, ¿cuál es el factor que evalúa la estabilidad emocional frente a la vulnerabilidad psicológica?",
-          "targetValue": 6,
-          "items": [
-            {"name": "Extraversión", "val": 11, "shape": "statue", "color": "#3cbcfc"},
-            {"name": "Amabilidad", "val": 24, "shape": "statue", "color": "#f8b800"},
-            {"name": "Neuroticismo", "val": 6, "shape": "statue", "color": "#a80020"}
+          "challenges": [
+            {
+              "prompt": "En el modelo Big Five, ¿cuál es el factor que evalúa la estabilidad emocional frente a la vulnerabilidad psicológica?",
+              "targetValue": 6,
+              "items": [
+                {"name": "Extraversión", "val": 11, "shape": "statue", "color": "#3cbcfc"},
+                {"name": "Amabilidad", "val": 24, "shape": "statue", "color": "#f8b800"},
+                {"name": "Neuroticismo", "val": 6, "shape": "statue", "color": "#a80020"}
+              ]
+            }
+          ]
+        },
+        {
+          "challenges": [
+            {
+              "prompt": "Identifica el valor del 'gusto a nuevas experiencias', rasgo de curiosidad e imaginación.",
+              "targetValue": 15,
+              "items": [
+                {"name": "Apertura", "val": 15, "shape": "statue", "color": "#3cbcfc"},
+                {"name": "Responsabilidad", "val": 40, "shape": "statue", "color": "#f8b800"},
+                {"name": "Neuroticismo", "val": 2, "shape": "statue", "color": "#a80020"}
+              ]
+            }
           ]
         }
       ]
@@ -35,72 +68,150 @@
       "id": 3,
       "type": "art",
       "title": "Nivel 3: La Dimensión Emocional",
-      "targetStyle": "Baron",
-      "description": "Encuentra el constructo que pertenece al Inventario de Cociente Emocional de Baron.",
-      "paintings": [
-        {"name": "Sentido Común", "description": "Prueba de MOSS: Evalúa la capacidad de juicio en situaciones sociales.", "style": "Moss"},
-        {"name": "Prueba de Realidad", "description": "BARON EQ: Evalúa la capacidad para validar el pensamiento con el mundo exterior.", "style": "Baron"},
-        {"name": "Influencia", "description": "CLEAVER: Evalúa el poder de persuasión y relaciones interpersonales.", "style": "Cleaver"}
+      "scenarios": [
+        {
+          "targetStyle": "Baron",
+          "description": "Encuentra el constructo que pertenece al Inventario de Cociente Emocional de Baron.",
+          "paintings": [
+            {"name": "Sentido Común", "description": "Prueba de MOSS: Evalúa la capacidad de juicio en situaciones sociales.", "style": "Moss"},
+            {"name": "Prueba de Realidad", "description": "BARON EQ: Evalúa la capacidad para validar el pensamiento con el mundo exterior.", "style": "Baron"},
+            {"name": "Influencia", "description": "CLEAVER: Evalúa el poder de persuasión y relaciones interpersonales.", "style": "Cleaver"}
+          ]
+        },
+        {
+          "targetStyle": "Moss",
+          "description": "Identifica la habilidad evaluada por la prueba de MOSS.",
+          "paintings": [
+            {"name": "Capacidad de Supervisión", "description": "MOSS: Mide la habilidad para manejar y dirigir al personal.", "style": "Moss"},
+            {"name": "Autoconciencia", "description": "BARON: Conocimiento de las propias emociones.", "style": "Baron"},
+            {"name": "Cumplimiento", "description": "CLEAVER: Apego a estándares y normas establecidas.", "style": "Cleaver"}
+          ]
+        }
       ]
     },
     {
       "id": 4,
       "type": "tower",
       "title": "Nivel 4: El Acrónimo Big Five",
-      "description": "Ordena las letras para formar el acrónimo OCEAN, que representa los cinco grandes factores de la personalidad.",
-      "items": [
-        {"id": 1, "name": "O - Apertura", "color": "#3cbcfc", "size": 2},
-        {"id": 2, "name": "C - Responsabilidad", "color": "#f8b800", "size": 4},
-        {"id": 3, "name": "E - Extraversión", "color": "#a80020", "size": 3},
-        {"id": 4, "name": "A - Amabilidad", "color": "#00a800", "size": 5},
-        {"id": 5, "name": "N - Neuroticismo", "color": "#7c7c7c", "size": 1}
+      "scenarios": [
+        {
+          "description": "Ordena las letras para formar el acrónimo OCEAN, que representa los cinco grandes factores de la personalidad.",
+          "items": [
+            {"id": 1, "name": "O - Apertura", "color": "#3cbcfc", "size": 2},
+            {"id": 2, "name": "C - Responsabilidad", "color": "#f8b800", "size": 4},
+            {"id": 3, "name": "E - Extraversión", "color": "#a80020", "size": 3},
+            {"id": 4, "name": "A - Amabilidad", "color": "#00a800", "size": 5},
+            {"id": 5, "name": "N - Neuroticismo", "color": "#7c7c7c", "size": 1}
+          ]
+        },
+        {
+          "description": "Forma el acrónimo CANOE (variante de OCEAN) para desbloquear la salida.",
+          "items": [
+            {"id": 1, "name": "C", "color": "#f8b800", "size": 4},
+            {"id": 2, "name": "A", "color": "#00a800", "size": 5},
+            {"id": 3, "name": "N", "color": "#7c7c7c", "size": 1},
+            {"id": 4, "name": "O", "color": "#3cbcfc", "size": 2},
+            {"id": 5, "name": "E", "color": "#a80020", "size": 3}
+          ]
+        }
       ]
     },
     {
       "id": 5,
       "type": "snakes",
       "title": "Nivel 5: Cleaver vs Baron",
-      "description": "Encuentra la equivalencia correcta entre los factores de Cleaver (DISC) y las subescalas de Baron EQ-i.",
-      "roomA": [
-        {"name": "D (Dominancia)", "desc": "Equivale a la subescala de 'Asertividad' en Baron (Expresión de sentimientos y poder).", "correct": true},
-        {"name": "C (Cumplimiento)", "desc": "Equivale a la subescala de 'Empatía' en Baron.", "correct": false},
-        {"name": "I (Influencia)", "desc": "Equivale a la subescala de 'Prueba de Realidad' en Baron.", "correct": false}
-      ],
-      "roomB": [
-        {"name": "I (Influencia)", "desc": "Equivale a la subescala de 'Relaciones Interpersonales' en Baron.", "correct": true},
-        {"name": "S (Constancia)", "desc": "Equivale a la subescala de 'Solución de Problemas' en Baron.", "correct": false},
-        {"name": "D (Dominancia)", "desc": "Equivale a la subescala de 'Felicidad' en Baron.", "correct": false}
+      "scenarios": [
+        {
+          "description": "Encuentra la equivalencia correcta entre los factores de Cleaver (DISC) y las subescalas de Baron EQ-i.",
+          "roomA": [
+            {"name": "D (Dominancia)", "desc": "Equivale a la subescala de 'Asertividad' en Baron (Expresión de sentimientos y poder).", "correct": true},
+            {"name": "C (Cumplimiento)", "desc": "Equivale a la subescala de 'Empatía' en Baron.", "correct": false},
+            {"name": "I (Influencia)", "desc": "Equivale a la subescala de 'Prueba de Realidad' en Baron.", "correct": false}
+          ],
+          "roomB": [
+            {"name": "I (Influencia)", "desc": "Equivale a la subescala de 'Relaciones Interpersonales' en Baron.", "correct": true},
+            {"name": "S (Constancia)", "desc": "Equivale a la subescala de 'Solución de Problemas' en Baron.", "correct": false},
+            {"name": "D (Dominancia)", "desc": "Equivale a la subescala de 'Felicidad' en Baron.", "correct": false}
+          ]
+        },
+        {
+          "description": "Identifica las definiciones técnicas de los factores DISC.",
+          "roomA": [
+            {"name": "C (Cumplimiento)", "desc": "Mide el apego a estándares para evitar el error.", "correct": true},
+            {"name": "I (Influencia)", "desc": "Mide la paciencia ante tareas repetitivas.", "correct": false},
+            {"name": "D (Dominancia)", "desc": "Mide el interés por los detalles técnicos.", "correct": false}
+          ],
+          "roomB": [
+            {"name": "S (Constancia)", "desc": "Mide la persistencia y calma en ambientes estables.", "correct": true},
+            {"name": "D (Dominancia)", "desc": "Mide la evitación de conflictos directos.", "correct": false},
+            {"name": "I (Influencia)", "desc": "Mide la disciplina y el orden estricto.", "correct": false}
+          ]
+        }
       ]
     },
     {
       "id": 6,
       "type": "bridge",
       "title": "Nivel 6: El Puente de la Certeza",
-      "questions": [
-        { "prompt": "¿La prueba de MOSS evalúa la adaptabilidad social y capacidad de mando?", "correct": "V" },
-        { "prompt": "¿En Cleaver, el factor 'S' (Steadiness) mide el empuje y la dominancia?", "correct": "F" },
-        { "prompt": "¿El modelo Baron EQ-i se enfoca en la Inteligencia Emocional?", "correct": "V" }
+      "scenarios": [
+        {
+          "questions": [
+            { "prompt": "¿La prueba de MOSS evalúa la adaptabilidad social y capacidad de mando?", "correct": "V" },
+            { "prompt": "¿En Cleaver, el factor 'S' (Steadiness) mide el empuje y la dominancia?", "correct": "F" },
+            { "prompt": "¿El modelo Baron EQ-i se enfoca en la Inteligencia Emocional?", "correct": "V" }
+          ]
+        },
+        {
+          "questions": [
+            { "prompt": "¿El Big Five es un modelo de 16 factores de personalidad?", "correct": "F" },
+            { "prompt": "¿La validez de criterio indica qué tan bien una prueba predice un resultado real?", "correct": "V" },
+            { "prompt": "¿La confiabilidad test-retest mide la consistencia en el tiempo?", "correct": "V" }
+          ]
+        }
       ]
     },
     {
       "id": 7,
       "type": "dragon",
       "title": "Nivel 7: El Guardián de la Norma",
-      "questions": [
+      "scenarios": [
         {
-          "question": "En el modelo de Cleaver, ¿qué combinación define un perfil audaz e independiente?",
-          "options": ["Alta Dominancia y Bajo Cumplimiento (D+ C-)", "Alta Constancia y Alta Influencia (S+ I+)", "Bajo Empuje y Alto Cumplimiento (D- C+)"],
-          "correct": 0
+          "questions": [
+            {
+              "question": "En el modelo de Cleaver, ¿qué combinación define un perfil audaz e independiente?",
+              "options": ["Alta Dominancia y Bajo Cumplimiento (D+ C-)", "Alta Constancia y Alta Influencia (S+ I+)", "Bajo Empuje y Alto Cumplimiento (D- C+)"],
+              "correct": 0
+            },
+            {
+              "question": "¿Cuál es la utilidad técnica de la prueba MOSS en el ámbito laboral?",
+              "options": ["Medir la inteligencia cristalizada", "Evaluar el juicio social y supervisión", "Detectar rasgos de psicosis"],
+              "correct": 1
+            },
+            {
+              "question": "¿Qué evalúa el componente 'Manejo del Estrés' en el inventario de Baron?",
+              "options": ["Relaciones interpersonales", "Tolerancia a la presión y control de impulsos", "Conciencia emocional de sí mismo"],
+              "correct": 1
+            }
+          ]
         },
         {
-          "question": "¿Cuál es la utilidad técnica de la prueba MOSS en el ámbito laboral?",
-          "options": ["Medir la inteligencia cristalizada", "Evaluar el juicio social y supervisión", "Detectar rasgos de psicosis"],
-          "correct": 1
-        },
-        {
-          "question": "¿Qué evalúa el componente 'Manejo del Estrés' en el inventario de Baron?",
-          "options": ["Relaciones interpersonales", "Tolerancia a la presión y control de impulsos", "Conciencia emocional de sí mismo"],
-          "correct": 1
+          "questions": [
+            {
+              "question": "En el MOSS, ¿qué mide la capacidad de decisión en relaciones humanas?",
+              "options": ["Juicio Social", "Rapidez mental", "Extroversión"],
+              "correct": 0
+            },
+            {
+              "question": "¿Cuál es el factor Cleaver que mide el ritmo de trabajo?",
+              "options": ["Dominancia", "Constancia (S)", "Influencia"],
+              "correct": 1
+            },
+            {
+              "question": "¿Qué área de Baron evalúa la capacidad de ser realista?",
+              "options": ["Intrapersonal", "Adaptabilidad", "Manejo del estrés"],
+              "correct": 1
+            }
+          ]
         }
       ]
     },
@@ -108,21 +219,44 @@
       "id": 8,
       "type": "tennis",
       "title": "Nivel 8: Duelo Psicométrico Final",
-      "questions": [
+      "scenarios": [
         {
-          "question": "¿Qué factor del Big Five es el mejor predictor de éxito laboral general?",
-          "options": ["Neuroticismo", "Responsabilidad (Conscientiousness)", "Amabilidad"],
-          "correct": 1
+          "questions": [
+            {
+              "question": "¿Qué factor del Big Five es el mejor predictor de éxito laboral general?",
+              "options": ["Neuroticismo", "Responsabilidad (Conscientiousness)", "Amabilidad"],
+              "correct": 1
+            },
+            {
+              "question": "En el MOSS, ¿qué indica una puntuación baja en 'Habilidades en Relaciones Humanas'?",
+              "options": ["Dificultad para integrarse y colaborar", "Liderazgo carismático", "Alta capacidad de persuasión"],
+              "correct": 0
+            },
+            {
+              "question": "¿Cuál es un constructo del área Intrapersonal de Baron EQ-i?",
+              "options": ["Prueba de realidad", "Autorrealización", "Empatía"],
+              "correct": 1
+            }
+          ]
         },
         {
-          "question": "En el MOSS, ¿qué indica una puntuación baja en 'Habilidades en Relaciones Humanas'?",
-          "options": ["Dificultad para integrarse y colaborar", "Liderazgo carismático", "Alta capacidad de persuasión"],
-          "correct": 0
-        },
-        {
-          "question": "¿Cuál es un constructo del área Intrapersonal de Baron EQ-i?",
-          "options": ["Prueba de realidad", "Autorrealización", "Empatía"],
-          "correct": 1
+          "questions": [
+            {
+              "question": "¿Cuál es el opuesto del Neuroticismo en términos de salud mental?",
+              "options": ["Estabilidad Emocional", "Ansiedad social", "Rigidez"],
+              "correct": 0
+            },
+            {
+              "question": "¿Qué evalúa la subescala de 'Habilidad de Supervisión' en el MOSS?",
+              "options": ["Conocimiento técnico", "Influencia sobre subordinados", "Autoestima"],
+              "correct": 1
+            },
+            {
+              "question": "¿Qué componente de Baron evalúa el optimismo y la felicidad?",
+              "options": ["Estado de ánimo general", "Adaptabilidad", "Relaciones interpersonales"],
+              "correct": 0
+            }
+          ]
         }
       ]
     }
@@ -131,14 +265,24 @@
       "id": 9,
       "type": "maze",
       "title": "Nivel 9: Escape Psicométrico",
-      "questions": [
+      "scenarios": [
         {
-          "prompt": "¿El modelo OCEAN postula que la personalidad se estructura en cinco dimensiones independientes y universales?",
-          "correct": "V"
+          "questions": [
+            {
+              "prompt": "¿El modelo OCEAN postula que la personalidad se estructura en cinco dimensiones independientes y universales?",
+              "correct": "V"
+            },
+            {
+              "prompt": "¿En el modelo de los cinco grandes, la 'C' (Conscientiousness) se asocia con la autodisciplina y la organización?",
+              "correct": "V"
+            }
+          ]
         },
         {
-          "prompt": "¿En el modelo de los cinco grandes, la 'C' (Conscientiousness) se asocia con la autodisciplina y la organización?",
-          "correct": "V"
+          "questions": [
+            { "prompt": "¿Los rasgos de personalidad se consideran patrones estables de comportamiento?", "correct": "V" },
+            { "prompt": "¿La Extraversión se caracteriza por la timidez y la preferencia por la soledad?", "correct": "F" }
+          ]
         }
       ]
     }
