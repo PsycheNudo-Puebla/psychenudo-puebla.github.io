@@ -52,11 +52,11 @@
       "title": "Nivel 4: La Secuencia CIE-11",
       "description": "Ordena las letras para formar el acrónimo OCEAN (Big Five) y disolver la telaraña.",
       "items": [
-        {"id": 1, "name": "O", "color": "#3cbcfc", "size": 1},
-        {"id": 2, "name": "C", "color": "#f8b800", "size": 2},
-        {"id": 3, "name": "E", "color": "#a80020", "size": 3},
-        {"id": 4, "name": "A", "color": "#00a800", "size": 4},
-        {"id": 5, "name": "N", "color": "#7c7c7c", "size": 5}
+        {"id": 1, "name": "O", "color": "#3cbcfc", "size": 2},
+        {"id": 2, "name": "C", "color": "#f8b800", "size": 3},
+        {"id": 3, "name": "E", "color": "#a80020", "size": 5},
+        {"id": 4, "name": "A", "color": "#00a800", "size": 1},
+        {"id": 5, "name": "N", "color": "#7c7c7c", "size": 4}
       ]
     },
     {
