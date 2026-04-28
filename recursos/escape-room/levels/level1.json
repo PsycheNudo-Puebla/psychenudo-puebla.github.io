@@ -3,18 +3,28 @@
     {
       "id": 1,
       "type": "date",
-      "title": "Nivel 1: El Laboratorio",
-      "object": "Bote de Penicilina",
-      "discoveryYear": 1928,
-      "bookshelfHints": [
-        "PISTA: El año del descubrimiento fue poco antes de la Gran Depresión.",
-        "PISTA: El laboratorio de St. Mary fue el escenario de este descuido fortuito.",
-        "PISTA: Alexander Fleming olvidó limpiar unas placas de Petri antes de irse de vacaciones."
-      ],
-      "doors": [
-        { "year": 1890, "correct": false },
-        { "year": 1928, "correct": true },
-        { "year": 1950, "correct": false }
+      "title": "Nivel 1: El Archivo del Tiempo",
+      "scenarios": [
+        {
+          "object": "Mapa de América",
+          "discoveryYear": 1492,
+          "pistaLibrero": "REPORTE: El año en que se unieron dos mundos bajo el reinado de los Reyes Católicos.",
+          "bookshelfHints": [
+            "PISTA: Ocurrió a finales del siglo XV.",
+            "PISTA: Cristóbal Colón zarpó del Puerto de Palos.",
+            "PISTA: Se buscaba una ruta hacia las Indias."
+          ]
+        },
+        {
+          "object": "Módulo Lunar",
+          "discoveryYear": 1969,
+          "pistaLibrero": "REPORTE: Un pequeño paso para el hombre, un gran salto para la humanidad.",
+          "bookshelfHints": [
+            "PISTA: Fue durante la Guerra Fría.",
+            "PISTA: La misión se llamaba Apolo 11.",
+            "PISTA: Neil Armstrong fue el primer hombre en pisar la superficie."
+          ]
+        }
       ],
       "map": [
         [1,1,1,1,1,1,1,1,1,1,1,1,5,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -66,7 +76,7 @@
           "targetValue": 79
         },
         {
-          "prompt": "¡Peligro! Coloca el elemento con menor número atómico en el pedestal.",
+          "prompt": "¡SABIDURÍA! Coloca el elemento con menor número atómico en el pedestal (Hidrógeno).",
           "items": [
             { "name": "Gato de Carbono", "val": 6, "shape": "statue", "color": "#202020" },
             { "name": "Vaso de Nitrogeno", "val": 7, "shape": "vase", "color": "#ffffff" },
@@ -86,69 +96,95 @@
       "id": 3,
       "type": "art",
       "title": "Nivel 3: La Galeria de Arte",
-      "paintings": [
-        { "name": "La Gioconda", "style": "Renaissance" },
-        { "name": "Venus", "style": "Renaissance" },
-        { "name": "Guernica", "style": "Cubism" }
+      "scenarios": [
+        {
+          "targetStyle": "Cubism",
+          "paintings": [
+            { "name": "La Gioconda", "style": "Renaissance", "description": "Obra maestra de Da Vinci." },
+            { "name": "Las Meninas", "style": "Baroque", "description": "De Diego Velázquez." },
+            { "name": "Guernica", "style": "Cubism", "description": "De Pablo Picasso." }
+          ]
+        },
+        {
+          "targetStyle": "Surrealism",
+          "paintings": [
+            { "name": "David", "style": "Renaissance", "description": "Escultura de Miguel Ángel." },
+            { "name": "La Persistencia", "style": "Surrealism", "description": "Relojes blandos de Dalí." },
+            { "name": "Grito", "style": "Expressionism", "description": "De Edvard Munch." }
+          ]
+        }
       ],
-      "targetStyle": "Cubism",
       "tileObjects": []
     },
     {
       "id": 4,
       "type": "tower",
       "title": "Nivel 4: La Torre",
-      "object": "Estructura Completa",
+      "description": "Ordena las letras para formar el acrónimo de los rasgos del Big Five (Modelo de los Cinco Grandes).",
       "items": [
-        { "name": "Base", "size": 1, "color": "#881400" },
-        { "name": "Pilar", "size": 2, "color": "#ab5233" },
-        { "name": "Techo", "size": 3, "color": "#f8b800" }
+        { "name": "O (Openness)", "size": 1, "color": "#3cbcfc" },
+        { "name": "C (Conscientiousness)", "size": 2, "color": "#f8b800" },
+        { "name": "E (Extraversion)", "size": 3, "color": "#a80020" },
+        { "name": "A (Agreeableness)", "size": 4, "color": "#00a800" },
+        { "name": "N (Neuroticism)", "size": 5, "color": "#7c7c7c" }
       ]
     },
     {
       "id": 5,
       "type": "snakes",
       "title": "Nivel 5: Las Serpientes",
-      "roomA": [
-        { "name": "Antídoto", "desc": "Un antídoto para las serpientes.", "correct": true },
-        { "name": "Veneno", "desc": "Un veneno mortal.", "correct": false },
-        { "name": "Agua", "desc": "Agua pura.", "correct": false }
-      ],
-      "roomB": [
-        { "name": "Llave", "desc": "Una llave antigua.", "correct": true },
-        { "name": "Candado", "desc": "Un candado roto.", "correct": false },
-        { "name": "Herramienta", "desc": "Una herramienta oxidada.", "correct": false }
+      "scenarios": [
+        {
+          "roomA": [
+            { "name": "Mamífero", "desc": "Animales que amamantan a sus crías.", "correct": true },
+            { "name": "Invertebrado", "desc": "Animales sin columna vertebral.", "correct": false }
+          ],
+          "roomB": [
+            { "name": "Reptil", "desc": "Animales de sangre fría con escamas.", "correct": true },
+            { "name": "Anfibio", "desc": "Animales que viven en agua y tierra.", "correct": false }
+          ]
+        }
       ]
     },
     {
       "id": 6,
       "type": "bridge",
       "title": "Nivel 6: El Puente del Conocimiento",
-      "questions": [
-        { "prompt": "¿JavaScript es un lenguaje de programación?", "correct": "V" },
-        { "prompt": "¿El Sol gira alrededor de la Tierra?", "correct": "F" },
-        { "prompt": "¿Existen 8 planetas en el sistema solar (sin contar Plutón)?", "correct": "V" }
+      "scenarios": [
+        {
+          "questions": [
+            { "prompt": "¿El Amazonas es el río más largo del mundo?", "correct": "V" },
+            { "prompt": "¿Australia es un continente y una isla?", "correct": "V" },
+            { "prompt": "¿La Gran Muralla China es visible desde la Luna a simple vista?", "correct": "F" }
+          ]
+        },
+        {
+          "questions": [
+            { "prompt": "¿El cuerpo humano tiene 206 huesos?", "correct": "V" },
+            { "prompt": "¿El sonido viaja más rápido que la luz?", "correct": "F" },
+            { "prompt": "¿El ADN contiene la información genética?", "correct": "V" }
+          ]
+        }
       ]
     },
     {
       "id": 7,
       "type": "dragon",
       "title": "Nivel 7: La Guarida del Dragón",
-      "questions": [
+      "scenarios": [
         {
-          "question": "¿Cuál es el trastorno caracterizado por episodios de manía y depresión?",
-          "options": ["Trastorno Bipolar", "Esquizofrenia", "Trastorno de Ansiedad Generalizada"],
-          "correct": 0
-        },
-        {
-          "question": "¿Qué factor del Big Five se relaciona con la estabilidad emocional?",
-          "options": ["Neuroticismo", "Extraversión", "Amabilidad"],
-          "correct": 0
-        },
-        {
-          "question": "¿Cuál es un síntoma común del trastorno de pánico?",
-          "options": ["Alucinaciones", "Ataques de miedo intenso", "Pérdida de memoria"],
-          "correct": 1
+          "questions": [
+            {
+              "question": "¿Quién pintó 'La última cena'?",
+              "options": ["Leonardo da Vinci", "Miguel Ángel", "Rafael"],
+              "correct": 0
+            },
+            {
+              "question": "¿Cuál es la capital de Italia?",
+              "options": ["París", "Roma", "Madrid"],
+              "correct": 1
+            }
+          ]
         }
       ]
     },
@@ -156,21 +192,48 @@
       "id": 8,
       "type": "tennis",
       "title": "Nivel 8: Tenis Infernal",
-      "questions": [
+      "scenarios": [
         {
-          "question": "¿Cuál es el planeta más grande del sistema solar?",
-          "options": ["Júpiter", "Tierra", "Marte"],
-          "correct": 0
+          "questions": [
+            {
+              "question": "¿Cuántos minutos tiene una hora?",
+              "options": ["50", "60", "100"],
+              "correct": 1
+            },
+            {
+              "question": "¿Cuál es el océano más grande?",
+              "options": ["Atlántico", "Pacífico", "Índico"],
+              "correct": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "maze",
+      "title": "Nivel 9: El Conjurador",
+      "scenarios": [
+        {
+          "wallColors": ["#7c7c7c", "#346856"],
+          "questions": [
+            { "prompt": "¿El condicionamiento operante fue propuesto por Skinner?", "correct": "V" },
+            { "prompt": "¿El refuerzo negativo aumenta una conducta al eliminar un estímulo aversivo?", "correct": "V" }
+          ]
         },
         {
-          "question": "¿Qué animal es conocido por cambiar de color?",
-          "options": ["León", "Camaleón", "Elefante"],
-          "correct": 1
+          "wallColors": ["#7c7c7c", "#8b3cff"],
+          "questions": [
+            { "prompt": "¿El refuerzo positivo fortalece una conducta al añadir un estímulo agradable?", "correct": "V" },
+            { "prompt": "¿El castigo positivo consiste en añadir un estímulo agradable para disminuir una conducta?", "correct": "F" }
+          ]
         },
         {
-          "question": "¿Cuántos lados tiene un triángulo?",
-          "options": ["Dos", "Tres", "Cuatro"],
-          "correct": 1
+          "wallColors": ["#7c7c7c", "#b84f1f"],
+          "questions": [
+            { "prompt": "¿El aprendizaje por modelado forma parte del aprendizaje social?", "correct": "V" },
+            { "prompt": "¿El reforzamiento intermitente produce respuestas más resistentes a la extinción que el reforzamiento continuo?", "correct": "V" }
+          ]
         }
       ]
     }

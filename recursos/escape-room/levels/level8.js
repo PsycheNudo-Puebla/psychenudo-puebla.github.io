@@ -117,6 +117,7 @@
                         gameOver("EL DIABLO HA RECLAMADO TU ALMA");
                         return;
                     }
+                    if (window.gameStats) window.gameStats.recordQuestion(state.levelIndex, q.question, false); // Record incorrect answer
                     ui.innerHTML = `¡INCORRECTO! Vidas restantes: ${this.lives}.`;
                     ui.style.display = 'block';
                     this.resetBomb();

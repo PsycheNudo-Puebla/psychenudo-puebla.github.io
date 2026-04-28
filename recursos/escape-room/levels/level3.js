@@ -53,7 +53,7 @@ levelLogics['art'] = {
                 name: p.name || p.nombre, 
                 description: p.descripcion || p.description,
                 style: p.style || p.cat, 
-                x: 150 + (i * 200), y: MAP_OFFSET_Y + 5, w: 60, h: 40, 
+                x: 150 + (i * 200), y: 10, w: 60, h: 40, 
                 interactable: true,
                 collidable: false // Los cuadros en la pared no deben bloquear
             });

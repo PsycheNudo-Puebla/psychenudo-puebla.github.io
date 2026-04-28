@@ -46,30 +46,30 @@
     {
       "id": 4,
       "type": "tower",
-      "title": "Nivel 4: Jerarquía del Big Five",
-      "description": "Ordena los factores de personalidad según su impacto en el desempeño laboral (de menor a mayor según la meta-análisis típica).",
+      "title": "Nivel 4: El Acrónimo Big Five",
+      "description": "Ordena las letras para formar el acrónimo OCEAN, que representa los cinco grandes factores de la personalidad.",
       "items": [
-        {"id": 1, "name": "Neuroticismo", "color": "#ff0000", "size": 1},
-        {"id": 2, "name": "Apertura", "color": "#00ff00", "size": 2},
-        {"id": 3, "name": "Amabilidad", "color": "#0000ff", "size": 3},
-        {"id": 4, "name": "Extraversión", "color": "#f8b800", "size": 4},
-        {"id": 5, "name": "Responsabilidad", "color": "#3cbcfc", "size": 5}
+        {"id": 1, "name": "O - Apertura", "color": "#3cbcfc", "size": 1},
+        {"id": 2, "name": "C - Responsabilidad", "color": "#f8b800", "size": 2},
+        {"id": 3, "name": "E - Extraversión", "color": "#a80020", "size": 3},
+        {"id": 4, "name": "A - Amabilidad", "color": "#00a800", "size": 4},
+        {"id": 5, "name": "N - Neuroticismo", "color": "#7c7c7c", "size": 5}
       ]
     },
     {
       "id": 5,
       "type": "snakes",
-      "title": "Nivel 5: El Templo de las Serpientes",
-      "description": "Recupera los dos pilares de la psicometría. ¡Cuidado con el tiempo y las serpientes!",
+      "title": "Nivel 5: Cleaver vs Baron",
+      "description": "Encuentra la equivalencia correcta entre los factores de Cleaver (DISC) y las subescalas de Baron EQ-i.",
       "roomA": [
-        {"name": "Validez Concurrente", "desc": "Correlación entre el test y un criterio externo simultáneo.", "correct": true},
-        {"name": "Reactivo de Relleno", "desc": "Ítem sin valor diagnóstico para controlar el sesgo de respuesta.", "correct": false},
-        {"name": "Sesgo de Aquiescencia", "desc": "Tendencia a responder positivamente independientemente del contenido.", "correct": false}
+        {"name": "D (Dominancia)", "desc": "Equivale a la subescala de 'Asertividad' en Baron (Expresión de sentimientos y poder).", "correct": true},
+        {"name": "C (Cumplimiento)", "desc": "Equivale a la subescala de 'Empatía' en Baron.", "correct": false},
+        {"name": "I (Influencia)", "desc": "Equivale a la subescala de 'Prueba de Realidad' en Baron.", "correct": false}
       ],
       "roomB": [
-        {"name": "Fórmula Kuder-Richardson", "desc": "Mide la consistencia interna para ítems con escala dicotómica.", "correct": true},
-        {"name": "Efecto Barnum", "desc": "Aceptar descripciones genéricas de personalidad como muy precisas.", "correct": false},
-        {"name": "Media Aritmética", "desc": "Promedio simple de puntuaciones que no indica confiabilidad.", "correct": false}
+        {"name": "I (Influencia)", "desc": "Equivale a la subescala de 'Relaciones Interpersonales' en Baron.", "correct": true},
+        {"name": "S (Constancia)", "desc": "Equivale a la subescala de 'Solución de Problemas' en Baron.", "correct": false},
+        {"name": "D (Dominancia)", "desc": "Equivale a la subescala de 'Felicidad' en Baron.", "correct": false}
       ]
     },
     {
@@ -123,6 +123,18 @@
           "question": "¿Cuál es un constructo del área Intrapersonal de Baron EQ-i?",
           "options": ["Prueba de realidad", "Autorrealización", "Empatía"],
           "correct": 1
+        }
+      ]
+    }
+    ,
+    {
+      "id": 9,
+      "type": "maze",
+      "title": "Nivel 9: Escape Psicométrico",
+      "questions": [
+        {
+          "prompt": "¿Un puntaje Z de 0 indica que el resultado se encuentra exactamente en la media de la población?",
+          "correct": "V"
         }
       ]
     }

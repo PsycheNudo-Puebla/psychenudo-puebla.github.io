@@ -4,6 +4,8 @@
   "description": "Juego de escape room psicométrico estilo NES",
   "scripts": {
     "start": "npx serve ."
-  },
-  "dependencies": {}
+  },  "dependencies": {
+    "jspdf": "^2.5.1",
+    "serve": "^14.2.1"
+  }
 }

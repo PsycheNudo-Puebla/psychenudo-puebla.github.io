@@ -7,7 +7,7 @@ window.gameStats = {
 
     initLevel: function(levelIndex) {
         if (!this.levelStats[levelIndex]) {
-            this.levelStats[levelIndex] = { attempts: 0, hits: 0, time: 0, startTime: Date.now(), questions: [] };
+            this.levelStats[levelIndex] = { attempts: 0, hits: 0, time: 0, startTime: Date.now(), questions: [], movesMade: 0, wrongChoices: 0 };
         } else {
             this.levelStats[levelIndex].startTime = Date.now();
         }
@@ -33,7 +33,14 @@ window.gameStats = {
         if (isCorrect) {
             this.levelStats[levelIndex].hits++;
             this.totalHits++;
+        } else {
+            this.levelStats[levelIndex].wrongChoices++;
         }
+    },
+
+    recordMove: function(levelIndex) {
+        if (!this.levelStats[levelIndex]) this.initLevel(levelIndex);
+        this.levelStats[levelIndex].movesMade++;
     },
 
     recordLevelComplete: function(levelIndex) {

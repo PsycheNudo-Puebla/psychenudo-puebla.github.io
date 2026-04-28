@@ -50,14 +50,13 @@
       "id": 4,
       "type": "tower",
       "title": "Nivel 4: La Secuencia CIE-11",
-      "description": "Ordena las categorías según su aparición en el CIE-11 para disolver la telaraña. ¡No te detengas!",
+      "description": "Ordena las letras para formar el acrónimo OCEAN (Big Five) y disolver la telaraña.",
       "items": [
-        {"id": 1, "name": "Neurodesarrollo", "color": "#ff0000", "size": 3},
-        {"id": 2, "name": "Psicóticos", "color": "#00ff00", "size": 5},
-        {"id": 3, "name": "Humor", "color": "#0000ff", "size": 1},
-        {"id": 4, "name": "Ansiedad", "color": "#f8b800", "size": 6},
-        {"id": 5, "name": "Impulsos", "color": "#3cbcfc", "size": 2},
-        {"id": 6, "name": "Neurocognitivos", "color": "#ff00ff", "size": 4}
+        {"id": 1, "name": "O", "color": "#3cbcfc", "size": 1},
+        {"id": 2, "name": "C", "color": "#f8b800", "size": 2},
+        {"id": 3, "name": "E", "color": "#a80020", "size": 3},
+        {"id": 4, "name": "A", "color": "#00a800", "size": 4},
+        {"id": 5, "name": "N", "color": "#7c7c7c", "size": 5}
       ]
     },
     {
@@ -127,6 +126,18 @@
           "question": "Miedo o ansiedad marcados acerca de situaciones donde escapar sea difícil:",
           "options": ["Agorafobia", "Trastorno de separación", "Mutismo selectivo"],
           "correct": 0
+        }
+      ]
+    }
+    ,
+    {
+      "id": 9,
+      "type": "maze",
+      "title": "Nivel 9: El Laberinto del Conjurador",
+      "questions": [
+        {
+          "prompt": "¿Los delirios son creencias fijas y falsas que no cambian a pesar de las pruebas en contra?",
+          "correct": "V"
         }
       ]
     }

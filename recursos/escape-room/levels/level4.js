@@ -94,7 +94,7 @@
         if (nearPedestal && !player.isCaptured) {
             ui.innerHTML = `🔍 Elemento: <strong>${nearPedestal.tower.name}</strong>`;
         }
-
+        
         // Decrementar periodo de gracia
         if (currentLevelData.startGrace > 0) currentLevelData.startGrace -= dt;
 
@@ -127,9 +127,10 @@
                 
                 let target = isPlayerTarget ? { x: player.x, y: player.y, isPlayer: true } : null;
                 
-                // 2. Si no va tras el jugador, busca un objeto al azar y MANTÉN el objetivo para evitar temblores
-                if (!target) {
-                    if (!s.currentTargetPedestal) {
+                // 2. Si no va tras el jugador, busca un objeto al azar
+                if (!target && !player.isCaptured) {
+                    // Verificar si el pedestal actual todavía tiene torre, si no, buscar otro
+                    if (!s.currentTargetPedestal || !s.currentTargetPedestal.tower) {
                         const towers = currentLevelData.pedestals.filter(p => p.tower);
                         if (towers.length > 0) {
                             s.currentTargetPedestal = towers[Math.floor(Math.random() * towers.length)];
@@ -268,24 +269,26 @@
     },
     interact: () => {
         if (player.isCaptured) return;
-
-        const nearPedestal = currentLevelData.pedestals.find(p => checkProximity({ x: p.x, y: p.y, w: 32, h: 32 }));
+        
+        const nearPedestal = currentLevelData.pedestals.find(p => window.checkProximity({ x: p.x, y: p.y, w: 32, h: 32 }));
         
         if (nearPedestal) {
             if (!state.inventory && nearPedestal.tower) {
                 // Recoger torre
                 state.inventory = nearPedestal.tower;
                 nearPedestal.tower = null;
+                if (window.gameStats) window.gameStats.recordMove(state.levelIndex);
                 ui.innerHTML = "Llevas: " + state.inventory.name;
             } else if (state.inventory && !nearPedestal.tower) {
                 // Dejar torre en pedestal vacío
                 nearPedestal.tower = state.inventory;
                 ui.innerHTML = "Has colocado la " + state.inventory.name;
+                if (window.gameStats) window.gameStats.recordMove(state.levelIndex);
                 state.inventory = null;
             }
         }
 
-        const exitDoor = currentLevelData.tileObjects.find(o => o.id === 'exit' && checkProximity(o));
+        const exitDoor = currentLevelData.tileObjects.find(o => o.id === 'exit' && window.checkProximity(o));
         if (exitDoor) {
             if (currentLevelData.solved) {
                 nextLevel();

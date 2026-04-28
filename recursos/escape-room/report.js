@@ -51,10 +51,18 @@ window.reportSystem = {
         doc.setFont(undefined, 'normal');
         doc.setFontSize(11);
         doc.text(`Nombre: ${playerName}`, margin, yPos);
-        yPos += 7;
+        yPos += 6;
         
-        const fecha = new Date();
-        const fechaFormato = fecha.toLocaleDateString('es-ES') + ' ' + fecha.toLocaleTimeString('es-ES');
+        const fecha = window.gameStats.gameStartTime || new Date();
+        const fechaFormato = fecha.toLocaleDateString('es-ES', { year: 'numeric', month: 'numeric', day: 'numeric' }) + ' ' + fecha.toLocaleTimeString('es-ES');
+        doc.text(`Inicio: ${fechaFormato}`, margin, yPos);
+        yPos += 6;
+
+        const gameSet = window.gameStats.gameSet || 'Desconocido';
+        doc.text(`Set de Juego: ${gameSet}`, margin, yPos);
+        yPos += 6;
+
+        const fechaFin = new Date();
         doc.text(`Fecha: ${fechaFormato}`, margin, yPos);
         yPos += 7;
         
@@ -72,26 +80,27 @@ window.reportSystem = {
         yPos += 8;
         
         const stats = window.gameStats;
-        const totalTime = Object.values(stats.levelStats).reduce((sum, s) => sum + s.time, 0);
-        const totalErrors = stats.totalAttempts - stats.totalHits; // Total de respuestas incorrectas o intentos fallidos
+        const totalTimeSeconds = Object.values(stats.levelStats).reduce((sum, s) => sum + s.time, 0);
+        const totalTimeDisplay = (totalTimeSeconds / 60).toFixed(1) + " min";
+        const totalErrors = stats.totalAttempts - stats.totalHits;
         const accuracy = stats.totalAttempts > 0 ? ((stats.totalHits / stats.totalAttempts) * 100).toFixed(1) : 0;
         
         doc.setFont(undefined, 'normal');
-        doc.setFontSize(10);
+        doc.setFontSize(11);
         
         const summaryData = [
-            { label: 'Tiempo Total Jugado', value: `${totalTime.toFixed(1)}s` },
+            { label: 'Tiempo Total Jugado', value: totalTimeDisplay },
             { label: 'Aciertos', value: `${stats.totalHits}` },
             { label: 'Errores', value: `${totalErrors}` },
             { label: 'Precisión', value: `${accuracy}%` }
         ];
         
-        const colWidth = (pageWidth - 2 * margin) / 2;
+        const colWidth = (pageWidth - 2 * margin) / 2; // Two columns
         
         summaryData.forEach((item, idx) => {
             const x = margin + (idx % 2) * colWidth;
-            const y = yPos + Math.floor(idx / 2) * 12;
-            
+            const y = yPos + Math.floor(idx / 2) * 8; // Reduced line height
+
             doc.setFont(undefined, 'bold');
             doc.text(item.label + ':', x, y);
             doc.setFont(undefined, 'normal');
@@ -99,7 +108,7 @@ window.reportSystem = {
         });
         
         yPos += 40;
-        
+
         // Detalle por Nivel
         if (Object.keys(stats.levelStats).length > 0) {
             doc.setFont(undefined, 'bold');
@@ -110,27 +119,43 @@ window.reportSystem = {
             // Encabezado de tabla
             doc.setFillColor(230, 230, 230);
             doc.rect(margin, yPos - 5, pageWidth - 2 * margin, 6, 'F');
-            
+
             doc.setFont(undefined, 'bold');
             doc.setFontSize(9);
             doc.text('Nivel', margin + 2, yPos);
             doc.text('Intentos', margin + 40, yPos);
             doc.text('Aciertos', margin + 70, yPos);
             doc.text('Tiempo(s)', margin + 100, yPos);
-            doc.text('Precisión', margin + 130, yPos);
-            
+            doc.text('Errores', margin + 130, yPos); // Display errors directly
+            doc.text('Extra', margin + 160, yPos); // New column for extra info
+
             yPos += 8;
-            
-            Object.keys(stats.levelStats).forEach(idx => {
+
+            // Sort levels by index for consistent reporting
+            const sortedLevelIndices = Object.keys(stats.levelStats).sort((a, b) => parseInt(a) - parseInt(b));
+
+            sortedLevelIndices.forEach(idx => {
                 doc.setFont(undefined, 'bold');
                 doc.setFontSize(9);
                 // Verificar si necesita nueva página
                 if (yPos > pageHeight - 20) {
                     doc.addPage();
                     yPos = 20;
+                    // Re-draw table header on new page
+                    doc.setFillColor(230, 230, 230);
+                    doc.rect(margin, yPos - 5, pageWidth - 2 * margin, 6, 'F');
+                    doc.setFont(undefined, 'bold');
+                    doc.setFontSize(9);
+                    doc.text('Nivel', margin + 2, yPos);
+                    doc.text('Intentos', margin + 40, yPos);
+                    doc.text('Aciertos', margin + 70, yPos);
+                    doc.text('Tiempo(s)', margin + 100, yPos);
+                    doc.text('Errores', margin + 130, yPos);
+                    doc.text('Extra', margin + 160, yPos);
+                    yPos += 8;
                 }
                 
-                const s = stats.levelStats[idx];
+                const s = stats.levelStats[idx]; // s is the levelStats object for this level
                 const levelAccuracy = s.attempts > 0 ? ((s.hits / s.attempts) * 100).toFixed(1) : 0;
                 const levelNum = parseInt(idx) + 1;
                 
@@ -138,7 +163,12 @@ window.reportSystem = {
                 doc.text(`${s.attempts}`, margin + 40, yPos);
                 doc.text(`${s.hits}`, margin + 70, yPos);
                 doc.text(`${s.time.toFixed(1)}`, margin + 100, yPos);
-                doc.text(`${levelAccuracy}%`, margin + 130, yPos);
+                doc.text(`${s.attempts - s.hits}`, margin + 130, yPos);
+
+                let extra = "";
+                if (levelNum === 4) extra = `Movimientos: ${s.movesMade || 0}`;
+                else if ([7, 8, 9].includes(levelNum)) extra = `Fallos: ${s.wrongChoices || 0}`;
+                doc.text(extra, margin + 160, yPos);
                 
                 yPos += 8;
             });
@@ -149,7 +179,7 @@ window.reportSystem = {
         // Pie de página
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
-        doc.text('Reporte generado automáticamente por el sistema Escape Room', pageWidth / 2, pageHeight - 10, { align: 'center' });
+        doc.text(`Reporte generado automáticamente por el sistema Escape Room el ${fechaFin.toLocaleDateString('es-ES')} a las ${fechaFin.toLocaleTimeString('es-ES')}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
         
         // Descargar
         const nombreArchivo = `Reporte_${playerName.replace(/\s+/g, '_')}_${fecha.getTime()}.pdf`;

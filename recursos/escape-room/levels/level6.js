@@ -1,7 +1,11 @@
 (window.levelLogics = window.levelLogics || {})['bridge'] = {
     init: (levelData) => {
+        const activeScenario = (levelData.scenarios && levelData.scenarios.length > 0)
+            ? levelData.scenarios[Math.floor(Math.random() * levelData.scenarios.length)]
+            : levelData;
+
         const base = {
-            ...levelData,
+            ...activeScenario,
             // Carga de activos visuales
             images: {
                 bridge: new Image(),

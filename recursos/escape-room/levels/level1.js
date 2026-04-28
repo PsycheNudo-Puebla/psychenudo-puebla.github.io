@@ -1,7 +1,11 @@
 levelLogics['date'] = {
     init: (levelData) => {
+        const activeScenario = (levelData.scenarios && levelData.scenarios.length > 0)
+            ? levelData.scenarios[Math.floor(Math.random() * levelData.scenarios.length)]
+            : levelData;
+
         const base = {
-            ...levelData,
+            ...activeScenario,
             map: levelData.map || [
                 [1,1,1,1,1,1,1,1,1,1,1,1,5,1,1,1,1,1,1,1,1,1,1,1,1],
                 [1,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,4,1,1],
@@ -80,16 +84,14 @@ levelLogics['date'] = {
         const playerCenterY = player.y + 32;
 
         const obj = currentLevelData.tileObjects.find(o => {
-            const ox = o.tileX * 32 + 16;
-            const oy = o.tileY * 32 + 60 + 16;
-            return Math.hypot(playerCenterX - ox, playerCenterY - oy) < 60;
+            return window.checkProximity(o);
         });
 
         if (!obj) return;
 
         if (obj.type === 'door') {
             if (currentLevelData.doorUnlocked) {
-                if (currentLevelData.doorAnimY <= -32) nextLevel();
+                nextLevel();
             } else {
                 if (!currentLevelData.foundObject) {
                     ui.innerHTML = "❌ La puerta está cerrada con un teclado electrónico. Necesitas encontrar el código antes de intentar descifrarlo.";

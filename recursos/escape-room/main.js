@@ -40,6 +40,8 @@ const TILE_OBJECT_TYPES = {
 };
 
 // Diccionario de tiles (16x16 píxeles) - Texturas mejoradas
+window.TILE_SIZE = 32;
+window.MAP_OFFSET_Y = 60;
 const TILE_SIZE = 32;
 const MAP_OFFSET_Y = 60;
 
@@ -208,8 +210,23 @@ const player = {
 
 const keys = {};
 
-window.addEventListener('keydown', e => keys[e.code] = true);
-window.addEventListener('keyup', e => keys[e.code] = false);
+window.addEventListener('keydown', e => {
+    if (e.target && e.target.id === 'hidden-mobile-input') {
+        return; // No mover al jugador si el teclado está capturando texto
+    }
+
+    if (state.running && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+        e.preventDefault();
+    }
+
+    keys[e.code] = true;
+});
+window.addEventListener('keyup', e => {
+    if (e.target && e.target.id === 'hidden-mobile-input') {
+        return;
+    }
+    keys[e.code] = false;
+});
 
 /** INICIALIZACIÓN **/
 window.addEventListener('load', () => {
@@ -320,13 +337,13 @@ window.addEventListener('load', () => {
         }
         
         state.allLevels = data.levels;
+        window.gameStats.gameSet = filename.split('.')[0]; // Store the name of the loaded set
         state.levelIndex = 0;
         
         // Registrar inicio del primer nivel
         if (window.gameStats && window.gameStats.initLevel) {
             window.gameStats.initLevel(0);
         }
-        
         loadCurrentLevel();
 
         // Limpiar menú y mostrar niveles
@@ -465,18 +482,19 @@ function startGame() {
         ui.style.display = 'block';
         ui.innerHTML = state.allLevels[state.levelIndex].title + ". Explora la habitación.";
     }
+    window.gameStats.gameStartTime = new Date(); // Record game start time
     state.running = true;
     lastTime = performance.now();
     requestAnimationFrame(gameLoop);
 }
 
-function checkProximity(obj) {
+window.checkProximity = function(obj) {
     if (!obj) return false;
     // Si el objeto no tiene x/y reales, calculamos basados en tiles (como en Nivel 1 y 3)
-    const ox = obj.x !== undefined ? obj.x : (obj.tileX * TILE_SIZE);
-    const oy = obj.y !== undefined ? obj.y : (obj.tileY * TILE_SIZE + MAP_OFFSET_Y);
-    const ow = obj.w || TILE_SIZE;
-    const oh = obj.h || TILE_SIZE;
+    const ox = obj.x !== undefined ? obj.x : (obj.tileX * window.TILE_SIZE);
+    const oy = obj.y !== undefined ? obj.y : (obj.tileY * window.TILE_SIZE + window.MAP_OFFSET_Y);
+    const ow = obj.w || window.TILE_SIZE;
+    const oh = obj.h || window.TILE_SIZE;
     
     const dist = Math.hypot((player.x + player.w / 2) - (ox + ow / 2), (player.y + player.h / 2) - (oy + oh / 2));
     return dist < 60; // Radio de detección
@@ -489,11 +507,11 @@ function checkCollision(nx, ny) {
     // Esto permite que la cabeza se superponga a objetos "detrás" sin bloquearse.
     // Ajustado para el nuevo tamaño "chibi" de 64x64
     const points = [
-        { x: nx + 18, y: ny + 45 },  
-        { x: nx + 46, y: ny + 45 }, 
-        { x: nx + 18, y: ny + 62 }, 
-        { x: nx + 46, y: ny + 62 },
-        { x: nx + 32, y: ny + 54 }
+        { x: nx + 24, y: ny + 50 },
+        { x: nx + 40, y: ny + 50 },
+        { x: nx + 24, y: ny + 60 },
+        { x: nx + 40, y: ny + 60 },
+        { x: nx + 32, y: ny + 56 }
     ];
 
     for (let p of points) {
@@ -780,6 +798,12 @@ function gameLoop(timestamp) {
     const deltaTime = timestamp - lastTime;
     lastTime = timestamp;
     const dt = Math.min(deltaTime, 100) / (1000 / 60); 
+
+    // Accumulate time for the current level
+    if (state.running && !state.paused && currentLevelData && state.levelIndex !== undefined) {
+        if (!window.gameStats.levelStats[state.levelIndex]) window.gameStats.initLevel(state.levelIndex);
+        window.gameStats.levelStats[state.levelIndex].time += deltaTime / 1000; // Accumulate time in seconds
+    }
 
     update(dt);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
