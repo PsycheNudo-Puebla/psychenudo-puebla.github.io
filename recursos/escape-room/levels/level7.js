@@ -47,9 +47,8 @@ levelLogics['dragon'] = {
         };
         // Paredes del refugio (Fortaleza superior)
         this.refugeWalls = [
-            { id: 'ref_l', x: 32, y: 60, w: 10, h: 135, collidable: true },
-            { id: 'ref_r', x: 550, y: 60, w: 10, h: 135, collidable: true },
-            { id: 'ref_b', x: 94, y: 185, w: 466, h: 10, collidable: true }
+            { id: 'ref_r', x: 550, y: 60, w: 20, h: 125, collidable: true },
+            { id: 'ref_b', x: 94, y: 185, w: 456, h: 20, collidable: true }
         ];
         levelData.furniture = [this.cannonFurniture, ...this.refugeWalls];
         
@@ -85,7 +84,7 @@ levelLogics['dragon'] = {
         this.gameOver = false;
         this.won = false;
         const speedMult = window.isMobile ? 1.25 : 1; // Aumento del 25% para celulares
-        this.dragon = { x: 650, y: 300, dir: 1, speed: 4 * speedMult, fireTimer: 0, animFrame: 0, health: this.questions.length || 3, state: 'normal', dashTimer: 0 };
+        this.dragon = { x: 650, y: 380, dir: 1, speed: 4 * speedMult, fireTimer: 0, animFrame: 0, health: this.questions.length || 3, state: 'normal', dashTimer: 0 };
         this.cannon = { x: 150, y: 300, w: 100, h: 80, loaded: false, bulletType: null, cooldown: 0 };
         this.bullets = [];
         this.activeBullet = { active: false, x: 0, y: 0 };
@@ -96,6 +95,7 @@ levelLogics['dragon'] = {
         this.showText = '';
         this.textTimer = 0;
         this.explosion = { active: false, x: 0, y: 0, timer: 0 };
+        this.fireParticles = []; // Partículas para el impacto de flamas
 
         player.speed = 8; // Aumentar velocidad del jugador para este nivel
         player.x = 100;
@@ -159,15 +159,17 @@ levelLogics['dragon'] = {
         // Movimiento del Dragón
         if (this.dragon.state === 'normal') {
             this.dragon.y += this.dragon.speed * this.dragon.dir * dt;
-            // Ajustamos límites de rebote para un dragón de 600px
-            if (this.dragon.y > 380 || this.dragon.y < 220) this.dragon.dir *= -1;
+            // Ajustamos límites para que el dragón se mantenga en la zona inferior (lejos del refugio)
+            // Usamos lógica de asignación directa para evitar el "jitter" (temblor)
+            if (this.dragon.y > 450) this.dragon.dir = -1;
+            if (this.dragon.y < 320) this.dragon.dir = 1;
             
             // Incrementar temporizador para el ataque de embestida
             this.dragon.dashTimer += dt;
 
-            // Efecto de temblor antes de atacar (aviso visual)
+            // Efecto de retroceso antes de atacar (aviso visual suave - toma aire)
             if (this.dragon.dashTimer > 350) {
-                this.dragon.x = 650 + (Math.random() - 0.5) * 10;
+                this.dragon.x += 0.5 * dt; 
             }
 
             if (this.dragon.dashTimer >= 400) { // Aproximadamente cada 6.6 segundos
@@ -175,9 +177,9 @@ levelLogics['dragon'] = {
                 this.dragon.dashTimer = 0;
             }
         } else if (this.dragon.state === 'dashing') {
-            // Embestida hacia la izquierda
+            // Embestida hacia la izquierda: llega al extremo para cubrir toda la pantalla
             this.dragon.x -= this.dashSpeed * dt; 
-            if (this.dragon.x < 100) this.dragon.state = 'returning';
+            if (this.dragon.x < 80) this.dragon.state = 'returning'; 
         } else if (this.dragon.state === 'returning') {
             // Regreso a la posición original
             this.dragon.x += this.returnSpeed * dt;
@@ -203,30 +205,32 @@ levelLogics['dragon'] = {
             gameOver("¡Has sido aplastado por el gran dragón!");
         }
 
-        // Animación de disparo del Dragón (Más rápido aún)
-        this.dragon.fireTimer += dt;
-        
-        // Ciclo de animación normal (0, 1, 2, 3)
-        this.dragon.animFrame = Math.floor(Date.now() / 150) % 4;
+        // Lógica de ataque y fuego (Solo si no está regresando)
+        if (this.dragon.state !== 'returning') {
+            this.dragon.fireTimer += dt;
+            
+            // Ciclo de animación normal (0, 1, 2, 3)
+            this.dragon.animFrame = Math.floor(Date.now() / 150) % 4;
 
-        // Cuando el timer llega a la fase de ataque, forzamos dragonv3.png (index 2)
-        if (this.dragon.fireTimer > 85) this.dragon.animFrame = 2; 
+            // Cuando el timer llega a la fase de ataque, forzamos dragonv3.png (index 2)
+            if (this.dragon.fireTimer > 85) this.dragon.animFrame = 2; 
 
-        if (this.dragon.fireTimer > 120) {
-            this.dragonFire.active = true;
-            this.dragonFire.x = this.dragon.x + this.fireOffset.x;
-            this.dragonFire.y = this.dragon.y + this.fireOffset.y;
-            
-            // LÓGICA DE APUNTADO: Calcular ángulo hacia el jugador con ligera dispersión
-            const targetX = player.x + player.w / 2;
-            const targetY = player.y + player.h / 2;
-            const spread = (Math.random() - 0.5) * this.fireAccuracy;
-            const angle = Math.atan2(targetY - this.dragonFire.y, targetX - this.dragonFire.x) + spread;
-            
-            this.dragonFire.vx = Math.cos(angle) * this.dragonFire.speed;
-            this.dragonFire.vy = Math.sin(angle) * this.dragonFire.speed;
-            
-            this.dragon.fireTimer = 0;
+            if (this.dragon.fireTimer > 120) {
+                this.dragonFire.active = true;
+                this.dragonFire.x = this.dragon.x + this.fireOffset.x;
+                this.dragonFire.y = this.dragon.y + this.fireOffset.y;
+                
+                // LÓGICA DE APUNTADO: Calcular ángulo hacia el jugador
+                const targetX = player.x + player.w / 2;
+                const targetY = player.y + player.h / 2;
+                const spread = (Math.random() - 0.5) * this.fireAccuracy;
+                const angle = Math.atan2(targetY - this.dragonFire.y, targetX - this.dragonFire.x) + spread;
+                
+                this.dragonFire.vx = Math.cos(angle) * this.dragonFire.speed;
+                this.dragonFire.vy = Math.sin(angle) * this.dragonFire.speed;
+                
+                this.dragon.fireTimer = 0;
+            }
         }
 
         // Movimiento de las llamas y colisión con jugador
@@ -237,10 +241,20 @@ levelLogics['dragon'] = {
             // Colisión de llamas con las paredes de la estructura
             const fx = this.dragonFire.x;
             const fy = this.dragonFire.y;
-            const hitRefugeWall = (fy > 180 && fy < 195 && fx > 94 && fx < 550) || // Fondo (hueco en 42-94)
-                                 (fx > 545 && fx < 560 && fy > 60 && fy < 185); // Lateral derecho
+            // Detección por volumen: si entra en el área del muro horizontal o vertical
+            const hitRefugeWall = (fy >= 185 && fy <= 205 && fx >= 94 && fx <= 550) || // Muro inferior (horizontal)
+                                 (fx >= 550 && fx <= 570 && fy >= 60 && fy <= 185);   // Muro derecho (vertical)
             
             if (hitRefugeWall) {
+                // Crear partículas de explosión al chocar con el muro
+                for(let i=0; i<8; i++) {
+                    this.fireParticles.push({
+                        x: fx, y: fy,
+                        vx: (Math.random() - 0.5) * 6,
+                        vy: (Math.random() - 0.5) * 6,
+                        life: 20 + Math.random() * 10
+                    });
+                }
                 this.dragonFire.active = false;
             }
             
@@ -258,6 +272,13 @@ levelLogics['dragon'] = {
                 gameOver("¡Has sido incinerado por el gran dragón!");
             }
         }
+
+        // Actualizar partículas de fuego
+        this.fireParticles = this.fireParticles.filter(p => {
+            p.x += p.vx; p.y += p.vy;
+            p.life -= dt;
+            return p.life > 0;
+        });
 
         // Movimiento de la bala y colisión con el dragón
         if (this.activeBullet.active) {
@@ -392,18 +413,14 @@ levelLogics['dragon'] = {
         ctx.strokeStyle = "#251510"; // Contorno muy oscuro
         ctx.lineWidth = 2;
 
-        // Muro Izquierdo
-        ctx.fillRect(32, 60, 10, 135); ctx.strokeRect(32, 60, 10, 135);
-        // Muro Derecho
-        ctx.fillRect(550, 60, 10, 135); ctx.strokeRect(550, 60, 10, 135);
-        // Muro Inferior con entrada (Hueco ampliado a 52px para paso del jugador)
-        ctx.fillRect(94, 185, 466, 10); ctx.strokeRect(94, 185, 466, 10);
+        // Estructura en L: Muro Derecho (Vertical) y Muro Inferior (Horizontal)
+        ctx.fillRect(550, 60, 20, 125); ctx.strokeRect(550, 60, 20, 125);
+        ctx.fillRect(94, 185, 456, 20); ctx.strokeRect(94, 185, 456, 20);
 
         // Textura de bloques (Detalles visuales para que no sea un bloque liso)
         ctx.strokeStyle = "rgba(0,0,0,0.2)";
         ctx.beginPath();
         for(let ty = 85; ty < 185; ty += 25) {
-            ctx.moveTo(32, ty); ctx.lineTo(42, ty); // Muro izq
             ctx.moveTo(550, ty); ctx.lineTo(560, ty); // Muro der
         }
         ctx.stroke();
@@ -468,6 +485,12 @@ levelLogics['dragon'] = {
             ctx.fillStyle = "rgba(255, 100, 0, 0.4)";
             ctx.beginPath(); ctx.arc(this.dragonFire.x + (this.dragonFire.vx * -1.5), this.dragonFire.y + (this.dragonFire.vy * -1.5), 15, 0, Math.PI*2); ctx.fill();
         }
+
+        // Dibujar partículas de fuego
+        this.fireParticles.forEach(p => {
+            ctx.fillStyle = Math.random() > 0.5 ? this.palette.orange : this.palette.red_fire;
+            ctx.fillRect(p.x, p.y, 4, 4);
+        });
 
         if (!this.won) this.drawDragon(); // Solo dibujar el dragón si no se ha ganado
         this.drawExplosion();
