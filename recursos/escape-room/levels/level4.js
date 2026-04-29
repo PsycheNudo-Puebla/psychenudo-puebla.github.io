@@ -36,7 +36,9 @@
                 heldItem: null, animFrame: 0, animCounter: 0, speed: 4,
                 currentTargetPedestal: null
             },
-            pedestals: []
+            pedestals: [],
+            statusMessage: "",
+            messageTimer: 0
         };
 
         const jsonItems = scenario.items || [];
@@ -92,12 +94,24 @@
     update: (dt) => {
         if (currentLevelData.solved) return;
 
-        // Información automática por proximidad (Estándar pedagógico)
-        const nearPedestal = currentLevelData.pedestals.find(p => p.tower && checkProximity({ x: p.x, y: p.y, w: 32, h: 32 }));
-        if (nearPedestal && !player.isCaptured) {
-            ui.innerHTML = `🔍 Elemento: <strong>${nearPedestal.tower.name}</strong>`;
-        }
+        // UI Dinámica: Alterna entre la descripción (pregunta) y la info de proximidad
+        let header = `<strong>${currentLevelData.title}</strong><br>`;
+        let content = "";
         
+        const nearPedestal = currentLevelData.pedestals.find(p => p.tower && checkProximity({ x: p.x, y: p.y, w: 32, h: 32 }));
+
+        if (currentLevelData.messageTimer > 0) {
+            content = `<span style="color: #f8b800;">${currentLevelData.statusMessage}</span>`;
+            currentLevelData.messageTimer -= dt;
+        } else if (nearPedestal && !player.isCaptured) {
+            content = `🔍 Elemento: <strong>${nearPedestal.tower.name}</strong>`;
+        } else if (state.inventory) {
+            content = `📦 Llevas: <strong>${state.inventory.name}</strong>`;
+        } else {
+            content = currentLevelData.description || "Ordena los elementos.";
+        }
+        ui.innerHTML = header + content;
+
         // Decrementar periodo de gracia
         if (currentLevelData.startGrace > 0) currentLevelData.startGrace -= dt;
 
@@ -187,7 +201,6 @@
                     } else if (s.heldItem) {
                         const emptyPed = currentLevelData.pedestals.find(p => !p.tower);
                         if (emptyPed) emptyPed.tower = s.heldItem;
-                        ui.innerHTML = "🕷️ ¡La araña ha desordenado las piezas!";
                     }
                     s.heldItem = null;
                     s.state = "scanning";
@@ -281,11 +294,13 @@
                 state.inventory = nearPedestal.tower;
                 nearPedestal.tower = null;
                 if (window.gameStats) window.gameStats.recordMove(state.levelIndex);
-                ui.innerHTML = "Llevas: " + state.inventory.name;
+                currentLevelData.statusMessage = "📦 Has tomado: " + state.inventory.name;
+                currentLevelData.messageTimer = 60;
             } else if (state.inventory && !nearPedestal.tower) {
                 // Dejar torre en pedestal vacío
                 nearPedestal.tower = state.inventory;
-                ui.innerHTML = "Has colocado la " + state.inventory.name;
+                currentLevelData.statusMessage = "✅ Has colocado: " + state.inventory.name;
+                currentLevelData.messageTimer = 60;
                 if (window.gameStats) window.gameStats.recordMove(state.levelIndex);
                 state.inventory = null;
             }
@@ -296,7 +311,8 @@
             if (currentLevelData.solved) {
                 nextLevel();
             } else {
-                ui.innerHTML = "La puerta está sellada por telarañas. " + (currentLevelData.description || "Ordena las torres de menor a mayor.");
+                currentLevelData.statusMessage = "🚪 La puerta está sellada por telarañas.";
+                currentLevelData.messageTimer = 90;
             }
         }
     }

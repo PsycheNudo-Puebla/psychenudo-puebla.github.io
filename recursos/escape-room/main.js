@@ -482,7 +482,9 @@ function startGame() {
         ui.style.display = 'none';
     } else {
         ui.style.display = 'block';
-        ui.innerHTML = state.allLevels[state.levelIndex].title + ". Explora la habitación.";
+        const level = state.allLevels[state.levelIndex];
+        const desc = currentLevelData.description || level.description || "Explora la habitación.";
+        ui.innerHTML = `<strong>${level.title}</strong><br>${desc}`;
     }
     window.gameStats.gameStartTime = new Date(); // Record game start time
     state.inputModo = false; // Asegurar que el modo de entrada de texto esté desactivado al iniciar el juego

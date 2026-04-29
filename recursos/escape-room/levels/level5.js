@@ -38,14 +38,33 @@
             ],
             roomA: scenario.roomA, // Asegurar que roomA se pase
             roomB: scenario.roomB, // Asegurar que roomB se pase
-            roomItems: []
+            roomItems: [],
+            statusMessage: "",
+            messageTimer: 0
         };
 
         player.x = 300; player.y = 200;
         return base;
     },
-    update: () => {
+    update: (dt) => {
         const data = currentLevelData;
+
+        // UI Dinámica: La descripción (pregunta) desaparece cuando el alumno lee un objeto
+        let header = `<strong>${data.title}</strong><br>`;
+        let content = "";
+        
+        const nearItem = data.roomItems.find(i => checkProximity(i));
+
+        if (data.messageTimer > 0) {
+            content = `<span style="color: #f8b800;">${data.statusMessage}</span>`;
+            data.messageTimer -= dt;
+        } else if (nearItem) {
+            content = `💎 <strong>${nearItem.name}</strong>: ${nearItem.desc}`;
+        } else {
+            content = data.description || "Diferencia los conceptos.";
+        }
+        ui.innerHTML = header + content;
+
         data.roomTimer++;
         if (data.transitionCooldown > 0) data.transitionCooldown--;
 
@@ -59,7 +78,8 @@
                 speed: 1.5,
                 history: [] // Para dibujar el cuerpo
             });
-            ui.innerHTML = "🐍 ¡Una serpiente ha entrado por el techo! ¡Date prisa!";
+            data.statusMessage = "🐍 ¡Una serpiente ha entrado por el techo! ¡Date prisa!";
+            data.messageTimer = 120;
         }
 
         // 2. Movimiento de serpientes (Persiguen al jugador)
@@ -97,12 +117,6 @@
                 gameOver("¡Te ha mordido una serpiente venenosa!");
             }
         });
-
-        // 3. Información automática (Estándar pedagógico)
-        const nearItem = data.roomItems.find(i => checkProximity(i));
-        if (nearItem) {
-            ui.innerHTML = `💎 <strong>${nearItem.name}</strong>: ${nearItem.desc}`;
-        }
 
         // 4. Transición automática de habitaciones por puerta
         if (data.currentRoom === 'center' && canTransition) {
@@ -189,10 +203,12 @@
                 if (item.correct) {
                     if (data.currentRoom === 'A') data.progressA = true;
                     if (data.currentRoom === 'B') data.progressB = true;
-                    ui.innerHTML = `✅ ¡Has obtenido el objeto correcto: ${item.name}! Vuelve a la sala central.`;
+                    data.statusMessage = `✅ ¡Has obtenido: ${item.name}!`;
+                    data.messageTimer = 180;
                     data.roomItems = [];
                 } else {
-                    ui.innerHTML = "❌ ¡ERROR! Ese objeto es falso. ¡Las serpientes se han despertado!";
+                    data.statusMessage = "❌ ¡ERROR! Objeto falso. ¡Las serpientes despiertan!";
+                    data.messageTimer = 120;
                     for(let i=0; i<3; i++) data.snakes.push({ x: Math.random()*800, y: -20, speed: 1.5, history: [] });
                 }
             }
@@ -203,7 +219,10 @@
         const exitDoor = data.tileObjects.find(d => d.target === 'exit' && checkProximity(d));
         if (exitDoor) {
             if (data.progressA && data.progressB) nextLevel();
-            else ui.innerHTML = "🚪 La puerta está sellada. Necesitas los dos objetos de las cámaras laterales.";
+            else {
+                data.statusMessage = "🚪 La puerta requiere los dos objetos.";
+                data.messageTimer = 90;
+            }
         }
     }
 };
@@ -245,7 +264,8 @@ function enterSubRoom(room) {
 
     player.x = room === 'A' ? canvas.width - 5 * TILE_SIZE : 5 * TILE_SIZE; // Entrar desde el lado correcto
     player.y = 4 * TILE_SIZE + MAP_OFFSET_Y - 40;
-    ui.innerHTML = room === 'A' ? "Has entrado a la Cámara Oeste." : "Has entrado a la Cámara Este.";
+    data.statusMessage = room === 'A' ? "Cámara Oeste" : "Cámara Este";
+    data.messageTimer = 60;
 }
 
 function returnToCenter() {
