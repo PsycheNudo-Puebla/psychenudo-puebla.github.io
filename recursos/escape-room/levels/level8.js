@@ -22,6 +22,7 @@
         this.lives = 2;
         this.questions = levelData.questions || [];
         this.currentQuestionIndex = 0;
+        console.log("Level 8 - Questions List:", this.questions); // Debugging
         this.won = false;
         this.gameOver = false; // Añadido para consistencia
         this.countdownActive = false;

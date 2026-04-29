@@ -8,6 +8,8 @@ levelLogics['art'] = {
 
         const base = {
             ...scenario,
+            type: levelData.type,
+            title: levelData.title,
             map: [
                 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                 [1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,1],
@@ -52,8 +54,8 @@ levelLogics['art'] = {
                 id: 'painting', 
                 name: p.name || p.nombre, 
                 description: p.descripcion || p.description,
-                style: p.style || p.cat, 
-                x: 150 + (i * 200), y: 10, w: 60, h: 40, 
+                style: p.style || p.cat,
+                x: 150 + (i * 200), y: MAP_OFFSET_Y + 10, w: 60, h: 40, // Ajustar Y para que esté dentro del mapa
                 interactable: true,
                 collidable: false // Los cuadros en la pared no deben bloquear
             });

@@ -6,6 +6,8 @@ levelLogics['date'] = {
 
         const base = {
             ...activeScenario,
+            type: levelData.type,
+            title: levelData.title,
             map: levelData.map || [
                 [1,1,1,1,1,1,1,1,1,1,1,1,5,1,1,1,1,1,1,1,1,1,1,1,1],
                 [1,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,4,1,1],
@@ -30,6 +32,10 @@ levelLogics['date'] = {
                 { "id": "locked_door", "type": "door", "tileX": 12, "tileY": 0, "interactive": true }
             ],
             foundObject: false,
+            object: activeScenario.object, // Asegurar que el objeto se pase
+            pistaLibrero: activeScenario.pistaLibrero, // Asegurar que la pista se pase
+            claveCIE: activeScenario.claveCIE, // Asegurar que la clave se pase
+            longitudClave: activeScenario.longitudClave, // Asegurar que la longitud se pase
             doorUnlocked: false,
             doorAnimY: 0
         };
@@ -38,7 +44,7 @@ levelLogics['date'] = {
         player.x = 400; player.y = 300;
         
         // Distribuir pistas en los libreros
-        const hints = levelData.bookshelfHints || [];
+        const hints = base.bookshelfHints || [];
         const bookshelves = base.tileObjects.filter(o => o.type === 'bookshelf');
         bookshelves.forEach((bs, i) => {
             if (hints[i]) bs.bookshelfHint = hints[i];

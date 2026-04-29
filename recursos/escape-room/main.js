@@ -483,6 +483,7 @@ function startGame() {
         ui.innerHTML = state.allLevels[state.levelIndex].title + ". Explora la habitación.";
     }
     window.gameStats.gameStartTime = new Date(); // Record game start time
+    state.inputModo = false; // Asegurar que el modo de entrada de texto esté desactivado al iniciar el juego
     state.running = true;
     lastTime = performance.now();
     requestAnimationFrame(gameLoop);

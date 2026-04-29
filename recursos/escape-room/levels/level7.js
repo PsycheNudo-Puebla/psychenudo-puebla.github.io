@@ -65,6 +65,7 @@ levelLogics['dragon'] = {
 
         ui.innerHTML = ""; // ELIMINAR TEXTO OVERLAY HTML (Nombre del nivel)
         this.questions = levelData.questions || [];
+        console.log("Level 7 - Questions List:", this.questions); // Debugging
         
         // Generar mapa completo de 17 filas para cubrir la pantalla (800x600) con ladrillos (tile 1)
         this.map = [];

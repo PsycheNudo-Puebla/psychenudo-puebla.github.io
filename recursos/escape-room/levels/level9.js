@@ -5,6 +5,7 @@
             : levelData;
 
         const questions = activeScenario.questions || levelData.questions || [
+            console.log("Level 9 - Questions List:", activeScenario.questions), // Debugging
             { prompt: "¿El condicionamiento operante fue propuesto por Skinner?", correct: "V" },
             { prompt: "¿El refuerzo negativo incrementa una conducta porque elimina un estímulo aversivo?", correct: "V" }
         ];

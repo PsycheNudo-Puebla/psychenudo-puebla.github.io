@@ -6,6 +6,8 @@
 
         const base = {
             ...activeScenario,
+            type: levelData.type,
+            title: levelData.title,
             // Carga de activos visuales
             images: {
                 bridge: new Image(),
@@ -53,7 +55,9 @@
         base.shakeOffset = 0;
         base.originalPlayerSize = { w: 64, h: 64 };
 
-        const qList = levelData.questions || [];
+        // Usar base.questions ya que base incluye las propiedades del activeScenario
+        const qList = base.questions || [];
+        console.log("Level 6 - Questions List:", qList); // Debugging
         const startY = 400; // Posición de inicio segura (por encima del cuadro de diálogo)
         const stepHeight = 64; // Altura de cada fila
 

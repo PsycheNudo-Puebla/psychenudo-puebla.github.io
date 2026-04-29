@@ -9,6 +9,8 @@
         const cW = (canvas && canvas.width) ? canvas.width : 800;
         const base = {
             ...scenario,
+            type: levelData.type,
+            title: levelData.title,
             map: [
                 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -38,6 +40,7 @@
         };
 
         const jsonItems = scenario.items || [];
+        console.log("Level 4 - JSON Items:", jsonItems); // Debugging
         if (jsonItems.length === 0) return base; // Seguridad contra bloqueo/loop
 
         // Cachear el orden de victoria para no recalcular en cada frame (optimización móvil)

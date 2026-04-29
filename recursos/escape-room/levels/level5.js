@@ -8,6 +8,8 @@
 
         const base = {
             ...scenario,
+            type: levelData.type,
+            title: levelData.title,
             currentRoom: 'center',
             roomTimer: 0,
             maxTime: 900, // 15 segundos antes de que aparezca una serpiente
@@ -34,6 +36,8 @@
                 { id: "doorB", type: "door", tileX: 24, tileY: 4, interactive: false, target: 'B', collidable: false },
                 { id: "exit", type: "door", tileX: 12, tileY: 0, interactive: true, target: 'exit' }
             ],
+            roomA: scenario.roomA, // Asegurar que roomA se pase
+            roomB: scenario.roomB, // Asegurar que roomB se pase
             roomItems: []
         };
 

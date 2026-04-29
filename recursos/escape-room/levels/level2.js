@@ -1,7 +1,15 @@
 levelLogics['atomic'] = {
     init: (levelData) => {
+        // Priorizar datos del escenario si existen, de lo contrario usar la raíz
+        let activeScenario = levelData;
+        if (levelData.scenarios && levelData.scenarios.length > 0) {
+            activeScenario = levelData.scenarios[Math.floor(Math.random() * levelData.scenarios.length)];
+        }
+
         const base = {
-            ...levelData,
+            ...activeScenario,
+            type: levelData.type,
+            title: levelData.title, // Asegurar que el título se mantenga
             map: [
                 [1,1,1,1,1,1,1,1,1,1,1,1,5,1,1,1,1,1,1,1,1,1,1,1,1],
                 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -29,14 +37,14 @@ levelLogics['atomic'] = {
         player.x = 400; player.y = 200;
 
         // Si el JSON no tiene desafíos (como en Psicopatología), creamos uno por defecto
-        if (!levelData.challenges) {
-            levelData.challenges = [{ prompt: levelData.pistaLibrero || "Encuentra la clave.", items: [], targetValue: levelData.claveCIE }];
-        }
-
+        const challenges = base.challenges || [{ prompt: base.pistaLibrero || "Encuentra la clave.", items: [], targetValue: base.claveCIE }];
+        
         // Elegir un desafío aleatorio si hay múltiples
-        const currentChallenge = levelData.challenges[Math.floor(Math.random() * levelData.challenges.length)];
-        base.prompt = currentChallenge.prompt;
-        base.targetValue = currentChallenge.targetValue;
+        const currentChallenge = challenges[Math.floor(Math.random() * challenges.length)];
+        if (currentChallenge) {
+            base.prompt = currentChallenge.prompt;
+            base.targetValue = currentChallenge.targetValue;
+        }
 
         // Posiciones fijas para los objetos químicos y el pedestal
         const chemPositions = [
@@ -62,7 +70,9 @@ levelLogics['atomic'] = {
         });
 
         // Asignar objetos químicos a posiciones aleatorias
-        const shuffledItems = [...currentChallenge.items].sort(() => 0.5 - Math.random());
+        const itemsToProcess = currentChallenge && currentChallenge.items ? currentChallenge.items : [];
+        console.log("Level 2 - Items to process:", itemsToProcess); // Debugging
+        const shuffledItems = [...itemsToProcess].sort(() => 0.5 - Math.random());
         shuffledItems.forEach((item, i) => {
             const tileX = Math.floor(chemPositions[i].x / TILE_SIZE);
             const tileY = Math.floor((chemPositions[i].y - MAP_OFFSET_Y) / TILE_SIZE);
