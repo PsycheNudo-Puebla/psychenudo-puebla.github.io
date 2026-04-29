@@ -1,0 +1,286 @@
+{
+  "levels": [
+    {
+      "id": 1,
+      "type": "date",
+      "title": "Nivel 1: La Caja de la Transdisciplina",
+      "scenarios": [
+        {
+          "object": "Herramienta del psicólogo",
+          "pistaLibrero": "PREGUNTA: ¿Cuál es la principal herramienta de trabajo del psicólogo?",
+          "claveCIE": "PALABRA",
+          "discoveryYear": "PALABRA",
+          "longitudClave": 7,
+          "bookshelfHints": [
+            "PISTA: La única forma de alcanzar el alma.",
+            "PISTA: Todos los enfoques la utilizan.",
+            "PISTA: En psicoanálisis lo identificamos en lapsus y juegos de lenguaje"
+          ]
+        },
+        {
+          "object": "Mapa de Traslape",
+          "pistaLibrero": "REPORTE: La psicología comparte objetos de estudio con la filosofía, la antropología y la historia. ¿Qué concepto une a todas?",
+          "claveCIE": "SUJETO",
+          "discoveryYear": "SUJETO",
+          "longitudClave": 6,
+          "bookshelfHints": [
+            "PISTA: La filosofía estudia la conciencia y la existencia.",
+            "PISTA: La antropología estudia al ser humano en sociedad.",
+            "PISTA: La historia estudia la experiencia humana en el tiempo."
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "atomic",
+      "title": "Nivel 2: El Rasgo de la Duración",
+      "scenarios": [
+        {
+          "challenges": [
+            {
+              "prompt": "En la filosofía de Henri Bergson, ¿cómo se llama la experiencia subjetiva del tiempo, opuesta al tiempo mensurable?",
+              "targetValue": 7,
+              "items": [
+                {"name": "Duración", "val": 7, "shape": "statue", "color": "#3cbcfc"},
+                {"name": "Élan vital", "val": 12, "shape": "statue", "color": "#f8b800"},
+                {"name": "Intuición", "val": 3, "shape": "statue", "color": "#a80020"}
+              ]
+            }
+          ]
+        },
+        {
+          "challenges": [
+            {
+              "prompt": "Identifica el concepto de Merleau-Ponty que describe al cuerpo como centro de la experiencia perceptiva.",
+              "targetValue": 14,
+              "items": [
+                {"name": "Cuerpo vivido", "val": 14, "shape": "statue", "color": "#3cbcfc"},
+                {"name": "Conciencia intencional", "val": 9, "shape": "statue", "color": "#f8b800"},
+                {"name": "Ser en el mundo", "val": 22, "shape": "statue", "color": "#a80020"}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "art",
+      "title": "Nivel 3: La Galería de las Formas Simbólicas",
+      "scenarios": [
+        {
+          "targetStyle": "Cassirer",
+          "description": "Encuentra la obra de Ernst Cassirer que describe las formas simbólicas fundamentales de la cultura.",
+          "paintings": [
+            {"name": "Mito", "description": "Narrativas sagradas que organizan la experiencia del mundo.", "style": "Cassirer"},
+            {"name": "Rito", "description": "Práctica cotidiana como resistencia según De Certeau.", "style": "DeCerteau"},
+            {"name": "Mentalidad", "description": "Estructura de pensamiento colectivo según Le Goff.", "style": "LeGoff"}
+          ]
+        },
+        {
+          "targetStyle": "Cassirer2",
+          "description": "Selecciona la forma simbólica que corresponde al lenguaje y el arte según Cassirer.",
+          "paintings": [
+            {"name": "Ciencia", "description": "Sistema conceptual abstracto.", "style": "Cassirer2"},
+            {"name": "Re-enactment", "description": "Recreación del pensamiento pasado.", "style": "Collingwood"},
+            {"name": "Pregnancia", "description": "Principio gestáltico de buena forma.", "style": "Arnheim"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "tower",
+      "title": "Nivel 4: La Torre de las Mentalidades",
+      "scenarios": [
+        {
+          "description": "Ordena los conceptos de Le Goff y De Certeau según su nivel de análisis (de lo más colectivo a lo más individual).",
+          "items": [
+            {"id": 1, "name": "Mentalidad (Le Goff)", "color": "#3cbcfc", "size": 4},
+            {"id": 2, "name": "Imaginario social (Le Goff)", "color": "#f8b800", "size": 3},
+            {"id": 3, "name": "Práctica cotidiana (De Certeau)", "color": "#00a800", "size": 2},
+            {"id": 4, "name": "Operación historiográfica (De Certeau)", "color": "#a80020", "size": 1}
+          ]
+        },
+        {
+          "description": "Ordena los pasos del método de Collingwood para el re-enactment.",
+          "items": [
+            {"id": 1, "name": "Contextualizar la época", "color": "#3cbcfc", "size": 3},
+            {"id": 2, "name": "Identificar el pensamiento del agente", "color": "#f8b800", "size": 2},
+            {"id": 3, "name": "Recrear el pensamiento en la mente presente", "color": "#a80020", "size": 1}
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "snakes",
+      "title": "Nivel 5: Cleaver vs Baron",
+      "scenarios": [
+        {
+          "description": "Encuentra la equivalencia correcta entre los conceptos de la psicología histórica y los niveles de análisis.",
+          "roomA": [
+            {"name": "Mentalidad colectiva", "desc": "Es el objeto de estudio de Le Goff.", "correct": true},
+            {"name": "Re-enactment", "desc": "Es el método de De Certeau.", "correct": false},
+            {"name": "Práctica cotidiana", "desc": "Es el enfoque de Collingwood.", "correct": false}
+          ],
+          "roomB": [
+            {"name": "Operación historiográfica", "desc": "Es la construcción social del conocimiento histórico.", "correct": true},
+            {"name": "Duración", "desc": "Es el concepto central de Cassirer.", "correct": false},
+            {"name": "Experiencia estética", "desc": "Es el tema de Arnheim.", "correct": false}
+          ]
+        },
+        {
+          "description": "Relaciona cada autor con su concepto clave.",
+          "roomA": [
+            {"name": "Jacques Le Goff", "desc": "Escribió 'Pensar la historia' y acuñó el término 'mentalidad'.", "correct": true},
+            {"name": "Michel de Certeau", "desc": "Desarrolló la teoría de la 'pregnancia' visual.", "correct": false},
+            {"name": "R.G. Collingwood", "desc": "Escribió 'El arte como experiencia'.", "correct": false}
+          ],
+          "roomB": [
+            {"name": "John Dewey", "desc": "Propuso el concepto de 'experiencia estética'.", "correct": true},
+            {"name": "Rudolf Arnheim", "desc": "Escribió 'La escritura de la historia'.", "correct": false},
+            {"name": "Ernst Cassirer", "desc": "Escribió 'El problema del conocimiento' sobre las formas simbólicas.", "correct": true}
+          ]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "bridge",
+      "title": "Nivel 6: El Puente de la Historicidad",
+      "scenarios": [
+        {
+          "questions": [
+            {"prompt": "¿La historia de las mentalidades estudia las emociones y creencias colectivas a través del tiempo?", "correct": "V"},
+            {"prompt": "¿Según De Certeau, la historia es una copia fiel del pasado sin mediación del presente?", "correct": "F"},
+            {"prompt": "¿El re-enactment de Collingwood consiste en revivir el pensamiento de los agentes históricos?", "correct": "V"}
+          ]
+        },
+        {
+          "questions": [
+            {"prompt": "¿Dewey considera que la experiencia estética solo ocurre en museos y galerías?", "correct": "F"},
+            {"prompt": "¿Arnheim afirma que la percepción visual es una actividad pasiva de registro?", "correct": "F"},
+            {"prompt": "¿Cassirer define la cultura como un sistema de formas simbólicas?", "correct": "V"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "dragon",
+      "title": "Nivel 7: El Guardián de la Experiencia",
+      "scenarios": [
+        {
+          "questions": [
+            {
+              "question": "Según John Dewey, ¿qué distingue a una experiencia estética de una experiencia ordinaria?",
+              "options": ["Su belleza objetiva", "Su carácter de totalidad, intensidad y consumación", "Su duración en el tiempo"],
+              "correct": 1
+            },
+            {
+              "question": "¿Qué concepto de Arnheim describe la tendencia a percibir la forma más simple y estable?",
+              "options": ["Pregnancia", "Figura-fondo", "Peso visual"],
+              "correct": 0
+            },
+            {
+              "question": "¿Cuál es la principal aplicación de la psicología estética en el ámbito clínico?",
+              "options": ["Arteterapia y análisis de dibujos proyectivos", "Farmacoterapia", "Terapia cognitivo-conductual exclusiva"],
+              "correct": 0
+            }
+          ]
+        },
+        {
+          "questions": [
+            {
+              "question": "¿Qué autor propuso que el arte es una forma de 'pensamiento visual'?",
+              "options": ["John Dewey", "Rudolf Arnheim", "Ernst Cassirer"],
+              "correct": 1
+            },
+            {
+              "question": "¿Cuál es el concepto central de la antropología simbólica de Cassirer?",
+              "options": ["Formas simbólicas (mito, lenguaje, arte, ciencia)", "Arquetipos", "Estructuras inconscientes"],
+              "correct": 0
+            },
+            {
+              "question": "En la historia de las mentalidades, ¿qué analiza Le Goff?",
+              "options": ["Las batallas y reyes", "Las representaciones colectivas y los imaginarios sociales", "Los cambios climáticos"],
+              "correct": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "tennis",
+      "title": "Nivel 8: Duelo Transdisciplinario",
+      "scenarios": [
+        {
+          "questions": [
+            {
+              "question": "¿Qué concepto de Merleau-Ponty se relaciona con la percepción activa del mundo?",
+              "options": ["Cuerpo vivido", "Duración", "Pregnancia"],
+              "correct": 0
+            },
+            {
+              "question": "¿Cuál de los siguientes es un ejemplo de práctica cotidiana según De Certeau?",
+              "options": ["Firmar un tratado de paz", "Caminar por la ciudad sin un mapa", "Declarar una guerra"],
+              "correct": 1
+            },
+            {
+              "question": "¿Qué evalúa la subescala de 'Prueba de realidad' en el contexto psicométrico (relación con transdisciplina)?",
+              "options": ["La capacidad de distinguir la fantasía de la realidad", "La empatía", "La asertividad"],
+              "correct": 0
+            }
+          ]
+        },
+        {
+          "questions": [
+            {
+              "question": "¿Qué relación plantea la transdisciplina entre psicología e historia?",
+              "options": ["La psicología debe ignorar el pasado", "Los procesos psicológicos están históricamente condicionados", "La historia es irrelevante para la mente"],
+              "correct": 1
+            },
+            {
+              "question": "Según Bergson, ¿la duración se mide con relojes?",
+              "options": ["Sí, es tiempo cuantificable", "No, es tiempo cualitativo y subjetivo", "Solo en la física"],
+              "correct": 1
+            },
+            {
+              "question": "¿Qué emoción cualifica la experiencia estética según Dewey?",
+              "options": ["Una emoción que unifica toda la vivencia", "La ausencia de emoción", "Solo la alegría"],
+              "correct": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "maze",
+      "title": "Nivel 9: Escape Transdisciplinario",
+      "scenarios": [
+        {
+          "questions": [
+            {
+              "prompt": "¿La psicología transdisciplinaria sostiene que los fenómenos psicológicos pueden comprenderse plenamente desde una sola disciplina?",
+              "correct": "F"
+            },
+            {
+              "prompt": "¿Arnheim demostró que la percepción visual es una forma de pensamiento activo?",
+              "correct": "V"
+            }
+          ]
+        },
+        {
+          "questions": [
+            {"prompt": "¿El concepto de 'consumación' en Dewey se refiere al cierre satisfactorio de una experiencia?", "correct": "V"},
+            {"prompt": "¿La historia de las mentalidades estudia únicamente las condiciones económicas?", "correct": "F"}
+          ]
+        }
+      ]
+    }
+  ]
+}

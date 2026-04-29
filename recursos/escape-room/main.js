@@ -384,6 +384,8 @@ window.addEventListener('load', () => {
     document.getElementById('psicometriaBtn').onclick = () => loadRemoteJSON('psicometria.json');
     const psicopatoBtn = document.getElementById('psicopatologiaBtn');
     if (psicopatoBtn) psicopatoBtn.onclick = () => loadRemoteJSON('psicopatologia.json');
+    const transBtn = document.getElementById('transdisciplinaBtn');
+    if (transBtn) transBtn.onclick = () => loadRemoteJSON('transdisciplina.json');
 
     // Mantener compatibilidad con input de archivo local
     jsonInput.addEventListener('change', function(e) {
@@ -625,7 +627,7 @@ function handleKeyboardInput(e) {
         const input = document.getElementById('hidden-mobile-input');
         if (input) input.value = state.currentInput;
         actualizarDialogoInput();
-    } else if (e.key.length === 1 && e.key !== " " && e.key.toLowerCase() !== 'p' && state.currentInput.length < (currentLevelData.longitudClave || 4)) {
+    } else if (e.key.length === 1 && e.key !== " " && !e.altKey && state.currentInput.length < (currentLevelData.longitudClave || 4)) {
         state.currentInput += e.key.toUpperCase();
         const input = document.getElementById('hidden-mobile-input');
         if (input) input.value = state.currentInput;
