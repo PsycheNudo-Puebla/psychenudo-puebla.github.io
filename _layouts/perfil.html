@@ -31,10 +31,10 @@ layout: default
                 </div>
             </div>
             {% if page.external_url %}
-            <a href="{{ page.external_url }}" class="boton perfil-boton">Ver trayectoria completa</a>
+            <a href="{{ page.external_url }}" class="boton perfil-boton" target="_blank" rel="noopener noreferrer">Ver LinkedIn</a>
             {% endif %}
             {% if page.url_personal %}
-            <a href="{{ page.url_personal | relative_url }}" class="boton perfil-boton">Ver sitio personal</a>
+            <a href="{{ page.url_personal | relative_url }}" class="boton perfil-boton">Visitar Sitio Personal</a>
             {% endif %}
         </aside>
     </div>
