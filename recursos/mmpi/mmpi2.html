@@ -934,6 +934,9 @@
         <p style="font-size:0.85em; color:var(--text-light); margin-top:5px;">
             Fecha y hora de aplicación: <strong id="appDateTime"></strong>
         </p>
+        <p style="font-size:0.85em; color:var(--text-light); margin-top:5px;">
+            Cambios de pestaña/ventana detectados: <strong id="switchCount">0</strong>
+        </p>
     </div>
 
     <!-- MODE SELECTION -->
@@ -1491,6 +1494,7 @@ let currentCaseIndex = { case: 0, profile: 0 };
 let userAnswers = { case: {}, profile: {} };
 let evaluated = { case: false, profile: false };
 let currentMode = null;
+let navigationSwitches = 0;
 let applicationDate = new Date();
 
 // ============================================================
@@ -1502,6 +1506,32 @@ function init() {
     document.getElementById('appDateTime').textContent = now.toLocaleString('es-ES', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
         hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+
+    // Cargar datos persistentes de localStorage
+    navigationSwitches = parseInt(localStorage.getItem('mmpi2_switches')) || 0;
+    document.getElementById('switchCount').textContent = navigationSwitches;
+    
+    const savedName = localStorage.getItem('mmpi2_name');
+    const savedGroup = localStorage.getItem('mmpi2_group');
+    if (savedName) document.getElementById('studentName').value = savedName;
+    if (savedGroup) document.getElementById('studentGroup').value = savedGroup;
+
+    // Escuchar cambios en los campos de texto para guardarlos
+    document.getElementById('studentName').addEventListener('input', (e) => {
+        localStorage.setItem('mmpi2_name', e.target.value);
+    });
+    document.getElementById('studentGroup').addEventListener('input', (e) => {
+        localStorage.setItem('mmpi2_group', e.target.value);
+    });
+
+    // Track visibility changes
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'hidden') {
+            navigationSwitches++;
+            localStorage.setItem('mmpi2_switches', navigationSwitches);
+            document.getElementById('switchCount').textContent = navigationSwitches;
+        }
     });
 }
 
@@ -1837,6 +1867,8 @@ function evaluateAnswers(type) {
 // RESET
 // ============================================================
 function resetExercise(type) {
+    if (!confirm('¿Estás seguro de que deseas reiniciar el ejercicio? Las respuestas actuales se borrarán.')) return;
+    
     evaluated[type] = false;
     userAnswers[type] = {};
     currentCaseIndex[type] = 0;
