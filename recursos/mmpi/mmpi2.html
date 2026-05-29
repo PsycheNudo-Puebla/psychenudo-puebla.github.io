@@ -1495,6 +1495,7 @@ let userAnswers = { case: {}, profile: {} };
 let evaluated = { case: false, profile: false };
 let currentMode = null;
 let navigationSwitches = 0;
+let lastStateHidden = false;
 let applicationDate = new Date();
 
 // ============================================================
@@ -1508,7 +1509,7 @@ function init() {
         hour: '2-digit', minute: '2-digit', second: '2-digit'
     });
 
-    // Cargar datos persistentes de localStorage
+    // Cargar persistencia (Compatible con iOS/macOS Safari)
     navigationSwitches = parseInt(localStorage.getItem('mmpi2_switches')) || 0;
     document.getElementById('switchCount').textContent = navigationSwitches;
     
@@ -1517,22 +1518,36 @@ function init() {
     if (savedName) document.getElementById('studentName').value = savedName;
     if (savedGroup) document.getElementById('studentGroup').value = savedGroup;
 
-    // Escuchar cambios en los campos de texto para guardarlos
-    document.getElementById('studentName').addEventListener('input', (e) => {
-        localStorage.setItem('mmpi2_name', e.target.value);
-    });
-    document.getElementById('studentGroup').addEventListener('input', (e) => {
-        localStorage.setItem('mmpi2_group', e.target.value);
-    });
+    // Guardado preventivo de datos del alumno
+    document.getElementById('studentName').addEventListener('input', (e) => localStorage.setItem('mmpi2_name', e.target.value));
+    document.getElementById('studentGroup').addEventListener('input', (e) => localStorage.setItem('mmpi2_group', e.target.value));
 
-    // Track visibility changes
-    document.addEventListener('visibilitychange', function() {
-        if (document.visibilityState === 'hidden') {
+    // Lógica Anti-Trampa Reforzada (Diferencia scroll de cambio de app)
+    const registerSwitch = () => {
+        if (!lastStateHidden) {
+            lastStateHidden = true;
             navigationSwitches++;
             localStorage.setItem('mmpi2_switches', navigationSwitches);
             document.getElementById('switchCount').textContent = navigationSwitches;
         }
+    };
+
+    const resetState = () => { lastStateHidden = false; };
+
+    // visibilitychange es ideal para iOS (cambio de app)
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') registerSwitch();
+        else resetState();
     });
+
+    // blur/focus con pequeño retraso para evitar falsos positivos en gestos de sistema
+    window.addEventListener('blur', () => {
+        // Esperamos 100ms para confirmar que no fue un micro-tiron del sistema
+        setTimeout(() => {
+            if (!document.hasFocus()) registerSwitch();
+        }, 100);
+    });
+    window.addEventListener('focus', resetState);
 }
 
 
@@ -1867,7 +1882,7 @@ function evaluateAnswers(type) {
 // RESET
 // ============================================================
 function resetExercise(type) {
-    if (!confirm('¿Estás seguro de que deseas reiniciar el ejercicio? Las respuestas actuales se borrarán.')) return;
+    if (!confirm('¿Deseas reiniciar el ejercicio? Se borrarán tus respuestas actuales.')) return;
     
     evaluated[type] = false;
     userAnswers[type] = {};
@@ -1893,6 +1908,11 @@ function resetExercise(type) {
 // ============================================================
 function exportPDF(type) {
     // Add PDF header info
+    // Evaluación automática antes de exportar
+    if (!evaluated[type]) {
+        evaluateAnswers(type);
+    }
+
     const studentName = document.getElementById('studentName').value || 'No especificado';
     const studentGroup = document.getElementById('studentGroup').value || 'No especificado';
     
