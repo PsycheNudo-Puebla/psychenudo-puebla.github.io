@@ -1,0 +1,2043 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicio Clínico MMPI-2</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --primary-light: #34495e;
+            --accent: #3498db;
+            --accent-hover: #2980b9;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --warning: #f39c12;
+            --bg: #f0f2f5;
+            --card: #ffffff;
+            --text: #2c3e50;
+            --text-light: #7f8c8d;
+            --border: #dfe6e9;
+            --shadow: 0 4px 15px rgba(0,0,0,0.08);
+            --shadow-hover: 0 8px 25px rgba(0,0,0,0.12);
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* HEADER */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        header h1 {
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            opacity: 0.85;
+            font-size: 1.05em;
+        }
+
+        .student-info {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 25px 30px;
+            margin: 25px auto;
+            max-width: 600px;
+            box-shadow: var(--shadow);
+        }
+
+        .student-info h3 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-size: 1.1em;
+        }
+
+        .student-info input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .student-info input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .security-banner {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: #fff7e6;
+            border: 1px solid #f5c26b;
+            color: #8a5a00;
+            font-size: 0.9em;
+        }
+
+        .compat-warning {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: #eef6ff;
+            border: 1px solid #8eb8ff;
+            color: #24509b;
+            font-size: 0.9em;
+        }
+
+        /* MODE SELECTOR */
+        .mode-selector {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 18px 35px;
+            border: 3px solid var(--accent);
+            background: white;
+            color: var(--accent);
+            border-radius: var(--radius);
+            font-size: 1.05em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            max-width: 320px;
+            text-align: center;
+        }
+
+        .mode-btn:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .mode-btn.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .mode-btn .mode-icon {
+            font-size: 1.8em;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .mode-btn .mode-desc {
+            font-size: 0.8em;
+            font-weight: 400;
+            opacity: 0.85;
+            margin-top: 5px;
+        }
+
+        /* EXERCISE AREA */
+        .exercise-area {
+            display: none;
+        }
+
+        .exercise-area.active {
+            display: block;
+        }
+
+        .case-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            overflow: hidden;
+            transition: box-shadow 0.3s;
+        }
+
+        .case-card:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        .case-header {
+            background: linear-gradient(135deg, var(--primary) 0%, #3d566e 100%);
+            color: white;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .case-header h3 {
+            font-size: 1.15em;
+        }
+
+        .case-number {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+        }
+
+        .case-body {
+            padding: 25px;
+        }
+
+        .case-description {
+            background: #f8f9fa;
+            border-left: 4px solid var(--accent);
+            padding: 18px 20px;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.98em;
+            line-height: 1.7;
+        }
+
+        .case-question {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-size: 1em;
+        }
+
+        /* SCALE OPTIONS */
+        .scales-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .scale-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .scale-option:hover {
+            border-color: var(--accent);
+            background: #f0f7ff;
+        }
+
+        .scale-option.selected {
+            border-color: var(--accent);
+            background: #e8f4fd;
+        }
+
+        .scale-option.correct {
+            border-color: var(--success);
+            background: #e8f8ef;
+        }
+
+        .scale-option.incorrect {
+            border-color: var(--error);
+            background: #fde8e8;
+        }
+
+        .scale-option input[type="checkbox"] {
+            display: none;
+        }
+
+        .scale-check {
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--border);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .scale-option.selected .scale-check {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .scale-option.selected .scale-check::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .scale-option.correct .scale-check {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .scale-option.correct .scale-check::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+        }
+
+        .scale-option.incorrect .scale-check {
+            background: var(--error);
+            border-color: var(--error);
+        }
+
+        .scale-option.incorrect .scale-check::after {
+            content: '✗';
+            color: white;
+            font-weight: bold;
+        }
+
+        .scale-label {
+            font-weight: 500;
+        }
+
+        .scale-code {
+            font-size: 0.8em;
+            color: var(--text-light);
+            background: #eee;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        /* PROFILE BAR CHART */
+        .profile-chart {
+            margin: 20px 0;
+        }
+
+        .profile-bar-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .profile-bar-label {
+            width: 120px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-align: right;
+            padding-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .profile-bar-track {
+            flex: 1;
+            height: 28px;
+            background: #eee;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .profile-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.8s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            color: white;
+            font-size: 0.75em;
+            font-weight: 700;
+            min-width: 35px;
+        }
+
+        .profile-bar-fill.normal {
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+        }
+
+        .profile-bar-fill.elevated {
+            background: linear-gradient(90deg, #e67e22, #f39c12);
+        }
+
+        .profile-bar-fill.clinical {
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+        }
+
+        .t-score-50 {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #333;
+            z-index: 1;
+        }
+
+        .t-score-50::after {
+            content: 'T=50';
+            position: absolute;
+            top: -18px;
+            left: -8px;
+            font-size: 0.65em;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .t-score-65 {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e74c3c;
+            z-index: 1;
+        }
+
+        .t-score-65::after {
+            content: 'T=65';
+            position: absolute;
+            top: -18px;
+            left: -8px;
+            font-size: 0.65em;
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        /* PROFILE OPTIONS */
+        .profile-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .profile-option {
+            padding: 16px 20px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .profile-option:hover {
+            border-color: var(--accent);
+            background: #f0f7ff;
+        }
+
+        .profile-option.selected {
+            border-color: var(--accent);
+            background: #e8f4fd;
+        }
+
+        .profile-option.correct {
+            border-color: var(--success);
+            background: #e8f8ef;
+        }
+
+        .profile-option.incorrect {
+            border-color: var(--error);
+            background: #fde8e8;
+        }
+
+        .profile-option h4 {
+            margin-bottom: 6px;
+            color: var(--primary);
+        }
+
+        .profile-option p {
+            font-size: 0.9em;
+            color: var(--text-light);
+            line-height: 1.5;
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #219a52;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-outline:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .actions-bar {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        /* RESULTS */
+        .results-panel {
+            display: none;
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-top: 25px;
+        }
+
+        .results-panel.active {
+            display: block;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 2.2em;
+            font-weight: 800;
+            color: white;
+        }
+
+        .score-circle.excellent {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        .score-circle.good {
+            background: linear-gradient(135deg, #2980b9, #3498db);
+        }
+
+        .score-circle.regular {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .score-circle.poor {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .score-circle small {
+            font-size: 0.35em;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        .result-item {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-item.correct-item {
+            background: #e8f8ef;
+            border-left: 4px solid var(--success);
+        }
+
+        .result-item.incorrect-item {
+            background: #fde8e8;
+            border-left: 4px solid var(--error);
+        }
+
+        .result-item.partial-item {
+            background: #fef9e7;
+            border-left: 4px solid var(--warning);
+        }
+
+        .result-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            color: white;
+        }
+
+        .result-badge.badge-correct {
+            background: var(--success);
+        }
+
+        .result-badge.badge-incorrect {
+            background: var(--error);
+        }
+
+        .result-badge.badge-partial {
+            background: var(--warning);
+        }
+
+        /* EXPLANATION */
+        .explanation {
+            background: #f0f7ff;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .explanation strong {
+            color: var(--accent);
+        }
+
+        /* FEEDBACK */
+        .case-feedback {
+            display: none;
+            margin-top: 15px;
+        }
+
+        .case-feedback.active {
+            display: block;
+        }
+
+        /* PDF STYLES */
+        .pdf-header {
+            display: none;
+        }
+
+        /* PROGRESS */
+        .progress-bar {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 15px 25px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .progress-bar .progress-text {
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .progress-track {
+            flex: 1;
+            height: 10px;
+            background: #eee;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--success));
+            border-radius: 5px;
+            transition: width 0.5s;
+        }
+
+        /* NAVIGATION */
+        .case-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        /* TOOLTIP */
+        .info-tooltip {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            font-size: 0.75em;
+            font-weight: bold;
+            cursor: help;
+            margin-left: 5px;
+            position: relative;
+        }
+
+        .info-tooltip:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 400;
+            white-space: nowrap;
+            z-index: 100;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            header h1 {
+                font-size: 1.5em;
+            }
+
+            .mode-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .mode-btn {
+                max-width: 100%;
+                width: 100%;
+            }
+
+            .scales-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-bar-label {
+                width: 80px;
+                font-size: 0.75em;
+            }
+
+            .actions-bar {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* PRINT / PDF */
+        @media print {
+            body {
+                background: white;
+                font-size: 11pt;
+            }
+
+            header {
+                background: var(--primary) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .mode-selector, .actions-bar, .btn, .case-nav {
+                display: none !important;
+            }
+
+            .pdf-header {
+                display: block;
+                text-align: center;
+                margin-bottom: 20px;
+                padding-bottom: 15px;
+                border-bottom: 2px solid #333;
+            }
+
+            .case-card {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ddd;
+                margin-bottom: 15px;
+            }
+
+            .results-panel {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+
+            .scale-option, .profile-option {
+                border: 1px solid #ccc;
+            }
+
+            .progress-bar {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+
+            .profile-bar-fill {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .score-circle {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .case-card {
+            animation: fadeIn 0.4s ease;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Tab indicator */
+        .tab-indicator {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .tab-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--border);
+            transition: all 0.3s;
+        }
+
+        .tab-dot.active {
+            background: var(--accent);
+            transform: scale(1.3);
+        }
+
+        .tab-dot.completed {
+            background: var(--success);
+        }
+
+        .tab-dot.incorrect-dot {
+            background: var(--error);
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 15px 0;
+            font-size: 0.85em;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        /* Scale reference table */
+        .scale-ref {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px 25px;
+            margin: 20px 0;
+            box-shadow: var(--shadow);
+        }
+
+        .scale-ref h3 {
+            margin-bottom: 12px;
+            color: var(--primary);
+        }
+
+        .scale-ref table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        .scale-ref th, .scale-ref td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .scale-ref th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .scale-ref tr:hover {
+            background: #f0f7ff;
+        }
+
+        .toggle-ref {
+            cursor: pointer;
+            color: var(--accent);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <h1>🧠 Ejercicio de Interpretación MMPI-2</h1>
+        <p>Actividad práctica de análisis de perfiles clínicos</p>
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- STUDENT INFO -->
+    <div class="student-info" id="studentInfo">
+        <h3>📋 Datos del Estudiante</h3>
+        <input type="text" id="studentName" placeholder="Nombre completo" required>
+        <input type="text" id="studentGroup" placeholder="Grupo / Sección">
+        <p style="font-size:0.85em; color:var(--text-light); margin-top:5px;">
+            Fecha y hora de aplicación: <strong id="appDateTime"></strong>
+        </p>
+        <div class="security-banner" id="securityBanner" aria-live="polite">
+            Control de cambios de pestaña/ventana: <strong id="securityCounter">0</strong>
+        </div>
+        <div class="compat-warning" id="compatWarning" style="display:none;">
+            Si la abres como archivo local, algunos navegadores móviles pueden tener problemas. Para mejor compatibilidad, usa GitHub Pages o un servidor HTTP.
+        </div>
+    </div>
+
+    <!-- MODE SELECTION -->
+    <div id="modeSelection">
+        <h2 style="text-align:center; margin:25px 0 10px; color:var(--primary);">Selecciona el tipo de ejercicio</h2>
+        <div class="mode-selector">
+            <button class="mode-btn" onclick="startMode('caseToScale')">
+                <span class="mode-icon">📝</span>
+                <strong>Del Caso a las Escalas</strong>
+                <span class="mode-desc">Lee el perfil del paciente y selecciona las escalas elevadas</span>
+            </button>
+            <button class="mode-btn" onclick="startMode('scaleToProfile')">
+                <span class="mode-icon">📊</span>
+                <strong>De las Escalas al Perfil</strong>
+                <span class="mode-desc">Observa los puntajes T y selecciona el perfil clínico que corresponde</span>
+            </button>
+        </div>
+
+        <!-- SCALE REFERENCE -->
+        <div class="scale-ref">
+            <span class="toggle-ref" onclick="toggleScaleRef()">
+                📖 Ver tabla de referencia de escalas MMPI-2 ▸
+            </span>
+            <div id="scaleRefTable" class="hidden" style="margin-top:15px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Escala</th>
+                            <th>Descripción breve</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>1 (Hs)</strong></td><td>Hipochondriasis</td><td>Preocupación excesiva por la salud y síntomas somáticos</td></tr>
+                        <tr><td><strong>2 (D)</strong></td><td>Depresión</td><td>Desánimo, pesimismo, lentitud, falta de energía</td></tr>
+                        <tr><td><strong>3 (Hy)</strong></td><td>Histeria</td><td>Síntomas somáticos como respuesta al estrés, negación</td></tr>
+                        <tr><td><strong>4 (Pd)</strong></td><td>Desviación Psicopática</td><td>Impulsividad, conflicto con normas, dificultades sociales</td></tr>
+                        <tr><td><strong>5 (Mf)</strong></td><td>Masculinidad-Feminidad</td><td>Intereses y roles de género (interpretación contextual)</td></tr>
+                        <tr><td><strong>6 (Pa)</strong></td><td>Paranoia</td><td>Sospecha, rigidez, ideas de referencia, resentimiento</td></tr>
+                        <tr><td><strong>7 (Pt)</strong></td><td>Psicastenia</td><td>Ansiedad, obsesiones, compulsiones, inseguridad</td></tr>
+                        <tr><td><strong>8 (Sc)</strong></td><td>Esquizofrenia</td><td>Pensamiento desorganizado, aislamiento, experiencias inusuales</td></tr>
+                        <tr><td><strong>9 (Ma)</strong></td><td>Hipomanía</td><td>Actividad excesiva, euforia, irritabilidad, impulsividad</td></tr>
+                        <tr><td><strong>0 (Si)</strong></td><td>Introversión Social</td><td>Retraimiento social, timidez, preferencia por la soledad</td></tr>
+                    </tbody>
+                </table>
+                <p style="font-size:0.8em; color:var(--text-light); margin-top:10px;">
+                    <strong>Escalas de Validez:</strong> L (Mentira) — F (Frecuencia/Infrecuencia) — K (Corrección/Defensividad)
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- EXERCISE AREA: CASE TO SCALE -->
+    <div class="exercise-area" id="mode-caseToScale">
+        <div class="progress-bar">
+            <span class="progress-text" id="progressText-case">Caso 1 de 6</span>
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill-case" style="width: 0%"></div>
+            </div>
+        </div>
+        <div id="casesContainer-case"></div>
+        <div class="case-nav">
+            <button class="btn btn-outline" id="prevBtn-case" onclick="navigateCase('case', -1)">◀ Anterior</button>
+            <span id="caseIndicator-case" style="font-weight:600; color:var(--text-light);"></span>
+            <button class="btn btn-primary" id="nextBtn-case" onclick="navigateCase('case', 1)">Siguiente ▶</button>
+        </div>
+        <div class="actions-bar">
+            <button class="btn btn-success" onclick="evaluateAnswers('case')">✅ Evaluar Respuestas</button>
+            <button class="btn btn-warning" onclick="resetExercise('case')">🔄 Reiniciar</button>
+            <button class="btn btn-primary" onclick="exportPDF('case')">📄 Exportar PDF</button>
+        </div>
+        <div class="results-panel" id="results-case"></div>
+    </div>
+
+    <!-- EXERCISE AREA: SCALE TO PROFILE -->
+    <div class="exercise-area" id="mode-scaleToProfile">
+        <div class="progress-bar">
+            <span class="progress-text" id="progressText-profile">Perfil 1 de 6</span>
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill-profile" style="width: 0%"></div>
+            </div>
+        </div>
+        <div id="casesContainer-profile"></div>
+        <div class="case-nav">
+            <button class="btn btn-outline" id="prevBtn-profile" onclick="navigateCase('profile', -1)">◀ Anterior</button>
+            <span id="caseIndicator-profile" style="font-weight:600; color:var(--text-light);"></span>
+            <button class="btn btn-primary" id="nextBtn-profile" onclick="navigateCase('profile', 1)">Siguiente ▶</button>
+        </div>
+        <div class="actions-bar">
+            <button class="btn btn-success" onclick="evaluateAnswers('profile')">✅ Evaluar Respuestas</button>
+            <button class="btn btn-warning" onclick="resetExercise('profile')">🔄 Reiniciar</button>
+            <button class="btn btn-primary" onclick="exportPDF('profile')">📄 Exportar PDF</button>
+        </div>
+        <div class="results-panel" id="results-profile"></div>
+    </div>
+
+</div>
+
+<script>
+// ============================================================
+// DATA: CASES FOR "CASE TO SCALE" MODE
+// ============================================================
+const caseToScaleCases = [
+    {
+        id: 1,
+        title: "Caso Clínico A",
+        description: `María es una mujer de 42 años que acude a consulta por insistencia de su esposo. 
+        Relata que desde hace aproximadamente 8 meses se siente "vacía por dentro". Ha perdido el interés 
+        en actividades que antes disfrutaba, como pintar y salir con amigas. Duermemal, se despierta varias 
+        veces durante la noche y tiene dificultad para conciliar el sueño. Ha bajado 5 kg de peso sin 
+        intentarlo. Se describe a sí misma como "una carga para todos" y menciona que "nada tiene sentido". 
+        Llora con frecuencia sin motivo aparente. Su concentración ha disminuido notablemente, lo que le 
+        ha causado problemas en su trabajo como contadora. Niega ideas de muerte activa, pero dice que 
+        "a veces desearía no despertar".`,
+        question: "¿Cuáles escalas clínicas del MMPI-2 esperas encontrar elevadas (T ≥ 65) en este perfil?",
+        correctScales: [2], // D - Depresión
+        allScales: [
+            {code: 1, name: "Hipochondriasis (Hs)"},
+            {code: 2, name: "Depresión (D)"},
+            {code: 3, name: "Histeria (Hy)"},
+            {code: 4, name: "Desv. Psicopática (Pd)"},
+            {code: 5, name: "Masc.-Feminidad (Mf)"},
+            {code: 6, name: "Paranoia (Pa)"},
+            {code: 7, name: "Psicastenia (Pt)"},
+            {code: 8, name: "Esquizofrenia (Sc)"},
+            {code: 9, name: "Hipomanía (Ma)"},
+            {code: 0, name: "Introversión Social (Si)"}
+        ],
+        explanation: `El perfil de María es clásico de un cuadro depresivo mayor. La escala <strong>2 (Depresión)</strong> 
+        será la más elevada, reflejando desánimo, pesimismo, alteraciones del sueño y del apetito, sentimientos de 
+        inutilidad y llanto frecuente. Posiblemente también se observe elevación moderada en <strong>7 (Psicastenia)</strong> 
+        por la ansiedad asociada y en <strong>0 (Introversión Social)</strong> por el retraimiento progresivo. 
+        La elevación aislada de la escala 2 con este patrón clínico sugiere un perfil depresivo "puro".`
+    },
+    {
+        id: 2,
+        title: "Caso Clínico B",
+        description: `Carlos, de 35 años, llega a la consulta referido por su abogado. Afirma que "todos 
+        están en su contra" y que sus compañeros de trabajo "conspiran para sacarlo". Describe que ha 
+        notado "miradas cómplices" entre sus colegas y que alguien ha estado "revisando sus documentos 
+        personales". Es extremadamente reservado, no confía en nadie, ni siquiera en su familia. Se muestra 
+        rígido en sus opiniones, discute agresivamente si se le contradice y guarda rencor por ofensas 
+        percibidas, incluso de hace años. Niega cualquier problema personal y sostiene que "el problema 
+        es la gente que lo rodea". Su discurso es coherente pero cargado de suspicacia.`,
+        question: "¿Cuáles escalas clínicas del MMPI-2 esperas encontrar elevadas (T ≥ 65) en este perfil?",
+        correctScales: [6], // Pa - Paranoia
+        allScales: [
+            {code: 1, name: "Hipochondriasis (Hs)"},
+            {code: 2, name: "Depresión (D)"},
+            {code: 3, name: "Histeria (Hy)"},
+            {code: 4, name: "Desv. Psicopática (Pd)"},
+            {code: 5, name: "Masc.-Feminidad (Mf)"},
+            {code: 6, name: "Paranoia (Pa)"},
+            {code: 7, name: "Psicastenia (Pt)"},
+            {code: 8, name: "Esquizofrenia (Sc)"},
+            {code: 9, name: "Hipomanía (Ma)"},
+            {code: 0, name: "Introversión Social (Si)"}
+        ],
+        explanation: `El cuadro de Carlos es altamente sugestivo de rasgos paranoides. La escala <strong>6 (Paranoia)</strong> 
+        será significativamente elevada, reflejando suspicacia, ideas de referencia, rigidez, resentimiento 
+        y proyección. Podría haber elevación moderada en <strong>8 (Esquizofrenia)</strong> si el pensamiento 
+        delirante es más marcado, y en <strong>4 (Desviación Psicopática)</strong> por la hostilidad y la 
+        dificultad para aceptar responsabilidad. La combinación 6-8-4 sugiere un perfil paranoide con 
+        rasgos de desconfianza y resentimiento.`
+    },
+    {
+        id: 3,
+        title: "Caso Clínico C",
+        description: `Roberto, de 28 años, es traído a urgencias psiquiátricas por su familia. En las últimas 
+        dos semanas ha dormido apenas 2-3 horas por noche pero se muestra "lleno de energía". Ha gastado 
+        más de $50,000 en compras impulsivas, comenzó tres proyectos de negocio simultáneamente y envía 
+        mensajes a todo su contacto de WhatsApp a las 3 de la madrugada. Habla rápido, salta de un tema 
+        a otro y se irrita cuando alguien intenta calmarlo. Dice sentirse "mejor que nunca" y que por 
+        fin "entiende cómo funciona el mundo". Ha tenido conductas sexuales de riesgo con desconocidos. 
+        Su familia reporta que episodios similares han ocurrido antes, intercalados con períodos de 
+        normalidad.`,
+        question: "¿Cuáles escalas clínicas del MMPI-2 esperas encontrar elevadas (T ≥ 65) en este perfil?",
+        correctScales: [9], // Ma - Hipomanía
+        allScales: [
+            {code: 1, name: "Hipochondriasis (Hs)"},
+            {code: 2, name: "Depresión (D)"},
+            {code: 3, name: "Histeria (Hy)"},
+            {code: 4, name: "Desv. Psicopática (Pd)"},
+            {code: 5, name: "Masc.-Feminidad (Mf)"},
+            {code: 6, name: "Paranoia (Pa)"},
+            {code: 7, name: "Psicastenia (Pt)"},
+            {code: 8, name: "Esquizofrenia (Sc)"},
+            {code: 9, name: "Hipomanía (Ma)"},
+            {code: 0, name: "Introversión Social (Si)"}
+        ],
+        explanation: `El cuadro de Roberto es un episodio maníaco clásico. La escala <strong>9 (Hipomanía)</strong> 
+        será muy elevada (posiblemente T > 80), reflejando hiperactividad, disminución de la necesidad de 
+        sueño, grandiosidad, impulsividad, taquilalia y desinhibición. Es posible que también se observe 
+        elevación en <strong>4 (Desviación Psicopática)</strong> por la impulsividad y conductas antisociales 
+        asociadas. Si hay características psicóticas (ideas delirantes de grandiosidad), la escala 
+        <strong>8 (Esquizofrenia)</strong> podría estar moderadamente elevada. El código 9-4 es frecuente 
+        en episodios maníacos.`
+    },
+    {
+        id: 4,
+        title: "Caso Clínico D",
+        description: `Laura, de 19 años, es referida por su médico de cabecera. En los últimos 6 meses 
+        ha tenido múltiples quejas físicas: dolores de cabeza frecuentes, mareos, dolor abdominal recurrente, 
+        fatiga extrema y sensación de "nudo en la garganta". Se han realizado numerosos estudios 
+        (resonancias, endoscopías, análisis de sangre) y todos han resultado normales. Laura insiste en 
+        que "algo grave debe tener" y visita diferentes especialistas. Sin embargo, llama la atención que 
+        cuando se le pregunta sobre problemas emocionales o conflictos familiares, responde con una 
+        sonrisa y dice "yo no tengo problemas, lo mío es físico". Recientemente, tras una discusión fuerte 
+        con su novio, perdió la sensibilidad en su brazo derecho por varias horas sin causa neurológica 
+        identificable.`,
+        question: "¿Cuáles escalas clínicas del MMPI-2 esperas encontrar elevadas (T ≥ 65) en este perfil?",
+        correctScales: [1, 3], // Hs + Hy - "V de conversión"
+        allScales: [
+            {code: 1, name: "Hipochondriasis (Hs)"},
+            {code: 2, name: "Depresión (D)"},
+            {code: 3, name: "Histeria (Hy)"},
+            {code: 4, name: "Desv. Psicopática (Pd)"},
+            {code: 5, name: "Masc.-Feminidad (Mf)"},
+            {code: 6, name: "Paranoia (Pa)"},
+            {code: 7, name: "Psicastenia (Pt)"},
+            {code: 8, name: "Esquizofrenia (Sc)"},
+            {code: 9, name: "Hipomanía (Ma)"},
+            {code: 0, name: "Introversión Social (Si)"}
+        ],
+        explanation: `El perfil de Laura muestra el clásico <strong>"pico en V de conversión"</strong>: las escalas 
+        <strong>1 (Hipochondriasis)</strong> y <strong>3 (Histeria)</strong> están elevadas, mientras que la 
+        escala <strong>2 (Depresión)</strong> se mantiene dentro de límites normales. Este patrón es característico 
+        de pacientes que somatizan el conflicto psicológico y lo niegan (mecanismo de conversión). La escala 1 
+        refleja la preocupación excesiva por síntomas físicos, la escala 3 refleja la tendencia a desarrollar 
+        síntomas somáticos como respuesta al estrés emocional, y la escala 2 normal indica que el paciente 
+        no reconoce conscientemente el malestar emocional. La escala K también suele estar elevada por la 
+        negación y defensividad.`
+    },
+    {
+        id: 5,
+        title: "Caso Clínico E",
+        description: `Andrés, de 22 años, vive con sus padres y apenas sale de su habitación. Desde hace 
+        aproximadamente un año, sus padres notaron que dejó de ver a sus amigos, abandonó la universidad 
+        y pasó la mayor parte del tiempo solo. Dice que "la gente no lo entiende" y que "prefiere estar 
+        solo porque las relaciones sociales lo agotan". No presenta quejas delirantes claras, pero su 
+        pensamiento a veces es vago y abstracto, y usa metáforas extrañas que son difíciles de seguir. 
+        Su afecto es plano, habla en un tono monótono y muestra poca reactividad emocional. Dice que a 
+        veces "siente presencias" en su habitación pero no está seguro si son reales. No tiene intereses 
+        especiales ni metas definidas para el futuro.`,
+        question: "¿Cuáles escalas clínicas del MMPI-2 esperas encontrar elevadas (T ≥ 65) en este perfil?",
+        correctScales: [8, 0], // Sc + Si
+        allScales: [
+            {code: 1, name: "Hipochondriasis (Hs)"},
+            {code: 2, name: "Depresión (D)"},
+            {code: 3, name: "Histeria (Hy)"},
+            {code: 4, name: "Desv. Psicopática (Pd)"},
+            {code: 5, name: "Masc.-Feminidad (Mf)"},
+            {code: 6, name: "Paranoia (Pa)"},
+            {code: 7, name: "Psicastenia (Pt)"},
+            {code: 8, name: "Esquizofrenia (Sc)"},
+            {code: 9, name: "Hipomanía (Ma)"},
+            {code: 0, name: "Introversión Social (Si)"}
+        ],
+        explanation: `El perfil de Andrés sugiere un proceso esquizofrénico o un trastorno del espectro 
+        esquizofrénico. La escala <strong>8 (Esquizofrenia)</strong> estará elevada, reflejando pensamiento 
+        desorganizado, aislamiento, experiencias perceptivas inusuales, afecto plano y dificultad para 
+        establecer contacto con la realidad. La escala <strong>0 (Introversión Social)</strong> también estará 
+        elevada, indicando retraimiento social severo, timidez extrema y preferencia por la soledad. 
+        El código 8-0 es muy frecuente en cuadros de esquizofrenia de tipo residual o en trastornos 
+        esquizotípicos. Si las experiencias perceptivas son más marcadas, la escala <strong>6 (Paranoia)</strong> 
+        podría estar moderadamente elevada.`
+    },
+    {
+        id: 6,
+        title: "Caso Clínico F",
+        description: `Diego, de 31 años, tiene un historial de conflictos legales y laborales. Ha sido 
+        despedido de cuatro trabajos en dos años por "insubordinación" y "falta de compromiso". Describe 
+        que "las reglas son para gente que no piensa" y que él "no se deja controlar". Ha tenido múltiples 
+        relaciones breves, abandona a sus parejas cuando "se aburre" y reconoce que "usa a la gente si 
+        le conviene". No muestra remorse por haber estafado a un amigo con dinero. Dice sentirse "encima 
+        del mundo" y que los demás "simplemente no están a su nivel". Tiene antecedentes de consumo de 
+        sustancias y conducción temeraria. Cuando se le confronta, responde con charme superficial pero 
+        sin verdadera reflexión.`,
+        question: "¿Cuáles escalas clínicas del MMPI-2 esperas encontrar elevadas (T ≥ 65) en este perfil?",
+        correctScales: [4], // Pd - Desviación Psicopática
+        allScales: [
+            {code: 1, name: "Hipochondriasis (Hs)"},
+            {code: 2, name: "Depresión (D)"},
+            {code: 3, name: "Histeria (Hy)"},
+            {code: 4, name: "Desv. Psicopática (Pd)"},
+            {code: 5, name: "Masc.-Feminidad (Mf)"},
+            {code: 6, name: "Paranoia (Pa)"},
+            {code: 7, name: "Psicastenia (Pt)"},
+            {code: 8, name: "Esquizofrenia (Sc)"},
+            {code: 9, name: "Hipomanía (Ma)"},
+            {code: 0, name: "Introversión Social (Si)"}
+        ],
+        explanation: `El perfil de Diego es característico de un trastorno antisocial de la personalidad. 
+        La escala <strong>4 (Desviación Psicopática)</strong> será muy elevada, reflejando conflicto con normas 
+        sociales, impulsividad, dificultad para establecer vínculos profundos, falta de remorse, 
+        superficialidad y manipulación. Posiblemente también se observe elevación en <strong>9 (Hipomanía)</strong> 
+        por la impulsividad y búsqueda de sensaciones. El código 4-9 es frecuente en perfiles antisociales. 
+        La escala K podría estar baja, indicando poca defensividad, o elevada si el paciente intenta 
+        presentarse de manera favorable.`
+    }
+];
+
+// ============================================================
+// DATA: PROFILES FOR "SCALE TO PROFILE" MODE
+// ============================================================
+const scaleToProfileCases = [
+    {
+        id: 1,
+        title: "Perfil de Puntajes A",
+        tScores: {
+            "1 (Hs)": 45,
+            "2 (D)": 78,
+            "3 (Hy)": 52,
+            "4 (Pd)": 55,
+            "5 (Mf)": 48,
+            "6 (Pa)": 50,
+            "7 (Pt)": 72,
+            "8 (Sc)": 58,
+            "9 (Ma)": 38,
+            "0 (Si)": 62
+        },
+        options: [
+            {
+                text: "Perfil depresivo con ansiedad asociada: Desánimo profundo, sentimientos de inutilidad, alteraciones del sueño, preocupación excesiva y ansiedad generalizada.",
+                correct: true
+            },
+            {
+                text: "Perfil paranoide con rasgos de hostilidad: Desconfianza generalizada, ideas de referencia, rigidez cognitiva y resentimiento hacia los demás.",
+                correct: false
+            },
+            {
+                text: "Perfil hipomaníaco con impulsividad: Hiperactividad, grandiosidad, disminución de la necesidad de sueño y conductas de riesgo.",
+                correct: false
+            },
+            {
+                text: "Perfil de conversión somática: Múltiples quejas físicas sin base orgánica, negación del conflicto psicológico y síntomas de conversión.",
+                correct: false
+            }
+        ],
+        explanation: `Los puntajes T muestran una elevación significativa en la escala <strong>2 (D = 78)</strong>, 
+        indicando depresión clínica. La escala <strong>7 (Pt = 72)</strong> también está elevada, sugiriendo 
+        ansiedad, preocupación excesiva e inseguridad asociada. La escala <strong>0 (Si = 62)</strong> está 
+        moderadamente elevada, indicando cierto retraimiento social. La escala <strong>9 (Ma = 38)</strong> está 
+        baja, lo cual es consistente con un cuadro depresivo (baja energía, baja actividad). Este patrón 
+        corresponde a un <strong>perfil depresivo-ansioso</strong> clásico.`
+    },
+    {
+        id: 2,
+        title: "Perfil de Puntajes B",
+        tScores: {
+            "1 (Hs)": 72,
+            "2 (D)": 48,
+            "3 (Hy)": 75,
+            "4 (Pd)": 50,
+            "5 (Mf)": 52,
+            "6 (Pa)": 55,
+            "7 (Pt)": 45,
+            "8 (Sc)": 42,
+            "9 (Ma)": 40,
+            "0 (Si)": 58
+        },
+        options: [
+            {
+                text: "Perfil esquizofrénico con aislamiento: Pensamiento desorganizado, afecto plano, experiencias perceptivas inusuales y retraimiento social severo.",
+                correct: false
+            },
+            {
+                text: "Perfil de conversión (V de conversión): Elevación en Hs e Hy con D normal. Somatización del conflicto, negación del malestar emocional y síntomas somáticos como respuesta al estrés.",
+                correct: true
+            },
+            {
+                text: "Perfil antisocial con impulsividad: Desprecio por las normas, manipulación, falta de remorse y conductas temerarias.",
+                correct: false
+            },
+            {
+                text: "Perfil depresivo con ideación suicida: Desánimo profundo, pérdida de interés, sentimientos de culpa y desesperanza.",
+                correct: false
+            }
+        ],
+        explanation: `Este es el clásico <strong>"pico en V de conversión"</strong>: las escalas <strong>1 (Hs = 72)</strong> 
+        y <strong>3 (Hy = 75)</strong> están elevadas mientras que la escala <strong>2 (D = 48)</strong> se mantiene 
+        normal. Este patrón indica que el paciente canaliza el conflicto psicológico a través de síntomas 
+        somáticos y niega el malestar emocional. Es frecuente en pacientes con trastornos de somatización 
+        y trastornos de conversión. La escala K también suele estar elevada en estos perfiles.`
+    },
+    {
+        id: 3,
+        title: "Perfil de Puntajes C",
+        tScores: {
+            "1 (Hs)": 42,
+            "2 (D)": 40,
+            "3 (Hy)": 38,
+            "4 (Pd)": 76,
+            "5 (Mf)": 55,
+            "6 (Pa)": 62,
+            "7 (Pt)": 48,
+            "8 (Sc)": 52,
+            "9 (Ma)": 70,
+            "0 (Si)": 35
+        },
+        options: [
+            {
+                text: "Perfil de introversión social severa: Retraimiento, timidez extrema, preferencia por la soledad y dificultad para las relaciones interpersonales.",
+                correct: false
+            },
+            {
+                text: "Perfil obsesivo-compulsivo: Rigidez, perfeccionismo, dudas excesivas y necesidad de control.",
+                correct: false
+            },
+            {
+                text: "Perfil antisocial/psicopático con impulsividad: Desviación psicopática elevada con hipomanía. Conducta antisocial, impulsividad, manipulación, búsqueda de sensaciones y dificultades con la autoridad.",
+                correct: true
+            },
+            {
+                text: "Perfil histriónico con dramatismo: Necesidad de atención, emocionalidad excesiva, seductividad y expresión emocional superficial.",
+                correct: false
+            }
+        ],
+        explanation: `El código <strong>4-9 (Pd = 76, Ma = 70)</strong> es altamente sugestivo de un perfil 
+        antisocial/psicopático. La escala <strong>4 (Pd)</strong> elevada indica conflicto con normas sociales, 
+        dificultad para vincularse profundamente, manipulación e inmadurez emocional. La escala <strong>9 (Ma)</strong> 
+        elevada aporta impulsividad, búsqueda de sensaciones y actividad excesiva. La escala <strong>0 (Si = 35)</strong> 
+        baja indica extraversion y sociabilidad (aunque superficial). La escala <strong>6 (Pa = 62)</strong> 
+        moderadamente elevada sugiere cierta hostilidad y suspicacia. Este código 4-9 es uno de los más 
+        reconocibles en el MMPI-2.`
+    },
+    {
+        id: 4,
+        title: "Perfil de Puntajes D",
+        tScores: {
+            "1 (Hs)": 50,
+            "2 (D)": 55,
+            "3 (Hy)": 48,
+            "4 (Pd)": 52,
+            "5 (Mf)": 60,
+            "6 (Pa)": 80,
+            "7 (Pt)": 68,
+            "8 (Sc)": 74,
+            "9 (Ma)": 45,
+            "0 (Si)": 65
+        },
+        options: [
+            {
+                text: "Perfil paranoide-esquizofrénico: Desconfianza extrema, ideas de referencia, pensamiento desorganizado, aislamiento y experiencias perceptivas alteradas.",
+                correct: true
+            },
+            {
+                text: "Perfil depresivo con rasgos ansiosos: Desánimo, pesimismo, preocupación excesiva y dificultades cognitivas.",
+                correct: false
+            },
+            {
+                text: "Perfil de histeria con somatización: Síntomas físicos como respuesta al estrés, negación del conflicto emocional.",
+                correct: false
+            },
+            {
+                text: "Perfil hipomaníaco con euforia: Actividad excesiva, grandiosidad, impulsividad y desinhibición.",
+                correct: false
+            }
+        ],
+        explanation: `El código <strong>6-8-7 (Pa = 80, Sc = 74, Pt = 68)</strong> sugiere un perfil 
+        paranoide con características esquizofrénicas. La escala <strong>6 (Pa)</strong> muy elevada indica 
+        desconfianza extrema, ideas de referencia, rigidez y resentimiento. La escala <strong>8 (Sc)</strong> 
+        elevada sugiere pensamiento desorganizado, experiencias perceptivas inusuales y dificultad con la 
+        realidad. La escala <strong>7 (Pt)</strong> elevada indica ansiedad e inseguridad asociadas. La escala 
+        <strong>0 (Si = 65)</strong> elevada refleja aislamiento social. Este patrón es frecuente en trastornos 
+        del espectro esquizofrénico con rasgos paranoides o en trastorno paranoide de la personalidad con 
+        desorganización.`
+    },
+    {
+        id: 5,
+        title: "Perfil de Puntajes E",
+        tScores: {
+            "1 (Hs)": 40,
+            "2 (D)": 35,
+            "3 (Hy)": 42,
+            "4 (Pd)": 48,
+            "5 (Mf)": 55,
+            "6 (Pa)": 45,
+            "7 (Pt)": 40,
+            "8 (Sc)": 38,
+            "9 (Ma)": 82,
+            "0 (Si)": 30
+        },
+        options: [
+            {
+                text: "Perfil depresivo agudo: Desánimo severo, anhedonia, alteraciones neurovegetativas y posible ideación suicida.",
+                correct: false
+            },
+            {
+                text: "Perfil obsesivo-compulsivo severo: Rituales, obsesiones, necesidad de control y perfeccionismo.",
+                correct: false
+            },
+            {
+                text: "Perfil esquizoide con aislamiento: Desinterés social, afecto restringido y preferencia por actividades solitarias.",
+                correct: false
+            },
+            {
+                text: "Perfil hipomaníaco con euforia y desinhibición: Hiperactividad extrema, grandiosidad, impulsividad, disminución de la necesidad de sueño y conductas desinhibidas.",
+                correct: true
+            }
+        ],
+        explanation: `La escala <strong>9 (Ma = 82)</strong> extremadamente elevada es el hallazgo principal, 
+        indicando un episodio maníaco o hipomaníaco severo. La escala <strong>0 (Si = 30)</strong> muy baja 
+        indica extraversion extrema y sociabilidad desinhibida. Las escalas <strong>2 (D = 35)</strong> y 
+        <strong>8 (Sc = 38)</strong> bajas son consistentes con el estado de ánimo elevado y el pensamiento 
+        acelerado (a diferencia de la depresión donde D está alta). Este perfil es típico de un 
+        <strong>episodio maníaco</strong> en el contexto de un trastorno bipolar.`
+    },
+    {
+        id: 6,
+        title: "Perfil de Puntajes F",
+        tScores: {
+            "1 (Hs)": 48,
+            "2 (D)": 50,
+            "3 (Hy)": 45,
+            "4 (Pd)": 42,
+            "5 (Mf)": 58,
+            "6 (Pa)": 52,
+            "7 (Pt)": 75,
+            "8 (Sc)": 55,
+            "9 (Ma)": 48,
+            "0 (Si)": 70
+        },
+        options: [
+            {
+                text: "Perfil antisocial con impulsividad: Conducta desviada, manipulación, falta de remorse y dificultades con la autoridad.",
+                correct: false
+            },
+            {
+                text: "Perfil ansioso-introvertido: Ansiedad clínica con inseguridad, preocupaciones excesivas, retraimiento social y evitación de situaciones sociales.",
+                correct: true
+            },
+            {
+                text: "Perfil paranoide con hostilidad: Desconfianza, ideas de referencia, rigidez y resentimiento.",
+                correct: false
+            },
+            {
+                text: "Perfil de conversión somática: Síntomas físicos sin base orgánica y negación del conflicto psicológico.",
+                correct: false
+            }
+        ],
+        explanation: `El perfil muestra elevación en <strong>7 (Pt = 75)</strong> y <strong>0 (Si = 70)</strong>, 
+        configurando un <strong>perfil ansioso-introvertido</strong>. La escala 7 elevada indica ansiedad clínica, 
+        preocupaciones excesivas, inseguridad, rumiación y posible sintomatología obsesivo-compulsiva. 
+        La escala 0 elevada indica introversión social, timidez, dificultad para las relaciones interpersonales 
+        y preferencia por la soledad. Las demás escalas están dentro de rangos normales, lo que sugiere que 
+        la ansiedad y el retraimiento son los problemas principales sin psicopatología más severa asociada.`
+    }
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let currentCaseIndex = { case: 0, profile: 0 };
+let userAnswers = { case: {}, profile: {} };
+let evaluated = { case: false, profile: false };
+let currentMode = null;
+let applicationDate = new Date();
+let navigationSwitches = 0;
+let lastSwitchAt = 0;
+
+// ============================================================
+// INITIALIZATION
+// ============================================================
+function init() {
+    const now = new Date();
+    applicationDate = now;
+    document.getElementById('appDateTime').textContent = now.toLocaleString('es-ES', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+
+    if (location.protocol === 'file:') {
+        const compatWarning = document.getElementById('compatWarning');
+        if (compatWarning) compatWarning.style.display = 'block';
+    }
+
+    attachNavigationSecurity();
+}
+
+function attachNavigationSecurity() {
+    const updateCounter = () => {
+        const nowTime = Date.now();
+        if (nowTime - lastSwitchAt < 800) return;
+        lastSwitchAt = nowTime;
+        navigationSwitches += 1;
+        const el = document.getElementById('securityCounter');
+        if (el) el.textContent = String(navigationSwitches);
+    };
+
+    const handleBackground = () => {
+        const hidden = document.visibilityState === 'hidden' || !document.hasFocus();
+        if (hidden) updateCounter();
+    };
+
+    window.addEventListener('blur', handleBackground);
+    window.addEventListener('focus', () => { lastSwitchAt = 0; });
+    window.addEventListener('pagehide', handleBackground);
+    document.addEventListener('visibilitychange', handleBackground);
+}
+
+// ============================================================
+// MODE SELECTION
+// ============================================================
+function startMode(mode) {
+    currentMode = mode;
+    document.getElementById('modeSelection').style.display = 'none';
+    document.querySelectorAll('.exercise-area').forEach(el => el.classList.remove('active'));
+    document.getElementById('mode-' + (mode === 'caseToScale' ? 'caseToScale' : 'scaleToProfile')).classList.add('active');
+    
+    if (mode === 'caseToScale') {
+        renderCases('case');
+    } else {
+        renderCases('profile');
+    }
+}
+
+// ============================================================
+// RENDER CASES
+// ============================================================
+function renderCases(type) {
+    const container = document.getElementById('casesContainer-' + type);
+    container.innerHTML = '';
+    
+    if (type === 'case') {
+        caseToScaleCases.forEach((c, idx) => {
+            container.innerHTML += buildCaseCard(c, idx);
+        });
+    } else {
+        scaleToProfileCases.forEach((c, idx) => {
+            container.innerHTML += buildProfileCard(c, idx);
+        });
+    }
+    
+    showCase(type, 0);
+}
+
+function buildCaseCard(c, idx) {
+    let scalesHTML = c.allScales.map(s => `
+        <div class="scale-option" data-case="${idx}" data-scale="${s.code}" onclick="toggleScale(this, ${idx}, ${s.code}, 'case')">
+            <div class="scale-check"></div>
+            <span class="scale-label">${s.name}</span>
+            <span class="scale-code">${s.code}</span>
+        </div>
+    `).join('');
+    
+    return `
+        <div class="case-card" id="case-card-case-${idx}" style="display:none;">
+            <div class="case-header">
+                <h3>${c.title}</h3>
+                <span class="case-number">Caso ${idx + 1}</span>
+            </div>
+            <div class="case-body">
+                <div class="case-description">${c.description}</div>
+                <p class="case-question">${c.question}</p>
+                <div class="scales-grid">${scalesHTML}</div>
+                <div class="case-feedback" id="feedback-case-${idx}">
+                    <div class="explanation">${c.explanation}</div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function buildProfileCard(c, idx) {
+    // Build bar chart
+    let barsHTML = '';
+    const maxScore = 100;
+    Object.entries(c.tScores).forEach(([label, score]) => {
+        const pct = (score / maxScore) * 100;
+        let cls = 'normal';
+        if (score >= 65) cls = 'clinical';
+        else if (score >= 55) cls = 'elevated';
+        
+        barsHTML += `
+            <div class="profile-bar-row">
+                <div class="profile-bar-label">${label}</div>
+                <div class="profile-bar-track">
+                    <div class="t-score-50" style="left:50%"></div>
+                    <div class="t-score-65" style="left:65%"></div>
+                    <div class="profile-bar-fill ${cls}" style="width:${pct}%">${score}</div>
+                </div>
+            </div>
+        `;
+    });
+    
+    let optionsHTML = c.options.map((opt, oIdx) => `
+        <div class="profile-option" data-profile="${idx}" data-option="${oIdx}" onclick="selectProfileOption(this, ${idx}, ${oIdx}, 'profile')">
+            <h4>Opción ${String.fromCharCode(65 + oIdx)}</h4>
+            <p>${opt.text}</p>
+        </div>
+    `).join('');
+    
+    return `
+        <div class="case-card" id="case-card-profile-${idx}" style="display:none;">
+            <div class="case-header">
+                <h3>${c.title}</h3>
+                <span class="case-number">Perfil ${idx + 1}</span>
+            </div>
+            <div class="case-body">
+                <p class="case-question">Observa el siguiente perfil de puntajes T del MMPI-2 y selecciona la interpretación clínica que mejor se ajuste:</p>
+                <div class="legend">
+                    <div class="legend-item"><div class="legend-color" style="background:linear-gradient(90deg,#27ae60,#2ecc71)"></div> Normal (T &lt; 55)</div>
+                    <div class="legend-item"><div class="legend-color" style="background:linear-gradient(90deg,#e67e22,#f39c12)"></div> Elevado (T 55-64)</div>
+                    <div class="legend-item"><div class="legend-color" style="background:linear-gradient(90deg,#e74c3c,#c0392b)"></div> Clínico (T ≥ 65)</div>
+                </div>
+                <div class="profile-chart">${barsHTML}</div>
+                <p class="case-question">¿Cuál de las siguientes descripciones corresponde a este perfil?</p>
+                <div class="profile-options">${optionsHTML}</div>
+                <div class="case-feedback" id="feedback-profile-${idx}">
+                    <div class="explanation">${c.explanation}</div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showCase(type, index) {
+    const cases = type === 'case' ? caseToScaleCases : scaleToProfileCases;
+    const total = cases.length;
+    
+    if (index < 0) index = total - 1;
+    if (index >= total) index = 0;
+    
+    currentCaseIndex[type] = index;
+    
+    // Hide all cards, show current
+    cases.forEach((_, i) => {
+        const card = document.getElementById(`case-card-${type}-${i}`);
+        if (card) card.style.display = i === index ? 'block' : 'none';
+    });
+    
+    // Update progress
+    const pct = ((index + 1) / total) * 100;
+    document.getElementById(`progressFill-${type}`).style.width = pct + '%';
+    document.getElementById(`progressText-${type}`).textContent = `${type === 'case' ? 'Caso' : 'Perfil'} ${index + 1} de ${total}`;
+    
+    // Update nav buttons
+    document.getElementById(`prevBtn-${type}`).style.visibility = index === 0 ? 'hidden' : 'visible';
+    document.getElementById(`nextBtn-${type}`).textContent = index === total - 1 ? '✓ Finalizar' : 'Siguiente ▶';
+    
+    // Update indicator
+    document.getElementById(`caseIndicator-${type}`).textContent = `${index + 1} / ${total}`;
+}
+
+function navigateCase(type, dir) {
+    const cases = type === 'case' ? caseToScaleCases : scaleToProfileCases;
+    const total = cases.length;
+    let newIndex = currentCaseIndex[type] + dir;
+    
+    if (newIndex >= total) {
+        // Finalize
+        if (!evaluated[type]) {
+            evaluateAnswers(type);
+        }
+        return;
+    }
+    
+    showCase(type, newIndex);
+}
+
+// ============================================================
+// INTERACTIONS
+// ============================================================
+function toggleScale(el, caseIdx, scaleCode, type) {
+    if (evaluated[type]) return;
+    
+    el.classList.toggle('selected');
+    
+    if (!userAnswers[type][caseIdx]) userAnswers[type][caseIdx] = [];
+    
+    const idx = userAnswers[type][caseIdx].indexOf(scaleCode);
+    if (idx > -1) {
+        userAnswers[type][caseIdx].splice(idx, 1);
+    } else {
+        userAnswers[type][caseIdx].push(scaleCode);
+    }
+}
+
+function selectProfileOption(el, caseIdx, optIdx, type) {
+    if (evaluated[type]) return;
+    
+    // Deselect others
+    document.querySelectorAll(`.profile-option[data-profile="${caseIdx}"]`).forEach(o => {
+        o.classList.remove('selected');
+    });
+    
+    el.classList.add('selected');
+    userAnswers[type][caseIdx] = optIdx;
+}
+
+// ============================================================
+// EVALUATION
+// ============================================================
+function evaluateAnswers(type) {
+    evaluated[type] = true;
+    const cases = type === 'case' ? caseToScaleCases : scaleToProfileCases;
+    let totalScore = 0;
+    let maxScore = 0;
+    let resultsHTML = '';
+    
+    cases.forEach((c, idx) => {
+        const feedback = document.getElementById(`feedback-${type}-${idx}`);
+        if (feedback) feedback.classList.add('active');
+        
+        if (type === 'case') {
+            const correct = c.correctScales;
+            const user = userAnswers[type][idx] || [];
+            
+            // Score: correct selections + penalty for wrong ones
+            const truePositives = user.filter(u => correct.includes(u)).length;
+            const falsePositives = user.filter(u => !correct.includes(u)).length;
+            const falseNegatives = correct.filter(c => !user.includes(c)).length;
+            
+            maxScore += correct.length;
+            const itemScore = Math.max(0, truePositives - falsePositives);
+            totalScore += truePositives;
+            
+            // Color code the scale options
+            c.allScales.forEach(s => {
+                const opt = document.querySelector(`.scale-option[data-case="${idx}"][data-scale="${s.code}"]`);
+                if (!opt) return;
+                
+                if (correct.includes(s.code) && user.includes(s.code)) {
+                    opt.classList.add('correct');
+                } else if (!correct.includes(s.code) && user.includes(s.code)) {
+                    opt.classList.add('incorrect');
+                } else if (correct.includes(s.code) && !user.includes(s.code)) {
+                    opt.classList.add('incorrect');
+                }
+            });
+            
+            const pct = correct.length > 0 ? Math.round((truePositives / correct.length) * 100) : 0;
+            let badge, badgeClass, itemClass;
+            if (pct === 100 && falsePositives === 0) {
+                badge = 'Correcto'; badgeClass = 'badge-correct'; itemClass = 'correct-item';
+            } else if (truePositives > 0) {
+                badge = 'Parcial'; badgeClass = 'badge-partial'; itemClass = 'partial-item';
+            } else {
+                badge = 'Incorrecto'; badgeClass = 'badge-incorrect'; itemClass = 'incorrect-item';
+            }
+            
+            resultsHTML += `
+                <div class="result-item ${itemClass}">
+                    <div>
+                        <strong>${c.title}</strong><br>
+                        <small>Seleccionaste: ${user.map(u => c.allScales.find(s => s.code === u)?.name || u).join(', ') || 'Ninguna'}</small><br>
+                        <small>Correctas: ${correct.map(code => c.allScales.find(s => s.code === code)?.name || code).join(', ')}</small>
+                    </div>
+                    <span class="result-badge ${badgeClass}">${badge}</span>
+                </div>
+            `;
+            
+        } else {
+            const correctOpt = c.options.findIndex(o => o.correct);
+            const userOpt = userAnswers[type][idx];
+            const isCorrect = userOpt === correctOpt;
+            
+            maxScore += 1;
+            if (isCorrect) totalScore += 1;
+            
+            // Color code options
+            c.options.forEach((opt, oIdx) => {
+                const el = document.querySelector(`.profile-option[data-profile="${idx}"][data-option="${oIdx}"]`);
+                if (!el) return;
+                if (opt.correct) el.classList.add('correct');
+                else if (oIdx === userOpt && !opt.correct) el.classList.add('incorrect');
+            });
+            
+            let badge, badgeClass, itemClass;
+            if (isCorrect) {
+                badge = 'Correcto'; badgeClass = 'badge-correct'; itemClass = 'correct-item';
+            } else {
+                badge = 'Incorrecto'; badgeClass = 'badge-incorrect'; itemClass = 'incorrect-item';
+            }
+            
+            resultsHTML += `
+                <div class="result-item ${itemClass}">
+                    <div>
+                        <strong>${c.title}</strong><br>
+                        <small>Tu respuesta: Opción ${String.fromCharCode(65 + (userOpt ?? -1))}</small><br>
+                        <small>Respuesta correcta: Opción ${String.fromCharCode(65 + correctOpt)}</small>
+                    </div>
+                    <span class="result-badge ${badgeClass}">${badge}</span>
+                </div>
+            `;
+        }
+    });
+    
+    const pct = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
+    let scoreClass, scoreMsg;
+    if (pct >= 90) { scoreClass = 'excellent'; scoreMsg = '¡Excelente interpretación!'; }
+    else if (pct >= 70) { scoreClass = 'good'; scoreMsg = '¡Buen trabajo!'; }
+    else if (pct >= 50) { scoreClass = 'regular'; scoreMsg = 'Resultado regular, repasa los perfiles.'; }
+    else { scoreClass = 'poor'; scoreMsg = 'Necesitas repasar la interpretación del MMPI-2.'; }
+    
+    const resultsPanel = document.getElementById('results-' + type);
+    resultsPanel.innerHTML = `
+        <div class="results-header">
+            <div class="score-circle ${scoreClass}">
+                ${pct}%
+                <small>aciertos</small>
+            </div>
+            <h2>${scoreMsg}</h2>
+            <p style="color:var(--text-light);">${totalScore} de ${maxScore} respuestas correctas</p>
+        </div>
+        <h3 style="margin:20px 0 10px; color:var(--primary);">Detalle por caso/perfil:</h3>
+        ${resultsHTML}
+        <div style="margin-top:20px; padding:15px; background:#f8f9fa; border-radius:8px; font-size:0.9em;">
+            <strong>📊 Resumen de la aplicación:</strong><br>
+            <strong>Estudiante:</strong> ${document.getElementById('studentName').value || 'No especificado'}<br>
+            <strong>Grupo:</strong> ${document.getElementById('studentGroup').value || 'No especificado'}<br>
+            <strong>Modo:</strong> ${type === 'case' ? 'Del Caso a las Escalas' : 'De las Escalas al Perfil'}<br>
+            <strong>Fecha y hora:</strong> ${applicationDate.toLocaleString('es-ES')}<br>
+            <strong>Puntaje:</strong> ${totalScore}/${maxScore} (${pct}%)<br>
+            <strong>Cambios de pestaña/ventana:</strong> ${navigationSwitches}
+        </div>
+    `;
+    resultsPanel.classList.add('active');
+    
+    // Scroll to results
+    resultsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ============================================================
+// RESET
+// ============================================================
+function resetExercise(type) {
+    evaluated[type] = false;
+    userAnswers[type] = {};
+    currentCaseIndex[type] = 0;
+    
+    // Remove all classes from options
+    document.querySelectorAll(`.scale-option, .profile-option`).forEach(el => {
+        el.classList.remove('selected', 'correct', 'incorrect');
+    });
+    
+    // Hide feedbacks
+    document.querySelectorAll('.case-feedback').forEach(el => el.classList.remove('active'));
+    
+    // Hide results
+    document.getElementById('results-' + type).classList.remove('active');
+    document.getElementById('results-' + type).innerHTML = '';
+    
+    showCase(type, 0);
+}
+
+// ============================================================
+// EXPORT PDF
+// ============================================================
+function exportPDF(type) {
+    // Add PDF header info
+    const studentName = document.getElementById('studentName').value || 'No especificado';
+    const studentGroup = document.getElementById('studentGroup').value || 'No especificado';
+    
+    const printWindow = window.open('', '_blank');
+    const now = new Date();
+    
+    let content = '';
+    
+    if (type === 'case') {
+        content = caseToScaleCases.map((c, idx) => {
+            const user = userAnswers[type][idx] || [];
+            const correct = c.correctScales;
+            const isCorrect = correct.length > 0 && correct.every(r => user.includes(r)) && user.every(u => correct.includes(u));
+            
+            return `
+                <div style="border:1px solid #ddd; border-radius:8px; padding:15px; margin-bottom:15px; page-break-inside:avoid;">
+                    <h3 style="color:#2c3e50; margin:0 0 10px;">${c.title}</h3>
+                    <div style="background:#f8f9fa; border-left:4px solid #3498db; padding:12px; margin-bottom:10px; font-size:0.9em; line-height:1.6;">
+                        ${c.description}
+                    </div>
+                    <p style="font-weight:600; margin-bottom:8px;">Respuesta del estudiante: ${user.map(u => c.allScales.find(s => s.code === u)?.name || u).join(', ') || 'Ninguna seleccionada'}</p>
+                    <p style="font-weight:600; margin-bottom:8px;">Respuesta correcta: ${correct.map(code => c.allScales.find(s => s.code === code)?.name || code).join(', ')}</p>
+                    <p style="font-weight:600; color:${isCorrect ? '#27ae60' : '#e74c3c'};">Resultado: ${isCorrect ? '✓ Correcto' : '✗ Incorrecto'}</p>
+                    <div style="background:#f0f7ff; padding:10px; border-radius:6px; font-size:0.85em; margin-top:10px; line-height:1.6;">
+                        <strong>Explicación:</strong> ${c.explanation.replace(/<\/?strong>/g, '')}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } else {
+        content = scaleToProfileCases.map((c, idx) => {
+            const userOpt = userAnswers[type][idx];
+            const correctOpt = c.options.findIndex(o => o.correct);
+            const isCorrect = userOpt === correctOpt;
+            
+            let barsHTML = '';
+            Object.entries(c.tScores).forEach(([label, score]) => {
+                const pct = score;
+                let color = '#27ae60';
+                if (score >= 65) color = '#e74c3c';
+                else if (score >= 55) color = '#f39c12';
+                
+                barsHTML += `<div style="display:flex;align-items:center;margin-bottom:4px;">
+                    <span style="width:80px;font-size:0.8em;font-weight:600;text-align:right;padding-right:8px;">${label}</span>
+                    <div style="flex:1;height:20px;background:#eee;border-radius:4px;overflow:hidden;">
+                        <div style="width:${pct}%;height:100%;background:${color};border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:5px;color:white;font-size:0.7em;font-weight:700;">${score}</div>
+                    </div>
+                </div>`;
+            });
+            
+            return `
+                <div style="border:1px solid #ddd; border-radius:8px; padding:15px; margin-bottom:15px; page-break-inside:avoid;">
+                    <h3 style="color:#2c3e50; margin:0 0 10px;">${c.title}</h3>
+                    <div style="margin-bottom:15px;">${barsHTML}</div>
+                    <p style="font-weight:600; margin-bottom:5px;">Respuesta del estudiante: Opción ${String.fromCharCode(65 + (userOpt ?? -1))}</p>
+                    <p style="font-weight:600; margin-bottom:5px;">Respuesta correcta: Opción ${String.fromCharCode(65 + correctOpt)}</p>
+                    <p style="font-weight:600; color:${isCorrect ? '#27ae60' : '#e74c3c'};">Resultado: ${isCorrect ? '✓ Correcto' : '✗ Incorrecto'}</p>
+                    <div style="background:#f0f7ff; padding:10px; border-radius:6px; font-size:0.85em; margin-top:10px; line-height:1.6;">
+                        <strong>Explicación:</strong> ${c.explanation.replace(/<\/?strong>/g, '')}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    const resultsPanel = document.getElementById('results-' + type);
+    const totalResults = resultsPanel.querySelector('.score-circle')?.textContent?.trim() || 'N/A';
+    const scoreMsg = resultsPanel.querySelector('.results-header h2')?.textContent || '';
+    
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Resultados MMPI-2 - ${studentName}</title>
+            <style>
+                body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px; color: #2c3e50; line-height: 1.6; }
+                h1 { text-align: center; color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+                .header-info { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; font-size: 0.9em; }
+                .score-summary { text-align: center; padding: 20px; background: #f0f7ff; border-radius: 8px; margin: 20px 0; }
+                .score-summary h2 { margin: 10px 0 5px; }
+                @media print { body { padding: 10px; } .header-info { background: #f0f0f0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+            </style>
+        </head>
+        <body>
+            <h1>📋 Ejercicio de Interpretación MMPI-2</h1>
+            <div class="header-info">
+                <div><strong>Estudiante:</strong> ${studentName}</div>
+                <div><strong>Grupo:</strong> ${studentGroup}</div>
+                <div><strong>Modo:</strong> ${type === 'case' ? 'Del Caso a las Escalas' : 'De las Escalas al Perfil'}</div>
+                <div><strong>Fecha y hora:</strong> ${now.toLocaleString('es-ES')}</div>
+            </div>
+            <div class="score-summary">
+                <div style="font-size:2em;">${totalResults}</div>
+                <h2>${scoreMsg}</h2>
+            </div>
+            <h2 style="color:#2c3e50;">Detalle de Respuestas</h2>
+            ${content}
+            <div style="text-align:center; margin-top:30px; padding-top:15px; border-top:2px solid #ddd; color:#7f8c8d; font-size:0.8em;">
+                Documento generado automáticamente — Ejercicio de Interpretación MMPI-2 — ${now.toLocaleString('es-ES')}
+            </div>
+            <script>
+                setTimeout(() => { window.print(); }, 500);
+            <\/script>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+}
+
+// ============================================================
+// TOGGLE SCALE REF
+// ============================================================
+function toggleScaleRef() {
+    const table = document.getElementById('scaleRefTable');
+    table.classList.toggle('hidden');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+init();
+</script>
+
+</body>
+</html>
