@@ -1025,6 +1025,7 @@
                             </div>
                             <button class="success" onclick="saveEvaluation()" style="width: 100%; margin-top: 10px;">💾 Guardar Progreso (Local)</button>
                             <button class="secondary" onclick="exportEvaluation()" style="width: 100%; margin-top: 8px;">📤 Exportar Esta Evaluación</button>
+                            <button class="warning" onclick="exportEvaluationToPDF()" style="width: 100%; margin-top: 8px;">📄 Exportar Evaluación a PDF</button>
                         </div>
                     </div>
                 </div>
@@ -2453,6 +2454,111 @@
             };
 
             downloadFile(JSON.stringify(evaluation, null, 2), `evaluacion_${currentEvaluation.studentName}_${Date.now()}.json`);
+        }
+
+        async function exportEvaluationToPDF() {
+            if (!currentEvaluation.studentName) {
+                alert('Por favor ingresa o selecciona el nombre del alumno antes de exportar.');
+                return;
+            }
+            if (!currentRubric || !currentRubric.criteria || currentRubric.criteria.length === 0) {
+                alert('No hay rúbrica cargada.');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const html2canvas = window.html2canvas;
+
+            if (!jsPDF || !html2canvas) {
+                alert('Error: No se pudieron cargar las librerías para generar PDF.');
+                return;
+            }
+
+            const pdfContainer = document.getElementById('pdf-content');
+            const totalScore = document.getElementById('finalScore').textContent;
+
+            let content = `
+                <style>
+                    .pdf-report { font-family: 'Segoe UI', sans-serif; color: #333; padding: 20px; }
+                    .pdf-report h1 { font-size: 24px; color: #2c3e50; text-align: center; margin-bottom: 5px; }
+                    .pdf-report h2 { font-size: 18px; color: #7f8c8d; text-align: center; margin-bottom: 25px; }
+                    .pdf-meta { display: flex; justify-content: space-between; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 5px solid #3498db; }
+                    .pdf-meta div { font-size: 14px; }
+                    .pdf-meta .score-box { font-size: 20px; font-weight: bold; color: #2ecc71; text-align: right; }
+                    .pdf-criterion { border: 1px solid #dee2e6; border-radius: 8px; margin-bottom: 20px; overflow: hidden; page-break-inside: avoid; }
+                    .pdf-criterion-header { background: #f1f3f5; padding: 12px 15px; font-weight: bold; font-size: 16px; display: flex; justify-content: space-between; border-bottom: 1px solid #dee2e6; }
+                    .pdf-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+                    .pdf-table td { padding: 12px; border-right: 1px solid #dee2e6; vertical-align: top; font-size: 12px; }
+                    .pdf-table td:last-child { border-right: none; }
+                    .pdf-level-selected { background-color: #d4edda !important; position: relative; border: 2px solid #28a745 !important; }
+                    .pdf-level-selected::after { content: "✓ Seleccionado"; position: absolute; top: 5px; right: 5px; font-size: 9px; color: #155724; font-weight: bold; background: #c3e6cb; padding: 2px 5px; border-radius: 3px; }
+                    .pdf-level-name { font-weight: bold; margin-bottom: 5px; color: #212529; }
+                    .pdf-level-points { font-size: 11px; color: #666; margin-bottom: 8px; font-weight: bold; }
+                    .pdf-level-desc { color: #495057; line-height: 1.4; }
+                </style>
+                <div class="pdf-report">
+                    <h1>Reporte de Evaluación Individual</h1>
+                    <h2>Rúbrica: ${currentRubric.name}</h2>
+                    <div class="pdf-meta">
+                        <div>
+                            <strong>Alumno:</strong> ${currentEvaluation.studentName}<br>
+                            <strong>Fecha:</strong> ${new Date().toLocaleDateString()}<br>
+                            <strong>Grupo:</strong> ${currentGroup ? currentGroup.name : (currentRubric.associatedGroupName || 'N/A')}
+                        </div>
+                        <div class="score-box">Calificación Final<br>${totalScore} / 10</div>
+                    </div>
+            `;
+
+            currentRubric.criteria.forEach((criterion, idx) => {
+                const selectedLevelIdx = currentEvaluation.scores[idx];
+                const level = selectedLevelIdx !== undefined ? criterion.levels[selectedLevelIdx] : null;
+                let points = 0;
+                if (level) {
+                    if (level.minPoints !== undefined && level.maxPoints !== undefined && level.minPoints !== level.maxPoints) {
+                        points = currentEvaluation.scores[`${idx}_points`] !== undefined ? parseFloat(currentEvaluation.scores[`${idx}_points`]) : parseFloat(level.minPoints);
+                    } else {
+                        points = level.minPoints !== undefined ? parseFloat(level.minPoints) : (level.points || 0);
+                    }
+                }
+                content += `
+                    <div class="pdf-criterion">
+                        <div class="pdf-criterion-header">
+                            <span>${criterion.title}</span>
+                            <span>Puntos: ${points.toFixed(2)} / ${criterion.maxPoints}</span>
+                        </div>
+                        <table class="pdf-table">
+                            <tr>
+                                ${criterion.levels.map((lvl, lIdx) => {
+                                    const isSelected = selectedLevelIdx === lIdx;
+                                    const minPts = lvl.minPoints !== undefined ? lvl.minPoints : (lvl.points || 0);
+                                    const maxPts = lvl.maxPoints !== undefined ? lvl.maxPoints : (lvl.points || 0);
+                                    return `<td class="${isSelected ? 'pdf-level-selected' : ''}">
+                                        <div class="pdf-level-name">${lvl.name}</div>
+                                        <div class="pdf-level-points">${minPts === maxPts ? maxPts : minPts + '-' + maxPts} pts</div>
+                                        <div class="pdf-level-desc">${lvl.description || ''}</div>
+                                    </td>`;
+                                }).join('')}
+                            </tr>
+                        </table>
+                    </div>`;
+            });
+
+            content += `<div style="text-align: center; margin-top: 30px; font-size: 12px; color: #adb5bd;">Generado por PsycheNudo Puebla</div></div>`;
+            pdfContainer.innerHTML = content;
+
+            try {
+                const canvas = await html2canvas(pdfContainer, { scale: 2 });
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: 'a4' });
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                const ratio = canvas.width / canvas.height;
+                let finalImgWidth = pdfWidth - 40;
+                let finalImgHeight = finalImgWidth / ratio;
+                if (finalImgHeight > pdfHeight - 40) { finalImgHeight = pdfHeight - 40; finalImgWidth = finalImgHeight * ratio; }
+                pdf.addImage(imgData, 'PNG', (pdfWidth - finalImgWidth) / 2, (pdfHeight - finalImgHeight) / 2, finalImgWidth, finalImgHeight);
+                pdf.save(`Evaluacion_${currentEvaluation.studentName.replace(/\s+/g, '_')}.pdf`);
+            } catch (err) { alert('Error al generar el PDF.'); } finally { pdfContainer.innerHTML = ''; }
         }
 
         // ═══════════════════════════════════════════════════════════════════════════════
