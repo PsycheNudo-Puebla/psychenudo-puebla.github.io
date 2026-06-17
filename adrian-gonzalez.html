@@ -478,6 +478,17 @@ permalink: /adrian-gonzalez/
             margin-top: 3.5rem;
             background: linear-gradient(to top, rgba(253,248,243,0.9) 0%, transparent 100%);
         }
+        .footer-logo {
+            height: 70px;
+            width: auto;
+            margin-bottom: 0.5rem;
+            opacity: 0.7;
+            transition: var(--transition);
+        }
+        .footer-logo:hover {
+            opacity: 1;
+            transform: scale(1.05);
+        }
         blockquote {
             font-style: italic;
             border-left: 4px solid var(--accent);
@@ -490,19 +501,6 @@ permalink: /adrian-gonzalez/
             background: rgba(201, 169, 97, 0.06);
             padding: 1.2rem 1.5rem 1.2rem 2rem;
             border-radius: 0 12px 12px 0;
-        }
-        .disclaimer { 
-            font-size: 0.85rem; 
-            color: var(--text-light); 
-            margin-top: 1.5rem;
-            max-width: 720px;
-            margin-left: auto;
-            margin-right: auto;
-            line-height: 1.7;
-            padding: 1rem;
-            background: rgba(93, 46, 70, 0.03);
-            border-radius: 10px;
-            border-left: 3px solid var(--primary-light);
         }
 
         /* Estilos para el calendario embebido */
@@ -735,10 +733,8 @@ permalink: /adrian-gonzalez/
     <!-- Footer -->
     <footer>
         <div class="container">
+            <img src="{{ '/assets/logo-adrian.png' | relative_url }}" alt="Logo Adrian González" class="footer-logo">
             <blockquote>"Explorar el inconsciente es abrir puertas hacia la libertad emocional."</blockquote>
-            <p class="disclaimer">
-                <strong>Aviso profesional:</strong> Este perfil es informativo. El seguimiento terapéutico requiere encuadre clínico formal y evaluación personalizada. La información aquí expuesta no sustituye una consulta profesional.
-            </p>
             <p style="margin-top: 1.8rem; font-size: 0.85rem; color: var(--text-light);">
                 © 2026 Mtro. Alfredo Adrián González Lazcano • Puebla, México
             </p>
