@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claudia Castillo</title>
+    <link rel="icon" type="image/png" href="/assets/mi-logo.png">
+    <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+
+    <div class="layout-shell">
+    <header class="site-header">
+        <a href="/" class="logo-link">
+            <img src="/assets/logo-psychenudo.png" alt="PsycheNudo Puebla Logo" class="logo-img">
+        </a>
+        <p>Nodo de Difusión Académica, Tecnología Educativa y Ética Clínica</p>
+    </header>
+
+    <main class="contenedor">
+        <section class="perfil-bloque">
+    <div class="perfil-header">
+        <h1>Lic. Claudia Castillo</h1>
+        <p class="especialidad">Psicología</p>
+    </div>
+
+    <div class="perfil-grid">
+        <article class="perfil-contenido">
+            <h2>Biografía</h2>
+            <p>La Lic. Claudia Castillo es una profesional de la psicología dedicada al acompañamiento clínico y al fortalecimiento del bienestar emocional. Su práctica se distingue por un enfoque ético y humano, orientado a proporcionar herramientas que faciliten el desarrollo integral de sus consultantes en un entorno de escucha y respeto.</p>
+
+<p>A través de su colaboración en PsycheNudo Puebla, Claudia busca sumar su experiencia al trabajo interdisciplinario de la red, promoviendo espacios de salud mental de calidad. Su objetivo es contribuir al fortalecimiento de redes profesionales que permitan elevar el estándar de la atención psicológica en la comunidad poblana.</p>
+
+        </article>
+
+        <aside class="perfil-meta">
+            <div class="perfil-info">
+                <span>Invitado al nudo por:</span>
+                <strong>Mtro. Adrián González</strong>
+            </div>
+            <div class="perfil-info">
+                <span>Cédula Profesional:</span>
+                <strong>11924309</strong>
+            </div>
+            <div class="tarjeta-colega__verificar tarjeta-colega__verificar--perfil">
+                <span class="tarjeta-colega__verificar-label">Verificación manual</span>
+                <div class="verificacion-enlaces verificacion-enlaces--tarjeta" role="navigation" aria-label="Registros oficiales">
+                    <a href="https://www.cedulaprofesional.sep.gob.mx/cedula/presidencia/indexAvanzada.action" class="boton-verificacion boton-verificacion--compact" target="_blank" rel="noopener noreferrer">Cédula SEP</a>
+                    <a href="https://redam.puebla.gob.mx/" class="boton-verificacion boton-verificacion--compact" target="_blank" rel="noopener noreferrer">REDAM Puebla</a>
+                </div>
+            </div>
+            
+            <a href="https://www.facebook.com/share/17ZUWP1vhB/" class="boton perfil-boton" target="_blank" rel="noopener noreferrer">Visitar Sitio Personal</a>
+            
+            
+
+            <div class="perfil-navegacion" style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px;">
+                <a href="/#nudo" class="boton perfil-boton">Volver al Nudo</a>
+                
+                
+                
+                
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                        <a href="/profesionales/javier-bermudez/" class="boton perfil-boton">Anterior</a>
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                        <a href="/profesionales/irasema-cruz/" class="boton perfil-boton">Siguiente</a>
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+            </div>
+        </aside>
+    </div>
+</section>
+
+    </main>
+
+    <footer class="site-footer">
+        <p class="site-footer__marca">PsycheNudo Puebla &copy; 2026</p>
+        <div class="footer-legal">
+            <p class="footer-disclaimer"><strong>Disclaimer:</strong> Este sitio web es una plataforma de difusión académica y profesional. El contenido aquí expuesto no constituye supervisión clínica ni asesoría legal. PsycheNudo Puebla no se hace responsable de las intervenciones individuales de los colaboradores. La verificación de la identidad y cédula profesional es responsabilidad del consultante a través de los canales oficiales.</p>
+        </div>
+    </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Lógica para cambiar entre pestañas (Tabs)
+            window.openTab = function(evt, tabName) {
+                const contents = document.querySelectorAll('.tab-content');
+                const tabs = document.querySelectorAll('.tab');
+                
+                contents.forEach(content => content.classList.remove('active'));
+                tabs.forEach(tab => tab.classList.remove('active'));
+                
+                document.getElementById(tabName).classList.add('active');
+                evt.currentTarget.classList.add('active');
+            };
+
+            const enlaces = document.querySelectorAll('a[href^="http"]');
+            enlaces.forEach(function(enlace) {
+                const href = enlace.getAttribute('href');
+                if (href && !href.includes('psychenudo-puebla.github.io') && !href.includes(window.location.hostname)) {
+                    enlace.setAttribute('target', '_blank');
+                    enlace.setAttribute('rel', 'noopener noreferrer');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adrian Gonzalez</title>
+    <link rel="icon" type="image/png" href="/assets/mi-logo.png">
+    <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+
+    <div class="layout-shell">
+    <header class="site-header">
+        <a href="/" class="logo-link">
+            <img src="/assets/logo-psychenudo.png" alt="PsycheNudo Puebla Logo" class="logo-img">
+        </a>
+        <p>Nodo de Difusión Académica, Tecnología Educativa y Ética Clínica</p>
+    </header>
+
+    <main class="contenedor">
+        <section class="perfil-bloque">
+    <div class="perfil-header">
+        <h1>Mtro. Adrián González</h1>
+        <p class="especialidad">Psicólogo Clínico · Catedrático Universitario · Innovador en Tecnología Educativa</p>
+    </div>
+
+    <div class="perfil-grid">
+        <article class="perfil-contenido">
+            <h2>Biografía</h2>
+            <p>Maestro en Psicoanálisis y Cultura con licenciatura en Psicología General. Mi labor se centra en la intersección de la clínica, la docencia y la innovación tecnológica en Puebla, México.</p>
+
+<p>Mi trabajo combina investigación aplicada y formación profesional para fortalecer comunidades educativas y clínicas. Desarrollo herramientas digitales para gestión clínica y gamificación del aprendizaje. Mi enfoque privilegia el rigor ético, la pluralidad metodológica y el diálogo entre psicologías clínicas, educativas y tecnológicas.</p>
+
+<p>Puedes conocer más sobre su trayectoria y proyectos en sus plataformas oficiales:</p>
+
+<ul>
+  <li><a href="https://www.linkedin.com/in/adrian-gonzalez-3b725b318">LinkedIn Profesional</a></li>
+  <li><a href="/adrian-gonzalez/">Sitio Web Personal</a></li>
+</ul>
+
+        </article>
+
+        <aside class="perfil-meta">
+            <div class="perfil-info">
+                <span>Invitado al nudo por:</span>
+                <strong>el equipo de PsycheNudo Puebla</strong>
+            </div>
+            <div class="perfil-info">
+                <span>Cédula Profesional:</span>
+                <strong>09279684</strong>
+            </div>
+            <div class="tarjeta-colega__verificar tarjeta-colega__verificar--perfil">
+                <span class="tarjeta-colega__verificar-label">Verificación manual</span>
+                <div class="verificacion-enlaces verificacion-enlaces--tarjeta" role="navigation" aria-label="Registros oficiales">
+                    <a href="https://www.cedulaprofesional.sep.gob.mx/cedula/presidencia/indexAvanzada.action" class="boton-verificacion boton-verificacion--compact" target="_blank" rel="noopener noreferrer">Cédula SEP</a>
+                    <a href="https://redam.puebla.gob.mx/" class="boton-verificacion boton-verificacion--compact" target="_blank" rel="noopener noreferrer">REDAM Puebla</a>
+                </div>
+            </div>
+            
+            <a href="https://www.linkedin.com/in/adrian-gonzalez-3b725b318" class="boton perfil-boton" target="_blank" rel="noopener noreferrer">Visitar Sitio Personal</a>
+            
+            
+            <a href="/adrian-gonzalez/" class="boton perfil-boton">Visitar Sitio Personal</a>
+            
+
+            <div class="perfil-navegacion" style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px;">
+                <a href="/#nudo" class="boton perfil-boton">Volver al Nudo</a>
+                
+                
+                
+                
+                
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                
+                    
+                        <a href="/profesionales/irasema-cruz/" class="boton perfil-boton">Anterior</a>
+                    
+                    
+                
+                    
+                    
+                
+                    
+                    
+                        <a href="/profesionales/nancy-arcos-cruzado/" class="boton perfil-boton">Siguiente</a>
+                    
+                
+            </div>
+        </aside>
+    </div>
+</section>
+
+    </main>
+
+    <footer class="site-footer">
+        <p class="site-footer__marca">PsycheNudo Puebla &copy; 2026</p>
+        <div class="footer-legal">
+            <p class="footer-disclaimer"><strong>Disclaimer:</strong> Este sitio web es una plataforma de difusión académica y profesional. El contenido aquí expuesto no constituye supervisión clínica ni asesoría legal. PsycheNudo Puebla no se hace responsable de las intervenciones individuales de los colaboradores. La verificación de la identidad y cédula profesional es responsabilidad del consultante a través de los canales oficiales.</p>
+        </div>
+    </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Lógica para cambiar entre pestañas (Tabs)
+            window.openTab = function(evt, tabName) {
+                const contents = document.querySelectorAll('.tab-content');
+                const tabs = document.querySelectorAll('.tab');
+                
+                contents.forEach(content => content.classList.remove('active'));
+                tabs.forEach(tab => tab.classList.remove('active'));
+                
+                document.getElementById(tabName).classList.add('active');
+                evt.currentTarget.classList.add('active');
+            };
+
+            const enlaces = document.querySelectorAll('a[href^="http"]');
+            enlaces.forEach(function(enlace) {
+                const href = enlace.getAttribute('href');
+                if (href && !href.includes('psychenudo-puebla.github.io') && !href.includes(window.location.hostname)) {
+                    enlace.setAttribute('target', '_blank');
+                    enlace.setAttribute('rel', 'noopener noreferrer');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

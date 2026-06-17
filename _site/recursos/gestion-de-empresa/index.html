@@ -1,0 +1,2364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <title>HR Tycoon: Gestión Estratégica del Talento</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --gold: #c9a227; --gold-dark: #a68519; --gold-light: #e8c96a;
+            --bg-dark: #1a2332; --bg-panel: #243044; --bg-card: #2d3a50;
+            --bg-elevated: #354560; --border: #3d4f6a; --border-light: #4a5f7a;
+            --text-main: #eef2f7; --text-muted: #94a3b8;
+            --success: #34d399; --warning: #fbbf24; --danger: #f87171; --info: #60a5fa; --stress: #a78bfa;
+            --crisis: #fb923c;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html {
+            min-height: 100%;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(145deg, var(--bg-dark) 0%, #1e2d42 45%, #243650 100%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: rgba(212, 175, 55, 0.25);
+            padding-bottom: env(safe-area-inset-bottom, 0);
+        }
+        .header {
+            background: rgba(26, 35, 50, 0.92);
+            border-bottom: 2px solid var(--gold);
+            padding: 15px;
+            padding-top: calc(15px + env(safe-area-inset-top, 0));
+            text-align: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 100;
+        }
+        .header h1 { color: var(--gold); font-size: clamp(1.3rem, 4vw, 1.8em); text-shadow: 0 0 10px rgba(212,175,55,0.4); }
+        .header .owner { color: var(--text-muted); font-size: clamp(0.75rem, 2.5vw, 0.9em); margin-top: 5px; letter-spacing: 1px; line-height: 1.4; }
+        .attempt-badge {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(201, 162, 39, 0.15);
+            border: 1px solid rgba(201, 162, 39, 0.4);
+            color: var(--gold-light);
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        .attempt-history {
+            margin-top: 20px;
+            text-align: left;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .attempt-history h3 { color: var(--gold); font-size: 1rem; margin-bottom: 10px; }
+        .attempt-history-item {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85em;
+            color: var(--text-muted);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 6px;
+        }
+        .attempt-history-item:last-child { border-bottom: none; }
+        .attempt-history-item strong { color: var(--text-main); }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; padding-left: max(16px, env(safe-area-inset-left, 16px)); padding-right: max(16px, env(safe-area-inset-right, 16px)); }
+        .screen { display: none; animation: fadeIn 0.4s ease; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .input-group { margin: 20px 0; }
+        .input-group label { display: block; margin-bottom: 8px; color: var(--gold); font-weight: 500; font-size: clamp(0.9rem, 2.5vw, 1rem); }
+        input[type="text"], select {
+            width: 100%;
+            max-width: 350px;
+            padding: 12px 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: white;
+            border-radius: 8px;
+            font-size: 16px;
+            min-height: 48px;
+            touch-action: manipulation;
+        }
+        .btn {
+            background: linear-gradient(180deg, var(--gold) 0%, var(--gold-dark) 100%);
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            margin: 8px 4px;
+            transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+            min-height: 48px;
+            min-width: 48px;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(212,175,55,0.5); }
+            .test-card:hover { border-color: var(--gold); background: #2a2a3a; }
+            .candidate-card:hover { border-color: var(--gold); transform: translateY(-3px); }
+            .position-btn:not(.filled):hover { border-color: var(--gold); background: rgba(212,175,55,0.06); }
+            .avatar:hover .bubble { opacity: 1; }
+            .decision-table tr:hover { background: rgba(255,255,255,0.05); }
+        }
+        .btn:active:not(:disabled) { transform: scale(0.98); opacity: 0.9; }
+        .btn:disabled { background: #444; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.6; }
+        .btn-secondary { background: #333; color: white; border: 1px solid #555; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-success { background: linear-gradient(180deg, var(--success) 0%, #27ae60 100%); color: #fff; }
+        .btn-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; }
+        .btn-row .btn { flex: 1 1 auto; min-width: min(100%, 200px); }
+
+        .test-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px; margin: 15px 0; }
+        .test-card {
+            background: var(--bg-card);
+            border: 2px solid #444;
+            padding: 14px;
+            padding-right: 52px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            position: relative;
+            min-height: 48px;
+            touch-action: manipulation;
+        }
+        .test-card.selected { border-color: var(--success); background: rgba(46,204,113,0.1); }
+        .test-card:active { transform: scale(0.99); }
+        .test-card h4 { color: var(--gold); margin-bottom: 5px; }
+        .test-card p { font-size: 0.85em; color: var(--text-muted); margin-bottom: 8px; }
+        .test-time { position: absolute; top: 8px; right: 10px; background: #111; padding: 3px 6px; border-radius: 4px; font-size: 0.75em; color: var(--info); }
+        .test-dims { font-size: 0.8em; color: #aaa; margin-top: 4px; }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            gap: 10px;
+            background: var(--bg-panel);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+        }
+        .stat { text-align: center; min-width: 0; padding: 6px 4px; }
+        .stat span { display: block; font-size: clamp(1rem, 3vw, 1.2em); font-weight: bold; word-break: break-word; }
+        .stat small { color: var(--text-muted); font-size: 0.72em; text-transform: uppercase; line-height: 1.3; display: block; }
+        .val-good { color: var(--success); } .val-warn { color: var(--warning); } .val-bad { color: var(--danger); }
+
+        .mood-panel {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: stretch;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 20px;
+            padding: 14px;
+            border-radius: 12px;
+            background: rgba(52,152,219,0.08);
+            border: 1px solid rgba(52,152,219,0.3);
+        }
+        .mood-info { flex: 1 1 200px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
+        .mood-office-wrap { flex: 2 1 280px; min-width: 0; min-height: 160px; }
+        .mood-emoji { font-size: clamp(2rem, 8vw, 2.4rem); line-height: 1.2; }
+        .mood-text { color: var(--text-main); font-size: clamp(0.85rem, 2.5vw, 0.95rem); max-width: 580px; margin: 0 auto; line-height: 1.5; }
+
+        button, input, select { -webkit-appearance: none; appearance: none; }
+
+        .hiring-phase { text-align: center; margin: 20px 0; }
+        .hiring-phase p { line-height: 1.6; padding: 0 4px; font-size: clamp(0.9rem, 2.5vw, 1rem); }
+        .hiring-badge { margin: 15px 0; font-size: clamp(0.95rem, 2.5vw, 1.1em); background: rgba(0,0,0,0.3); padding: 10px 14px; border-radius: 8px; display: inline-block; max-width: 100%; }
+        .hiring-layout {
+            display: grid;
+            grid-template-columns: minmax(220px, 280px) 1fr;
+            gap: 16px;
+            text-align: left;
+            margin-top: 16px;
+            align-items: start;
+        }
+        .hiring-sidebar {
+            position: sticky;
+            top: 10px;
+        }
+        .hiring-progress {
+            background: var(--bg-panel);
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            font-size: 0.9em;
+        }
+        .hiring-progress strong { color: var(--gold); }
+        .hiring-progress-bar {
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .hiring-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold), var(--success));
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        .position-nav { display: flex; flex-direction: column; gap: 8px; }
+        .position-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--bg-card);
+            border: 2px solid #444;
+            border-radius: 10px;
+            color: var(--text-main);
+            cursor: pointer;
+            font-size: 0.88em;
+            text-align: left;
+            min-height: 56px;
+            touch-action: manipulation;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .position-btn strong { color: var(--gold); font-size: 0.95em; line-height: 1.3; }
+        .position-btn .pos-status { font-size: 0.78em; color: var(--text-muted); margin-top: 4px; }
+        .position-btn.active { border-color: var(--gold); background: rgba(212,175,55,0.1); }
+        .position-btn.filled { border-color: rgba(46,204,113,0.6); }
+        .position-btn.filled .pos-status { color: var(--success); }
+        .position-btn:disabled { cursor: default; opacity: 0.75; }
+        .hiring-detail {
+            background: var(--bg-panel);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 16px;
+            min-width: 0;
+            min-height: 200px;
+        }
+        .hiring-detail-header {
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #333;
+        }
+        .hiring-detail-header h3 { color: var(--gold); font-size: clamp(1rem, 2.5vw, 1.2rem); margin-bottom: 6px; }
+        .hiring-detail-header p { color: var(--text-muted); font-size: 0.88em; line-height: 1.5; }
+        .hiring-candidates { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 14px; }
+        .hiring-placeholder, .hiring-complete-msg {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+        .hiring-complete-msg { color: var(--success); font-size: 1.05em; }
+        .vacancy-alert {
+            margin-top: 8px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: rgba(243,156,18,0.12);
+            border: 1px solid rgba(243,156,18,0.35);
+            color: var(--warning);
+            font-size: 0.82em;
+            line-height: 1.4;
+        }
+        .behavior-tag {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: rgba(52,152,219,0.12);
+            border: 1px solid rgba(52,152,219,0.3);
+            font-size: 0.78em;
+            color: #9ecbff;
+            line-height: 1.35;
+        }
+        .game-rules {
+            margin-top: 12px;
+            padding: 10px 12px;
+            background: rgba(0,0,0,0.25);
+            border-radius: 8px;
+            border: 1px solid #333;
+            font-size: 0.8em;
+            color: var(--text-muted);
+            line-height: 1.5;
+            text-align: left;
+        }
+        .game-rules strong { color: var(--gold); }
+        .crisis-banner {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: rgba(251, 146, 60, 0.12);
+            border: 1px solid rgba(251, 146, 60, 0.4);
+            color: var(--crisis);
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+        .crisis-participants {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+        .crisis-person {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+        }
+        .crisis-person h4 { color: var(--gold); margin-bottom: 6px; font-size: 0.95rem; }
+        .crisis-person p { font-size: 0.82em; color: var(--text-muted); line-height: 1.45; margin: 4px 0; }
+        .crisis-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+        .crisis-actions .btn { width: 100%; margin: 0; text-align: left; }
+        .modal.crisis-modal .modal-content { border-color: var(--crisis); }
+        .modal.crisis-modal h3 { color: var(--crisis); }
+        .candidate-pool { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 15px; margin-top: 20px; }
+        .candidate-card { background: var(--bg-card); border: 2px solid #444; border-radius: 12px; padding: 16px; transition: border-color 0.3s, transform 0.3s; position: relative; overflow: hidden; }
+        .candidate-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 8px; }
+        .candidate-header strong { font-size: clamp(0.95rem, 2.5vw, 1.05rem); word-break: break-word; }
+        
+        .table-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-x: contain;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #333;
+        }
+        .test-results-table { width: 100%; min-width: 260px; border-collapse: collapse; font-size: 0.85em; margin: 0; }
+        .test-results-table th { background: #1a1a1a; color: var(--gold); padding: 8px 6px; text-align: left; font-size: 0.8em; white-space: nowrap; }
+        .test-results-table td { padding: 6px 8px; border-bottom: 1px solid #333; vertical-align: top; }
+        .test-results-table tr:last-child td { border-bottom: none; }
+        .test-results-table td:first-child { max-width: 140px; word-break: break-word; white-space: normal; }
+        .score-val { font-family: 'Courier New', monospace; font-weight: bold; color: var(--info); }
+        .dim-desc { font-size: 0.75em; color: #777; font-style: italic; }
+        
+        .disc-pattern { background: rgba(46,204,113,0.1); border-left: 3px solid var(--success); padding: 8px; margin: 8px 0; border-radius: 0 6px 6px 0; font-size: 0.85em; color: var(--success); font-weight: 500; }
+        .interpret-guide { background: rgba(52,152,219,0.1); border-left: 3px solid var(--info); padding: 10px; margin-top: 10px; border-radius: 0 6px 6px 0; font-size: 0.85em; }
+        
+        .hire-btn { width: 100%; margin-top: 12px; padding: 10px; font-weight: bold; }
+
+        .dashboard { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 15px; }
+        .panel { background: var(--bg-panel); border: 1px solid #333; border-radius: 10px; padding: 15px; min-width: 0; }
+        .panel h3 { color: var(--gold); border-bottom: 2px solid var(--gold); padding-bottom: 8px; margin-bottom: 12px; font-size: clamp(1rem, 2.5vw, 1.1em); }
+        .ops-metrics { margin: 10px 0; font-size: 0.9em; }
+        .ops-metric-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 6px 0; padding: 4px 0; }
+        
+        .employee-card {
+            background: var(--bg-card);
+            border-left: 4px solid var(--info);
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .employee-info { flex: 1 1 180px; min-width: 0; }
+        .employee-info strong { word-break: break-word; }
+        .employee-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 0 1 auto;
+            width: 100%;
+            max-width: 160px;
+        }
+        .employee-actions .btn { margin: 0; width: 100%; font-size: 0.8em; padding: 10px 8px; min-height: 44px; }
+        .employee-card.warning { border-left-color: var(--warning); background: rgba(251, 191, 36, 0.08); }
+        .employee-card.critical { border-left-color: var(--danger); background: rgba(248, 113, 113, 0.1); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100% { box-shadow: 0 0 5px rgba(231,76,60,0.3); } 50% { box-shadow: 0 0 15px rgba(231,76,60,0.6); } }
+
+        .log-box { max-height: 300px; overflow-y: auto; background: var(--bg-dark); padding: 10px; border-radius: 6px; font-size: 0.9em; border: 1px solid var(--border); }
+        .log-entry { padding: 6px 0; border-bottom: 1px solid #222; }
+        .log-entry.pos { color: var(--success); } .log-entry.neg { color: var(--danger); } .log-entry.neu { color: var(--info); }
+
+        /* Área de Interacción de Emojis */
+        .office-floor {
+            height: clamp(140px, 28vw, 200px);
+            width: 100%;
+            background: radial-gradient(circle, #2d3a50 0%, #1a2332 100%);
+            background-image: 
+                linear-gradient(rgba(201, 162, 39, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(201, 162, 39, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            margin: 0;
+            border: 2px solid var(--border);
+            touch-action: manipulation;
+        }
+        .avatar {
+            position: absolute;
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            transition: left 1s ease-in-out, top 1s ease-in-out;
+            cursor: pointer;
+            filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
+            padding: 8px;
+            margin: -8px;
+            z-index: 2;
+        }
+        .avatar-label {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.65rem;
+            white-space: nowrap;
+            background: rgba(0,0,0,0.8);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: white;
+            pointer-events: none;
+        }
+        
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes shake { 0% { transform: translate(1px, 1px); } 10% { transform: translate(-1px, -2px); } 50% { transform: translate(-1px, 1px); } 100% { transform: translate(1px, -1px); } }
+        .status-happy { animation: bounce 2s infinite; }
+        .status-stressed { animation: shake 0.2s infinite; }
+        
+        .bubble {
+            position: absolute;
+            background: white;
+            color: black;
+            border-radius: 10px;
+            padding: 6px;
+            font-size: 0.7rem;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.25s;
+            width: max(80px, 90%);
+            max-width: 110px;
+            text-align: center;
+            bottom: calc(100% + 4px);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .avatar.show-bubble .bubble { opacity: 1; }
+
+        .stat-value { font-family: 'Courier New', monospace; font-size: 1.3em; }
+        .incident-log { font-size: 0.8em; color: #ff8c00; margin-top: 5px; border-top: 1px solid #333; padding-top: 5px; }
+
+        .end-screen { text-align: center; padding: 24px 12px 40px; }
+        .end-screen h2 { font-size: clamp(1.3rem, 4vw, 1.8rem); margin-bottom: 12px; }
+        .end-screen.victory h2 { color: var(--success); } .end-screen.defeat h2 { color: var(--danger); }
+        .report-card { background: var(--bg-panel); border: 1px solid var(--gold); padding: clamp(16px, 4vw, 25px); border-radius: 12px; max-width: 900px; margin: 20px auto; text-align: left; }
+        .setup-panel { text-align: center; max-width: 700px; margin: 20px auto; }
+        .setup-panel h2 { color: var(--gold); margin-bottom: 15px; font-size: clamp(1.2rem, 4vw, 1.5rem); }
+        .feedback-item { margin: 12px 0; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 6px; }
+        .feedback-item.good { border-left: 4px solid var(--success); } .feedback-item.bad { border-left: 4px solid var(--danger); }
+        
+        .decision-table-wrap { margin: 20px 0; }
+        .decision-table { width: 100%; min-width: 640px; border-collapse: collapse; font-size: 0.9em; }
+        .decision-table th { background: var(--gold); color: #000; padding: 10px 8px; text-align: left; white-space: nowrap; }
+        .decision-table td { padding: 8px; border-bottom: 1px solid #333; vertical-align: top; }
+        .decision-table td:first-child { min-width: 100px; }
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; }
+        .badge-hit { background: var(--success); color: white; }
+        .badge-error { background: var(--danger); color: white; }
+        .badge-warning { background: var(--warning); color: black; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            background: rgba(0,0,0,0.85);
+            z-index: 200;
+            justify-content: center;
+            align-items: flex-end;
+            padding: 0;
+            overscroll-behavior: contain;
+        }
+        .modal.active { display: flex; }
+        body.modal-open { overflow: hidden; position: fixed; width: 100%; }
+        .modal-content {
+            background: var(--bg-panel);
+            border: 2px solid var(--gold);
+            border-radius: 16px 16px 0 0;
+            padding: 20px;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom, 0));
+            max-width: 95vw;
+            width: 100%;
+            max-height: 90vh;
+            max-height: 90dvh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+        @media (min-width: 900px) {
+            .modal-content { max-width: 850px; }
+        }
+        .modal-close {
+            float: right;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: -8px -8px 8px 8px;
+            touch-action: manipulation;
+        }
+        .modal-close:active { background: rgba(255,255,255,0.2); }
+        .guide-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+        .guide-table td { padding: 10px 8px; border-bottom: 1px solid #333; vertical-align: top; }
+        .guide-table td:first-child { color: var(--gold); min-width: 120px; }
+
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); gap: 12px; margin: 20px 0; }
+        .summary-card { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #444; }
+        .summary-card h4 { color: var(--gold); margin-bottom: 10px; font-size: clamp(0.85rem, 2.5vw, 1rem); }
+        .summary-card .number { font-size: clamp(1.5rem, 5vw, 2em); font-weight: bold; }
+        .summary-card .number.good { color: var(--success); }
+        .summary-card .number.bad { color: var(--danger); }
+        .section-title { color: var(--gold); margin: 20px 0 10px; font-size: clamp(1rem, 3vw, 1.2rem); }
+
+        @media (min-width: 601px) {
+            .modal { align-items: center; padding: 16px; }
+            .modal-content { border-radius: 12px; width: 90%; }
+            .employee-actions { width: auto; max-width: none; }
+        }
+        @media (max-width: 900px) {
+            .dashboard { grid-template-columns: 1fr; }
+            .dashboard .panel:nth-child(2) { order: -1; }
+        }
+        @media (max-width: 768px) {
+            .hiring-layout { grid-template-columns: 1fr; }
+            .hiring-sidebar { position: static; }
+            .position-nav {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .position-btn { min-height: 52px; padding: 10px 12px; }
+        }
+        @media (max-width: 600px) {
+            .container { padding-top: 12px; padding-bottom: 24px; }
+            .mood-panel { flex-direction: column; }
+            .mood-office-wrap { flex: 1 1 100%; min-height: 150px; }
+            .test-results-table th, .test-results-table td { font-size: 0.78em; }
+            .candidate-card, .employee-card, .panel { padding: 12px; }
+            .btn:not(.employee-actions .btn) { width: 100%; margin-left: 0; margin-right: 0; }
+            .employee-actions { max-width: 100%; flex-direction: row; flex-wrap: wrap; }
+            .employee-actions .btn { flex: 1 1 calc(50% - 6px); }
+            .employee-actions .btn-danger { flex: 1 1 100%; }
+            .stats-bar { grid-template-columns: repeat(3, 1fr); }
+            .stat:nth-child(4), .stat:nth-child(5) { grid-column: span 1; }
+            .hire-btn { padding: 14px; font-size: 1em; }
+            .interpret-guide, .disc-pattern { font-size: 0.82em; }
+        }
+        @media (max-width: 380px) {
+            .stats-bar { grid-template-columns: repeat(2, 1fr); }
+            .employee-actions .btn { flex: 1 1 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏢 HR TYCOON</h1>
+        <div class="owner">Dirigido por: <strong>Alfredo Adrián González Lazcano</strong></div>
+        <div class="attempt-badge" id="attemptBadge">Intento #1</div>
+    </div>
+
+    <div class="container">
+        <div class="screen active" id="setupScreen">
+            <div class="setup-panel">
+                <h2>Configuración Inicial</h2>
+                <div class="input-group">
+                    <label>📛 Nombre de la Empresa:</label>
+                    <input type="text" id="companyName" placeholder="Ej: Soluciones Integrales" maxlength="30">
+                </div>
+                <div class="input-group">
+                    <label>🧪 Selecciona EXACTAMENTE 3 pruebas psicométricas:</label>
+                    <div class="test-grid" id="testSelector"></div>
+                    <button class="btn-secondary" style="margin-top:10px; padding:8px 15px;" onclick="game.openGuide()">📖 Ver Guía de Dimensiones</button>
+                </div>
+                <button class="btn" id="btnStartHiring" disabled onclick="game.enterHiringPhase()">📋 Iniciar Contratación (Gratuita)</button>
+                <p id="testCountMsg" style="color: var(--warning); margin-top: 10px;">Selecciona 3 pruebas</p>
+                <p style="color:var(--text-muted); font-size:0.85em; margin-top:8px;">Cada intento genera candidatos únicos. El progreso se guarda localmente para evitar recargas exploratorias.</p>
+                <div class="attempt-history" id="attemptHistory">
+                    <h3>📜 Historial de intentos</h3>
+                    <p style="color:var(--text-muted); font-size:0.85em;">Aún no hay intentos registrados.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="screen" id="hiringScreen">
+            <div class="hiring-phase">
+                <h2 style="color: var(--gold);" id="hiringTitle">🤝 Fase de Contratación Inicial</h2>
+                <p id="hiringSubtitle">Selecciona candidatos para cubrir <strong>6 puestos críticos</strong>. Cada contratación consume días de proceso; mientras haya puestos vacíos, la operación acumula tensión y retrasos.</p>
+                <div class="hiring-badge">
+                    ⏱️ Días de proceso por candidato: <strong id="daysToHire">0</strong>
+                    <span id="hiringCostBadge" style="display:none;"> · 💰 Costo: <strong id="replacementCost">$0</strong></span>
+                </div>
+                <button class="btn btn-secondary" id="btnCancelReplacement" style="display:none; margin-bottom:10px;" onclick="game.cancelReplacementHiring()">↩️ Volver a operaciones sin contratar</button>
+                <div class="hiring-layout">
+                    <aside class="hiring-sidebar">
+                        <div class="hiring-progress" id="hiringProgress"></div>
+                        <nav class="position-nav" id="positionNav" aria-label="Puestos por cubrir"></nav>
+                    </aside>
+                    <main class="hiring-detail" id="hiringDetail">
+                        <p class="hiring-placeholder">Selecciona un puesto para revisar a los candidatos.</p>
+                    </main>
+                </div>
+            </div>
+        </div>
+
+        <div class="screen" id="activeScreen">
+            <div class="stats-bar" id="statsBar">
+                <div class="stat"><small>Día</small><span id="statDay">0</span></div>
+                <div class="stat"><small>Ingreso Diario</small><span id="statIncome" class="val-good">$0</span></div>
+                <div class="stat"><small>Clima</small><span id="statClimate" class="val-good">80%</span></div>
+                <div class="stat"><small>Errores</small><span id="statErrors" class="val-good">5%</span></div>
+                <div class="stat"><small>Reputación</small><span id="statReputation" class="val-good">85</span></div>
+            </div>
+            <div class="mood-panel" id="companyMood">
+                <div class="mood-info">
+                    <div class="mood-emoji" id="moodEmoji">🙂</div>
+                    <div class="mood-text" id="moodText">El equipo presenta ánimo estable.</div>
+                </div>
+                <div class="mood-office-wrap">
+                    <div class="office-floor" id="officeFloor"></div>
+                </div>
+            </div>
+            <div class="dashboard">
+                <div class="panel">
+                    <h3>📊 Operaciones</h3>
+                    <div class="ops-metrics">
+                        <div class="ops-metric-row"><span>👥 Plantilla:</span> <strong id="staffCount">0/6</strong></div>
+                        <div class="ops-metric-row"><span>📈 Eficiencia:</span> <strong id="efficiency">0%</strong></div>
+                        <div class="ops-metric-row"><span>⚠️ Rotación:</span> <strong id="turnover">0%</strong></div>
+                        <div class="ops-metric-row"><span>✅ Aciertos:</span> <strong id="hitsCount" style="color:var(--success)">0</strong></div>
+                        <div class="ops-metric-row"><span>❌ Errores:</span> <strong id="errorsCount" style="color:var(--danger)">0</strong></div>
+                        <div class="ops-metric-row"><span>💰 Reserva:</span> <strong id="treasury">$0</strong></div>
+                        <div class="ops-metric-row"><span>📅 Semanas:</span> <strong id="weekCount">0</strong></div>
+                        <div class="ops-metric-row"><span>🏭 Vacantes:</span> <strong id="vacantSlots">0</strong></div>
+                    </div>
+                    <div class="game-rules">
+                        <strong>Reglas de la simulación</strong><br>
+                        • Mínimo <strong>8 semanas</strong> operativas para cerrar con éxito.<br>
+                        • Máximo <strong>24 semanas</strong> (168 días).<br>
+                        • Derrota: banca rota, reputación crítica, clima colapsado, <strong>3 huelgas</strong> o plantilla vacía.<br>
+                        • Los conflictos pueden involucrar a varios empleados: revisa expedientes y conductas.<br>
+                        • Con <strong>vacantes</strong>, usa <strong>Contratar personal</strong> ($3,200 c/u + días de proceso).
+                    </div>
+                    <button class="btn" id="btnReplacementHire" style="width:100%; margin-top:10px; display:none;" onclick="game.enterReplacementHiring()">👥 Contratar personal (vacantes)</button>
+                    <div class="crisis-banner" id="crisisBanner" style="display:none;">
+                        ⚠️ Hay una crisis laboral pendiente. Debes resolverla antes de avanzar otra semana.
+                        <button class="btn btn-secondary" style="width:100%; margin-top:8px; font-size:0.85em;" onclick="game.openCrisis()">🚨 Abrir gestión de crisis</button>
+                    </div>
+                    <button class="btn btn-secondary" style="width:100%; margin-top:10px;" id="btnNextTurn" onclick="game.nextTurn()">⏭️ Avanzar 1 Semana</button>
+                    <button class="btn btn-danger" style="width:100%; margin-top:10px;" onclick="game.tryManualEnd()">🏁 Finalizar Gestión</button>
+                </div>
+                <div class="panel">
+                    <h3>👔 Equipo Actual</h3>
+                    <div id="employeeList"><p style="color: var(--text-muted); text-align:center; padding:20px;">Sin empleados aún</p></div>
+                </div>
+                <div class="panel">
+                    <h3>📰 Bitácora</h3>
+                    <div class="log-box" id="logBox"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="screen" id="endScreen">
+            <h2 id="endTitle">Juego Terminado</h2>
+            <div class="report-card" id="reportCard">
+                <div class="summary-grid" id="summaryGrid"></div>
+                <h3 class="section-title">📋 Tabla de Decisiones de Contratación</h3>
+                <div class="table-scroll decision-table-wrap">
+                    <table class="decision-table" id="decisionTable"></table>
+                </div>
+                <div id="feedbackSection"></div>
+                <div class="btn-row">
+                    <button class="btn btn-success" onclick="game.exportPDF()">📥 Exportar Reporte a PDF</button>
+                    <button class="btn" onclick="game.newGame()">🔄 Nuevo Intento</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL GUÍA -->
+    <div class="modal" id="guideModal" onclick="game.handleModalBackdrop(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="game.closeGuide()">×</button>
+            <h3 style="color:var(--gold); margin-bottom:15px;">📖 Guía de Dimensiones e Interpretación</h3>
+            <div id="guideContent"></div>
+        </div>
+    </div>
+
+    <!-- MODAL CRISIS -->
+    <div class="modal crisis-modal" id="crisisModal">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="game.closeCrisis()">×</button>
+            <h3>🚨 Gestión de Crisis Laboral</h3>
+            <p id="crisisDescription" style="color:var(--text-muted); font-size:0.9em; line-height:1.5; margin-bottom:8px;"></p>
+            <div class="crisis-participants" id="crisisParticipants"></div>
+            <div class="crisis-actions" id="crisisActions"></div>
+        </div>
+    </div>
+
+    <script>
+        const machoverDesc = (ubicacion, tamano, trazo, proporciones, detalles, partes) => ({
+            "Ubicación en la hoja": ubicacion,
+            "Tamaño de la figura": tamano,
+            "Trazo y presión": trazo,
+            "Proporciones": proporciones,
+            "Detalles del dibujo": detalles,
+            "Partes omitidas o enfatizadas": partes
+        });
+
+        const DB = {
+            tests: {
+                big_five: { 
+                    name: "Big Five (OCEAN)", time: 2, 
+                    dimensions: ["Apertura", "Conciencia", "Extraversión", "Amabilidad", "Estabilidad Emocional"],
+                    ranges: [0, 100],
+                    desc: "5 factores de personalidad. Alto valor predictivo general.",
+                    interpretation: {
+                        "Conciencia": "Alto: Organizado, cumplidor. Bajo: Flexible, adaptable.",
+                        "Estabilidad Emocional": "Alto: Resiliente, calmado. Bajo: Reactivo al estrés.",
+                        "Extraversión": "Alto: Sociable, proactivo. Bajo: Reflexivo, autónomo.",
+                        "Apertura": "Alto: Creativo, innovador. Bajo: Práctico, estructurado.",
+                        "Amabilidad": "Alto: Cooperativo, empático. Bajo: Competitivo, directo."
+                    }
+                },
+                cleaver: { 
+                    name: "Cleaver (DISC)", time: 1.5, 
+                    dimensions: ["Dominancia (D)", "Influencia (I)", "Estabilidad (S)", "Cumplimiento (C)"],
+                    ranges: [0, 100], 
+                    desc: "Estilo conductual. Se interpreta por patrón (altos/bajos), no por valores absolutos.",
+                    interpretation: {
+                        "Dominancia (D)": "Alto: Directo, resultados. Bajo: Diplomático, pausado.",
+                        "Influencia (I)": "Alto: Persuasivo, entusiasta. Bajo: Analítico, reservado.",
+                        "Estabilidad (S)": "Alto: Constante, leal. Bajo: Ágil, multitarea.",
+                        "Cumplimiento (C)": "Alto: Detallista, normativo. Bajo: Pragmático, flexible."
+                    }
+                },
+                pf16: { 
+                    name: "16PF (Cattell)", time: 2.5, 
+                    dimensions: ["Calidez (A)", "Razonamiento (B)", "Estabilidad (C)", "Dominancia (E)", "Animación (F)", "Normativismo (G)", "Atrevimiento (H)", "Suspicacia (L)", "Abstracción (M)", "Privacidad (N)", "Aprensión (O)", "Apertura Cambio (Q1)", "Autosuficiencia (Q2)", "Autocontrol (Q3)", "Tensión (Q4)", "Ansiedad Global", "Dureza Global", "Extraversión Global", "Autocontrol Global", "Independencia Global"],
+                    ranges: [1, 10], 
+                    desc: "16 factores de personalidad. Requiere baremos para validez diagnóstica.",
+                    interpretation: {
+                        "Estabilidad (C)": "Alto: Madurez emocional. Bajo: Reactivo, inseguro.",
+                        "Razonamiento (B)": "Alto: Abstracción, aprendizaje rápido. Bajo: Concreto, procedimental.",
+                        "Normativismo (G)": "Alto: Cumplimiento, responsabilidad. Bajo: Independiente, flexible.",
+                        "Autocontrol (Q3)": "Alto: Preciso, metódico. Bajo: Impulsivo, espontáneo."
+                    }
+                },
+                baron: { 
+                    name: "BarOn EQ-i", time: 2, 
+                    dimensions: ["CET (Total)", "Solución Problemas", "Adaptabilidad", "Manejo Estrés", "Optimismo", "Relaciones Inter", "Control Impulsos", "Empatía", "Responsabilidad Soc", "Prueba Realidad", "Independencia", "Asertividad", "Autoconcepto"],
+                    ranges: [70, 130], 
+                    desc: "Inteligencia emocional y manejo de estrés. Media poblacional: 100.",
+                    interpretation: {
+                        "Manejo de Estrés": "Alto: Tolerancia a presión. Bajo: Sobrecarga frecuente.",
+                        "Interpersonalidad": "Alto: Redes sólidas, empatía. Bajo: Aislamiento, conflicto.",
+                        "Adaptabilidad": "Alto: Flexibilidad cognitiva. Bajo: Rígido, resistencia al cambio."
+                    }
+                },
+                moss: { 
+                    name: "MoSS", time: 1.5, 
+                    dimensions: ["Habilidad Supervisión", "Capacidad Decisión", "Sentido Común", "Eval. Problemas", "Relaciones Inter"],
+                    ranges: [0, 100], 
+                    desc: "Habilidades sociales y estilo de liderazgo transversal.",
+                    interpretation: {
+                        "Liderazgo": "Alto: Dirección, influencia. Bajo: Ejecución, apoyo.",
+                        "Resolución Conflictos": "Alto: Mediación, negociación. Bajo: Evitación o confrontación."
+                    }
+                },
+                machover: { 
+                    name: "Test de la Figura Humana (Machover)", time: 0.5, 
+                    dimensions: ["Ubicación en la hoja", "Tamaño de la figura", "Trazo y presión", "Proporciones", "Detalles del dibujo", "Partes omitidas o enfatizadas"],
+                    ranges: "Cualitativo", 
+                    desc: "Dibujo libre de una persona. Registra la descripción objetiva del trazo para apoyar tu interpretación proyectiva.",
+                    qualitative: true,
+                    interpretation: {
+                        "Ubicación en la hoja": "Centro: presencia equilibrada. Parte superior/izquierda: tendencia introspectiva. Inferior/derecha: orientación a la acción o al entorno.",
+                        "Tamaño de la figura": "Grande: busca visibilidad o impacto. Pequeña: cautela o autocrítica. Proporcionada al espacio: ajuste moderado.",
+                        "Trazo y presión": "Firme y continuo: seguridad al ejecutar. Fragmentado o tenue: duda o fatiga. Muy marcado: tensión o impulsividad.",
+                        "Proporciones": "Cabeza destacada: énfasis intelectual. Tronco amplio: foco emocional. Extremidades largas: orientación práctica.",
+                        "Detalles del dibujo": "Rostro y manos elaborados: atención a vínculo y control. Accesorios marcados: importancia de la imagen. Pocos detalles: reserva o síntesis.",
+                        "Partes omitidas o enfatizadas": "Pies o manos ausentes: dificultad para avanzar o establecer contacto. Boca u ojos resaltados: foco comunicativo. Brazos abiertos: apertura interpersonal."
+                    }
+                }
+            },
+            positions: [
+                { 
+                    key: 'gerente', name: 'Gerente de Proyectos', 
+                    templates: {
+                        ideal: { cleaver: {"Dominancia (D)":85,"Influencia (I)":30,"Estabilidad (S)":75,"Cumplimiento (C)":60}, pf16: {"Estabilidad (C)":9,"Autocontrol (Q3)":9,"Ansiedad Global":3}, baron: {"CET (Total)":120,"Solución Problemas":125,"Adaptabilidad":115}, moss: {"Habilidad Supervisión":95,"Capacidad Decisión":90}, machover: machoverDesc("Figura centrada, ocupa la mitad del formato.", "Tamaño medio-alto respecto al área útil.", "Líneas firmes y continuas, presión uniforme.", "Cabeza, tronco y extremidades en proporción equilibrada.", "Rostro definido; manos visibles con dedos esquematizados.", "Hombros ligeramente marcados; no omite extremidades."), big_five: {Conciencia:85, Estabilidad:80, Extraversion:70, Amabilidad:60, Apertura:75} },
+                        training: { cleaver: {"Dominancia (D)":50,"Influencia (I)":40,"Estabilidad (S)":85,"Cumplimiento (C)":60}, pf16: {"Normativismo (G)":7,"Atrevimiento (H)":4,"Ansiedad Global":6}, baron: {"CET (Total)":95,"Manejo Estrés":90}, moss: {"Sentido Común":80,"Habilidad Supervisión":60}, machover: machoverDesc("Figura desplazada al margen superior izquierdo.", "Tamaño medio; ocupa menos del 40% de la hoja.", "Trazo variable con retoques visibles en manos.", "Extremidades algo alargadas respecto al tronco.", "Detalle moderado en rostro; ropa esquematizada.", "Pies dibujados de forma simple; énfasis en las manos."), big_five: {Conciencia:70, Estabilidad:65, Extraversion:50, Amabilidad:55, Apertura:60} },
+                        unsuitable: { cleaver: {"Dominancia (D)":95,"Influencia (I)":10,"Estabilidad (S)":15,"Cumplimiento (C)":90}, pf16: {"Suspicacia (L)":9,"Tensión (Q4)":10,"Ansiedad Global":10}, baron: {"Control Impulsos":65,"Empatía":70}, moss: {"Capacidad Decisión":20}, machover: machoverDesc("Figura en el borde superior, muy cerca del margen.", "Figura grande que supera el 70% del área.", "Líneas muy gruesas y angulosas, presión elevada.", "Cuello prolongado; cabeza relativamente pequeña.", "Pocos rasgos faciales; ropa con líneas rígidas.", "Brazos pegados al cuerpo; omite detalle en manos."), big_five: {Conciencia:95, Estabilidad:30, Extraversion:20, Amabilidad:30, Apertura:40} }
+                    }
+                },
+                { 
+                    key: 'ventas', name: 'Especialista en Ventas', 
+                    templates: {
+                        ideal: { cleaver: {"Dominancia (D)":60,"Influencia (I)":90,"Estabilidad (S)":40,"Cumplimiento (C)":30}, pf16: {"Calidez (A)":9,"Atrevimiento (H)":10,"Extraversión Global":9}, baron: {"Optimismo":125,"Relaciones Inter":120}, moss: {"Relaciones Inter":98}, machover: machoverDesc("Figura centrada con leve inclinación hacia la derecha.", "Tamaño amplio, ocupa más del 55% de la hoja.", "Trazo fluido y ligero, líneas curvas predominantes.", "Brazos extendidos hacia los lados; tronco proporcionado.", "Sonrisa visible; ojos y boca detallados.", "Manos abiertas y visibles; énfasis en expresión facial."), big_five: {Extraversion:95, Amabilidad:85, Apertura:80, Conciencia:65, Estabilidad:75} },
+                        training: { cleaver: {"Dominancia (D)":40,"Influencia (I)":85,"Estabilidad (S)":30,"Cumplimiento (C)":15}, pf16: {"Autocontrol (Q3)":3,"Animación (F)":8,"Autocontrol Global":2}, baron: {"CET (Total)":100,"Control Impulsos":75}, moss: {"Eval. Problemas":45}, machover: machoverDesc("Figura ligeramente descentrada hacia arriba.", "Figura grande, desproporcionada respecto al margen.", "Trazo continuo pero con presión irregular.", "Cabeza amplia; extremidades cortas.", "Ojos redondos prominentes; nariz y boca simples.", "Manos pequeñas; detalle concentrado en el rostro."), big_five: {Extraversion:85, Amabilidad:75, Apertura:70, Conciencia:40, Estabilidad:60} },
+                        unsuitable: { cleaver: {"Dominancia (D)":70,"Influencia (I)":95,"Estabilidad (S)":20,"Cumplimiento (C)":20}, pf16: {"Privacidad (N)":9,"Normativismo (G)":2}, baron: {"Responsabilidad Soc":65,"Prueba Realidad":68}, moss: {"Sentido Común":15}, machover: machoverDesc("Figura ubicada en el tercio derecho de la hoja.", "Tamaño medio-alto con postura frontal rígida.", "Trazo firme en contorno; interior poco trabajado.", "Silueta simétrica; proporciones convencionales.", "Rasgos faciales mínimos; cabello y ropa detallados.", "Manos ocultas detrás del tronco o bajo mangas."), big_five: {Extraversion:95, Amabilidad:40, Apertura:75, Conciencia:30, Estabilidad:50} }
+                    }
+                },
+                { 
+                    key: 'analista', name: 'Analista de Datos', 
+                    templates: {
+                        ideal: { cleaver: {"Dominancia (D)":40,"Influencia (I)":20,"Estabilidad (S)":50,"Cumplimiento (C)":95}, pf16: {"Razonamiento (B)":10,"Abstracción (M)":2,"Dureza Global":9}, baron: {"Prueba Realidad":125,"Independencia":115}, moss: {"Eval. Problemas":95}, machover: machoverDesc("Figura centrada, ligeramente hacia la izquierda.", "Tamaño medio, bien contenida en el espacio.", "Trazo fino, preciso y homogéneo en todo el dibujo.", "Cabeza proporcionada al tronco; extremidades regulares.", "Alto nivel de detalle en rostro, manos y ropa.", "Todas las partes corporales representadas con claridad."), big_five: {Conciencia:95, Estabilidad:85, Apertura:70, Amabilidad:50, Extraversion:30} },
+                        training: { cleaver: {"Dominancia (D)":30,"Influencia (I)":15,"Estabilidad (S)":60,"Cumplimiento (C)":85}, pf16: {"Aprensión (O)":8,"Apertura Cambio (Q1)":4,"Extraversión Global":2}, baron: {"Adaptabilidad":75,"Felicidad":85}, moss: {"Relaciones Inter":30}, machover: machoverDesc("Figura pequeña en la esquina inferior izquierda.", "Ocupa menos del 25% del área total.", "Trazo tenue con algunas líneas interrumpidas.", "Cabeza algo grande respecto al cuerpo.", "Detalle limitado a contorno general.", "Pies apenas esbozados; manos sin dedos."), big_five: {Conciencia:85, Estabilidad:60, Apertura:60, Amabilidad:45, Extraversion:20} },
+                        unsuitable: { cleaver: {"Dominancia (D)":10,"Influencia (I)":10,"Estabilidad (S)":40,"Cumplimiento (C)":99}, pf16: {"Tensión (Q4)":9,"Suspicacia (L)":8,"Dureza Global":10}, baron: {"Autoconcepto":65,"Solución Problemas":70}, moss: {"Capacidad Decisión":10}, machover: machoverDesc("Figura en el centro pero muy pegada al borde inferior.", "Tamaño medio; postura encogida.", "Trazo denso y repetitivo en el contorno.", "Cabeza desproporcionadamente grande.", "Sin rasgos faciales definidos; ropa muy detallada.", "Omite ojos y nariz; énfasis en contorno del rostro."), big_five: {Conciencia:99, Estabilidad:40, Apertura:50, Amabilidad:35, Extraversion:10} }
+                    }
+                },
+                { 
+                    key: 'rrhh', name: 'Coordinador RRHH', 
+                    templates: {
+                        ideal: { cleaver: {"Dominancia (D)":35,"Influencia (I)":75,"Estabilidad (S)":80,"Cumplimiento (C)":60}, pf16: {"Calidez (A)":10,"Suspicacia (L)":2,"Extraversión Global":8}, baron: {"Empatía":130,"Responsabilidad Soc":125}, moss: {"Sentido Común":95}, machover: machoverDesc("Figura centrada con postura abierta.", "Tamaño medio-alto, bien distribuida en la hoja.", "Líneas curvas y suaves, presión moderada.", "Tronco redondeado; simetría general del cuerpo.", "Rostro amable con ojos y boca proporcionados.", "Brazos relajados a los lados; pies completos."), big_five: {Amabilidad:95, Extraversion:85, Estabilidad:85, Conciencia:70, Apertura:75} },
+                        training: { cleaver: {"Dominancia (D)":15,"Influencia (I)":60,"Estabilidad (S)":85,"Cumplimiento (C)":70}, pf16: {"Dominancia (E)":2,"Aprensión (O)":8}, baron: {"Asertividad":75,"CET (Total)":100}, moss: {"Habilidad Supervisión":40}, machover: machoverDesc("Figura en el centro, inclinada levemente.", "Tamaño medio; ocupa un tercio de la hoja.", "Trazo débil, líneas poco definidas.", "Proporciones regulares entre cabeza y tronco.", "Rostro simple; pocos detalles en extremidades.", "Pies no dibujados; base del cuerpo truncada."), big_five: {Amabilidad:85, Extraversion:60, Estabilidad:65, Conciencia:75, Apertura:65} },
+                        unsuitable: { cleaver: {"Dominancia (D)":40,"Influencia (I)":95,"Estabilidad (S)":30,"Cumplimiento (C)":20}, pf16: {"Atrevimiento (H)":9,"Privacidad (N)":3}, baron: {"Autoconcepto":135,"Relaciones Inter":70}, moss: {"Eval. Problemas":20}, machover: machoverDesc("Figura desplazada al centro-derecha.", "Tamaño grande con postura elegante.", "Trazo cuidado en accesorios; contorno definido.", "Cuerpo estilizado; extremidades alargadas.", "Ojos grandes y labios marcados; cabello detallado.", "Énfasis en joyas, corbata o elementos decorativos."), big_five: {Amabilidad:35, Extraversion:95, Estabilidad:50, Conciencia:40, Apertura:80} }
+                    }
+                },
+                { 
+                    key: 'desarrollador', name: 'Desarrollador Software', 
+                    templates: {
+                        ideal: { cleaver: {"Dominancia (D)":60,"Influencia (I)":30,"Estabilidad (S)":40,"Cumplimiento (C)":85}, pf16: {"Razonamiento (B)":10,"Apertura Cambio (Q1)":9,"Independencia Global":9}, baron: {"Solución Problemas":135,"Independencia":120}, moss: {"Eval. Problemas":90}, machover: machoverDesc("Figura centrada con leve orientación hacia adelante.", "Tamaño medio; postura erguida.", "Trazo definido, líneas rectas y angulares moderadas.", "Cabeza detallada; manos grandes respecto al cuerpo.", "Énfasis en cabeza y manos; rostro con rasgos claros.", "Dedos visibles; herramienta o objeto cerca de las manos."), big_five: {Apertura:95, Conciencia:85, Estabilidad:80, Amabilidad:50, Extraversion:35} },
+                        training: { cleaver: {"Dominancia (D)":30,"Influencia (I)":20,"Estabilidad (S)":80,"Cumplimiento (C)":75}, pf16: {"Apertura Cambio (Q1)":4,"Razonamiento (B)":7}, baron: {"Adaptabilidad":90,"Flexibilidad":85}, moss: {"Sentido Común":75}, machover: machoverDesc("Figura centrada, postura frontal rígida.", "Tamaño medio-alto, silueta vertical.", "Trazo uniforme, líneas paralelas tipo esquema.", "Proporciones mecánicas; articulaciones marcadas.", "Rostro esquemático; cuerpo con contorno geométrico.", "Poca variación en curvas; extremidades simétricas."), big_five: {Apertura:70, Conciencia:80, Estabilidad:70, Amabilidad:45, Extraversion:30} },
+                        unsuitable: { cleaver: {"Dominancia (D)":80,"Influencia (I)":10,"Estabilidad (S)":15,"Cumplimiento (C)":40}, pf16: {"Autosuficiencia (Q2)":10,"Dominancia (E)":9}, baron: {"Relaciones Inter":65,"Manejo Estrés":68}, moss: {"Relaciones Inter":5}, machover: machoverDesc("Figura en el margen izquierdo, aislada del centro.", "Tamaño medio; composición desarticulada.", "Trazo irregular con cambios de presión.", "Partes del cuerpo desconectadas entre sí.", "Cabeza y tronco dibujados; extremidades separadas.", "Brazos ausentes o fuera de la silueta principal."), big_five: {Apertura:90, Conciencia:40, Estabilidad:40, Amabilidad:30, Extraversion:10} }
+                    }
+                },
+                { 
+                    key: 'operaciones', name: 'Supervisor Operaciones', 
+                    templates: {
+                        ideal: { cleaver: {"Dominancia (D)":75,"Influencia (I)":40,"Estabilidad (S)":60,"Cumplimiento (C)":85}, pf16: {"Normativismo (G)":10,"Autocontrol (Q3)":9,"Autocontrol Global":10}, baron: {"Responsabilidad Soc":120,"Control Impulsos":115}, moss: {"Habilidad Supervisión":95}, machover: machoverDesc("Figura centrada, postura firme y frontal.", "Tamaño medio-alto, presencia dominante en la hoja.", "Trazo firme con ángulos marcados en hombros.", "Hombros anchos; tronco anguloso y proporcionado.", "Rostro serio, rasgos definidos; ropa formal.", "Pies firmes sobre línea de base; brazos a los lados."), big_five: {Conciencia:90, Estabilidad:85, Extraversion:60, Amabilidad:55, Apertura:50} },
+                        training: { cleaver: {"Dominancia (D)":45,"Influencia (I)":25,"Estabilidad (S)":65,"Cumplimiento (C)":90}, pf16: {"Atrevimiento (H)":4,"Estabilidad (C)":7}, baron: {"Asertividad":80,"CET (Total)":95}, moss: {"Sentido Común":85,"Habilidad Supervisión":50}, machover: machoverDesc("Figura centrada, postura recta.", "Tamaño medio; figura completa de pies a cabeza.", "Trazo promedio, presión moderada y uniforme.", "Proporciones convencionales sin énfasis particular.", "Traje con botones y cuello detallados.", "Énfasis en ropa y uniforme; rostro poco elaborado."), big_five: {Conciencia:85, Estabilidad:75, Extraversion:40, Amabilidad:50, Apertura:45} },
+                        unsuitable: { cleaver: {"Dominancia (D)":90,"Influencia (I)":20,"Estabilidad (S)":25,"Cumplimiento (C)":80}, pf16: {"Tensión (Q4)":10,"Aprensión (O)":9}, baron: {"Manejo Estrés":68,"Control Impulsos":65}, moss: {"Capacidad Decisión":15}, machover: machoverDesc("Figura en el tercio superior, inclinada hacia adelante.", "Tamaño grande; ocupa la mayor parte del espacio.", "Trazo fuerte y rápido, líneas de presión alta.", "Boca abierta y prominente; mandíbula marcada.", "Ojos entrecerrados; cejas gruesas.", "Pies puntiagudos o en forma de triángulo; puños cerrados."), big_five: {Conciencia:80, Estabilidad:30, Extraversion:25, Amabilidad:35, Apertura:30} }
+                    }
+                }
+            ],
+            events: [
+                { text: "Aumento de demanda en el mercado", type: "pos", effect: { income: 15 } },
+                { text: "Queja de cliente por error operativo", type: "neg", effect: { rep: -8, errors: 5 } },
+                { text: "Capacitación técnica disponible", type: "neu", effect: {} },
+                { text: "Competencia lanza campaña agresiva", type: "neg", effect: { climate: -6 } },
+                { text: "Reconocimiento interno por resultados", type: "pos", effect: { climate: 8, rep: 5 } },
+                { text: "Nuevo contrato importante conseguido", type: "pos", effect: { income: 25, rep: 5 } },
+                { text: "Auditoría de calidad programada", type: "neu", effect: {} },
+                { text: "Cliente exige cumplimiento inmediato por puesto sin cubrir", type: "neg", effect: { rep: -5, errors: 3 } },
+                { text: "Equipo temporal cubre vacante con sobrecosto", type: "neg", effect: { climate: -4 } }
+            ],
+            behaviorProfiles: {
+                disruptor: { name: "Contestador", traits: "Cuestiona decisiones en público e interrumpe reuniones." },
+                blamer: { name: "Externalizador", traits: "Atribuye fallas a otros antes de revisar su propio trabajo." },
+                passive: { name: "Resistente pasivo", traits: "Cumple en apariencia, pero retrasa entregas con excusas." },
+                polarizer: { name: "Polarizador", traits: "Genera bandos y comentarios que dividen al equipo." },
+                cautious: { name: "Cauteloso", traits: "Pide validación constante y evita decidir solo." },
+                learner: { name: "En desarrollo", traits: "Progresa lento, pero acepta retroalimentación." },
+                collaborator: { name: "Colaborador", traits: "Facilita acuerdos y documenta compromisos del equipo." },
+                executor: { name: "Ejecutor", traits: "Mantiene estándares y cumple plazos con consistencia." },
+                innovator: { name: "Proactivo", traits: "Propone mejoras sin imponerlas al grupo." },
+                reliable: { name: "Confiable", traits: "Sostiene calidad incluso bajo presión operativa." }
+            },
+            conflictTemplates: [
+                (a, b) => `Discusión en operaciones: ${a} y ${b} se acusaron mutuamente por un retraso.`,
+                (a, b) => `Reunión tensa: ${a} interrumpió a ${b} frente al equipo.`,
+                (a, b) => `Reporte de área: ${a} y ${b} no lograron ponerse de acuerdo en prioridades.`,
+                (a, b) => `Queja cruzada: ${a} y ${b} enviaron correos contradictorios al mismo cliente.`,
+                (a, b) => `Incidente de turno: ${a} y ${b} disputaron la responsabilidad de un error.`
+            ]
+        };
+
+        const GAME_CONFIG = {
+            minOperationalWeeks: 8,
+            maxDays: 168,
+            startingTreasury: 12000,
+            weeklyPayrollPerEmployee: 420,
+            weeklyVacancyCost: 650,
+            strikeClimateThreshold: 28,
+            maxStrikes: 3,
+            replacementHireCost: 3200
+        };
+
+        const STORAGE_KEYS = {
+            attempts: 'hr_tycoon_attempts_v1',
+            session: 'hr_tycoon_active_session_v1'
+        };
+
+        class Game {
+            constructor() {
+                this.state = { 
+                    owner: "Alfredo Adrián González Lazcano", 
+                    companyName: "", 
+                    selectedTests: [], 
+                    day: 0, 
+                    income: 0, 
+                    climate: 80, 
+                    errors: 5, 
+                    reputation: 85, 
+                    employees: [], 
+                    hiredCount: 0, 
+                    phase: "setup", 
+                    history: [],
+                    decisions: [],
+                    hits: 0,
+                    mistakes: 0,
+                    trainings: 0,
+                    firings: 0,
+                    treasury: GAME_CONFIG.startingTreasury,
+                    vacancyStrain: 0,
+                    operationalWeeks: 0,
+                    strikes: 0,
+                    resignations: 0,
+                    crisesResolved: 0,
+                    attemptNumber: 0,
+                    sessionId: null,
+                    pendingCrisis: null,
+                    startTime: Date.now(),
+                    setupDuration: 0,
+                    hiringDuration: 0
+                };
+                this._hiringByPosition = {};
+                this._filledPositions = {};
+                this._candidateCache = [];
+                this.renderTestSelector();
+                this.renderGuide();
+                this.renderAttemptHistory();
+                if (!this.tryRestoreSession()) {
+                    this.updateAttemptBadge(this.getAttempts().length + 1);
+                }
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        if (document.getElementById('guideModal').classList.contains('active')) this.closeGuide();
+                        if (document.getElementById('crisisModal').classList.contains('active') && !this.state.pendingCrisis) this.closeCrisis();
+                    }
+                });
+            }
+
+            getAttempts() {
+                try {
+                    const data = JSON.parse(localStorage.getItem(STORAGE_KEYS.attempts) || '[]');
+                    return Array.isArray(data) ? data : [];
+                } catch { return []; }
+            }
+
+            saveAttempts(attempts) {
+                try { localStorage.setItem(STORAGE_KEYS.attempts, JSON.stringify(attempts)); } catch (e) { console.warn('No se pudo guardar historial', e); }
+            }
+
+            getTotalAttemptsCount() {
+                return this.getAttempts().length;
+            }
+
+            updateAttemptBadge(num) {
+                const el = document.getElementById('attemptBadge');
+                const total = this.getTotalAttemptsCount();
+                if (el) el.textContent = total > 0 ? `Intento #${num} · ${total} en historial` : `Intento #${num}`;
+            }
+
+            renderAttemptHistory() {
+                const box = document.getElementById('attemptHistory');
+                if (!box) return;
+                const attempts = this.getAttempts().slice(0, 8);
+                if (!attempts.length) {
+                    box.innerHTML = '<h3>📜 Historial de intentos</h3><p style="color:var(--text-muted); font-size:0.85em;">Aún no hay intentos registrados.</p>';
+                    return;
+                }
+                box.innerHTML = '<h3>📜 Historial de intentos</h3>' + attempts.map(a => {
+                    const status = a.completed ? (a.victory ? '✅ Completado' : '❌ Derrota') : '⏳ En curso / incompleto';
+                    const acc = a.accuracy != null ? ` · Precisión ${a.accuracy}%` : '';
+                    return `<div class="attempt-history-item"><span><strong>#${a.number}</strong> ${a.company || 'Sin nombre'} — ${new Date(a.startedAt).toLocaleDateString()}</span><span>${status}${acc}</span></div>`;
+                }).join('');
+            }
+
+            registerAttemptStart() {
+                const attempts = this.getAttempts();
+                attempts.unshift({
+                    id: this.state.sessionId,
+                    number: this.state.attemptNumber,
+                    company: this.state.companyName,
+                    startedAt: Date.now(),
+                    completed: false,
+                    victory: false,
+                    accuracy: null,
+                    phase: 'hiring'
+                });
+                this.saveAttempts(attempts.slice(0, 30));
+                this.renderAttemptHistory();
+            }
+
+            finalizeAttempt(victory, accuracy) {
+                const attempts = this.getAttempts();
+                const idx = attempts.findIndex(a => a.id === this.state.sessionId);
+                if (idx > -1) {
+                    attempts[idx].completed = true;
+                    attempts[idx].victory = victory;
+                    attempts[idx].accuracy = accuracy;
+                    attempts[idx].endedAt = Date.now();
+                    attempts[idx].phase = 'finished';
+                }
+                this.saveAttempts(attempts);
+                this.renderAttemptHistory();
+            }
+
+            saveSession() {
+                if (!this.state.sessionId) return;
+                try {
+                    const payload = {
+                        sessionId: this.state.sessionId,
+                        attemptNumber: this.state.attemptNumber,
+                        savedAt: Date.now(),
+                        state: this.state,
+                        hiring: {
+                            _hiringByPosition: this._hiringByPosition,
+                            _filledPositions: this._filledPositions,
+                            _activeHiringPosition: this._activeHiringPosition,
+                            _candidateCache: this._candidateCache,
+                            _hiringPositions: this._hiringPositions
+                        }
+                    };
+                    localStorage.setItem(STORAGE_KEYS.session, JSON.stringify(payload));
+                } catch (e) { console.warn('No se pudo guardar sesión', e); }
+            }
+
+            clearSession() {
+                try { localStorage.removeItem(STORAGE_KEYS.session); } catch (e) {}
+            }
+
+            tryRestoreSession() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEYS.session);
+                    if (!raw) return false;
+                    const data = JSON.parse(raw);
+                    if (!data?.state?.sessionId || !data.state.phase || data.state.phase === 'setup') return false;
+                    this.state = data.state;
+                    this._hiringByPosition = data.hiring?._hiringByPosition || {};
+                    this._filledPositions = data.hiring?._filledPositions || {};
+                    this._activeHiringPosition = data.hiring?._activeHiringPosition || null;
+                    this._candidateCache = data.hiring?._candidateCache || [];
+                    this._hiringPositions = data.hiring?._hiringPositions || null;
+                    this.updateAttemptBadge(this.state.attemptNumber);
+                    if (this.state.phase === 'hiring') {
+                        document.getElementById('daysToHire').textContent = this.state.selectedTests.reduce((s, k) => s + DB.tests[k].time, 0).toFixed(1);
+                        this.showScreen('hiringScreen');
+                        this.renderHiringProgress();
+                        this.renderPositionNav();
+                        if (this._activeHiringPosition && !this._filledPositions[this._activeHiringPosition]) {
+                            this.selectHiringPosition(this._activeHiringPosition);
+                        } else if (this.state.positionsToFill?.length) {
+                            this.selectHiringPosition(this.state.positionsToFill[0].key);
+                        }
+                    } else if (this.state.phase === 'active' || this.state.phase === 'replacing') {
+                        if (this.state.phase === 'replacing') {
+                            this.showReplacementHiringUI();
+                            this.showScreen('hiringScreen');
+                            this.renderHiringProgress();
+                            this.renderPositionNav();
+                            if (this.state.positionsToFill?.length) {
+                                const key = this._activeHiringPosition && !this._filledPositions[this._activeHiringPosition]
+                                    ? this._activeHiringPosition : this.state.positionsToFill[0].key;
+                                this.selectHiringPosition(key);
+                            }
+                        } else {
+                            this.showScreen('activeScreen');
+                            this.updateStats();
+                            this.renderEmployees();
+                            this.updateCrisisUI();
+                        }
+                    }
+                    return true;
+                } catch { return false; }
+            }
+
+            newGame() {
+                this.clearSession();
+                location.reload();
+            }
+
+            // 🔄 GENERADOR DISC REALISTA (Picos y Valles)
+            generateRealisticDISC(category) {
+                const styles = ['D', 'I', 'S', 'C'];
+                const opp = { D: 'S', I: 'C', S: 'D', C: 'I' };
+                const dom = styles[Math.floor(Math.random() * 4)];
+                
+                let scores = { D: 5, I: 5, S: 5, C: 5 };
+                
+                if (category === 'ideal') {
+                    scores[dom] = Math.floor(Math.random() * 2) + 8; // 8-9
+                    scores[opp[dom]] = Math.floor(Math.random() * 2) + 1; // 1-2
+                    const others = styles.filter(s => s !== dom && s !== opp[dom]);
+                    scores[others[0]] = Math.floor(Math.random() * 3) + 4; // 4-6
+                    scores[others[1]] = Math.floor(Math.random() * 2) + 3; // 3-4
+                } else if (category === 'training') {
+                    scores[dom] = Math.floor(Math.random() * 3) + 6; // 6-8
+                    scores[opp[dom]] = Math.floor(Math.random() * 2) + 3; // 3-4
+                    const others = styles.filter(s => s !== dom && s !== opp[dom]);
+                    scores[others[0]] = Math.floor(Math.random() * 3) + 4;
+                    scores[others[1]] = Math.floor(Math.random() * 3) + 4;
+                } else { // unsuitable
+                    scores[dom] = Math.floor(Math.random() * 2) + 2; // 2-3
+                    scores[opp[dom]] = Math.floor(Math.random() * 2) + 8; // 8-9 (opuesto al requerido)
+                    const others = styles.filter(s => s !== dom && s !== opp[dom]);
+                    scores[others[0]] = Math.floor(Math.random() * 2) + 2;
+                    scores[others[1]] = Math.floor(Math.random() * 2) + 2;
+                }
+                
+                return {
+                    scores,
+                    pattern: `Alto en ${dom}, Bajo en ${opp[dom]}`
+                };
+            }
+
+            renderTestSelector() {
+                const container = document.getElementById('testSelector');
+                container.innerHTML = '';
+                Object.entries(DB.tests).forEach(([key, t]) => {
+                    const div = document.createElement('div');
+                    div.className = 'test-card';
+                    div.dataset.key = key;
+                    const dimsStr = t.dimensions.slice(0, 3).join(', ') + (t.dimensions.length > 3 ? '...' : '');
+                    div.innerHTML = `<span class="test-time">⏱️ ${t.time}d</span><h4>${t.name}</h4><p>${t.desc}</p><div class="test-dims">${dimsStr}</div>`;
+                    div.onclick = () => this.toggleTest(key, div);
+                    container.appendChild(div);
+                });
+            }
+
+            toggleTest(key, el) {
+                const sel = this.state.selectedTests;
+                if (sel.includes(key)) { this.state.selectedTests = sel.filter(k => k !== key); el.classList.remove('selected'); }
+                else if (sel.length < 3) { sel.push(key); el.classList.add('selected'); }
+                document.getElementById('testCountMsg').textContent = sel.length === 3 ? "✅ Listo" : `Selecciona ${3-sel.length} prueba(s) más`;
+                document.getElementById('testCountMsg').style.color = sel.length === 3 ? "var(--success)" : "var(--warning)";
+                document.getElementById('btnStartHiring').disabled = sel.length !== 3;
+            }
+
+            enterHiringPhase() {
+                this.clearSession();
+                this.state.setupDuration = (Date.now() - this.state.startTime) / 1000;
+                this.state.companyName = document.getElementById('companyName').value.trim() || "Empresa Genérica";
+                const prevAttempts = this.getAttempts();
+                this.state.attemptNumber = prevAttempts.reduce((m, a) => Math.max(m, a.number || 0), 0) + 1;
+                this.state.sessionId = `att_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+                this.state.phase = "hiring";
+                this.updateAttemptBadge(this.state.attemptNumber);
+                this.registerAttemptStart();
+                this.showScreen('hiringScreen');
+                this.generateHiringPool();
+                this.saveSession();
+                this.log(`Proceso de selección iniciado para ${this.state.companyName}. Analice los perfiles con cuidado.`, "neu");
+                this.log(`Intento #${this.state.attemptNumber} de ${this.getTotalAttemptsCount()} en tu historial.`, "neu");
+            }
+
+            getOpenPositions() {
+                const filledKeys = new Set(this.state.employees.map(e => e.position));
+                return DB.positions.filter(p => !filledKeys.has(p.key));
+            }
+
+            showReplacementHiringUI() {
+                document.getElementById('hiringTitle').textContent = '🔁 Contratación de Reemplazo';
+                document.getElementById('hiringSubtitle').innerHTML = `Hay <strong>${this.getOpenPositions().length}</strong> puesto(s) vacante(s). Selecciona candidatos con las mismas pruebas psicométricas. Cada contratación tiene costo y consume días de proceso.`;
+                document.getElementById('hiringCostBadge').style.display = 'inline';
+                document.getElementById('replacementCost').textContent = `$${GAME_CONFIG.replacementHireCost.toLocaleString()}`;
+                document.getElementById('btnCancelReplacement').style.display = 'inline-block';
+            }
+
+            showInitialHiringUI() {
+                document.getElementById('hiringTitle').textContent = '🤝 Fase de Contratación Inicial';
+                document.getElementById('hiringSubtitle').innerHTML = 'Selecciona candidatos para cubrir <strong>6 puestos críticos</strong>. Cada contratación consume días de proceso; mientras haya puestos vacíos, la operación acumula tensión y retrasos.';
+                document.getElementById('hiringCostBadge').style.display = 'none';
+                document.getElementById('btnCancelReplacement').style.display = 'none';
+            }
+
+            enterReplacementHiring() {
+                if (this.state.pendingCrisis) {
+                    alert('Resuelve la crisis laboral pendiente antes de contratar.');
+                    this.openCrisis();
+                    return;
+                }
+                const open = this.getOpenPositions();
+                if (!open.length) {
+                    alert('No hay puestos vacantes en este momento.');
+                    return;
+                }
+                if (this.state.treasury < GAME_CONFIG.replacementHireCost) {
+                    alert(`Necesitas al menos $${GAME_CONFIG.replacementHireCost.toLocaleString()} en reserva para iniciar un proceso de contratación.`);
+                    return;
+                }
+                this.state.replacementMode = true;
+                this.state.phase = 'replacing';
+                this.state.positionsToFill = [...open];
+                this._hiringPositions = [...open];
+                this._hiringByPosition = {};
+                this._filledPositions = {};
+                this._candidateCache = [];
+                this._activeHiringPosition = null;
+                open.forEach(pos => {
+                    const candidates = Array.from({ length: 4 }, (_, i) => this.createCandidate(pos, i + 1));
+                    this._hiringByPosition[pos.key] = candidates;
+                    this._candidateCache.push(...candidates);
+                });
+                const totalTime = this.state.selectedTests.reduce((s, k) => s + DB.tests[k].time, 0);
+                document.getElementById('daysToHire').textContent = totalTime.toFixed(1);
+                this.showReplacementHiringUI();
+                this.showScreen('hiringScreen');
+                this.renderHiringProgress();
+                this.renderPositionNav();
+                this.selectHiringPosition(open[0].key);
+                this.log(`Proceso de reemplazo abierto para ${open.length} vacante(s). Costo por contratación: $${GAME_CONFIG.replacementHireCost.toLocaleString()}.`, 'neu');
+                this.saveSession();
+            }
+
+            cancelReplacementHiring() {
+                if (!this.state.replacementMode) return;
+                this.state.replacementMode = false;
+                this.state.phase = 'active';
+                this.showInitialHiringUI();
+                this.showScreen('activeScreen');
+                this.log('Contratación de reemplazo cancelada. Los puestos siguen vacantes.', 'neu');
+                this.updateStats();
+                this.saveSession();
+            }
+
+            finishReplacementHiring() {
+                this.state.replacementMode = false;
+                this.state.phase = 'active';
+                this.showInitialHiringUI();
+                this.showScreen('activeScreen');
+                this.log('Contratación de reemplazo completada. Operaciones reanudadas.', 'neu');
+                this.updateStats();
+                this.renderEmployees();
+                this.updateCrisisUI();
+                this.saveSession();
+            }
+
+            generateHiringPool() {
+                const totalTime = this.state.selectedTests.reduce((s, k) => s + DB.tests[k].time, 0);
+                document.getElementById('daysToHire').textContent = totalTime.toFixed(1);
+                this.showInitialHiringUI();
+                if (!this.state.positionsToFill?.length) this.state.positionsToFill = [...DB.positions];
+                this._hiringPositions = [...DB.positions];
+                if (!Object.keys(this._hiringByPosition).length) {
+                    this._candidateCache = [];
+                    this._hiringByPosition = {};
+                    this._filledPositions = {};
+                    this._activeHiringPosition = null;
+                    DB.positions.forEach(pos => {
+                        const candidates = Array.from({ length: 4 }, (_, i) => this.createCandidate(pos, i + 1));
+                        this._hiringByPosition[pos.key] = candidates;
+                        this._candidateCache.push(...candidates);
+                    });
+                }
+                this.renderHiringProgress();
+                this.renderPositionNav();
+                if (this.state.positionsToFill.length > 0) {
+                    const nextKey = this._activeHiringPosition && !this._filledPositions[this._activeHiringPosition]
+                        ? this._activeHiringPosition : this.state.positionsToFill[0].key;
+                    this.selectHiringPosition(nextKey);
+                }
+            }
+
+            renderHiringProgress() {
+                const filled = Object.keys(this._filledPositions).length;
+                const total = (this._hiringPositions || DB.positions).length;
+                const vacant = total - filled;
+                const pct = Math.round((filled / total) * 100);
+                const strain = this.state.vacancyStrain || 0;
+                document.getElementById('hiringProgress').innerHTML = `
+                    <div>📋 <strong>${filled}/${total}</strong> puestos cubiertos</div>
+                    <div class="hiring-progress-bar"><div class="hiring-progress-fill" style="width:${pct}%"></div></div>
+                    ${vacant > 0 ? `<div class="vacancy-alert">⚠️ <strong>${vacant}</strong> puesto(s) vacío(s). Cada contratación suma días de tensión operativa mientras sigan sin cubrir.</div>` : ''}
+                    ${strain > 0 ? `<div class="vacancy-alert" style="margin-top:6px;">📉 Estrés acumulado: <strong>${strain}</strong> días-puesto sin cobertura.</div>` : ''}
+                `;
+            }
+
+            assignBehaviorProfile(category) {
+                const pools = {
+                    unsuitable: ['disruptor', 'blamer', 'passive', 'polarizer'],
+                    training: ['cautious', 'learner', 'passive'],
+                    ideal: ['collaborator', 'executor', 'innovator', 'reliable']
+                };
+                const key = pools[category][Math.floor(Math.random() * pools[category].length)];
+                return { key, ...DB.behaviorProfiles[key] };
+            }
+
+            pickConflictPartner(sourceIdx) {
+                const others = this.state.employees.map((e, i) => ({ e, i })).filter(x => x.i !== sourceIdx);
+                if (!others.length) return null;
+                const preferred = others.filter(x => x.e.category !== 'unsuitable');
+                const pool = preferred.length ? preferred : others;
+                return pool[Math.floor(Math.random() * pool.length)];
+            }
+
+            applyVacancyStrain(daysElapsed, vacantAfterHire) {
+                if (vacantAfterHire <= 0) return;
+                const strain = vacantAfterHire * daysElapsed;
+                this.state.vacancyStrain += strain;
+            }
+
+            renderPositionNav() {
+                const nav = document.getElementById('positionNav');
+                nav.innerHTML = '';
+                const list = this._hiringPositions || DB.positions;
+                list.forEach(pos => {
+                    const filled = this._filledPositions[pos.key];
+                    const isActive = this._activeHiringPosition === pos.key;
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = `position-btn${isActive ? ' active' : ''}${filled ? ' filled' : ''}`;
+                    btn.innerHTML = `
+                        <strong>${pos.name}</strong>
+                        <span class="pos-status">${filled ? `✅ ${filled}` : '⏳ Pendiente · 4 candidatos'}</span>
+                    `;
+                    if (!filled) btn.onclick = () => this.selectHiringPosition(pos.key);
+                    nav.appendChild(btn);
+                });
+            }
+
+            openComparator(posKey) {
+                const pos = DB.positions.find(p => p.key === posKey);
+                const candidates = this._hiringByPosition[posKey];
+                let html = `<h3 style="color:var(--gold); margin-bottom:15px;">📊 Comparativa: ${pos.name}</h3>`;
+                html += `<div class="table-scroll"><table class="decision-table" style="min-width:800px;"><thead><tr><th>Dimensión</th>`;
+                candidates.forEach(c => html += `<th>${c.name}</th>`);
+                html += `</tr></thead><tbody>`;
+                
+                // Extraer dimensiones de las pruebas seleccionadas
+                this.state.selectedTests.forEach(tKey => {
+                    const t = DB.tests[tKey];
+                    if (t.qualitative) return;
+                    html += `<tr style="background:rgba(212,175,55,0.1)"><td colspan="${candidates.length + 1}"><strong>${t.name}</strong></td></tr>`;
+                    t.dimensions.forEach(dim => {
+                        html += `<tr><td>${dim}</td>`;
+                        candidates.forEach(c => {
+                            const val = c.tests[tKey][dim];
+                            html += `<td style="text-align:center" class="score-val">${val}</td>`;
+                        });
+                        html += `</tr>`;
+                    });
+                });
+                
+                html += `</tbody></table></div>`;
+                document.getElementById('guideContent').innerHTML = html;
+                this.openGuide();
+            }
+
+            selectHiringPosition(posKey) {
+                if (this._filledPositions[posKey]) return;
+                this._activeHiringPosition = posKey;
+                this.renderPositionNav();
+                const pos = DB.positions.find(p => p.key === posKey);
+                const candidates = this._hiringByPosition[posKey] || [];
+                
+                const jobProfiles = {
+                    gerente: "<b>Competencias Técnicas:</b> Planificación estratégica, gestión de presupuestos y KPIs. <br><b>Habilidades Blandas:</b> Liderazgo asertivo, toma de decisiones bajo presión y visión de negocio.",
+                    ventas: "<b>Competencias Técnicas:</b> Técnicas de prospección, cierre de ventas y manejo de CRM. <br><b>Habilidades Blandas:</b> Persuasión, resiliencia ante el rechazo, entusiasmo y comunicación efectiva.",
+                    analista: "<b>Competencias Técnicas:</b> Modelado de datos, estadística avanzada y reporteo técnico. <br><b>Habilidades Blandas:</b> Orientación al detalle extremo, pensamiento lógico-estructurado y alta capacidad de concentración.",
+                    rrhh: "<b>Competencias Técnicas:</b> Legislación laboral vigente, gestión del clima y selección por competencias. <br><b>Habilidades Blandas:</b> Empatía, mediación de conflictos, ética profesional y escucha activa.",
+                    desarrollador: "<b>Competencias Técnicas:</b> Arquitectura de sistemas, lenguajes de programación y metodologías ágiles. <br><b>Habilidades Blandas:</b> Resolución de problemas complejos, curiosidad intelectual y tolerancia a la frustración.",
+                    operaciones: "<b>Competencias Técnicas:</b> Gestión de cadena de suministro, control de mermas y calidad. <br><b>Habilidades Blandas:</b> Disciplina, apego estricto a procesos y capacidad de supervisión directa."
+                };
+
+                const detail = document.getElementById('hiringDetail');
+                detail.innerHTML = `
+                    <div class="hiring-detail-header">
+                        <h3>📍 ${pos.name}</h3>
+                        <div style="background: rgba(0,0,0,0.15); padding: 12px; border-radius: 8px; border-left: 4px solid var(--gold); margin: 12px 0;">
+                            <p style="font-size: 0.9em; margin-bottom: 5px;"><strong>Descripción del Puesto:</strong></p>
+                            <p style="font-size: 0.85em; color: var(--text-muted); line-height: 1.5;">${jobProfiles[posKey] || 'Perfil basado en equilibrio técnico y competencias emocionales.'}</p>
+                        </div>
+                        <p style="font-size: 0.85em; margin-bottom: 12px;">Evalúe los resultados psicométricos de los candidatos. Deberá inferir qué dimensiones (Dominancia, Extraversión, Estabilidad, etc.) son las idóneas para sustentar este perfil.</p>
+                        <button class="btn btn-secondary" style="width:auto;" onclick="game.openComparator('${posKey}')">📊 Comparar los 4 candidatos</button>
+                    </div>
+                    <div class="hiring-candidates" id="hiringCandidates"></div>
+                `;
+                const grid = document.getElementById('hiringCandidates');
+                candidates.forEach(c => {
+                    const card = document.createElement('div');
+                    card.className = 'candidate-card';
+                    card.innerHTML = this.renderCandidateCard(c, pos);
+                    grid.appendChild(card);
+                });
+                detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                this.saveSession();
+            }
+
+            createCandidate(pos, id) {
+                const rand = Math.random();
+                const category = rand > 0.7 ? 'ideal' : rand > 0.4 ? 'training' : 'unsuitable';
+                const template = pos.templates[category];
+                const testResults = {};
+
+                this.state.selectedTests.forEach(tKey => {
+                    const t = DB.tests[tKey];
+                    const scores = {};
+                    
+                    if (t.qualitative && tKey === 'machover') {
+                        const drawing = template.machover || {};
+                        t.dimensions.forEach(dim => {
+                            scores[dim] = drawing[dim] || "No registrado en el protocolo.";
+                        });
+                    } else if (t.qualitative) {
+                        t.dimensions.forEach(dim => {
+                            scores[dim] = "No registrado.";
+                        });
+                    } else {
+                        t.dimensions.forEach(dim => {
+                            // Mapeo dinámico desde el template
+                            let baseVal = (template[tKey] && template[tKey][dim] !== undefined) ? template[tKey][dim] : null;
+                            
+                            // Si no existe en template, buscar en Big Five si es la prueba
+                            if (baseVal == null && tKey === 'big_five' && template.big_five) {
+                                if (dim === 'Estabilidad Emocional') baseVal = template.big_five.Estabilidad;
+                                else baseVal = template.big_five[dim];
+                            }
+
+                            // Generar valor por defecto si no hay data
+                            if (baseVal == null) {
+                                const middle = (t.ranges[0] + t.ranges[1]) / 2;
+                                baseVal = category === 'ideal' ? middle * 1.2 : category === 'training' ? middle : middle * 0.7;
+                            }
+
+                            // Ruido estadístico mínimo (+/- 5%) para que no sean robots
+                            const range = t.ranges[1] - t.ranges[0];
+                            const noise = (Math.random() * 0.1 - 0.05) * range;
+                            scores[dim] = Math.round(Math.max(t.ranges[0], Math.min(t.ranges[1], baseVal + noise)));
+                        });
+
+                        // Caso especial Cleaver: Generar patrón visual
+                        if (tKey === 'cleaver') {
+                            const d = scores["Dominancia (D)"], i = scores["Influencia (I)"], s = scores["Estabilidad (S)"], c = scores["Cumplimiento (C)"];
+                            const sorted = [
+                                {n:'D', v:d}, {n:'I', v:i}, {n:'S', v:s}, {n:'C', v:c}
+                            ].sort((a,b) => b.v - a.v);
+                            scores["_pattern"] = `Alto en ${sorted[0].n} y ${sorted[1].n}`;
+                        }
+                    }
+                    testResults[tKey] = scores;
+                });
+
+                const fit = category === 'ideal' ? 92 : category === 'training' ? 68 : 35;
+
+                const behaviorProfile = this.assignBehaviorProfile(category);
+                return { 
+                    id: `${pos.key}_${id}`, 
+                    name: this.genName(), 
+                    position: pos.key, 
+                    posName: pos.name,
+                    emoji: ['👨‍💼','👩‍💼','👨‍💻','👩‍💻','👨‍🔬','👩‍🔬','👨‍🎨','👩‍🎨'][Math.floor(Math.random()*8)],
+                    category, 
+                    fit: Math.round(fit), 
+                    status: `Perfil observado: ${behaviorProfile.traits}`,
+                    behaviorKey: behaviorProfile.key,
+                    behaviorProfile,
+                    tests: testResults, 
+                    hireDay: 0,
+                    positionInOffice: { x: Math.random() * 80 + 5, y: Math.random() * 60 + 10 },
+                    decisions: [],
+                    incidents: [{ day: 0, msg: `Ingreso tras selección. Conducta inicial: ${behaviorProfile.name.toLowerCase()}.` }],
+                    performance: category === 'ideal' ? 85 : category === 'training' ? 65 : 40,
+                    burnout: 0
+                };
+            }
+
+            renderCandidateCard(c, pos) {
+                let tableRows = '';
+                let discPatternHtml = '';
+                
+                for (let tKey in c.tests) {
+                    const t = DB.tests[tKey];
+                    if (tKey === 'cleaver') {
+                        tableRows += `<tr><td colspan="2" style="background:#222; color:var(--gold); padding:6px;"><strong>${t.name}</strong></td></tr>`;
+                        tableRows += `<tr><td>Dominancia (D)</td><td class="score-val">${c.tests[tKey]["Dominancia (D)"]} <span class="dim-desc">(1-10)</span></td></tr>`;
+                        tableRows += `<tr><td>Influencia (I)</td><td class="score-val">${c.tests[tKey]["Influencia (I)"]} <span class="dim-desc">(1-10)</span></td></tr>`;
+                        tableRows += `<tr><td>Estabilidad (S)</td><td class="score-val">${c.tests[tKey]["Estabilidad (S)"]} <span class="dim-desc">(1-10)</span></td></tr>`;
+                        tableRows += `<tr><td>Cumplimiento (C)</td><td class="score-val">${c.tests[tKey]["Cumplimiento (C)"]} <span class="dim-desc">(1-10)</span></td></tr>`;
+                        discPatternHtml = `<div class="disc-pattern">📊 Patrón DISC: ${c.tests[tKey]["_pattern"]}</div>`;
+                    } else if (t.qualitative) {
+                        tableRows += `<tr><td colspan="2" style="background:#222; color:var(--gold); padding:6px;"><strong>${t.name}</strong> <span class="dim-desc">(descripción del dibujo)</span></td></tr>`;
+                        t.dimensions.forEach(dim => {
+                            tableRows += `<tr><td>${dim}</td><td class="dim-desc">${c.tests[tKey][dim] || "N/A"}</td></tr>`;
+                        });
+                    } else {
+                        tableRows += `<tr><td colspan="2" style="background:#222; color:var(--gold); padding:6px;"><strong>${t.name}</strong></td></tr>`;
+                        for (let dim in c.tests[tKey]) {
+                            if (dim.startsWith('_')) continue;
+                            tableRows += `<tr><td>${dim}</td><td class="score-val">${c.tests[tKey][dim]} <span class="dim-desc">(${t.ranges[0]}-${t.ranges[1]})</span></td></tr>`;
+                        }
+                    }
+                }
+                const timeCost = this.state.selectedTests.reduce((s,k) => s + DB.tests[k].time, 0);
+                return `
+                    <div class="candidate-header"><strong>${c.name}</strong><span style="color:var(--text-muted); font-size:0.85em;">ID: ${c.id}</span></div>
+                    <div class="table-scroll"><table class="test-results-table">${tableRows}</table></div>
+                    ${discPatternHtml}
+                    <small style="color:var(--text-muted)">⏱️ Tiempo proceso: ${timeCost} días</small>
+                    <button class="btn hire-btn" onclick="game.hireCandidate('${c.id}', '${pos.key}')">✅ Contratar</button>
+                `;
+            }
+
+            hireCandidate(candId, posKey) {
+                if (!this._candidateCache) this._candidateCache = [];
+                const cand = this._candidateCache.find(c => c.id === candId);
+                if (!cand) { alert("Error de carga. Refresca e intenta de nuevo."); return; }
+
+                const daysElapsed = Math.ceil(parseFloat(document.getElementById('daysToHire').textContent));
+                const vacantDuringProcess = this.state.replacementMode
+                    ? this.state.positionsToFill.length - 1
+                    : this.state.positionsToFill.length - 1;
+                this.applyVacancyStrain(daysElapsed, vacantDuringProcess);
+
+                if (this.state.replacementMode) {
+                    if (this.state.treasury < GAME_CONFIG.replacementHireCost) {
+                        alert('Reserva insuficiente para completar la contratación.');
+                        return;
+                    }
+                    this.state.treasury -= GAME_CONFIG.replacementHireCost;
+                }
+
+                cand.hireDay = this.state.day + daysElapsed;
+                this.state.employees.push(cand);
+                const posIdx = this.state.positionsToFill.findIndex(p => p.key === posKey);
+                if (posIdx > -1) this.state.positionsToFill.splice(posIdx, 1);
+                this.state.day += daysElapsed;
+                this.state.hiredCount++;
+                
+                const isHit = cand.category === 'ideal';
+                const decision = {
+                    candidate: cand.name,
+                    position: cand.posName,
+                    day: this.state.day,
+                    tests: this.state.selectedTests.map(t => DB.tests[t].name).join(', '),
+                    category: cand.category,
+                    fit: cand.fit,
+                    result: isHit ? 'hit' : (cand.category === 'training' ? 'warning' : 'error'),
+                    actions: this.state.replacementMode ? ['Reemplazo'] : []
+                };
+                this.state.decisions.push(decision);
+                if (isHit) this.state.hits++; else if (cand.category === 'unsuitable') this.state.mistakes++;
+                
+                const hireLabel = this.state.replacementMode ? 'Reemplazo registrado' : 'Contratación registrada';
+                this.log(`${hireLabel}: ${cand.name} incorporado/a como ${cand.posName}${this.state.replacementMode ? ` (costo $${GAME_CONFIG.replacementHireCost.toLocaleString()})` : ''}.`, "neu");
+                if (vacantDuringProcess > 0) {
+                    this.log(`Mientras se procesaba la contratación, ${vacantDuringProcess} puesto(s) siguieron vacíos durante ${daysElapsed} días.`, "neu");
+                }
+                this._filledPositions[posKey] = cand.name;
+                this.renderHiringProgress();
+                this.renderPositionNav();
+
+                if (this.state.positionsToFill.length === 0) {
+                    document.getElementById('hiringDetail').innerHTML = `
+                        <div class="hiring-complete-msg">
+                            ✅ ${this.state.replacementMode ? 'Vacantes cubiertas en este proceso.' : 'Todos los puestos han sido cubiertos.'}<br>
+                            <span style="color:var(--text-muted); font-size:0.9em;">${this.state.replacementMode ? 'Volviendo a operaciones...' : 'Iniciando operaciones de la empresa...'}</span>
+                        </div>
+                    `;
+                    setTimeout(() => this.state.replacementMode ? this.finishReplacementHiring() : this.startActivePhase(), 1200);
+                } else {
+                    this.selectHiringPosition(this.state.positionsToFill[0].key);
+                }
+                this.saveSession();
+            }
+
+            startActivePhase() {
+                this.state.hiringDuration = (Date.now() - (this.state.startTime + this.state.setupDuration * 1000)) / 1000;
+                this.state.phase = "active";
+                if (this.state.vacancyStrain > 0) {
+                    const penalty = Math.min(28, Math.floor(this.state.vacancyStrain / 8));
+                    this.state.climate = Math.max(0, this.state.climate - penalty);
+                    this.state.reputation = Math.max(0, this.state.reputation - Math.floor(penalty / 2));
+                    this.state.errors = Math.min(100, this.state.errors + Math.floor(penalty / 4));
+                    this.state.treasury = Math.max(0, this.state.treasury - penalty * 120);
+                    this.log(`Arranque con tensión: la cobertura tardía dejó ${this.state.vacancyStrain} días-puesto sin atender.`, "neu");
+                }
+                this.showScreen('activeScreen');
+                this.log("🚀 Operación iniciada. Gestiona el equipo semana a semana y monitorea clima, reserva y conflictos.", "neu");
+                this.updateStats();
+                this.renderEmployees();
+                this.updateReplacementHireUI();
+                this.saveSession();
+            }
+
+            nextTurn() {
+                if (this.state.pendingCrisis) {
+                    alert('Hay una crisis laboral pendiente. Ábrela desde el panel de operaciones y resuélvela antes de avanzar.');
+                    this.openCrisis();
+                    return;
+                }
+                this.state.day += 7;
+                this.state.operationalWeeks += 1;
+                let weeklyErrors = 0;
+                let weeklyClimateImpact = 0;
+                const vacantSlots = Math.max(0, 6 - this.state.employees.length);
+
+                const baseIncome = this.state.employees.reduce((sum, e) => {
+                    const m = e.category === 'ideal' ? 100 : e.category === 'training' ? 65 : 30;
+                    return sum + m;
+                }, 0);
+
+                if (vacantSlots > 0) {
+                    weeklyErrors += vacantSlots * 3;
+                    weeklyClimateImpact -= vacantSlots * 4;
+                    this.state.reputation = Math.max(0, this.state.reputation - vacantSlots);
+                    this.log(`${vacantSlots} puesto(s) vacante(s) generan sobrecarga y retrasos en la operación.`, "neu");
+                }
+
+                let crisisTriggered = false;
+                for (let i = this.state.employees.length - 1; i >= 0; i--) {
+                    const e = this.state.employees[i];
+
+                    if (!crisisTriggered && e.category === 'unsuitable' && Math.random() > 0.35) {
+                        const partner = this.pickConflictPartner(i);
+                        const tpl = DB.conflictTemplates[Math.floor(Math.random() * DB.conflictTemplates.length)];
+                        const conflictMsg = partner ? tpl(e.name, partner.e.name) : `Incidente de conducta reportado en el área de ${e.name}.`;
+                        e.status = conflictMsg;
+                        e.incidents.push({ day: this.state.day, msg: conflictMsg });
+                        if (partner) {
+                            partner.e.incidents.push({ day: this.state.day, msg: `Involucrado/a en conflicto laboral con ${e.name}.` });
+                            partner.e.burnout = Math.min(100, partner.e.burnout + 8 + Math.floor(Math.random() * 6));
+                            partner.e.status = `Afectado/a por tensión con ${e.name}; solicita mediación.`;
+                            this.triggerCrisis(i, partner.i, conflictMsg);
+                            crisisTriggered = true;
+                        }
+                        weeklyErrors += 3;
+                        weeklyClimateImpact -= 7;
+                    }
+
+                    if (e.category === 'unsuitable') {
+                        e.burnout = Math.min(100, e.burnout + 12 + Math.floor(Math.random() * 6));
+                        if (Math.random() > 0.5) {
+                            const soloMsg = Math.random() > 0.5 ? "Entregable con errores recurrentes." : "Incumplimiento de protocolo interno.";
+                            e.incidents.push({ day: this.state.day, msg: soloMsg });
+                            e.status = soloMsg;
+                            weeklyErrors += 3;
+                            weeklyClimateImpact -= 4;
+                        }
+                    } else if (e.category === 'training') {
+                        e.burnout = Math.min(100, e.burnout + 8 + Math.floor(Math.random() * 4));
+                        if (this.state.climate < 55) e.burnout = Math.min(100, e.burnout + 4);
+                        if (Math.random() > 0.55) e.performance = Math.min(95, e.performance + 1);
+                    } else {
+                        const teamStress = this.state.employees.filter(x => x.category === 'unsuitable').length;
+                        e.burnout = Math.min(100, e.burnout + (this.state.climate < 50 ? 6 : 2) + teamStress * 2);
+                        if (teamStress > 0 && Math.random() > 0.6) {
+                            const stressMsg = "Solicita apoyo por carga adicional derivada de conflictos del equipo.";
+                            e.incidents.push({ day: this.state.day, msg: stressMsg });
+                        }
+                    }
+
+                    if (e.burnout > 92) {
+                        this.log(`${e.name} presentó renuncia. La empresa pierde cobertura en ${e.posName}.`, "neg");
+                        this.state.resignations++;
+                        this.state.employees.splice(i, 1);
+                        weeklyClimateImpact -= 8;
+                        this.state.reputation = Math.max(0, this.state.reputation - 4);
+                        continue;
+                    } else if (e.burnout > 78) {
+                        e.performance = Math.max(20, e.performance - 6);
+                        e.incidents.push({ day: this.state.day, msg: "Baja de rendimiento por desgaste acumulado." });
+                    }
+                }
+
+                this.state.income = Math.max(0, Math.round(baseIncome - (this.state.errors * 2) - vacantSlots * 25));
+                this.state.errors = Math.min(100, Math.max(0, this.state.errors + weeklyErrors - 1));
+                this.state.climate = Math.min(100, Math.max(0, this.state.climate + weeklyClimateImpact + (this.state.employees.filter(e => e.category === 'ideal').length > 2 ? 1 : 0)));
+                this.state.reputation = Math.min(100, Math.max(0, this.state.reputation + (this.state.climate / 22) - (this.state.errors / 14)));
+
+                const payroll = this.state.employees.length * GAME_CONFIG.weeklyPayrollPerEmployee;
+                const vacancyCost = vacantSlots * GAME_CONFIG.weeklyVacancyCost;
+                const revenue = this.state.income * 7;
+                this.state.treasury += revenue - payroll - vacancyCost;
+                if (vacancyCost > 0) {
+                    this.log(`Costo semanal por ${vacantSlots} vacante(s): $${vacancyCost.toLocaleString()}.`, "neu");
+                }
+
+                const unsuitableCount = this.state.employees.filter(e => e.category === 'unsuitable').length;
+                if (this.state.climate <= GAME_CONFIG.strikeClimateThreshold && unsuitableCount >= 1 && Math.random() > 0.45) {
+                    this.state.strikes++;
+                    this.state.income = Math.max(0, Math.round(this.state.income * 0.55));
+                    this.state.reputation = Math.max(0, this.state.reputation - 8);
+                    this.state.treasury = Math.max(0, this.state.treasury - 1500);
+                    this.log(`Huelga parcial (${this.state.strikes}/${GAME_CONFIG.maxStrikes}): el equipo exige medidas ante el clima laboral.`, "neg");
+                }
+
+                if (Math.random() > 0.55) {
+                    const ev = DB.events[Math.floor(Math.random() * DB.events.length)];
+                    this.log(ev.text, ev.type);
+                    if (ev.effect.income) this.state.income += ev.effect.income;
+                    if (ev.effect.rep) this.state.reputation += ev.effect.rep;
+                    if (ev.effect.climate) this.state.climate = Math.min(100, Math.max(0, this.state.climate + ev.effect.climate));
+                    if (ev.effect.errors) this.state.errors = Math.min(100, Math.max(0, this.state.errors + ev.effect.errors));
+                }
+
+                this.updateStats();
+                this.renderEmployees();
+                this.saveSession();
+                this.checkGameOver();
+            }
+
+            triggerCrisis(sourceIdx, partnerIdx, msg) {
+                this.state.pendingCrisis = { sourceIdx, partnerIdx, msg, day: this.state.day };
+                this.log('Se abrió un expediente de crisis. Debes decidir cómo intervenir.', 'neu');
+                this.updateCrisisUI();
+                this.openCrisis();
+            }
+
+            updateCrisisUI() {
+                const banner = document.getElementById('crisisBanner');
+                const btn = document.getElementById('btnNextTurn');
+                const pending = !!this.state.pendingCrisis;
+                if (banner) banner.style.display = pending ? 'block' : 'none';
+                if (btn) {
+                    btn.disabled = pending;
+                    btn.style.opacity = pending ? '0.5' : '1';
+                }
+            }
+
+            openCrisis() {
+                const c = this.state.pendingCrisis;
+                if (!c) return;
+                const source = this.state.employees[c.sourceIdx];
+                const partner = this.state.employees[c.partnerIdx];
+                if (!source || !partner) { this.state.pendingCrisis = null; this.updateCrisisUI(); return; }
+
+                document.getElementById('crisisDescription').textContent = c.msg + ' Revisa conductas e incidencias antes de actuar. Una mala decisión puede afectar al equipo equivocado.';
+                const renderPerson = (e, idx) => `
+                    <div class="crisis-person">
+                        <h4>${e.emoji} ${e.name}</h4>
+                        <p><strong>Puesto:</strong> ${e.posName}</p>
+                        <p><strong>Conducta:</strong> ${e.behaviorProfile?.name || 'N/D'} — ${e.behaviorProfile?.traits || ''}</p>
+                        <p><strong>Rendimiento:</strong> ${Math.round(e.performance)}% · <strong>Estrés:</strong> ${Math.round(e.burnout)}%</p>
+                        <p><strong>Última incidencia:</strong> ${e.incidents[e.incidents.length - 1]?.msg || 'Sin registro'}</p>
+                    </div>
+                `;
+                document.getElementById('crisisParticipants').innerHTML = renderPerson(source, c.sourceIdx) + renderPerson(partner, c.partnerIdx);
+                document.getElementById('crisisActions').innerHTML = `
+                    <button class="btn btn-secondary" onclick="game.resolveCrisis('mediate')">🤝 Mediación</button>
+                    <button class="btn btn-secondary" onclick="game.resolveCrisis('rotate')">🔄 Rotación de tareas</button>
+                    <button class="btn btn-danger" onclick="game.resolveCrisis('dismiss', ${c.sourceIdx})">❌ Desvincular a ${source.name}</button>
+                    <button class="btn btn-danger" onclick="game.resolveCrisis('dismiss', ${c.partnerIdx})">❌ Desvincular a ${partner.name}</button>
+                    <button class="btn btn-secondary" onclick="game.resolveCrisis('ignore')">⏳ Postergar intervención</button>
+                `;
+                this._scrollY = window.scrollY;
+                document.body.classList.add('modal-open');
+                document.body.style.top = `-${this._scrollY}px`;
+                document.getElementById('crisisModal').classList.add('active');
+            }
+
+            closeCrisis() {
+                document.getElementById('crisisModal').classList.remove('active');
+                if (!document.getElementById('guideModal').classList.contains('active')) {
+                    document.body.classList.remove('modal-open');
+                    document.body.style.top = '';
+                    if (this._scrollY != null) window.scrollTo(0, this._scrollY);
+                }
+            }
+
+            resolveCrisis(action, targetIdx) {
+                const c = this.state.pendingCrisis;
+                if (!c) return;
+                const source = this.state.employees[c.sourceIdx];
+                const partner = this.state.employees[c.partnerIdx];
+
+                if (action === 'mediate') {
+                    this.state.day += 3;
+                    this.state.climate = Math.min(100, this.state.climate + 4);
+                    if (source) { source.burnout = Math.max(0, source.burnout - 8); source.status = 'Participó en mediación laboral.'; }
+                    if (partner) { partner.burnout = Math.max(0, partner.burnout - 10); partner.status = 'Recibió apoyo tras mediación.'; }
+                    this.log('Mediación aplicada. La tensión bajó, pero el origen del conflicto puede persistir.', 'neu');
+                } else if (action === 'rotate') {
+                    this.state.day += 5;
+                    if (source) { source.performance = Math.max(20, source.performance - 4); source.status = 'Reasignado/a temporalmente a otra área.'; }
+                    if (partner) { partner.burnout = Math.max(0, partner.burnout - 6); partner.status = 'Rotación aplicada para reducir fricción.'; }
+                    this.log('Rotación de tareas ejecutada. Observa si el conflicto reaparece.', 'neu');
+                } else if (action === 'dismiss' && targetIdx != null) {
+                    const emp = this.state.employees[targetIdx];
+                    if (emp) {
+                        this.state.employees.splice(targetIdx, 1);
+                        this.state.day += 5;
+                        this.state.firings++;
+                        this.state.climate -= 10;
+                        this.state.reputation = Math.max(0, this.state.reputation - 3);
+                        this.log(`Desvinculación en contexto de crisis: ${emp.name}.`, 'neu');
+                        const dec = this.state.decisions.find(d => d.candidate === emp.name);
+                        if (dec) { dec.actions.push('Desvinculado en crisis'); if (dec.category !== 'unsuitable') this.state.mistakes++; }
+                    }
+                } else if (action === 'ignore') {
+                    this.state.climate = Math.max(0, this.state.climate - 10);
+                    this.state.errors = Math.min(100, this.state.errors + 4);
+                    this.log('La crisis se postergó. El clima y los errores empeoraron.', 'neg');
+                }
+
+                this.state.crisesResolved++;
+                this.state.pendingCrisis = null;
+                this.closeCrisis();
+                this.updateCrisisUI();
+                this.updateStats();
+                this.renderEmployees();
+                this.saveSession();
+            }
+
+            trainEmployee(idx) {
+                const e = this.state.employees[idx]; if (!e) return;
+                this.state.day += 3;
+                this.state.trainings++;
+                
+                if (e.category === 'training') { 
+                    e.category = 'ideal'; 
+                    e.performance = Math.min(100, e.performance + 20);
+                    this.log(`Capacitación completada: ${e.name} mostró mejoras en su desempeño.`, "neu");
+                    this.state.climate += 5;
+                    e.incidents.push({ day: this.state.day, msg: "Completó capacitación técnica con éxito." });
+                    const dec = this.state.decisions.find(d => d.candidate === e.name);
+                    if (dec) { dec.result = 'hit'; dec.actions.push('Capacitación exitosa'); }
+                } else if (e.category === 'ideal') { 
+                    this.log(`${e.name} completó un programa de desarrollo.`, "neu");
+                    this.state.climate += 2;
+                    e.performance = Math.min(100, e.performance + 5);
+                    e.incidents.push({ day: this.state.day, msg: "Refuerzo de competencias completado." });
+                    const dec = this.state.decisions.find(d => d.candidate === e.name);
+                    if (dec) dec.actions.push('Capacitación de refuerzo');
+                } else { 
+                    this.state.climate -= 10; 
+                    this.log(`Capacitación sin impacto visible: ${e.name} no mostró cambios significativos en su desempeño.`, "neu");
+                    e.performance = Math.max(0, e.performance - 10);
+                    const dec = this.state.decisions.find(d => d.candidate === e.name);
+                    e.incidents.push({ day: this.state.day, msg: "Inasistencia o falta de aprovechamiento en capacitación." });
+                    if (dec) dec.actions.push('Capacitación fallida');
+                }
+                this.updateStats(); 
+                this.renderEmployees();
+                this.saveSession();
+            }
+
+            fireEmployee(idx) {
+                const e = this.state.employees[idx]; if (!e) return;
+                this.state.employees.splice(idx, 1); 
+                this.state.day += 5;
+                this.state.firings++;
+                if (e.category === 'unsuitable') {
+                    this.state.climate = Math.min(100, this.state.climate + 6);
+                    this.state.reputation = Math.max(0, this.state.reputation - 2);
+                    this.log(`Se desvinculó a ${e.name}.`, "neu");
+                } else {
+                    this.state.climate -= 15; 
+                    this.state.reputation -= 5;
+                    this.log(`Desvinculación de ${e.name}. Impacto en clima inmediato.`, "neg");
+                }
+                
+                const dec = this.state.decisions.find(d => d.candidate === e.name);
+                if (dec) { 
+                    dec.result = 'error'; 
+                    dec.actions.push('Despedido');
+                    if (dec.category !== 'unsuitable') this.state.mistakes++;
+                }
+                
+                this.updateStats(); 
+                this.renderEmployees();
+                this.saveSession();
+            }
+
+            updateStats() {
+                document.getElementById('statDay').textContent = this.state.day;
+                document.getElementById('statIncome').textContent = `$${this.state.income.toLocaleString()}`;
+                this.updateBar('statClimate', this.state.climate, true);
+                this.updateBar('statErrors', this.state.errors, false);
+                this.updateBar('statReputation', this.state.reputation, true);
+                document.getElementById('staffCount').textContent = `${this.state.employees.length}/6`;
+
+                const vacantSlots = Math.max(0, 6 - this.state.employees.length);
+                let totalPerf = this.state.employees.reduce((s, e) => s + e.performance, 0);
+                const eff = Math.max(0, (this.state.employees.length > 0 ? (totalPerf / 6) : 0) - (this.state.errors / 2) - vacantSlots * 5);
+
+                document.getElementById('efficiency').textContent = `${Math.round(eff)}%`;
+                document.getElementById('turnover').textContent = `${Math.round(this.state.resignations * 12 + (100 - this.state.climate) / 2)}%`;
+                document.getElementById('hitsCount').textContent = this.state.hits;
+                document.getElementById('errorsCount').textContent = this.state.mistakes;
+                document.getElementById('treasury').textContent = `$${Math.round(this.state.treasury).toLocaleString()}`;
+                document.getElementById('treasury').className = this.state.treasury < 3000 ? 'val-bad' : this.state.treasury < 7000 ? 'val-warn' : 'val-good';
+                document.getElementById('weekCount').textContent = `${this.state.operationalWeeks}`;
+                document.getElementById('vacantSlots').textContent = `${vacantSlots}`;
+                this.updateReplacementHireUI();
+                this.updateMood();
+                this.renderOffice();
+            }
+
+            updateReplacementHireUI() {
+                const btn = document.getElementById('btnReplacementHire');
+                if (!btn) return;
+                const vacant = Math.max(0, 6 - this.state.employees.length);
+                const canHire = this.state.phase === 'active' && vacant > 0 && !this.state.pendingCrisis;
+                btn.style.display = canHire ? 'block' : 'none';
+                btn.disabled = this.state.treasury < GAME_CONFIG.replacementHireCost;
+                btn.title = this.state.treasury < GAME_CONFIG.replacementHireCost
+                    ? `Requiere $${GAME_CONFIG.replacementHireCost.toLocaleString()} en reserva`
+                    : `Contratar para ${vacant} vacante(s) — $${GAME_CONFIG.replacementHireCost.toLocaleString()} c/u`;
+            }
+
+            renderOffice() {
+                const floor = document.getElementById('officeFloor');
+                floor.innerHTML = '';
+                this.state.employees.forEach(e => {
+                    const avatar = document.createElement('div');
+                    avatar.className = `avatar ${e.burnout > 70 ? 'status-stressed' : (e.performance > 80 ? 'status-happy' : '')}`;
+                    avatar.style.left = `${e.positionInOffice.x}%`;
+                    avatar.style.top = `${e.positionInOffice.y}%`;
+                    avatar.setAttribute('role', 'button');
+                    avatar.setAttribute('aria-label', `${e.name}: rendimiento ${Math.round(e.performance)}%, estrés ${Math.round(e.burnout)}%`);
+                    avatar.innerHTML = `
+                        <div class="avatar-label">${e.name.split(' ')[0]}</div>
+                        ${e.emoji}
+                        <div class="bubble">🎯 ${Math.round(e.performance)}%<br>🔥 Stress: ${Math.round(e.burnout)}%</div>
+                    `;
+                    avatar.addEventListener('click', (ev) => {
+                        ev.stopPropagation();
+                        floor.querySelectorAll('.avatar.show-bubble').forEach(a => { if (a !== avatar) a.classList.remove('show-bubble'); });
+                        avatar.classList.toggle('show-bubble');
+                    });
+                    e.positionInOffice.x = Math.max(5, Math.min(90, e.positionInOffice.x + (Math.random() * 6 - 3)));
+                    e.positionInOffice.y = Math.max(10, Math.min(80, e.positionInOffice.y + (Math.random() * 6 - 3)));
+                    floor.appendChild(avatar);
+                });
+                if (!this._officeTapBound) {
+                    this._officeTapBound = true;
+                    document.addEventListener('click', () => {
+                        document.getElementById('officeFloor')?.querySelectorAll('.avatar.show-bubble').forEach(a => a.classList.remove('show-bubble'));
+                    });
+                }
+            }
+            
+            updateMood() {
+                const moodEmoji = document.getElementById('moodEmoji');
+                const moodText = document.getElementById('moodText');
+                const vacant = 6 - this.state.employees.length;
+                if (this.state.strikes > 0) {
+                    moodEmoji.textContent = '✊';
+                    moodText.textContent = `Hay ${this.state.strikes} huelga(s) registrada(s). El conflicto laboral está afectando la producción.`;
+                } else if (vacant > 0) {
+                    moodEmoji.textContent = '⚠️';
+                    moodText.textContent = `${vacant} puesto(s) vacante(s) están presionando al equipo y elevando costos.`;
+                } else if (this.state.climate >= 80 && this.state.errors <= 10) {
+                    moodEmoji.textContent = '😄';
+                    moodText.textContent = 'El ambiente es excelente y el equipo responde bien a la gestión.';
+                } else if (this.state.climate >= 60 && this.state.errors <= 20) {
+                    moodEmoji.textContent = '🙂';
+                    moodText.textContent = 'El equipo está estable, pero hay áreas de mejora en procesos y clima.';
+                } else if (this.state.climate >= 40) {
+                    moodEmoji.textContent = '😟';
+                    moodText.textContent = 'Hay tensión. Revisa expedientes: varios empleados pueden estar involucrados en los conflictos.';
+                } else {
+                    moodEmoji.textContent = '😨';
+                    moodText.textContent = 'Alerta: clima crítico, riesgo de renuncias y nuevas huelgas.';
+                }
+            }
+
+            updateBar(id, val, higherGood) {
+                const el = document.getElementById(id); 
+                el.textContent = val + (id.includes('Climate')||id.includes('Errors')?'%':'');
+                el.className = val >= (higherGood?70:30) ? 'val-good' : val >= (higherGood?40:60) ? 'val-warn' : 'val-bad';
+            }
+
+            renderEmployees() {
+                const list = document.getElementById('employeeList');
+                if (this.state.employees.length === 0) { list.innerHTML = '<p style="color:var(--text-muted); text-align:center;">Equipo vacío</p>'; return; }
+                list.innerHTML = '';
+                this.state.employees.forEach((e, i) => {
+                    let cls = '';
+                    if (e.burnout > 80 || e.performance < 40) cls = 'critical';
+                    else if (e.burnout > 60 || e.performance < 55) cls = 'warning';
+                    const stressText = e.burnout > 80 ? '⚠️ Burnout Crítico' : e.burnout > 60 ? '⚠️ Riesgo' : '✅ Estable';
+                    
+                    const lastIncident = e.incidents.length > 0 ? e.incidents[e.incidents.length-1].msg : "Sin incidencias.";
+                    
+                    const card = document.createElement('div');
+                    card.className = `employee-card ${cls}`;
+                    const behavior = e.behaviorProfile ? `<span class="behavior-tag">🧩 ${e.behaviorProfile.name}: ${e.behaviorProfile.traits}</span>` : '';
+                    card.innerHTML = `
+                        <div class="employee-info"><strong>${e.name}</strong> - ${e.posName}${behavior}<div style="font-size:0.85em; color:var(--gold); margin-top:4px;">💬 ${e.status}</div><div style="font-size:0.8em; color:var(--text-muted); margin-top:4px;">${stressText} | Rendimiento: ${Math.round(e.performance)}%</div></div>
+                        <div class="employee-actions"><button class="btn btn-secondary" onclick="game.showExpediente(${i})">📂 Expediente</button><button class="btn btn-secondary" onclick="game.trainEmployee(${i})">🎓 Capacitar</button><button class="btn btn-danger" onclick="game.fireEmployee(${i})">❌ Despedir</button></div>
+                    `;
+                    list.appendChild(card);
+                });
+            }
+
+            showExpediente(idx) {
+                const e = this.state.employees[idx];
+                let history = e.incidents.map(inc => `<div style="margin-bottom:8px; border-bottom:1px solid #444; padding-bottom:4px;"><small style="color:var(--gold)">Día ${inc.day}:</small><br>${inc.msg}</div>`).join('');
+                const behaviorInfo = e.behaviorProfile ? `<p style="margin:12px 0; color:#9ecbff;"><strong>Perfil conductual:</strong> ${e.behaviorProfile.name} — ${e.behaviorProfile.traits}</p>` : '';
+                document.getElementById('guideContent').innerHTML = `<h3 style="color:var(--gold)">Expediente Laboral: ${e.name}</h3>${behaviorInfo}<div style="margin-top:15px;">${history || '<p>Sin incidencias registradas.</p>'}</div>`;
+                this.openGuide();
+            }
+
+            tryManualEnd() {
+                if (this.state.operationalWeeks < GAME_CONFIG.minOperationalWeeks) {
+                    alert(`Debes operar al menos ${GAME_CONFIG.minOperationalWeeks} semanas antes de finalizar (llevas ${this.state.operationalWeeks}).`);
+                    return;
+                }
+                this.endGame(true, "Gestión cerrada por decisión del jugador");
+            }
+
+            checkGameOver() {
+                if (this.state.treasury <= 0) {
+                    this.endGame(false, "Banca rota: la reserva financiera se agotó");
+                } else if (this.state.strikes >= GAME_CONFIG.maxStrikes) {
+                    this.endGame(false, "Huelga general insostenible");
+                } else if (this.state.employees.length === 0 && this.state.operationalWeeks > 0) {
+                    this.endGame(false, "Sin personal operativo tras renuncias");
+                } else if (this.state.reputation <= 10) {
+                    this.endGame(false, "Quiebra por pérdida de reputación");
+                } else if (this.state.climate <= 5) {
+                    this.endGame(false, "Colapso organizacional por clima laboral");
+                } else if (this.state.day > GAME_CONFIG.maxDays) {
+                    this.endGame(false, "Límite de 24 semanas alcanzado");
+                }
+            }
+
+            endGame(manual, reason) {
+                const accuracy = this.state.hiredCount > 0 ? Math.round((this.state.hits / this.state.hiredCount) * 100) : 0;
+                this.finalizeAttempt(manual, accuracy);
+                this.clearSession();
+                const endScr = document.getElementById('endScreen');
+                this.showScreen('endScreen');
+                endScr.classList.remove('victory', 'defeat');
+                endScr.classList.add(manual ? 'victory' : 'defeat');
+                document.getElementById('endTitle').textContent = manual ? "🏁 Gestión Finalizada" : "💀 Juego Terminado";
+                
+                const ideal = this.state.employees.filter(e => e.category === 'ideal').length;
+                const training = this.state.employees.filter(e => e.category === 'training').length;
+                const unsuitable = this.state.employees.filter(e => e.category === 'unsuitable').length;
+                const summaryHTML = `
+                    <div class="summary-card">
+                        <h4>🎯 Intentos</h4>
+                        <div class="number">#${this.state.attemptNumber}</div>
+                        <small>${this.getTotalAttemptsCount()} intento(s) en historial local</small>
+                    </div>
+                    <div class="summary-card">
+                        <h4>📊 Precisión de Selección</h4>
+                        <div class="number ${accuracy >= 60 ? 'good' : 'bad'}">${accuracy}%</div>
+                        <small>${this.state.hits} aciertos de ${this.state.hiredCount}</small>
+                    </div>
+                    <div class="summary-card">
+                        <h4>👥 Equipo Final</h4>
+                        <div class="number good">${ideal}</div>
+                        <small>Ideales | ${training} Capacitados | ${unsuitable} Bajos</small>
+                    </div>
+                    <div class="summary-card">
+                        <h4>💰 Ingreso Promedio</h4>
+                        <div class="number ${this.state.income > 300 ? 'good' : 'bad'}">$${this.state.income}</div>
+                        <small>Diario al finalizar</small>
+                    </div>
+                    <div class="summary-card">
+                        <h4>📈 Métricas Finales</h4>
+                        <div class="number">C:${this.state.climate}% E:${this.state.errors}%</div>
+                        <small>Clima | Errores</small>
+                    </div>
+                    <div class="summary-card">
+                        <h4>🏦 Reserva Final</h4>
+                        <div class="number ${this.state.treasury > 5000 ? 'good' : 'bad'}">$${Math.round(this.state.treasury).toLocaleString()}</div>
+                        <small>${this.state.strikes} huelgas | ${this.state.resignations} renuncias</small>
+                    </div>
+                `;
+                document.getElementById('summaryGrid').innerHTML = summaryHTML;
+                
+                this.renderDecisionTable();
+                
+                let feedbackHTML = `
+                    <h3 style="color:var(--gold); margin:20px 0 10px 0;">💡 Retroalimentación Psicométrica</h3>
+                    <div class="feedback-item ${accuracy >= 60 ? 'good' : 'bad'}">
+                        <strong>🎯 Eficacia de Selección:</strong> ${accuracy}% de precisión. 
+                        ${accuracy >= 60 ? "Excelente uso de instrumentos con validez de criterio. Los puntajes brutos fueron interpretados correctamente según las dimensiones críticas del puesto." : "Se recomienda revisar la correlación entre constructos medidos y competencias críticas. Los puntajes brutos sin baremo o el uso de pruebas inadecuadas generaron desalineación."}
+                    </div>
+                    <div class="feedback-item ${this.state.trainings > 0 && this.state.trainings === this.state.employees.filter(e=>e.category==='training').length ? 'good' : 'bad'}">
+                        <strong>📚 Gestión de Capacitación:</strong> ${this.state.trainings} capacitaciones realizadas.
+                        ${this.state.trainings > 0 ? "La capacitación fue efectiva para cerrar brechas de habilidad en perfiles con ajuste medio." : "No se aprovecharon las oportunidades de desarrollo en perfiles con potencial."}
+                    </div>
+                    <div class="feedback-item ${this.state.firings < 2 ? 'good' : 'bad'}">
+                        <strong>🚫 Desvinculaciones:</strong> ${this.state.firings} despidos.
+                        ${this.state.firings < 2 ? "Gestión moderada que preservó el clima laboral." : "Alto número de despidos impactó negativamente el clima y la reputación. Se recomienda mejor selección inicial."}
+                    </div>
+                    <div class="feedback-item good" style="margin-top:15px;">
+                        <strong>📖 Principios Psicométricos Aplicados:</strong><br>
+                        • <strong>Big Five (OCEAN):</strong> Conciencia y Estabilidad Emocional son los mejores predictores de desempeño general.<br>
+                        • <strong>Cleaver (DISC):</strong> Se interpreta por <em>patrón</em> (altos/bajos), no por valores absolutos. Perfiles lineales son inválidos. Útil para dinámica de equipos.<br>
+                        • <strong>16PF:</strong> Multifactorial. Requiere baremos. Razonamiento (B) y Autocontrol (Q3) predicen desempeño cognitivo.<br>
+                        • <strong>BarOn EQ-i:</strong> Inteligencia emocional clave para liderazgo y ventas. Manejo de Estrés e Interpersonalidad son críticos.<br>
+                        • <strong>MoSS:</strong> Habilidades blandas transversales. Liderazgo y Resolución de Conflictos son esenciales para supervisión.<br>
+                        • <strong>Machover:</strong> Parta de la descripción objetiva del dibujo (ubicación, trazo, proporciones, omisiones) y construya hipótesis. Contraste su lectura con pruebas objetivas antes de decidir.
+                    </div>
+                    ${reason ? `<p style="color:var(--danger); margin-top:15px;"><strong>Causa de finalización:</strong> ${reason}</p>` : ""}
+                `;
+                document.getElementById('feedbackSection').innerHTML = feedbackHTML;
+            }
+
+            renderDecisionTable() {
+                const table = document.getElementById('decisionTable');
+                let html = `
+                    <thead>
+                        <tr>
+                            <th>Candidato</th>
+                            <th>Puesto</th>
+                            <th>Día</th>
+                            <th>Pruebas</th>
+                            <th>Ajuste</th>
+                            <th>Resultado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                `;
+                
+                this.state.decisions.forEach(d => {
+                    const badgeClass = d.result === 'hit' ? 'badge-hit' : d.result === 'warning' ? 'badge-warning' : 'badge-error';
+                    const badgeText = d.result === 'hit' ? '✅ Acierto' : d.result === 'warning' ? '⚠️ Regular' : '❌ Error';
+                    const fitClass = d.fit >= 75 ? 'val-good' : d.fit >= 55 ? 'val-warn' : 'val-bad';
+                    
+                    html += `
+                        <tr>
+                            <td><strong>${d.candidate}</strong></td>
+                            <td>${d.position}</td>
+                            <td>${d.day}</td>
+                            <td style="font-size:0.85em;">${d.tests}</td>
+                            <td class="${fitClass}">${d.fit}%</td>
+                            <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                            <td style="font-size:0.85em;">${d.actions.length > 0 ? d.actions.join(', ') : '-'}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += '</tbody>';
+                table.innerHTML = html;
+            }
+
+            exportPDF() {
+                try {
+                    if (!window.jspdf?.jsPDF) {
+                        alert('No se pudo cargar la librería PDF. Verifica tu conexión e intenta de nuevo.');
+                        return;
+                    }
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+                    const formatTime = (seconds) => {
+                        const m = Math.floor(seconds / 60);
+                        const s = Math.floor(seconds % 60);
+                        return `${m}m ${s}s`;
+                    };
+                    const totalSessionTime = (Date.now() - this.state.startTime) / 1000;
+                    const acc = this.state.hiredCount > 0 ? Math.round((this.state.hits / this.state.hiredCount) * 100) : 0;
+                    const safeName = (this.state.companyName || 'Empresa').replace(/[^\w\s-áéíóúñ]/gi, '').replace(/\s+/g, '_').slice(0, 40);
+
+                    // Estilo de encabezado institucional (Elegante y profesional)
+                    // Se elimina el bloque oscuro para mejorar la presencia y evitar confusión visual
+                    doc.setTextColor(34, 34, 48);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(22);
+                    doc.text('REPORTE DE EVALUACIÓN: GESTIÓN DE TALENTO', 105, 20, { align: 'center' });
+                    
+                    doc.setDrawColor(201, 162, 39); // Color Oro
+                    doc.setLineWidth(0.8);
+                    doc.line(14, 26, 196, 26);
+                    
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'italic');
+                    doc.setTextColor(120, 120, 120);
+                    doc.text('Simulación Académica HR Tycoon - Análisis de Competencias y Toma de Decisiones', 105, 31, { align: 'center' });
+
+                    doc.setTextColor(34, 34, 48);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(12);
+                    doc.text(`Organización: ${this.state.companyName || 'Sin nombre'}`, 14, 42);
+                    
+                    const totalAttempts = this.getTotalAttemptsCount();
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(`Registro de Intento: #${this.state.attemptNumber || '-'} (Historial: ${totalAttempts})`, 196, 42, { align: 'right' });
+
+                    doc.setTextColor(100, 100, 100);
+                    doc.setFontSize(10);
+                    doc.text(`Evaluado (Director): ${this.state.owner}`, 14, 48);
+                    doc.text(`Fecha de emisión: ${new Date().toLocaleString()}`, 14, 53);
+                    doc.text(`Periodo de simulación: ${this.state.operationalWeeks} semanas (${this.state.day} días)`, 14, 58);
+
+                    doc.setTextColor(0, 0, 0);
+                    doc.setFontSize(13);
+                    doc.text('Métricas de Proceso (Evaluación)', 14, 64);
+
+                    const evalData = [
+                        ['Intento actual', `#${this.state.attemptNumber || '-'}`],
+                        ['Total de intentos en historial', String(totalAttempts)],
+                        ['Tiempo en Configuración', formatTime(this.state.setupDuration || 0)],
+                        ['Tiempo en Contratación', formatTime(this.state.hiringDuration || 0)],
+                        ['Tiempo Total de Sesión', formatTime(totalSessionTime)],
+                        ['Pruebas Seleccionadas', this.state.selectedTests.map(t => DB.tests[t]?.name || t).join(', ') || 'N/D'],
+                        ['Crisis gestionadas', String(this.state.crisesResolved || 0)]
+                    ];
+
+                    doc.autoTable({
+                        startY: 72,
+                        head: [['Indicador', 'Valor']],
+                        body: evalData,
+                        theme: 'grid',
+                        headStyles: { fillColor: [45, 55, 72] }, // Gris corporativo
+                        styles: { fontSize: 9, cellPadding: 3 }
+                    });
+
+                    let cursorY = doc.lastAutoTable.finalY + 10;
+                    doc.setFontSize(13);
+                    doc.text('Resumen Organizacional', 14, cursorY);
+
+                    const summaryData = [
+                        ['Precisión de Selección', `${acc}%`, `${this.state.hits} de ${this.state.hiredCount}`],
+                        ['Reserva Final', `$${Math.round(this.state.treasury).toLocaleString()}`, 'Liquidez'],
+                        ['Clima / Errores', `${this.state.climate}% / ${this.state.errors}%`, 'Ambiente'],
+                        ['Huelgas / Renuncias', `${this.state.strikes} / ${this.state.resignations}`, 'Conflictos'],
+                        ['Equipo Ideal Final', String(this.state.employees.filter(e => e.category === 'ideal').length), 'empleados']
+                    ];
+
+                    doc.autoTable({
+                        startY: cursorY + 4,
+                        head: [['Métrica', 'Valor', 'Detalle']],
+                        body: summaryData,
+                        theme: 'striped',
+                        headStyles: { fillColor: [71, 85, 105] }, // Gris pizarra
+                        styles: { fontSize: 9 }
+                    });
+
+                    cursorY = doc.lastAutoTable.finalY + 10;
+                    doc.setFontSize(13);
+                    doc.text('Decisiones de Contratación', 14, cursorY);
+
+                    const decisionsData = this.state.decisions.length
+                        ? this.state.decisions.map(d => [
+                            d.candidate,
+                            d.position,
+                            String(d.day),
+                            `${d.fit}%`,
+                            d.result === 'hit' ? 'Acierto' : d.result === 'warning' ? 'Regular' : 'Error',
+                            d.actions.length ? d.actions.join(', ') : 'Ninguna'
+                        ])
+                        : [['Sin datos', '-', '-', '-', '-', '-']];
+
+                    doc.autoTable({
+                        startY: cursorY + 4,
+                        head: [['Candidato', 'Puesto', 'Día', 'Ajuste', 'Resultado', 'Acciones']],
+                        body: decisionsData,
+                        theme: 'grid',
+                        headStyles: { fillColor: [34, 34, 48], textColor: 255 }, // Oscuro elegante para la tabla principal
+                        styles: { fontSize: 8, cellPadding: 2 },
+                        columnStyles: { 0: { cellWidth: 34 }, 1: { cellWidth: 38 }, 5: { cellWidth: 42 } }
+                    });
+
+                    cursorY = doc.lastAutoTable.finalY + 12;
+                    if (cursorY > 250) { doc.addPage(); cursorY = 20; }
+                    doc.setFontSize(13);
+                    doc.text('Recomendaciones', 14, cursorY);
+
+                    const recommendations = [];
+                    if (acc < 60) {
+                        recommendations.push(['Reforzar correlación entre pruebas y competencias críticas del puesto']);
+                        recommendations.push(['Validar lecturas proyectivas con instrumentos objetivos']);
+                    }
+                    if (this.state.crisesResolved < 1 && this.state.firings < 1) {
+                        recommendations.push(['Practicar intervención en crisis para identificar conductas problemáticas']);
+                    }
+                    if (this.state.firings > 2) recommendations.push(['Mejorar selección inicial para reducir desvinculaciones']);
+                    if (this.state.climate < 60) recommendations.push(['Fortalecer clima laboral y mediación de conflictos']);
+                    if (this.state.treasury < 5000) recommendations.push(['Controlar costos de vacantes, huelgas y rotación']);
+                    if (!recommendations.length) recommendations.push(['Mantener buenas prácticas de selección y gestión del talento']);
+
+                    doc.autoTable({
+                        startY: cursorY + 4,
+                        body: recommendations,
+                        theme: 'plain',
+                        styles: { fontSize: 9, cellPadding: 3 },
+                        margin: { left: 14, right: 14 }
+                    });
+
+                    const pageCount = doc.internal.getNumberOfPages();
+                    for (let i = 1; i <= pageCount; i++) {
+                        doc.setPage(i);
+                        doc.setFontSize(8);
+                        doc.setTextColor(120, 120, 120);
+                        doc.text(`Página ${i} de ${pageCount}`, 105, 290, { align: 'center' });
+                        doc.text('HR Tycoon — Alfredo Adrián González Lazcano', 105, 295, { align: 'center' });
+                    }
+
+                    doc.save(`HR_Tycoon_${safeName}_Intento${this.state.attemptNumber || 0}.pdf`);
+                } catch (err) {
+                    console.error(err);
+                    alert('Error al generar el PDF. Intenta de nuevo o revisa la consola del navegador.');
+                }
+            }
+
+            log(msg, type) {
+                const box = document.getElementById('logBox');
+                const entry = document.createElement('div');
+                entry.className = `log-entry ${type === 'pos' ? 'pos' : type === 'neg' ? 'neg' : 'neu'}`;
+                entry.textContent = `[Día ${this.state.day}] ${msg}`;
+                box.prepend(entry); while (box.children.length > 20) box.removeChild(box.lastChild);
+            }
+
+            showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+            genName() { const f=['Ana','Carlos','Luis','María','Pedro','Sofía','Juan','Laura','Miguel','Elena','Roberto','Carmen','Diego','Patricia']; const l=['García','López','Martínez','Rodríguez','Sánchez','Torres','Díaz','Flores','Ramírez','Castro']; return `${f[Math.floor(Math.random()*f.length)]} ${l[Math.floor(Math.random()*l.length)]}`; }
+
+            openGuide() {
+                this._scrollY = window.scrollY;
+                document.body.classList.add('modal-open');
+                document.body.style.top = `-${this._scrollY}px`;
+                document.getElementById('guideModal').classList.add('active');
+            }
+            closeGuide() {
+                document.getElementById('guideModal').classList.remove('active');
+                document.body.classList.remove('modal-open');
+                document.body.style.top = '';
+                if (this._scrollY != null) window.scrollTo(0, this._scrollY);
+            }
+            handleModalBackdrop(event) {
+                if (event.target.id === 'guideModal') this.closeGuide();
+            }
+            renderGuide() {
+                let html = '<div class="table-scroll"><table class="guide-table">';
+                Object.entries(DB.tests).forEach(([k, t]) => {
+                    html += `<tr><td><strong>${t.name}</strong></td><td style="font-size:0.85em; color:#aaa;">${t.interpretation ? Object.entries(t.interpretation).map(([d,v])=>`<b>${d}:</b> ${v}`).join('<br>') : "Revisa manual técnico."}</td></tr>`;
+                });
+                html += '</table></div>';
+                document.getElementById('guideContent').innerHTML = html;
+            }
+        }
+
+        const game = new Game();
+    </script>
+</body>
+</html>

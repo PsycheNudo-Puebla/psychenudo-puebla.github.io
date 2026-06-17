@@ -1,0 +1,48 @@
+{
+  "titulo": "Examen de prueba local",
+  "tiempo_limite_minutos": 10,
+  "maximo_salidas": 2,
+  "distribucion": {
+    "opcion_multiple": 2,
+    "vf": 1,
+    "relacionar": 1,
+    "abierta": 1,
+    "matematica": 1
+  },
+  "preguntas": [
+    {
+      "id": "e1",
+      "tipo": "opcion_multiple",
+      "pregunta": "¿Cuál es la capital de España?",
+      "opciones": ["Madrid", "Barcelona", "Valencia", "Sevilla"],
+      "respuesta_correcta": "Madrid"
+    },
+    {
+      "id": "e2",
+      "tipo": "vf",
+      "pregunta": "La Tierra gira alrededor del Sol.",
+      "respuesta_correcta": "Verdadero"
+    },
+    {
+      "id": "e3",
+      "tipo": "relacionar",
+      "pregunta": "Relaciona cada palabra con su definición.",
+      "opciones": {
+        "Hidrógeno": "Elemento químico",
+        "Órbita": "Trayectoria de un cuerpo alrededor de otro"
+      }
+    },
+    {
+      "id": "e4",
+      "tipo": "abierta",
+      "pregunta": "Describe una ventaja del trabajo en equipo.",
+      "respuesta_correcta": "Permite combinar diferentes habilidades y perspectivas, aumentando la creatividad y la eficiencia en la resolución de problemas complejos."
+    },
+    {
+      "id": "e5",
+      "tipo": "matematica",
+      "pregunta": "¿Cuánto es 15% de 200?",
+      "respuesta_correcta": 30
+    }
+  ]
+}

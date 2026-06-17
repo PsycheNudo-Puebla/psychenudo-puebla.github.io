@@ -1,0 +1,316 @@
+{
+  "titulo": "Instrumentos de Evaluación Psicológica: Machover, 16PF y MMPI-2",
+  "tiempo_limite_minutos": 120,
+  "maximo_salidas": 3,
+  "puntos_distribucion": {
+    "opcion_multiple": 1,
+    "vf": 2,
+    "relacionar": 10,
+    "abierta": 5,
+    "matematica": 0
+  },
+  "distribucion": {
+    "opcion_multiple": 0,
+    "vf": 5,
+    "relacionar": 1,
+    "abierta": 2,
+    "matematica": 0
+  },
+  "preguntas": [
+    {
+      "id": "rel_machover_set",
+      "tipo": "relacionar",
+      "pregunta": "Test de Machover (Bloque A): Relaciona el indicador gráfico con su interpretación.",
+      "opciones": {
+        "Trazo muy reforzado con terminaciones en punta": "Agresividad, impulsos agresivos",
+        "Figura muy pequeña en la parte alta de la hoja": "Sentimientos de inferioridad con deseos frustrados de destacar",
+        "Cabeza dibujada al final de la secuencia": "Trastornos en las relaciones interpersonales",
+        "Omisión del cuello": "Inmadurez, deficiencia mental, regresión",
+        "Brazos pegados al cuerpo": "Inhibición, agresividad reprimida, autismo",
+        "Manos en bolsillos o detrás de la espalda": "Evasión, masturbación, psicopatía",
+        "Piernas juntas": "Tensión emocional, rigidez, temor sexual",
+        "Sombreado en los pies": "Ansiedad inconsciente",
+        "Ojos vacíos (sin pupilas/iris)": "Inmadurez, egocentrismo, regresión",
+        "Énfasis excesivo en la boca y dientes": "Dependencia, agresividad oral, infantilismo"
+      }
+    },
+    {
+      "id": "rel_machover_mixed_set",
+      "tipo": "relacionar",
+      "pregunta": "Test de Machover y 16PF (Bloque B): Relaciona el concepto con su interpretación.",
+      "opciones": {
+        "Cuello largo y delgado": "Escisión entre impulso (cuerpo) y control racional (cabeza)",
+        "Figura muy grande, ocupando casi toda la hoja": "Megalomanía, narcisismo, compensación de inferioridad",
+        "Ubicación del dibujo en la parte izquierda": "Orientado por sí mismo, hacia el pasado",
+        "Borraduras y tachaduras en los pies": "Ansiedad, conflicto (neuróticos obsesivo-compulsivos)",
+        "Ojos cerrados": "Aislamiento, narcisismo",
+        "Factor A (Afabilidad) extremo alto": "Abierto, cálido, participativo",
+        "Factor C (Estabilidad) extremo bajo": "Reactivo, inestable, se frustra fácilmente",
+        "Factor E (Dominancia) extremo alto": "Dominante, asertivo, competitivo",
+        "Factor G (Atención a normas) extremo bajo": "Inconstante, indulgente, flexible",
+        "Factor H (Atrevimiento) extremo bajo": "Tímido, inhibido, evita iniciativas sociales"
+      }
+    },
+    {
+      "id": "rel_16pf_advanced_set",
+      "tipo": "relacionar",
+      "pregunta": "Cuestionario 16PF (Bloque C): Relaciona los factores y perfiles con su descripción técnica.",
+      "opciones": {
+        "Factor L (Vigilancia) extremo alto": "Suspicaz, desconfiado, crítico",
+        "Factor M (Abstracción) extremo alto": "Imaginativo, abstraído, poco práctico",
+        "Factor Q1 (Apertura al cambio) extremo alto": "Experimental, abierto a nuevas ideas",
+        "Factor Q3 (Perfeccionismo) extremo bajo": "Indisciplinado, poco controlado",
+        "Factor Q4 (Tensión) extremo alto": "Tenso, impaciente, frustrado",
+        "Factor Secundario QI (Extraversión) Alto": "Extrovertido, sociable",
+        "Factor Secundario QII (Ansiedad) Bajo": "Ajustado, tranquilo, afronta tensiones",
+        "Perfil típico para Ventas": "A+, E+, F+, H+, Q2-",
+        "Perfil típico para Contaduría": "G+, M-, Q3+",
+        "Perfil típico para Investigación": "Q1+, M+, Q2+"
+      }
+    },
+    {
+      "id": "rel_mmpi_validez_set",
+      "tipo": "relacionar",
+      "pregunta": "MMPI-2 Validez (Bloque D): Relaciona las escalas y puntuaciones T con su significado.",
+      "opciones": {
+        "Escala L (Mentira) con T > 70": "Presentación excesivamente favorable",
+        "Escala F (Infrecuencia) con T > 90": "Respuestas atípicas, exageración o azar (Invalida)",
+        "Escala K (Corrección) muy alta": "Actitud defensiva, negación de defectos",
+        "Escala VRIN con T > 80": "Patrón de respuesta aleatorio/azaroso",
+        "Escala TRIN con T > 80": "Tendencia sistemática a marcar V o F",
+        "Puntuación T entre 65 y 69": "Ligeramente elevado, requiere análisis contextual",
+        "Puntuación T ≥ 80": "Marcadamente elevado, desajuste severo",
+        "Punto de corte clínico": "T ≥ 65",
+        "Regla de Oro del MMPI-2": "Nunca interpretar clínicas sin verificar validez",
+        "Puntuación T = 50": "Promedio exacto de la población normativa"
+      }
+    },
+    {
+      "id": "rel_mmpi_clinicas_set",
+      "tipo": "relacionar",
+      "pregunta": "MMPI-2 Clínicas (Bloque E): Relaciona los codetypes y escalas de contenido con su descripción.",
+      "opciones": {
+        "Par de escalas 1 (Hs) y 3 (Hy)": "Conversión Somática (\"V\" inversa)",
+        "Par de escalas 2 (D) y 7 (Pt)": "Afectivo-Ansioso",
+        "Par de escalas 4 (Pd) y 9 (Ma)": "Desinhibido-Impulsivo",
+        "Par de escalas 6 (Pa) y 8 (Sc)": "Desorganización Cognitiva-Paranoide",
+        "Par de escalas 8 (Sc) y 0 (Si)": "Desorganización con Aislamiento",
+        "Escala de Contenido ANX": "Preocupación excesiva, tensión, dificultad para concentrarse",
+        "Escala de Contenido ASP": "Dificultad con normas sociales, reactividad ante autoridad",
+        "Escala de Contenido SOD": "Timidez, evitación de interacciones grupales",
+        "Escala de Contenido TRT": "Actitud pesimista o resistente hacia el proceso terapéutico",
+        "Escala Clínica 7 (Psicastenia) Alta": "Obsesiones, dudas patológicas, ansiedad generalizada"
+      }
+    },
+    {
+      "id": "vf_01",
+      "tipo": "vf",
+      "pregunta": "En el test de Machover, si un sujeto dibuja una figura muy pequeña ubicada en la parte baja de la hoja, esto sugiere megalomanía y narcisismo.",
+      "respuesta_correcta": "Falso"
+    },
+    {
+      "id": "vf_02",
+      "tipo": "vf",
+      "pregunta": "Un candidato a Supervisor de Producción obtiene un decatipo 8 en el Factor C (Estabilidad) y 9 en el Factor E (Dominancia); este perfil indica fortalezas para manejar presión y tomar decisiones.",
+      "respuesta_correcta": "Verdadero"
+    },
+    {
+      "id": "vf_03",
+      "tipo": "vf",
+      "pregunta": "En el MMPI-2, si un paciente obtiene T=78 en la Escala 9 (Hipomanía), es correcto concluir que se trata de una persona altamente paciente, reflexiva y tranquila.",
+      "respuesta_correcta": "Falso"
+    },
+    {
+      "id": "vf_04",
+      "tipo": "vf",
+      "pregunta": "Para interpretar el perfil clínico de un paciente en el MMPI-2 donde las escalas 2 y 7 están en 72T, es suficiente con analizar esos picos, sin importar que la escala F esté en 95T.",
+      "respuesta_correcta": "Falso"
+    },
+    {
+      "id": "vf_05",
+      "tipo": "vf",
+      "pregunta": "En el 16PF, un perfil para Investigación y Desarrollo (I+D) típico mostraría puntuaciones altas en Q1 (Apertura al cambio), M (Abstracción) y Q2 (Autosuficiencia).",
+      "respuesta_correcta": "Verdadero"
+    },
+    {
+      "id": "vf_06",
+      "tipo": "vf",
+      "pregunta": "Si en el dibujo de la figura humana de Machover el sujeto omite los brazos, esto se interpreta como un indicador de ambición excesiva y búsqueda de poder.",
+      "respuesta_correcta": "Falso"
+    },
+    {
+      "id": "vf_07",
+      "tipo": "vf",
+      "pregunta": "En el MMPI-2, una elevación conjunta de las escalas 6 (Paranoia) y 8 (Esquizofrenia) sugiere un perfil de Desorganización Cognitiva-Paranoide, con hipervigilancia extrema.",
+      "respuesta_correcta": "Verdadero"
+    },
+    {
+      "id": "vf_08",
+      "tipo": "vf",
+      "pregunta": "El factor secundario QV (Autocontrol/Descontrol) en el 16PF se calcula sumando G, Q3 y C inverso; un puntaje alto indica un individuo impulsivo e indisciplinado.",
+      "respuesta_correcta": "Falso"
+    },
+    {
+      "id": "vf_09",
+      "tipo": "vf",
+      "pregunta": "En la interpretación de Machover, el sombreamiento en las manos indica culpabilidad por impulsos agresivos o masturbación.",
+      "respuesta_correcta": "Verdadero"
+    },
+    {
+      "id": "vf_10",
+      "tipo": "vf",
+      "pregunta": "Si un examinado obtiene T=68 en la Escala 2 (Depresión) y T=66 en la Escala 7 (Psicastenia), pero su escala L (Mentira) es T=75, el perfil es válido y se puede diagnosticar trastorno ansioso-depresivo.",
+      "respuesta_correcta": "Falso"
+    },
+    {
+      "id": "vf_11",
+      "tipo": "vf",
+      "pregunta": "En el 16PF, un sujeto con Factor L (Vigilancia) alto y Factor A (Afabilidad) bajo será percibido en el ámbito laboral como una persona cálida, cooperativa y que confía fácilmente.",
+      "respuesta_correcta": "Falso"
+    },
+    {
+      "id": "vf_12",
+      "tipo": "vf",
+      "pregunta": "La secuencia normal en el test de Machover dicta que la cabeza se dibuja primero; si la cabeza se dibuja al último, indica trastornos en relaciones interpersonales.",
+      "respuesta_correcta": "Verdadero"
+    },
+    {
+      "id": "vf_13",
+      "tipo": "vf",
+      "pregunta": "En el MMPI-2, la escala de contenido TRT (Indicadores de Tratamiento Negativo) evalúa la presencia de temores específicos y fobias.",
+      "respuesta_correcta": "Falso"
+    },
+    {
+      "id": "vf_14",
+      "tipo": "vf",
+      "pregunta": "Un perfil MMPI-2 con elevación en las escalas 4 (Desviación Psicopática) y 9 (Hipomanía) se conoce como configuración Desinhibido-Impulsivo, caracterizado por reactividad ante la autoridad.",
+      "respuesta_correcta": "Verdadero"
+    },
+    {
+      "id": "vf_15",
+      "tipo": "vf",
+      "pregunta": "En el test de Machover, un cuello largo y delgado indica una sólida integración entre los impulsos corporales y el control racional, mostrando madurez emocional.",
+      "respuesta_correcta": "Falso"
+    },
+    {
+      "id": "vf_16",
+      "tipo": "vf",
+      "pregunta": "En el MMPI-2, las puntuaciones T tienen una media de 50 y una DE de 10; por lo tanto, un sujeto con T=60 está exactamente en el promedio de la población.",
+      "respuesta_correcta": "Falso"
+    },
+    {
+      "id": "vf_17",
+      "tipo": "vf",
+      "pregunta": "Si en el 16PF un candidato a Ventas obtiene resultados de Atrevimiento (H) bajo y Afabilidad (A) bajo, es el perfil ideal para el puesto, ya que indica que es analítico.",
+      "respuesta_correcta": "Falso"
+    },
+    {
+      "id": "vf_18",
+      "tipo": "vf",
+      "pregunta": "En el MMPI-2, la escala VRIN evalúa la tendencia sistemática a marcar 'Verdadero' o 'Falso' sin leer el contenido de los reactivos.",
+      "respuesta_correcta": "Falso"
+    },
+    {
+      "id": "vf_19",
+      "tipo": "vf",
+      "pregunta": "En el test de Machover, los ojos grandes y acentuados se asocian con rasgos de hostilidad y paranoia.",
+      "respuesta_correcta": "Verdadero"
+    },
+    {
+      "id": "vf_20",
+      "tipo": "vf",
+      "pregunta": "Un perfil MMPI-2 donde la Escala 8 (Esquizofrenia) y la Escala 0 (Introversión Social) están elevadas sugiere un paciente con pensamiento peculiar, aislamiento severo y dificultad para el contacto interpersonal.",
+      "respuesta_correcta": "Verdadero"
+    },
+    {
+      "id": "vf_21",
+      "tipo": "vf",
+      "pregunta": "En el test de Machover, si el sujeto dibuja pies muy pequeños, esto se interpreta como un indicador de ambición desmedida y deseo de destacarse.",
+      "respuesta_correcta": "Falso"
+    },
+    {
+      "id": "vf_22",
+      "tipo": "vf",
+      "pregunta": "En el 16PF, el Factor Q4 (Tensión) en su extremo bajo describe a una persona relajada y tranquila, lo cual es una fortaleza para puestos que requieren manejo de estrés.",
+      "respuesta_correcta": "Verdadero"
+    },
+    {
+      "id": "vf_23",
+      "tipo": "vf",
+      "pregunta": "En el MMPI-2, si la escala K (Corrección) presenta una puntuación extremadamente baja, indica que el sujeto tiene una actitud excesivamente defensiva y niega sus defectos.",
+      "respuesta_correcta": "Falso"
+    },
+    {
+      "id": "vf_24",
+      "tipo": "vf",
+      "pregunta": "La 'Conversión Somática' en el MMPI-2 se identifica mediante el par de escalas 2 (Depresión) y 0 (Introversión Social).",
+      "respuesta_correcta": "Falso"
+    },
+    {
+      "id": "vf_25",
+      "tipo": "vf",
+      "pregunta": "En el test de Machover, la presencia de borraduras y tachaduras excesivas en el dibujo es un indicador gráfico de ansiedad y conflicto, común en neuróticos obsesivo-compulsivos.",
+      "respuesta_correcta": "Verdadero"
+    },
+    {
+      "id": "ab_01",
+      "tipo": "abierta",
+      "pregunta": "Caso 1 (MMPI-2). Datos del sujeto: Validez: L=50T, F=55T, K=60T. Escalas Clínicas: 1 (Hs) = 75T, 3 (Hy) = 78T. Resto de escalas < 60T. Escala de Contenido: HEA (Preocupaciones Físicas) = 72T. Analice la validez del protocolo, identifique el codetype predominante y describa la presentación clínica del sujeto integrando la escala de contenido.",
+      "respuesta_correcta": "Protocolo válido. Picos en 1 y 3. Codetype 1-3 (Conversión Somática / \"V\" inversa). La escala HEA alta confirma la focalización en síntomas físicos. El sujeto somatiza conflictos emocionales, presenta quejas físicas sin causa orgánica y niega dificultades psicológicas (mecanismo de defensa histérico)."
+    },
+    {
+      "id": "ab_02",
+      "tipo": "abierta",
+      "pregunta": "Caso 2 (MMPI-2 - Regla de Oro). Datos del sujeto: Validez: L=45T, F=94T, VRIN=50T. Escalas Clínicas: 4 (Pd) = 82T, 9 (Ma) = 76T. ¿Es interpretable este protocolo? Si lo fuera, describa el perfil. Si no lo fuera, justifique metodológicamente su respuesta basándose en las reglas de interpretación.",
+      "respuesta_correcta": "El protocolo es INVÁLIDO y no debe interpretarse. La escala F (Infrecuencia) tiene un valor de 94T, lo que supera el criterio de invalidez estricto (T > 90). Esto indica que el sujeto respondió de manera atípica, exagerando síntomas, fingiendo patología o respondiendo al azar. Aplicar la \"Regla de Oro\" es obligatorio antes de analizar las escalas clínicas."
+    },
+    {
+      "id": "ab_03",
+      "tipo": "abierta",
+      "pregunta": "Caso 3 (MMPI-2). Datos del sujeto: Validez: Normal (K=40T, ligera autocrítica). Escalas Clínicas: 2 (D) = 78T, 7 (Pt) = 75T, 0 (Si) = 68T. Escalas de Contenido: DEP = 74T, SOD = 70T. Interprete el perfil clínico, identifique el codetype y explique el aporte de las escalas de contenido y la escala 0 a la hipótesis diagnóstica.",
+      "respuesta_correcta": "Picos en 2 y 7 (Codetype Afectivo-Ansioso). Indica desmoralización, desesperanza y rumiación constante. La elevación de la escala 0 (Introversión Social) y la escala de contenido SOD (Incomodidad Social) añaden el componente de aislamiento voluntario y timidez. DEP confirma la ideación depresiva. Hipótesis: Trastorno del estado de ánimo con comorbilidad ansiosa y retraimiento social severo."
+    },
+    {
+      "id": "ab_04",
+      "tipo": "abierta",
+      "pregunta": "Caso 4 (MMPI-2). Datos del sujeto: Validez: Normal. Escalas Clínicas: 6 (Pa) = 76T, 8 (Sc) = 81T. Escalas de Contenido: CYN = 72T, ANG = 68T. Identifique la configuración de escalas (codetype) y describa la dinámica cognitiva, emocional e interpersonal del paciente.",
+      "respuesta_correcta": "Codetype 6-8 (Desorganización Cognitiva-Paranoide). El paciente presenta hipervigilancia extrema, sesgo atributivo externo y desorganización del pensamiento. CYN alta confirma desconfianza generalizada (paranoia), y ANG alta indica irritabilidad y reactividad. Sugiere un perfil esquizofrénico-paranoide o estado psicótico."
+    },
+    {
+      "id": "ab_05",
+      "tipo": "abierta",
+      "pregunta": "Caso 5 (16PF - Ámbito Laboral). Datos del sujeto: Candidato a Contador. Factores: G=9 (Alto), M=2 (Bajo), Q3=8 (Alto), A=3 (Bajo), H=4 (Bajo). Evalúe si el perfil es apto para el puesto de Contaduría según la teoría de Cattell. Justifique las fortalezas técnicas y las posibles áreas de riesgo en el clima laboral.",
+      "respuesta_correcta": "Aptitud técnica alta: G alto (escrupuloso, cumplidor), M bajo (práctico, concreto, orientado a datos), Q3 alto (perfeccionista, organizado). Coincide con el perfil de Contaduría. Riesgo: A bajo y H bajo indican que es reservado, crítico y tímido, lo que podría generar dificultades en el trabajo en equipo, comunicación asertiva o atención al cliente interno."
+    },
+    {
+      "id": "ab_06",
+      "tipo": "abierta",
+      "pregunta": "Caso 6 (16PF - Ámbito Laboral). Datos del sujeto: Candidato a Ventas. Factores: A=8, E=9, F=7, H=8, Q2=3. Analice este perfil en comparación con las competencias típicas para el área de Ventas. ¿Qué indican los factores primarios y cómo se comportaría en el factor secundario QI (Extraversión)?",
+      "respuesta_correcta": "Perfil ideal para Ventas. A alto (cálido), E alto (dominante, asertivo), F alto (animado, entusiasta), H alto (sociable, espontáneo). Q2 bajo indica que es dependiente del grupo, trabaja bien en equipo. Su factor secundario QI (Extraversión) será definitivamente alto, mostrando un estilo extrovertido y orientado a la interacción social y persuasión."
+    },
+    {
+      "id": "ab_07",
+      "tipo": "abierta",
+      "pregunta": "Caso 7 (16PF - Ámbito Clínico). Datos del sujeto: Evaluación clínica. Factores: C=2 (Bajo), O=8 (Alto), Q4=9 (Alto), L=7 (Alto). Describa la dinámica emocional del sujeto basándose en los factores de Estabilidad, Aprensión, Tensión y Vigilancia. ¿Qué factor secundario global está predominantemente afectado?",
+      "respuesta_correcta": "C bajo (reactivo, inestable ante el estrés), O alto (aprensivo, preocupado, culpable), Q4 alto (tenso, impaciente, frustrado), L alto (suspicaz, desconfiado). Dinámica de alta angustia, reactividad emocional y desconfianza hacia el entorno. El factor secundario QII (Ansiedad/Ajuste) estará en su extremo alto (Ansioso, tenso, poco ajustado)."
+    },
+    {
+      "id": "ab_08",
+      "tipo": "abierta",
+      "pregunta": "Caso 8 (Machover - Análisis Proyectivo). Datos del sujeto: Secuencia de dibujo: Inicia por los pies, luego piernas, tronco, brazos y deja la cabeza para el final. Trazo muy reforzado en las manos, con terminaciones en punta. Omite el cuello. Analice la secuencia, la omisión estructural y el tipo de trazo. ¿Qué indicadores psicológicos y emocionales se desprenden de esta combinación?",
+      "respuesta_correcta": "Cabeza al final: Trastornos en relaciones interpersonales. Omisión de cuello: Inmadurez, deficiencia mental o regresión (escisión entre impulso y control). Trazo reforzado en manos con puntas: Agresividad, impulsos agresivos actuados. Integración: Sujeto con inmadurez emocional, dificultades severas en contacto social y alta agresividad reprimida o actuada."
+    },
+    {
+      "id": "ab_09",
+      "tipo": "abierta",
+      "pregunta": "Caso 9 (Machover - Análisis Proyectivo). Datos del sujeto: Dibujo ubicado en la parte izquierda de la hoja. Figura muy pequeña. Cabeza pequeña. Brazos pegados al cuerpo. Manos omitidas. Interprete la ubicación en la hoja, el tamaño de la figura y los detalles de las extremidades superiores. ¿Qué perfil emocional y de autoconcepto sugiere?",
+      "respuesta_correcta": "Izquierda: Orientado por sí mismo, hacia el pasado, apego materno. Figura pequeña: Autoestima baja, inseguridad, depresión. Cabeza pequeña: Autoconcepto bajo, sentimiento de inadecuación. Brazos pegados y manos omitidas: Inhibición, agresividad reprimida, falta de confianza en contactos sociales, retraimiento. Perfil de timidez severa, inhibición y posible depresión."
+    },
+    {
+      "id": "ab_10",
+      "tipo": "abierta",
+      "pregunta": "Caso 10 (Machover - Análisis Proyectivo). Datos del sujeto: Figura muy grande, ocupando casi toda la hoja. Cabeza desproporcionadamente grande con ojos grandes y acentuados. Cuello largo y delgado. Piernas separadas con inseguridad. Evalúe el tamaño de la figura, los rasgos faciales y la estructura del cuello y piernas. ¿Qué defensas y dinámicas de personalidad se observan?",
+      "respuesta_correcta": "Figura muy grande: Megalomanía, narcisismo, compensación de inferioridad. Cabeza grande y ojos acentuados: Preocupaciones neuróticas, intelectualización, hostilidad/paranoia. Cuello largo y delgado: Escisión entre impulso y control racional, moralismo rígido o esquizoide. Piernas separadas con inseguridad: Inestabilidad, necesidad de apoyo a pesar de la grandiosidad aparente. Narcisismo con fragilidad subyacente."
+    }
+  ]
+}

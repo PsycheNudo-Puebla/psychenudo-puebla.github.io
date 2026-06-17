@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recursos del Nodo - PsycheNudo Puebla</title>
+    <link rel="icon" type="image/png" href="/assets/mi-logo.png">
+    <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+
+    <div class="layout-shell">
+    <header class="site-header">
+        <a href="/" class="logo-link">
+            <img src="/assets/logo-psychenudo.png" alt="PsycheNudo Puebla Logo" class="logo-img">
+        </a>
+        <p>Nodo de Difusión Académica, Tecnología Educativa y Ética Clínica</p>
+    </header>
+
+    <main class="contenedor">
+        <h1 id="-recursos-disponibles">📂 Recursos Disponibles</h1>
+
+<p>Bienvenido a la sección de recursos técnicos y académicos de la red.</p>
+
+<h2 id="herramientas-de-evaluación">Herramientas de Evaluación</h2>
+<ul>
+  <li><strong><a href="/recursos/rubrica/index.html">Sistema de Rúbricas Interactivas</a></strong>: Herramienta local para la evaluación de artículos y perfiles profesionales. Funciona de manera offline.</li>
+  <li><strong><a href="/recursos/Examen/index.html">TestLab Pro: Gestión de Exámenes</a></strong>: Herramienta avanzada para crear, aplicar y calificar exámenes en dispositivos inteligentes. Incluye un sistema anti-trampa, generación de exámenes aleatorios desde bancos de preguntas y calificación automática, ideal para el aula.</li>
+  <li><strong><a href="/recursos/mmpi/index.html">Ejercicio Clínico MMPI-2</a></strong>: Evaluación interactiva para que los estudiantes pongan a prueba y desarrollen sus conocimientos en la interpretación del MMPI-2. Incluye casos clínicos para práctica.</li>
+  <li><strong><a href="/recursos/gestion-de-empresa/index.html">Gestión de Selección y Clima Laboral</a></strong>: Simulador que pone a prueba la habilidad de seleccionar personal y mantener el clima laboral en una empresa.</li>
+</ul>
+
+    </main>
+
+    <footer class="site-footer">
+        <p class="site-footer__marca">PsycheNudo Puebla &copy; 2026</p>
+        <div class="footer-legal">
+            <p class="footer-disclaimer"><strong>Disclaimer:</strong> Este sitio web es una plataforma de difusión académica y profesional. El contenido aquí expuesto no constituye supervisión clínica ni asesoría legal. PsycheNudo Puebla no se hace responsable de las intervenciones individuales de los colaboradores. La verificación de la identidad y cédula profesional es responsabilidad del consultante a través de los canales oficiales.</p>
+        </div>
+    </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Lógica para cambiar entre pestañas (Tabs)
+            window.openTab = function(evt, tabName) {
+                const contents = document.querySelectorAll('.tab-content');
+                const tabs = document.querySelectorAll('.tab');
+                
+                contents.forEach(content => content.classList.remove('active'));
+                tabs.forEach(tab => tab.classList.remove('active'));
+                
+                document.getElementById(tabName).classList.add('active');
+                evt.currentTarget.classList.add('active');
+            };
+
+            const enlaces = document.querySelectorAll('a[href^="http"]');
+            enlaces.forEach(function(enlace) {
+                const href = enlace.getAttribute('href');
+                if (href && !href.includes('psychenudo-puebla.github.io') && !href.includes(window.location.hostname)) {
+                    enlace.setAttribute('target', '_blank');
+                    enlace.setAttribute('rel', 'noopener noreferrer');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

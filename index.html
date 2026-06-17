@@ -55,15 +55,10 @@ title: PsycheNudo
                 <p><strong>Cédula:</strong> {{ colega.cedula }}</p>
                 
                 <div class="acciones-tarjeta">
-                    <button class="boton" type="button" data-toggle="perfil-{{ colega.nombre | slugify }}">Detalles</button>
+                    <a href="{{ colega.url | relative_url }}" class="boton">Ver perfil completo</a>
                     {% if colega.external_url %}
-                    <a href="{{ colega.external_url }}" class="boton boton-secundario" target="_blank">Trayectoria</a>
+                    <a href="{{ colega.external_url }}" class="boton boton-secundario" target="_blank">Sitio personal</a>
                     {% endif %}
-                </div>
-
-                <div id="perfil-{{ colega.nombre | slugify }}" style="display: none; margin-top: 20px; padding: 18px; background: #ffffff; border-radius: 10px; border: 1px solid #d9e7e0;">
-                    {{ colega.content }}
-                    <p style="margin-top:15px;"><a href="{{ colega.url | relative_url }}">Ir a página de perfil individual →</a></p>
                 </div>
             </article>
             {% endfor %}
@@ -218,15 +213,19 @@ title: PsycheNudo
         }
     });
 
-    document.querySelectorAll('[data-toggle]').forEach(button => {
-        button.addEventListener('click', () => {
-            const target = document.getElementById(button.getAttribute('data-toggle'));
-            if (!target) return;
-            const isVisible = target.style.display === 'block';
-            target.style.display = isVisible ? 'none' : 'block';
-            button.textContent = isVisible ? 'Ver perfil completo' : 'Ocultar perfil';
-        });
-    });
+    // Orden aleatorio para los perfiles en la sección Nudo
+    const nudoGrid = document.querySelector('#nudo .grid-colegas');
+    if (nudoGrid) {
+        const nudoCards = Array.from(nudoGrid.querySelectorAll('.tarjeta-colega'));
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        shuffle(nudoCards).forEach(card => nudoGrid.appendChild(card));
+    }
 
     const toggleFormBtn = document.getElementById('toggle-form');
     if (toggleFormBtn) {

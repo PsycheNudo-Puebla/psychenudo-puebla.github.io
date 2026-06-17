@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escape Room Pixel - Demo</title>
+  <script src="levels/level1.js"></script>
+  <style>
+    body { margin: 0; background: linear-gradient(135deg, #0a0a0a, #1a1a1a); display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: 'Courier New', monospace; color: #33ff33; }
+    canvas { border: 4px solid #33ff33; image-rendering: pixelated; background: #111; box-shadow: 0 0 20px rgba(51, 255, 51, 0.5); }
+    #ui { margin-top: 10px; background: rgba(26, 26, 26, 0.9); padding: 15px 25px; border: 2px solid #33ff33; max-width: 700px; text-align: center; min-height: 80px; border-radius: 10px; box-shadow: 0 0 10px rgba(51, 255, 51, 0.3); }
+    button { background: #222; color: #33ff33; border: 2px solid #33ff33; padding: 10px 20px; cursor: pointer; font-family: inherit; margin: 5px; border-radius: 5px; }
+    button:hover { background: #333; box-shadow: 0 0 5px #33ff33; }
+    .hint { color: #ffff66; font-size: 14px; margin-top: 10px; text-shadow: 0 0 5px #ffff66; }
+  </style>
+</head>
+<body>
+  <canvas id="game" width="640" height="400"></canvas>
+  <div id="ui">CARGANDO...</div>
+  <div class="hint">⬆️⬇️⬅️➡️ Mover | ESPACIO Interactuar</div>
+
+<script>
+// 🔧 CONFIGURACIÓN ESCALABLE: Edita aquí para añadir niveles/preguntas
+const LEVELS = [
+  level1, // Primer nivel: El Cuarto
+  {
+    id: 2,
+    prompt: "El techo baja. Interactúa con el objeto más ALTO para detenerlo.",
+    ceilingSpeed: 1.2,
+    objects: [
+      { id: 0, name: "Árbol Joven", height: 10, x: 180, y: 200, w: 50, h: 80 },
+      { id: 1, name: "Torre Medieval", height: 85, x: 300, y: 200, w: 50, h: 80 },
+      { id: 2, name: "Edificio 90s", height: 45, x: 420, y: 200, w: 50, h: 80 }
+    ]
+  },
+  {
+    id: 3,
+    prompt: "Coloca el cuadro correcto en la zona vacía antes de que se acabe el tiempo.",
+    timeLimit: 20,
+    frames: [
+      { id: "A", correct: true, label: "Histórico", x: 140, y: 180, w: 60, h: 60 },
+      { id: "B", correct: false, label: "Abstracto", x: 250, y: 180, w: 60, h: 60 },
+      { id: "C", correct: false, label: "Moderno", x: 360, y: 180, w: 60, h: 60 }
+    ],
+    dropZone: { x: 480, y: 180, w: 60, h: 60 }
+  }
+];
+
+// 🧠 ESTADO
+const state = {
+  level: 0,
+  running: true,
+  ceilingH: 0,
+  ceilingActive: false,
+  timeLeft: 0,
+  selectedFrame: null,
+  framePlaced: false,
+  player: { x: 320, y: 320, w: 16, h: 24, speed: 3, dir: 0 },
+  keys: {},
+  interactTarget: null,
+  hasKey: false
+};
+
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const ui = document.getElementById('ui');
+
+// 🎨 PERSONAJE PIXELADO PURO (matriz 8x12)
+const PLAYER_SPRITE = [
+  "00111100",
+  "01111110",
+  "11111111",
+  "10111101",
+  "10111101",
+  "00111100",
+  "01111110",
+  "11000011",
+  "11000011",
+  "10000001",
+  "10000001",
+  "01000010"
+];
+
+function drawPixelChar(x, y, scale, dir) {
+  ctx.fillStyle = '#33ff33';
+  for (let r = 0; r < PLAYER_SPRITE.length; r++) {
+    for (let c = 0; c < PLAYER_SPRITE[r].length; c++) {
+      if (PLAYER_SPRITE[r][c] === '1') {
+        let px = x + c * scale;
+        let py = y + r * scale;
+        // Espejo si mira izquierda
+        if (dir === 2) px = x + (7 - c) * scale;
+        ctx.fillRect(px, py, scale, scale);
+      }
+    }
+  }
+}
+
+// 🕹️ INPUT
+window.addEventListener('keydown', e => state.keys[e.code] = true);
+window.addEventListener('keyup', e => state.keys[e.code] = false);
+
+function handleInput() {
+  const p = state.player;
+  if (state.keys['ArrowUp']) p.y -= p.speed;
+  if (state.keys['ArrowDown']) p.y += p.speed;
+  if (state.keys['ArrowLeft']) { p.x -= p.speed; p.dir = 2; }
+  if (state.keys['ArrowRight']) { p.x += p.speed; p.dir = 0; }
+
+  // Límites
+  p.x = Math.max(0, Math.min(canvas.width - p.w, p.x));
+  p.y = Math.max(0, Math.min(canvas.height - p.h, p.y));
+
+  if (state.keys['Space'] && state.interactTarget) {
+    triggerInteraction();
+    state.keys['Space'] = false; // evitar spam
+  }
+}
+
+// 📐 DETECCIÓN DE PROXIMIDAD
+function checkProximity(rect) {
+  const p = state.player;
+  const dist = 30;
+  return p.x + p.w > rect.x - dist && p.x < rect.x + rect.w + dist &&
+         p.y + p.h > rect.y - dist && p.y < rect.y + rect.h + dist;
+}
+
+// ⚡ INTERACCIÓN POR NIVEL
+function triggerInteraction() {
+  if (state.level === 0) {
+    handleLevel1Interaction();
+  } else if (state.level === 1) {
+    const objs = LEVELS[state.level].objects.filter(o => checkProximity(o));
+    if (objs.length > 0) {
+      const maxH = Math.max(...LEVELS[state.level].objects.map(o => o.height));
+      if (objs[0].height === maxH) {
+        ui.innerHTML = "✅ Objeto más alto. Techo detenido.";
+        state.ceilingActive = false;
+        setTimeout(() => loadLevel(state.level + 1), 1000);
+      } else ui.innerHTML = "❌ No es el más alto.";
+    }
+  } else if (state.level === 2) {
+    if (!state.selectedFrame) {
+      const frames = LEVELS[state.level].frames.filter(f => checkProximity(f));
+      if (frames.length > 0) state.selectedFrame = frames[0].id;
+    } else {
+      if (checkProximity(LEVELS[state.level].dropZone)) {
+        const correct = LEVELS[state.level].frames.find(f => f.correct).id;
+        if (state.selectedFrame === correct) {
+          ui.innerHTML = "✅ Cuadro colocado correctamente.";
+          state.timeLeft = 0;
+          setTimeout(() => loadLevel(state.level + 1), 1000);
+        } else ui.innerHTML = "❌ Cuadro incorrecto.";
+      }
+    }
+  }
+}
+
+// 🏗️ RENDERIZADO
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const lvl = LEVELS[state.level];
+
+  // Fondo y suelo
+  ctx.fillStyle = '#111';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#222';
+  ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+
+  if (state.level === 0) {
+    drawLevel1();
+  } else if (state.level === 1) {
+    lvl.objects.forEach(o => {
+      ctx.fillStyle = '#333';
+      ctx.fillRect(o.x, o.y, o.w, o.h);
+      ctx.fillStyle = '#00ffff';
+      ctx.font = '12px monospace';
+      ctx.fillText(o.name, o.x, o.y - 10);
+      ctx.fillText(`V: ${o.height}`, o.x + 5, o.y + o.h/2);
+    });
+    state.interactTarget = lvl.objects.find(checkProximity);
+  } else if (state.level === 2) {
+    lvl.frames.forEach(f => {
+      ctx.fillStyle = state.selectedFrame === f.id ? '#ffff66' : '#333';
+      ctx.fillRect(f.x, f.y, f.w, f.h);
+      ctx.fillStyle = '#00ffff';
+      ctx.font = '10px monospace';
+      ctx.fillText(f.label, f.x + 5, f.y + 30);
+    });
+    ctx.strokeStyle = '#ff3333';
+    ctx.setLineDash([4, 4]);
+    ctx.strokeRect(lvl.dropZone.x, lvl.dropZone.y, lvl.dropZone.w, lvl.dropZone.h);
+    ctx.setLineDash([]);
+    state.interactTarget = state.selectedFrame ? lvl.dropZone : lvl.frames.find(checkProximity);
+  }
+
+  // Techo (Nivel 2)
+  if (state.ceilingActive) {
+    ctx.fillStyle = 'rgba(255, 50, 50, 0.6)';
+    ctx.fillRect(0, 0, canvas.width, state.ceilingH);
+  }
+
+  // Personaje
+  drawPixelChar(state.player.x, state.player.y, 2, state.player.dir);
+
+  // Indicador de interacción
+  if (state.interactTarget) {
+    ctx.fillStyle = '#ffff66';
+    ctx.font = '12px monospace';
+    ctx.fillText('[ESPACIO]', state.player.x - 10, state.player.y - 10);
+  }
+}
+
+// ⏱️ LÓGICA DE NIVEL
+function loadLevel(idx) {
+  if (idx >= LEVELS.length) {
+    ui.innerHTML = "🎉 ¡HAS ESCAPADO! Fin del demo.";
+    state.running = false;
+    return;
+  }
+  state.level = idx;
+  state.ceilingH = 0;
+  state.ceilingActive = false;
+  state.selectedFrame = null;
+  state.framePlaced = false;
+  state.player.x = 320;
+  state.player.y = 320;
+  state.hasKey = false;
+
+  const lvl = LEVELS[idx];
+  if (idx === 0) {
+    // Reset level1
+    level1.foundObject = false;
+    level1.selectedDoor = null;
+    level1.escaped = false;
+    ui.innerHTML = level1.prompt;
+  } else {
+    ui.innerHTML = `<strong>NIVEL ${idx + 1}</strong><br>${lvl.prompt}`;
+  }
+
+  if (idx === 1) state.ceilingActive = true;
+  if (idx === 2) {
+    state.timeLeft = lvl.timeLimit;
+    startTimer();
+  }
+}
+
+let timerInterval = null;
+function startTimer() {
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (!state.running || state.timeLeft <= 0) { clearInterval(timerInterval); return; }
+    state.timeLeft--;
+    ui.innerHTML = `<strong>NIVEL 3</strong><br>Tiempo: ${state.timeLeft}s<br>${LEVELS[2].prompt}`;
+    if (state.timeLeft <= 0) {
+      ui.innerHTML = "⏰ Tiempo agotado. Reiniciando...";
+      setTimeout(() => loadLevel(2), 1500);
+    }
+  }, 1000);
+}
+
+// 🔄 GAME LOOP
+function loop() {
+  if (!state.running) return;
+  handleInput();
+  if (state.ceilingActive) {
+    state.ceilingH += LEVELS[1].ceilingSpeed;
+    if (state.ceilingH >= canvas.height) {
+      ui.innerHTML = "💀 El techo te atrapó.";
+      setTimeout(() => loadLevel(1), 1500);
+      state.ceilingActive = false;
+    }
+  }
+  draw();
+  requestAnimationFrame(loop);
+}
+
+// 🚀 INICIO
+loadLevel(0);
+loop();
+</script>
+</body>
+</html>

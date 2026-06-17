@@ -36,6 +36,27 @@ layout: default
             {% if page.url_personal %}
             <a href="{{ page.url_personal | relative_url }}" class="boton perfil-boton">Visitar Sitio Personal</a>
             {% endif %}
+
+            <div class="perfil-navegacion" style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px;">
+                <a href="{{ '/' | relative_url }}#nudo" class="boton perfil-boton">Volver al Nudo</a>
+                {% assign profesionales = site.profesionales | sort: 'nombre' %}
+                {% assign currentIndex = 0 %}
+                {% for prof in profesionales %}
+                    {% if prof.url == page.url %}
+                        {% assign currentIndex = forloop.index0 %}
+                    {% endif %}
+                {% endfor %}
+                {% assign previousIndex = currentIndex | minus: 1 %}
+                {% assign nextIndex = currentIndex | plus: 1 %}
+                {% for prof in profesionales %}
+                    {% if forloop.index0 == previousIndex %}
+                        <a href="{{ prof.url | relative_url }}" class="boton perfil-boton">Anterior</a>
+                    {% endif %}
+                    {% if forloop.index0 == nextIndex %}
+                        <a href="{{ prof.url | relative_url }}" class="boton perfil-boton">Siguiente</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
         </aside>
     </div>
 </section>

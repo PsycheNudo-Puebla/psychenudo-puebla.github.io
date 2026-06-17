@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Creador de Niveles - Escape Room</title>
+    <style>
+        body { font-family: sans-serif; background: #1a1a1a; color: #eee; padding: 20px; }
+        .level-card { background: #2a2a2a; border: 1px solid #444; padding: 15px; margin-bottom: 20px; border-radius: 8px; }
+        h2 { color: #f8b800; border-bottom: 1px solid #555; padding-bottom: 5px; }
+        .scenario { background: #333; padding: 10px; margin: 10px 0; border-left: 4px solid #a80020; }
+        label { display: block; margin: 10px 0 5px; font-weight: bold; font-size: 0.9em; }
+        input, textarea, select { width: 100%; padding: 8px; background: #111; color: #fff; border: 1px solid #555; box-sizing: border-box; }
+        .item-row { display: flex; gap: 10px; margin-bottom: 5px; align-items: center; }
+        .item-row input { flex: 2; }
+        .item-row select { flex: 1; }
+        button { cursor: pointer; padding: 10px 15px; border: none; border-radius: 4px; font-weight: bold; margin-top: 10px; }
+        .add-btn { background: #346856; color: white; }
+        .dl-btn { background: #f8b800; color: black; font-size: 1.2em; width: 100%; margin-top: 30px; }
+        .help { color: #aaa; font-size: 0.85em; margin-bottom: 10px; font-style: italic; }
+    </style>
+</head>
+<body>
+    <h1>Creador de Escape Room Personalizado</h1>
+    <p>Diseña tus propios acertijos. Puedes añadir varios "escenarios" por nivel para que el juego sea diferente cada vez que alguien juegue.</p>
+
+    <div id="editor-container"></div>
+
+    <button class="dl-btn" onclick="generateJSON()">GENERAR Y DESCARGAR ARCHIVO JSON</button>
+
+    <script>
+        const levelsConfig = [
+            { id: 1, type: 'date', title: 'El Código Secreto', help: 'El jugador lee pistas para deducir la clave que abre la puerta.' },
+            { id: 2, type: 'atomic', title: 'El Pedestal de Elección', help: 'Define 3 objetos y elige cuál es el correcto para avanzar.' },
+            { id: 3, type: 'art', title: 'Identifica al Intruso', help: 'Tres cuadros: dos comparten un tema y uno no. El jugador debe elegir el que es diferente.' },
+            { id: 4, type: 'tower', title: 'Orden de Categorías', help: 'Escribe los elementos en el orden correcto. El juego les asignará formas y tamaños distintos.' },
+            { id: 5, type: 'snakes', title: 'Cámaras de Decisión', help: 'Dos salas con 3 opciones cada una. Solo una opción es la verdadera.' },
+            { id: 6, type: 'bridge', title: 'Verdadero o Falso', help: 'Define exactamente 3 preguntas de respuesta binaria.' },
+            { id: 7, type: 'dragon', title: 'Batalla con el Dragón', help: 'Preguntas de opción múltiple (A, B, C).' },
+            { id: 8, type: 'tennis', title: 'Tenis contra el Jefe', help: 'Preguntas finales de opción múltiple.' }
+        ];
+
+        const basicColors = {
+            "#a80020": "Rojo",
+            "#3cbcfc": "Azul",
+            "#346856": "Verde",
+            "#f8b800": "Amarillo",
+            "#7c7c7c": "Gris",
+            "#ffffff": "Blanco",
+            "#ab5233": "Café"
+        };
+
+        const colorOptions = Object.entries(basicColors).map(([hex, name]) => `<option value="${hex}">${name}</option>`).join('');
+
+        function initEditor() {
+            const container = document.getElementById('editor-container');
+            levelsConfig.forEach(lvl => {
+                const card = document.createElement('div');
+                card.className = 'level-card';
+                card.innerHTML = `<h2>Nivel ${lvl.id}: ${lvl.title}</h2><p class="help">${lvl.help}</p>
+                                 <div id="scenarios-${lvl.id}"></div>
+                                 <button class="add-btn" onclick="addScenario(${lvl.id})">+ Añadir Escenario Aleatorio</button>`;
+                container.appendChild(card);
+                addScenario(lvl.id); // Añadir uno por defecto
+            });
+        }
+
+        function addScenario(lvlId) {
+            const container = document.getElementById(`scenarios-${lvlId}`);
+            const div = document.createElement('div');
+            div.className = 'scenario';
+            
+            let fields = '';
+            if (lvlId === 1) {
+                fields = `<label>Nombre del Objeto:</label><input class="obj" placeholder="ej: Diario Antiguo">
+                          <label>Código de Seguridad (Clave):</label><input class="key" placeholder="ej: 1234">
+                          <label>Pistas para los libreros (una por línea):</label><textarea class="hints" rows="3" placeholder="Pista 1\nPista 2\nPista 3"></textarea>`;
+            } else if (lvlId === 2) {
+                fields = `<label>Instrucción al jugador:</label><input class="prompt" placeholder="ej: Selecciona el síntoma físico">
+                          <div class="item-row"><span>1:</span><input class="n1" placeholder="Nombre"> <select class="c1">${colorOptions}</select></div>
+                          <div class="item-row"><span>2:</span><input class="n2" placeholder="Nombre"> <select class="c2">${colorOptions}</select></div>
+                          <div class="item-row"><span>3:</span><input class="n3" placeholder="Nombre"> <select class="c3">${colorOptions}</select></div>
+                          <label>¿Cuál es el objeto correcto?</label>
+                          <select class="correct"><option value="1">Objeto 1</option><option value="2">Objeto 2</option><option value="3">Objeto 3</option></select>`;
+            } else if (lvlId === 3) {
+                fields = `<label>Categoría del Intruso (el que NO pertenece):</label><input class="target" placeholder="ej: Emoción">
+                          <div class="scenario"><label>Objeto 1 (Normal):</label><input class="n1" placeholder="Nombre"><input class="d1" placeholder="Descripción"><input class="s1" placeholder="Categoría"></div>
+                          <div class="scenario"><label>Objeto 2 (Normal):</label><input class="n2" placeholder="Nombre"><input class="d2" placeholder="Descripción"><input class="s2" placeholder="Categoría"></div>
+                          <div class="scenario"><label>Objeto 3 (Intruso):</label><input class="n3" placeholder="Nombre"><input class="d3" placeholder="Descripción"><input class="s3" value="Este debe coincidir con la categoría de arriba" readonly></div>`;
+            } else if (lvlId === 4) {
+                fields = `<label>Escribe los elementos en el ORDEN en que deben acomodarse (separados por coma):</label>
+                          <input class="items" placeholder="Primero, Segundo, Tercero, Cuarto">`;
+            } else if (lvlId === 5) {
+                fields = `<label>Sala Izquierda (Cámara A):</label>
+                          <input class="qA" placeholder="Concepto a identificar">
+                          <div class="item-row"><input class="optAC" placeholder="Respuesta Correcta"></div>
+                          <div class="item-row"><input class="optAI1" placeholder="Respuesta Falsa 1"></div>
+                          <div class="item-row"><input class="optAI2" placeholder="Respuesta Falsa 2"></div>
+                          <label>Sala Derecha (Cámara B):</label>
+                          <input class="qB" placeholder="Concepto a identificar">
+                          <div class="item-row"><input class="optBC" placeholder="Respuesta Correcta"></div>
+                          <div class="item-row"><input class="optBI1" placeholder="Respuesta Falsa 1"></div>
+                          <div class="item-row"><input class="optBI2" placeholder="Respuesta Falsa 2"></div>`;
+            } else if (lvlId === 6) {
+                fields = `<label>Pregunta 1:</label><input class="q1"> <select class="r1"><option value="V">Verdadero</option><option value="F">Falso</option></select>
+                          <label>Pregunta 2:</label><input class="q2"> <select class="r2"><option value="V">Verdadero</option><option value="F">Falso</option></select>
+                          <label>Pregunta 3:</label><input class="q3"> <select class="r3"><option value="V">Verdadero</option><option value="F">Falso</option></select>`;
+            } else if (lvlId >= 6) {
+                fields = `<label>Pregunta:</label><input class="q">
+                          <div class="item-row"><span>A:</span><input class="o1"></div>
+                          <div class="item-row"><span>B:</span><input class="o2"></div>
+                          <div class="item-row"><span>C:</span><input class="o3"></div>
+                          <label>Opción Correcta:</label>
+                          <select class="correct"><option value="0">A</option><option value="1">B</option><option value="2">C</option></select>`;
+            }
+
+            div.innerHTML = fields + `<button style="background:#555; font-size: 10px;" onclick="this.parentElement.remove()">× Eliminar este escenario</button>`;
+            container.appendChild(div);
+        }
+
+        function generateJSON() {
+            const result = { levels: [] };
+            levelsConfig.forEach(lvl => {
+                const levelObj = { id: lvl.id, type: lvl.type, title: `Nivel ${lvl.id}`, scenarios: [] };
+                const scenarios = document.querySelectorAll(`#scenarios-${lvl.id} .scenario`);
+                
+                scenarios.forEach(sc => {
+                    let data = {};
+                    if (lvl.id === 1) {
+                        data = { object: sc.querySelector('.obj').value, claveCIE: sc.querySelector('.key').value, bookshelfHints: sc.querySelector('.hints').value.split('\n') };
+                    } else if (lvl.id === 2) {
+                        const items = [
+                            { name: sc.querySelector('.n1').value, val: 1, shape: 'statue', color: sc.querySelector('.c1').value },
+                            { name: sc.querySelector('.n2').value, val: 2, shape: 'statue', color: sc.querySelector('.c2').value },
+                            { name: sc.querySelector('.n3').value, val: 3, shape: 'statue', color: sc.querySelector('.c3').value }
+                        ];
+                        data = { challenges: [{ prompt: sc.querySelector('.prompt').value, targetValue: parseInt(sc.querySelector('.correct').value), items }] };
+                    } else if (lvl.id === 3) {
+                        const target = sc.querySelector('.target').value;
+                        data = { 
+                            targetStyle: target, 
+                            paintings: [
+                                { name: sc.querySelector('.n1').value, description: sc.querySelector('.d1').value, style: sc.querySelector('.s1').value },
+                                { name: sc.querySelector('.n2').value, description: sc.querySelector('.d2').value, style: sc.querySelector('.s2').value },
+                                { name: sc.querySelector('.n3').value, description: sc.querySelector('.d3').value, style: target }
+                            ] 
+                        };
+                    } else if (lvl.id === 4) {
+                        const colors = Object.keys(basicColors);
+                        const items = sc.querySelector('.items').value.split(',').map((n, i) => ({ 
+                            id: i, name: n.trim(), color: colors[i % colors.length], size: (i + 1) * 2 
+                        }));
+                        data = { description: "Ordena según el CIE-11", items };
+                    } else if (lvl.id === 5) {
+                        data = { 
+                            roomA: [{name: sc.querySelector('.optAC').value, desc: sc.querySelector('.qA').value, correct: true}, {name: sc.querySelector('.optAI1').value, desc: "Incorrecto", correct: false}, {name: sc.querySelector('.optAI2').value, desc: "Incorrecto", correct: false}],
+                            roomB: [{name: sc.querySelector('.optBC').value, desc: sc.querySelector('.qB').value, correct: true}, {name: sc.querySelector('.optBI1').value, desc: "Incorrecto", correct: false}, {name: sc.querySelector('.optBI2').value, desc: "Incorrecto", correct: false}]
+                        };
+                    } else if (lvl.id === 6) {
+                        data = { 
+                            questions: [
+                                { prompt: sc.querySelector('.q1').value, correct: sc.querySelector('.r1').value },
+                                { prompt: sc.querySelector('.q2').value, correct: sc.querySelector('.r2').value },
+                                { prompt: sc.querySelector('.q3').value, correct: sc.querySelector('.r3').value }
+                            ] 
+                        };
+                    } else {
+                        data = { 
+                            questions: [{ 
+                                question: sc.querySelector('.q').value, 
+                                options: [sc.querySelector('.o1').value, sc.querySelector('.o2').value, sc.querySelector('.o3').value], 
+                                correct: parseInt(sc.querySelector('.correct').value) 
+                            }] 
+                        };
+                    }
+                    levelObj.scenarios.push(data);
+                });
+                result.levels.push(levelObj);
+            });
+
+            const blob = new Blob([JSON.stringify(result, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'nuevo_escape_room.json';
+            a.click();
+        }
+
+        initEditor();
+    </script>
+</body>
+</html>

@@ -2035,6 +2035,15 @@
                       </button>
                     </div>`;
       }
+
+      // Inyectamos el reporte visual (aciertos, errores y calificación) para que el alumno lo vea
+      if (reportHtml) {
+        content += `<div class="visual-report-preview" style="margin-top: 30px; border-top: 2px solid var(--border); padding-top: 20px; overflow-x: auto;">
+                      <h3 style="text-align: center; color: var(--primary); margin-bottom: 20px;">Resumen de tu Evaluación</h3>
+                      ${reportHtml}
+                    </div>`;
+      }
+
       elements.blockedMessage.innerHTML = content;
 
       const btn = document.getElementById("manual-pdf-btn");
