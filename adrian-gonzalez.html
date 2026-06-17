@@ -557,18 +557,13 @@ permalink: /adrian-gonzalez/
 
         /* Sistema de Vistas */
         .view-section {
-            display: none;
+            display: block;
             animation: fadeInUp 0.6s ease-out forwards;
         }
-        .view-section.active,
-        section.hero.active {
-            display: block;
-        }
-        /* Mantenemos el flex para el hero cuando esté activo */
-        section.hero.active {
+        /* Mantenemos el flex para el hero */
+        section.hero {
             display: flex;
         }
-
         /* Botón Volver */
         .btn-back {
             display: none;
@@ -620,19 +615,17 @@ permalink: /adrian-gonzalez/
                     </div>
                 </div>
                 <div class="nav-links">
-                    <a onclick="showView('formacion')">Inicio</a>
-                    <a onclick="showView('practica')">Práctica</a>
-                    <a onclick="showView('experiencia')">Experiencia</a>
-                    <a onclick="showView('ubicacion')">Ubicación</a>
-                    <a onclick="showView('redes')">Contacto</a>
+                    <a href="#formacion">Inicio</a>
+                    <a href="#practica">Práctica</a>
+                    <a href="#experiencia">Experiencia</a>
+                    <a href="#ubicacion">Ubicación</a>
+                    <a href="#redes">Contacto</a>
                 </div>
             </nav>
         </div>
     </header>
 
     <main class="container">
-        <button class="btn-back" onclick="backToHome()">← Volver al inicio</button>
-        
         <!-- Perfil y Formación -->
         <section class="hero view-section" id="formacion">
             <div class="profile-photo">
