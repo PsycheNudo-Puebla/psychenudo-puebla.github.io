@@ -74,19 +74,17 @@ permalink: /adrian-gonzalez/
             padding: 0 28px; 
         }
 
-        /* Header con efecto glass */
+        /* Header sin efecto glass */
         header {
             background: rgba(253, 248, 243, 0.85);
-            backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(201, 169, 97, 0.2);
-            position: sticky;
-            top: 0;
+            position: static;
             z-index: 1000;
             padding: 1rem 0;
             transition: var(--transition);
         }
         header.scrolled {
-            padding: 0.7rem 0;
+            padding: 1rem 0;
             background: rgba(253, 248, 243, 0.95);
             box-shadow: var(--shadow-soft);
         }
@@ -103,7 +101,7 @@ permalink: /adrian-gonzalez/
             gap: 0.8rem;
         }
         .logo-brand img {
-            height: 72px;
+            height: 100px;
             width: auto;
             transition: var(--transition);
         }
@@ -328,7 +326,7 @@ permalink: /adrian-gonzalez/
                 gap: 0.4rem;
             }
             .logo-brand img {
-                height: 56px;
+                height: 80px;
             }
             .logo-text .name {
                 font-size: 0.7rem;
@@ -556,6 +554,71 @@ permalink: /adrian-gonzalez/
         .mt-2 { margin-top: 2rem; }
         .mb-1 { margin-bottom: 1rem; }
         .accent-text { color: var(--accent); font-weight: 600; }
+
+        /* Sistema de Vistas */
+        .view-section {
+            display: none;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        .view-section.active {
+            display: block;
+        }
+        .view-section.hidden {
+            animation: fadeOutDown 0.4s ease-in forwards;
+        }
+        @keyframes fadeOutDown {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(25px); }
+        }
+
+        /* Hero Section como vista inicial */
+        .hero-view {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 3rem;
+            padding: 4.5rem 0 3.5rem;
+            position: relative;
+        }
+        .hero-view.hidden {
+            display: none;
+        }
+
+        /* Botón Volver */
+        .btn-back {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.6rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            border-radius: 10px;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(93, 46, 70, 0.25);
+            transition: var(--transition);
+            border: 2px solid transparent;
+            cursor: pointer;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+        .btn-back.show {
+            display: inline-flex;
+        }
+        .btn-back:hover { 
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(93, 46, 70, 0.35);
+        }
+
+        /* Navigation en modo vista */
+        nav.view-mode {
+            justify-content: center;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        nav.view-mode .nav-links {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
     </style>
 </head>
 <body>
@@ -572,19 +635,21 @@ permalink: /adrian-gonzalez/
                     </div>
                 </div>
                 <div class="nav-links">
-                    <a href="#formacion">Formación</a>
-                    <a href="#practica">Práctica</a>
-                    <a href="#experiencia">Experiencia</a>
-                    <a href="#ubicacion">Ubicación</a>
-                    <a href="#redes">Contacto</a>
+                    <a onclick="showView('formacion')">Formación</a>
+                    <a onclick="showView('practica')">Práctica</a>
+                    <a onclick="showView('experiencia')">Experiencia</a>
+                    <a onclick="showView('ubicacion')">Ubicación</a>
+                    <a onclick="showView('redes')">Contacto</a>
                 </div>
             </nav>
         </div>
     </header>
 
     <main class="container">
+        <button class="btn-back" onclick="backToHome()">← Volver al inicio</button>
+        
         <!-- Perfil y Formación -->
-        <section class="hero" id="formacion">
+        <section class="hero hero-view" id="formacion">
             <div class="profile-photo">
                 <img src="{{ '/assets/foto-adrian.jpeg' | relative_url }}" 
                      alt="Mtro. Alfredo Adrián González Lazcano" 
@@ -616,7 +681,7 @@ permalink: /adrian-gonzalez/
         <div class="section-divider"></div>
 
         <!-- Sobre mi práctica -->
-        <section id="practica">
+        <section class="view-section" id="practica">
             <h3>Áreas de Acompañamiento</h3>
             <p>Mi práctica se centra en el estudio de la <span class="accent-text">subjetividad</span> y el malestar psíquico. Acompaño procesos relacionados con:</p>
             <ul>
@@ -631,7 +696,7 @@ permalink: /adrian-gonzalez/
         <div class="section-divider"></div>
 
         <!-- La Experiencia Terapéutica -->
-        <section id="experiencia">
+        <section class="view-section" id="experiencia">
             <h3>La Experiencia Terapéutica</h3>
             <p><strong>Un espacio para la palabra</strong><br>
             Priorizo la creación de un encuadre <span class="accent-text">seguro y confidencial</span>. Bajo la premisa de la asociación libre, invito a hablar sin censura, permitiendo que emerjan elementos inconscientes que configuran la realidad actual.</p>
@@ -641,7 +706,7 @@ permalink: /adrian-gonzalez/
         <div class="section-divider"></div>
 
         <!-- Perspectiva Personal -->
-        <section id="perspectiva">
+        <section class="view-section" id="perspectiva">
             <h3>Perspectiva Personal</h3>
             <p><strong>El valor de la propia terapia</strong><br>
             La psicoterapia ha sido el eje de mi transformación. El psicoanálisis me ha permitido tolerar la complejidad de la mente humana y cultivar una autenticidad que hoy es el pilar de mi ética profesional.</p>
@@ -650,7 +715,7 @@ permalink: /adrian-gonzalez/
 
         <!-- Ubicación y Redes -->
         <div class="grid-2" id="ubicacion-redes">
-            <section id="ubicacion">
+            <section class="view-section" id="ubicacion">
                 <h3>Consultorio</h3>
                 <div class="location-box">
                     <p class="address">Calle 7 Sur 1507<br>Col. Centro, Puebla, Pue.</p>
@@ -661,7 +726,7 @@ permalink: /adrian-gonzalez/
                 </div>
             </section>
 
-            <section id="redes">
+            <section class="view-section" id="redes">
                 <h3>Conecta Conmigo</h3>
                 <p style="margin-bottom: 1.2rem;">Consulta mi disponibilidad en tiempo real y agenda una sesión directamente:</p>
                 <p style="margin-bottom: 1.2rem;">O si prefieres, escríbeme por WhatsApp: <span class="accent-text">2221 34 89 32</span></p>
@@ -724,23 +789,74 @@ permalink: /adrian-gonzalez/
             });
         });
 
-        // Animaciones al hacer scroll con Intersection Observer
-        document.addEventListener('DOMContentLoaded', function() {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+        // Sistema de Vistas - Mostrar/Ocultar secciones
+        let currentView = 'home';
 
-            document.querySelectorAll('section').forEach(section => {
-                section.style.opacity = '0';
-                section.style.transform = 'translateY(25px)';
-                section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-                observer.observe(section);
+        function showView(viewName) {
+            // Ocultar la vista actual si no es home
+            const currentSection = document.getElementById(currentView);
+            if (currentSection && currentView !== 'home') {
+                currentSection.classList.remove('active');
+                currentSection.classList.add('hidden');
+                setTimeout(() => {
+                    currentSection.classList.remove('hidden');
+                }, 400);
+            }
+
+            // Si estamos en home, ocultar la sección hero
+            if (currentView === 'home') {
+                const heroSection = document.querySelector('.hero-view');
+                heroSection.classList.add('hidden');
+                setTimeout(() => {
+                    heroSection.classList.remove('hidden');
+                }, 400);
+            }
+
+            // Mostrar la nueva vista
+            const newSection = document.getElementById(viewName);
+            newSection.classList.add('active');
+            
+            // Mostrar botón volver
+            const btnBack = document.querySelector('.btn-back');
+            btnBack.classList.add('show');
+
+            // Scroll al topo
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            currentView = viewName;
+        }
+
+        function backToHome() {
+            // Ocultar la vista actual
+            const currentSection = document.getElementById(currentView);
+            currentSection.classList.remove('active');
+            currentSection.classList.add('hidden');
+            setTimeout(() => {
+                currentSection.classList.remove('hidden');
+            }, 400);
+
+            // Mostrar hero section
+            const heroSection = document.querySelector('.hero-view');
+            heroSection.classList.add('active');
+
+            // Ocultar botón volver
+            const btnBack = document.querySelector('.btn-back');
+            btnBack.classList.remove('show');
+
+            // Scroll al topo
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            currentView = 'home';
+        }
+
+        // Al cargar la página, asegurar que solo home esté visible
+        document.addEventListener('DOMContentLoaded', function() {
+            const heroSection = document.querySelector('.hero-view');
+            heroSection.classList.add('active');
+
+            // Ocultar todas las vistas excepto la inicial
+            document.querySelectorAll('.view-section').forEach(section => {
+                section.classList.remove('active');
             });
         });
     </script>
