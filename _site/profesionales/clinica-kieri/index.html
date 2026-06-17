@@ -55,58 +55,67 @@
             
 
             <div class="perfil-navegacion" style="margin-top: 30px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 20px;">
-                    
-                    
-                    
-                    
-                    
-                    
-                    <!-- Botón Anterior a la izquierda -->
-                    <div>
-                        
-                            
-                        
-                            
-                        
-                            
-                        
-                            
-                        
-                            
-                        
-                            
-                        
-                            
-                        
-                    </div>
-
-                    <!-- Botón Siguiente a la derecha -->
-                    <div>
-                        
-                            
-                        
-                            
-                                <a href="/profesionales/lorena-juarez/" class="boton perfil-boton">Siguiente →</a>
-                            
-                        
-                            
-                        
-                            
-                        
-                            
-                        
-                            
-                        
-                            
-                        
-                    </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 20px;" id="nav-buttons">
+                    <!-- Los botones se insertan aquí por JavaScript -->
                 </div>
                 
                 <div style="text-align: center;">
                     <a href="/#nudo" class="boton perfil-boton">Volver al Nudo</a>
                 </div>
             </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const navButtons = document.getElementById('nav-buttons');
+                    const currentUrl = window.location.pathname;
+                    
+                    // Intentar obtener el orden aleatorio de sessionStorage
+                    let profileOrder = JSON.parse(sessionStorage.getItem('nudoProfileOrder') || '[]');
+                    
+                    // Normalizar URLs para comparación
+                    const normalizeUrl = (url) => {
+                        if (!url) return '';
+                        return url.replace(/^.*?\/profesionales\//, '/profesionales/').replace(/\/$/, '');
+                    };
+                    
+                    const currentNormalized = normalizeUrl(currentUrl);
+                    const normalizedOrder = profileOrder.map(normalizeUrl).filter(Boolean);
+                    
+                    let currentIndex = normalizedOrder.indexOf(currentNormalized);
+                    
+                    // Si no está en el orden aleatorio, usar orden alfabético como fallback
+                    if (currentIndex === -1) {
+                        const allProfiles = [
+                            
+                            '/profesionales/clinica-kieri/', '/profesionales/lorena-juarez/', '/profesionales/javier-bermudez/', '/profesionales/claudia-castillo/', '/profesionales/irasema-cruz/', '/profesionales/adrian-gonzalez/', '/profesionales/nancy-arcos-cruzado/'
+                        ];
+                        const normalizedProfiles = allProfiles.map(normalizeUrl);
+                        currentIndex = normalizedProfiles.indexOf(currentNormalized);
+                        normalizedOrder.splice(0, normalizedOrder.length, ...normalizedProfiles);
+                    }
+                    
+                    // Crear botones de navegación
+                    let html = '';
+                    
+                    // Botón Anterior (izquierda)
+                    if (currentIndex > 0) {
+                        const prevUrl = normalizedOrder[currentIndex - 1];
+                        html += `<div><a href="${prevUrl}" class="boton perfil-boton">← Anterior</a></div>`;
+                    } else {
+                        html += '<div></div>'; // Espaciador vacío
+                    }
+                    
+                    // Botón Siguiente (derecha)
+                    if (currentIndex < normalizedOrder.length - 1) {
+                        const nextUrl = normalizedOrder[currentIndex + 1];
+                        html += `<div><a href="${nextUrl}" class="boton perfil-boton">Siguiente →</a></div>`;
+                    } else {
+                        html += '<div></div>'; // Espaciador vacío
+                    }
+                    
+                    navButtons.innerHTML = html;
+                });
+            </script>
         </aside>
     </div>
 </section>

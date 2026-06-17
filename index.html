@@ -56,8 +56,15 @@ title: PsycheNudo
                 
                 <div class="acciones-tarjeta">
                     <a href="{{ colega.url | relative_url }}" class="boton">Ver perfil completo</a>
-                    {% if colega.external_url %}
-                    <a href="{{ colega.external_url }}" class="boton boton-secundario" target="_blank">Sitio personal</a>
+                    {% if colega.external_urls %}
+                    <select class="boton boton-secundario" style="cursor: pointer;" onchange="if(this.value) { window.open(this.value, '_blank', 'noopener,noreferrer'); this.value = ''; }">
+                        <option value="">Sitio personal ▼</option>
+                        {% for url_item in colega.external_urls %}
+                        <option value="{{ url_item.url }}">{{ url_item.label }}</option>
+                        {% endfor %}
+                    </select>
+                    {% elsif colega.external_url %}
+                    <a href="{{ colega.external_url }}" class="boton boton-secundario" target="_blank" rel="noopener noreferrer">Sitio personal</a>
                     {% endif %}
                 </div>
             </article>
@@ -224,7 +231,15 @@ title: PsycheNudo
             }
             return array;
         }
-        shuffle(nudoCards).forEach(card => nudoGrid.appendChild(card));
+        const shuffledCards = shuffle(nudoCards);
+        shuffledCards.forEach(card => nudoGrid.appendChild(card));
+        
+        // Guardar el orden aleatorio en sessionStorage para la navegación
+        const profileOrder = shuffledCards.map(card => {
+            const link = card.querySelector('a[href*="/profesionales/"]');
+            return link ? link.href : '';
+        });
+        sessionStorage.setItem('nudoProfileOrder', JSON.stringify(profileOrder));
     }
 
     const toggleFormBtn = document.getElementById('toggle-form');

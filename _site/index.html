@@ -73,7 +73,7 @@
                 <div class="acciones-tarjeta">
                     <a href="/profesionales/clinica-kieri/" class="boton">Ver perfil completo</a>
                     
-                    <a href="https://www.linkedin.com/in/cl%C3%ADnica-kieri-undefined-0b1430404/" class="boton boton-secundario" target="_blank">Sitio personal</a>
+                    <a href="https://www.linkedin.com/in/cl%C3%ADnica-kieri-undefined-0b1430404/" class="boton boton-secundario" target="_blank" rel="noopener noreferrer">Sitio personal</a>
                     
                 </div>
             </article>
@@ -88,7 +88,7 @@
                 <div class="acciones-tarjeta">
                     <a href="/profesionales/lorena-juarez/" class="boton">Ver perfil completo</a>
                     
-                    <a href="https://www.linkedin.com/in/irene-lorena-ju%C3%A1rez-lozada-0a9648279/" class="boton boton-secundario" target="_blank">Sitio personal</a>
+                    <a href="https://www.linkedin.com/in/irene-lorena-ju%C3%A1rez-lozada-0a9648279/" class="boton boton-secundario" target="_blank" rel="noopener noreferrer">Sitio personal</a>
                     
                 </div>
             </article>
@@ -103,7 +103,7 @@
                 <div class="acciones-tarjeta">
                     <a href="/profesionales/javier-bermudez/" class="boton">Ver perfil completo</a>
                     
-                    <a href="https://www.linkedin.com/in/javier-bermudez-bermudez-608253162" class="boton boton-secundario" target="_blank">Sitio personal</a>
+                    <a href="https://www.linkedin.com/in/javier-bermudez-bermudez-608253162" class="boton boton-secundario" target="_blank" rel="noopener noreferrer">Sitio personal</a>
                     
                 </div>
             </article>
@@ -118,7 +118,7 @@
                 <div class="acciones-tarjeta">
                     <a href="/profesionales/claudia-castillo/" class="boton">Ver perfil completo</a>
                     
-                    <a href="https://www.facebook.com/share/17ZUWP1vhB/" class="boton boton-secundario" target="_blank">Sitio personal</a>
+                    <a href="https://www.facebook.com/share/17ZUWP1vhB/" class="boton boton-secundario" target="_blank" rel="noopener noreferrer">Sitio personal</a>
                     
                 </div>
             </article>
@@ -133,7 +133,7 @@
                 <div class="acciones-tarjeta">
                     <a href="/profesionales/irasema-cruz/" class="boton">Ver perfil completo</a>
                     
-                    <a href="https://www.psicirasemacruz.com" class="boton boton-secundario" target="_blank">Sitio personal</a>
+                    <a href="https://www.psicirasemacruz.com" class="boton boton-secundario" target="_blank" rel="noopener noreferrer">Sitio personal</a>
                     
                 </div>
             </article>
@@ -148,7 +148,14 @@
                 <div class="acciones-tarjeta">
                     <a href="/profesionales/adrian-gonzalez/" class="boton">Ver perfil completo</a>
                     
-                    <a href="https://www.linkedin.com/in/adrian-gonzalez-3b725b318" class="boton boton-secundario" target="_blank">Sitio personal</a>
+                    <select class="boton boton-secundario" style="cursor: pointer;" onchange="if(this.value) { window.open(this.value, '_blank', 'noopener,noreferrer'); this.value = ''; }">
+                        <option value="">Sitio personal ▼</option>
+                        
+                        <option value="https://www.linkedin.com/in/adrian-gonzalez-3b725b318">LinkedIn Profesional</option>
+                        
+                        <option value="/adrian-gonzalez/">Sitio Web Personal</option>
+                        
+                    </select>
                     
                 </div>
             </article>
@@ -163,7 +170,7 @@
                 <div class="acciones-tarjeta">
                     <a href="/profesionales/nancy-arcos-cruzado/" class="boton">Ver perfil completo</a>
                     
-                    <a href="https://sites.google.com/view/centro-paihuen-de-atencin-psic?usp=sharing" class="boton boton-secundario" target="_blank">Sitio personal</a>
+                    <a href="https://sites.google.com/view/centro-paihuen-de-atencin-psic?usp=sharing" class="boton boton-secundario" target="_blank" rel="noopener noreferrer">Sitio personal</a>
                     
                 </div>
             </article>
@@ -318,7 +325,15 @@
             }
             return array;
         }
-        shuffle(nudoCards).forEach(card => nudoGrid.appendChild(card));
+        const shuffledCards = shuffle(nudoCards);
+        shuffledCards.forEach(card => nudoGrid.appendChild(card));
+        
+        // Guardar el orden aleatorio en sessionStorage para la navegación
+        const profileOrder = shuffledCards.map(card => {
+            const link = card.querySelector('a[href*="/profesionales/"]');
+            return link ? link.href : '';
+        });
+        sessionStorage.setItem('nudoProfileOrder', JSON.stringify(profileOrder));
     }
 
     const toggleFormBtn = document.getElementById('toggle-form');
