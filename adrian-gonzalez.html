@@ -92,9 +92,33 @@ permalink: /adrian-gonzalez/
         }
         nav { 
             display: flex; 
-            justify-content: flex-end; 
+            justify-content: space-between; 
             align-items: center; 
             gap: 1.5rem; 
+        }
+        .logo-brand {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .logo-brand img {
+            height: 48px;
+            width: auto;
+            transition: var(--transition);
+        }
+        .logo-brand img:hover {
+            transform: scale(1.08);
+        }
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .logo-text .name {
+            font-size: 0.85rem;
+            line-height: 1.2;
         }
         .nav-links { 
             display: flex; 
@@ -299,13 +323,28 @@ permalink: /adrian-gonzalez/
                 padding-bottom: 1rem;
                 display: inline-block;
             }
+            .logo-brand {
+                flex-direction: column;
+                gap: 0.4rem;
+            }
+            .logo-brand img {
+                height: 40px;
+            }
+            .logo-text .name {
+                font-size: 0.7rem;
+                text-align: center;
+            }
             .nav-links { 
                 gap: 1.2rem; 
                 font-size: 0.9rem;
                 flex-wrap: wrap;
                 justify-content: center;
             }
-            nav { justify-content: center; }
+            nav { 
+                justify-content: center; 
+                flex-direction: column;
+                gap: 1rem;
+            }
         }
 
         /* Location Box con estilo cálido */
@@ -524,6 +563,14 @@ permalink: /adrian-gonzalez/
     <header>
         <div class="container">
             <nav>
+                <div class="logo-brand">
+                    <img src="{{ '/assets/logo-adrian.png' | relative_url }}" 
+                         alt="Logo Adrian González"
+                         onerror="this.style.display='none'">
+                    <div class="logo-text">
+                        <div class="name">Mtro. Alfredo Adrián<br>González Lazcano</div>
+                    </div>
+                </div>
                 <div class="nav-links">
                     <a href="#formacion">Formación</a>
                     <a href="#practica">Práctica</a>
