@@ -560,28 +560,13 @@ permalink: /adrian-gonzalez/
             display: none;
             animation: fadeInUp 0.6s ease-out forwards;
         }
-        .view-section.active {
+        .view-section.active,
+        section.hero.active {
             display: block;
         }
-        .view-section.hidden {
-            animation: fadeOutDown 0.4s ease-in forwards;
-        }
-        @keyframes fadeOutDown {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(25px); }
-        }
-
-        /* Hero Section como vista inicial */
-        .hero-view {
+        /* Mantenemos el flex para el hero cuando esté activo */
+        section.hero.active {
             display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 3rem;
-            padding: 4.5rem 0 3.5rem;
-            position: relative;
-        }
-        .hero-view.hidden {
-            display: none;
         }
 
         /* Botón Volver */
@@ -635,7 +620,7 @@ permalink: /adrian-gonzalez/
                     </div>
                 </div>
                 <div class="nav-links">
-                    <a onclick="showView('formacion')">Formación</a>
+                    <a onclick="showView('formacion')">Inicio</a>
                     <a onclick="showView('practica')">Práctica</a>
                     <a onclick="showView('experiencia')">Experiencia</a>
                     <a onclick="showView('ubicacion')">Ubicación</a>
@@ -649,7 +634,7 @@ permalink: /adrian-gonzalez/
         <button class="btn-back" onclick="backToHome()">← Volver al inicio</button>
         
         <!-- Perfil y Formación -->
-        <section class="hero hero-view" id="formacion">
+        <section class="hero view-section" id="formacion">
             <div class="profile-photo">
                 <img src="{{ '/assets/foto-adrian.jpeg' | relative_url }}" 
                      alt="Mtro. Alfredo Adrián González Lazcano" 
@@ -790,22 +775,13 @@ permalink: /adrian-gonzalez/
         });
 
         // Sistema de Vistas - Mostrar/Ocultar secciones
-        let currentView = 'home';
+        let currentView = 'formacion';
 
         function showView(viewName) {
-            // Ocultar la vista anterior si existe
-            if (currentView !== 'home') {
-                const currentSection = document.getElementById(currentView);
-                if (currentSection) {
-                    currentSection.classList.remove('active');
-                }
-            }
-
-            // Ocultar hero-view siempre que no sea home
-            const heroSection = document.querySelector('.hero-view');
-            if (viewName !== 'home') {
-                heroSection.classList.remove('active');
-            }
+            // Ocultar todas las secciones
+            document.querySelectorAll('.view-section, .hero').forEach(section => {
+                section.classList.remove('active');
+            });
 
             // Mostrar la nueva vista
             const newSection = document.getElementById(viewName);
@@ -813,54 +789,27 @@ permalink: /adrian-gonzalez/
                 newSection.classList.add('active');
             }
             
-            // Mostrar botón volver si no es home
+            // Mostrar botón volver si no es la vista inicial (formacion)
             const btnBack = document.querySelector('.btn-back');
-            if (viewName !== 'home') {
+            if (viewName !== 'formacion') {
                 btnBack.classList.add('show');
             } else {
                 btnBack.classList.remove('show');
             }
 
-            // Scroll al topo
+            // Scroll al tope
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
             currentView = viewName;
         }
 
         function backToHome() {
-            // Ocultar la vista actual
-            const currentSection = document.getElementById(currentView);
-            if (currentSection) {
-                currentSection.classList.remove('active');
-            }
-
-            // Mostrar hero section
-            const heroSection = document.querySelector('.hero-view');
-            heroSection.classList.add('active');
-
-            // Ocultar botón volver
-            const btnBack = document.querySelector('.btn-back');
-            btnBack.classList.remove('show');
-
-            // Scroll al topo
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-
-            currentView = 'home';
+            showView('formacion');
         }
 
-        // Al cargar la página, asegurar que solo home esté visible
+        // Al cargar la página, asegurar que solo la vista inicial esté visible
         document.addEventListener('DOMContentLoaded', function() {
-            const heroSection = document.querySelector('.hero-view');
-            heroSection.classList.add('active');
-
-            // Ocultar todas las vistas
-            document.querySelectorAll('.view-section').forEach(section => {
-                section.classList.remove('active');
-            });
-
-            // Asegurar que el botón volver esté oculto
-            const btnBack = document.querySelector('.btn-back');
-            btnBack.classList.remove('show');
+            showView('formacion');
         });
     </script>
 </body>
