@@ -56,7 +56,25 @@
                 </div>
             </div>
             
-            <a href="https://www.psicirasemacruz.com" class="boton perfil-boton" target="_blank" rel="noopener noreferrer">Visitar Sitio Personal</a>
+            <div style="margin-top: 20px;">
+                <label for="sitios-personales" style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--color-primario);">Sitios Personales</label>
+                <select id="sitios-personales" style="width: 100%; padding: 10px; border: 1px solid var(--color-secundario); border-radius: 6px; font-size: 14px; cursor: pointer;">
+                    <option value="">-- Selecciona un sitio --</option>
+                    
+                    <option value="https://www.psicirasemacruz.com">Psic. Irasema Cruz</option>
+                    
+                    <option value="https://www.psintegracopedhs.com">Integra Cope DHS</option>
+                    
+                </select>
+            </div>
+            <script>
+                document.getElementById('sitios-personales').addEventListener('change', (e) => {
+                    if (e.target.value) {
+                        window.open(e.target.value, '_blank', 'noopener,noreferrer');
+                        e.target.value = '';
+                    }
+                });
+            </script>
             
             
 

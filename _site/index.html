@@ -133,7 +133,14 @@
                 <div class="acciones-tarjeta">
                     <a href="/profesionales/irasema-cruz/" class="boton">Ver perfil completo</a>
                     
-                    <a href="https://www.psicirasemacruz.com" class="boton boton-secundario" target="_blank" rel="noopener noreferrer">Sitio personal</a>
+                    <select class="boton boton-secundario" style="cursor: pointer;" onchange="if(this.value) { window.open(this.value, '_blank', 'noopener,noreferrer'); this.value = ''; }">
+                        <option value="">Sitio personal ▼</option>
+                        
+                        <option value="https://www.psicirasemacruz.com">Psic. Irasema Cruz</option>
+                        
+                        <option value="https://www.psintegracopedhs.com">Integra Cope DHS</option>
+                        
+                    </select>
                     
                 </div>
             </article>
