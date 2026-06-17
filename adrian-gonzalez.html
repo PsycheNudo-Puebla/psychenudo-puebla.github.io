@@ -793,32 +793,33 @@ permalink: /adrian-gonzalez/
         let currentView = 'home';
 
         function showView(viewName) {
-            // Ocultar la vista actual si no es home
-            const currentSection = document.getElementById(currentView);
-            if (currentSection && currentView !== 'home') {
-                currentSection.classList.remove('active');
-                currentSection.classList.add('hidden');
-                setTimeout(() => {
-                    currentSection.classList.remove('hidden');
-                }, 400);
+            // Ocultar la vista anterior si existe
+            if (currentView !== 'home') {
+                const currentSection = document.getElementById(currentView);
+                if (currentSection) {
+                    currentSection.classList.remove('active');
+                }
             }
 
-            // Si estamos en home, ocultar la sección hero
-            if (currentView === 'home') {
-                const heroSection = document.querySelector('.hero-view');
-                heroSection.classList.add('hidden');
-                setTimeout(() => {
-                    heroSection.classList.remove('hidden');
-                }, 400);
+            // Ocultar hero-view siempre que no sea home
+            const heroSection = document.querySelector('.hero-view');
+            if (viewName !== 'home') {
+                heroSection.classList.remove('active');
             }
 
             // Mostrar la nueva vista
             const newSection = document.getElementById(viewName);
-            newSection.classList.add('active');
+            if (newSection) {
+                newSection.classList.add('active');
+            }
             
-            // Mostrar botón volver
+            // Mostrar botón volver si no es home
             const btnBack = document.querySelector('.btn-back');
-            btnBack.classList.add('show');
+            if (viewName !== 'home') {
+                btnBack.classList.add('show');
+            } else {
+                btnBack.classList.remove('show');
+            }
 
             // Scroll al topo
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -829,11 +830,9 @@ permalink: /adrian-gonzalez/
         function backToHome() {
             // Ocultar la vista actual
             const currentSection = document.getElementById(currentView);
-            currentSection.classList.remove('active');
-            currentSection.classList.add('hidden');
-            setTimeout(() => {
-                currentSection.classList.remove('hidden');
-            }, 400);
+            if (currentSection) {
+                currentSection.classList.remove('active');
+            }
 
             // Mostrar hero section
             const heroSection = document.querySelector('.hero-view');
@@ -854,10 +853,14 @@ permalink: /adrian-gonzalez/
             const heroSection = document.querySelector('.hero-view');
             heroSection.classList.add('active');
 
-            // Ocultar todas las vistas excepto la inicial
+            // Ocultar todas las vistas
             document.querySelectorAll('.view-section').forEach(section => {
                 section.classList.remove('active');
             });
+
+            // Asegurar que el botón volver esté oculto
+            const btnBack = document.querySelector('.btn-back');
+            btnBack.classList.remove('show');
         });
     </script>
 </body>
