@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cómo Agregar un Nuevo Colaborador a la Red (El Nudo)</title>
+    <link rel="icon" type="image/png" href="/assets/mi-logo.png">
+    <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+
+    <div class="layout-shell">
+    <header class="site-header">
+        <a href="/" class="logo-link">
+            <img src="/assets/logo-psychenudo.png" alt="PsycheNudo Puebla Logo" class="logo-img">
+        </a>
+        <p>Nodo de Difusión Académica, Tecnología Educativa y Ética Clínica</p>
+    </header>
+
+    <main class="contenedor">
+        <h1 id="cómo-agregar-un-nuevo-colaborador-a-la-red-el-nudo">Cómo Agregar un Nuevo Colaborador a la Red (El Nudo)</h1>
+
+<p>Para agregar un nuevo profesional a PsycheNudo solo necesitas crear un archivo Markdown en la carpeta <code class="language-plaintext highlighter-rouge">_profesionales/</code>.<br />
+<strong>No necesitas editar <code class="language-plaintext highlighter-rouge">index.html</code></strong> — Jekyll genera automáticamente la tarjeta en la pestaña “Nudo” y su página de perfil.</p>
+
+<hr />
+
+<h2 id="archivo-a-crear">Archivo a crear</h2>
+
+<p>Dentro de <code class="language-plaintext highlighter-rouge">_profesionales/</code>, crea un archivo con el nombre del profesional:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>_profesionales/nombre-apellido.md
+</code></pre></div></div>
+
+<p>Ejemplo: <code class="language-plaintext highlighter-rouge">_profesionales/carolina-vazquez.md</code></p>
+
+<hr />
+
+<h2 id="front-matter-campos-yaml">Front Matter (campos YAML)</h2>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">---</span>
+<span class="na">layout</span><span class="pi">:</span> <span class="s">perfil</span>
+<span class="na">nombre</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Mtra.</span><span class="nv"> </span><span class="s">Carolina</span><span class="nv"> </span><span class="s">Vázquez"</span>
+<span class="na">especialidad</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Psicología</span><span class="nv"> </span><span class="s">Organizacional"</span>
+<span class="na">invitado_por</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Mtro.</span><span class="nv"> </span><span class="s">Adrián</span><span class="nv"> </span><span class="s">González"</span>
+<span class="na">cedula</span><span class="pi">:</span> <span class="s2">"</span><span class="s">12345678"</span>
+<span class="na">external_urls</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">LinkedIn</span><span class="nv"> </span><span class="s">Profesional"</span>
+    <span class="na">url</span><span class="pi">:</span> <span class="s2">"</span><span class="s">https://linkedin.com/in/carolina-vazquez"</span>
+  <span class="pi">-</span> <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Sitio</span><span class="nv"> </span><span class="s">Web</span><span class="nv"> </span><span class="s">Personal"</span>
+    <span class="na">url</span><span class="pi">:</span> <span class="s2">"</span><span class="s">https://carolinavazquez.com"</span>
+<span class="nn">---</span>
+</code></pre></div></div>
+
+<h3 id="campos-disponibles">Campos disponibles</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Campo</th>
+      <th>¿Requerido?</th>
+      <th>Descripción</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">layout</code></td>
+      <td>✅ Siempre</td>
+      <td>Debe ser <code class="language-plaintext highlighter-rouge">perfil</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">nombre</code></td>
+      <td>✅ Sí</td>
+      <td>Nombre completo con título (ej. “Mtra.”, “Mtro.”, “Dr.”, “Lic.”)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">especialidad</code></td>
+      <td>✅ Sí</td>
+      <td>Área(s) de especialización</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">invitado_por</code></td>
+      <td>✅ Sí</td>
+      <td>Quién lo invitó al nudo</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">cedula</code></td>
+      <td>✅ Sí</td>
+      <td>Número de cédula profesional SEP</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">external_urls</code></td>
+      <td>❌ Opcional</td>
+      <td>Lista de enlaces externos (LinkedIn, blog, etc.). Se muestra como un menú desplegable en el perfil</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">external_url</code></td>
+      <td>❌ Opcional</td>
+      <td>Un solo enlace externo (alternativa simple a <code class="language-plaintext highlighter-rouge">external_urls</code>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">url_personal</code></td>
+      <td>❌ Opcional</td>
+      <td>Ruta a una página personalizada dentro del sitio (ej. <code class="language-plaintext highlighter-rouge">/adrian-gonzalez/</code>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">calendario_url</code></td>
+      <td>❌ Opcional</td>
+      <td>Enlace a agenda de citas (Google Calendar, Calendly, etc.)</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p><strong>Importante:</strong> Si usas <code class="language-plaintext highlighter-rouge">external_urls</code> (lista), no uses <code class="language-plaintext highlighter-rouge">external_url</code> (simple) — solo uno de los dos.</p>
+</blockquote>
+
+<hr />
+
+<h2 id="contenido-del-perfil">Contenido del perfil</h2>
+
+<p>Después del front matter (los <code class="language-plaintext highlighter-rouge">---</code>), escribe una <strong>biografía profesional breve</strong> de 2 a 4 párrafos en Markdown normal.</p>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">---</span>
+<span class="na">layout</span><span class="pi">:</span> <span class="s">perfil</span>
+<span class="na">nombre</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Mtra.</span><span class="nv"> </span><span class="s">Carolina</span><span class="nv"> </span><span class="s">Vázquez"</span>
+<span class="nn">...</span>
+<span class="nn">---</span>
+
+Psicóloga Organizacional con más de 10 años de experiencia en gestión de talento humano en empresas del sector industrial en Puebla.
+
+Actualmente se desempeña como consultora independiente en desarrollo organizacional y clima laboral. Ha colaborado con empresas como Audi, Volkswagen y Grupo Bimbo en proyectos de evaluación de desempeño y selección de personal.
+
+Es docente en la Universidad Popular Autónoma del Estado de Puebla (UPAEP) en la facultad de Psicología.
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="ejemplo-completo-archivo-real">Ejemplo completo (archivo real)</h2>
+
+<p>Puedes ver el archivo <code class="language-plaintext highlighter-rouge">_profesionales/adrian-gonzalez.md</code> como referencia.</p>
+
+<hr />
+
+<h2 id="qué-hace-jekyll-automáticamente">¿Qué hace Jekyll automáticamente?</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Se genera</th>
+      <th>Dónde</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>✅ Una <strong>tarjeta</strong> en la pestaña “Nudo” del <code class="language-plaintext highlighter-rouge">index.html</code></td>
+      <td>En <code class="language-plaintext highlighter-rouge">index.html</code> con el nombre, especialidad, cédula y enlaces</td>
+    </tr>
+    <tr>
+      <td>✅ Una <strong>página de perfil</strong> independiente</td>
+      <td>En <code class="language-plaintext highlighter-rouge">_site/profesionales/nombre-apellido/index.html</code></td>
+    </tr>
+    <tr>
+      <td>✅ Navegación entre perfiles (anterior/siguiente)</td>
+      <td>Se genera automáticamente con JavaScript</td>
+    </tr>
+    <tr>
+      <td>✅ Enlace a verificación de cédula SEP y REDAM</td>
+      <td>En cada tarjeta y perfil</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="pasos-finales">Pasos finales</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 1. Reconstruir el sitio</span>
+bundle <span class="nb">exec </span>jekyll build
+
+<span class="c"># 2. Subir los cambios a GitHub</span>
+git add <span class="nb">.</span>
+git commit <span class="nt">-m</span> <span class="s2">"Agrega colaborador: [Nombre del profesional]"</span>
+git push
+</code></pre></div></div>
+
+<blockquote>
+  <p>⏱ Espera ~1-2 minutos a que GitHub Pages lo publique.</p>
+</blockquote>
+
+<p>¡Listo! El nuevo colaborador aparecerá automáticamente en la sección <strong>“El Nudo”</strong> con su tarjeta y perfil completo. 🧠</p>
+
+    </main>
+
+    <footer class="site-footer">
+        <p class="site-footer__marca">PsycheNudo Puebla &copy; 2026</p>
+        <div class="footer-legal">
+            <p class="footer-disclaimer"><strong>Disclaimer:</strong> Este sitio web es una plataforma de difusión académica y profesional. El contenido aquí expuesto no constituye supervisión clínica ni asesoría legal. PsycheNudo Puebla no se hace responsable de las intervenciones individuales de los colaboradores. La verificación de la identidad y cédula profesional es responsabilidad del consultante a través de los canales oficiales.</p>
+        </div>
+    </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Lógica para cambiar entre pestañas (Tabs)
+            window.openTab = function(evt, tabName) {
+                const contents = document.querySelectorAll('.tab-content');
+                const tabs = document.querySelectorAll('.tab');
+                
+                contents.forEach(content => content.classList.remove('active'));
+                tabs.forEach(tab => tab.classList.remove('active'));
+                
+                document.getElementById(tabName).classList.add('active');
+                evt.currentTarget.classList.add('active');
+            };
+
+            const enlaces = document.querySelectorAll('a[href^="http"]');
+            enlaces.forEach(function(enlace) {
+                const href = enlace.getAttribute('href');
+                if (href && !href.includes('psychenudo-puebla.github.io') && !href.includes(window.location.hostname)) {
+                    enlace.setAttribute('target', '_blank');
+                    enlace.setAttribute('rel', 'noopener noreferrer');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
