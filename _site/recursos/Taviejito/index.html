@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAviejito - PsycheNudo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <div class="handheld-console">
+        
+        <div class="screen-frame">
+            <div class="power-led"></div>
+            <span class="power-led-label">POWER</span>
+            
+            <div class="lcd-screen">
+                
+                <div id="start-screen" class="screen active">
+                    <h1 class="pixel-title title-main">TAviejito</h1>
+                    <p class="pixel-title title-sub">~ GERIATRIC CARE SIM ~</p>
+                    
+                    <div class="title-sprite">
+                        <div class="pixel-sprite" id="title-character"></div>
+                    </div>
+                    
+                    <p class="pixel-text pixel-text-center">
+                        SIMULADOR DE CUIDADO<br>DEL ADULTO MAYOR
+                    </p>
+                    
+                    <p class="press-start" onclick="goToLogin()" data-nav="press-start">▶ PRESS START ◀</p>
+                    
+                    <p class="credits">CREADO POR ALFREDO ADRIÁN GONZÁLEZ LAZCANO</p>
+                    <p class="copyright">© 2026 SEMESTRE 18-WK</p>
+                </div>
+
+                <div id="login-screen" class="screen">
+                    <h2 class="pixel-title login-title">👤 REGISTRO DE ESTUDIANTE</h2>
+                    
+                    <div class="login-form">
+                        <div>
+                            <label class="form-label">NOMBRE:</label>
+                            <input type="text" id="student-name" class="retro-input" placeholder="Ej. Ana García" maxlength="30" data-nav="student-name">
+                        </div>
+                        <div>
+                            <label class="form-label">MATRÍCULA:</label>
+                            <input type="text" id="student-id" class="retro-input" placeholder="Ej. 2024AG001" maxlength="15" data-nav="student-id">
+                        </div>
+                        
+                        <button class="retro-btn retro-btn-primary" onclick="registerStudent()" data-nav="new-game-btn">▶ NUEVA PARTIDA</button>
+                        
+                        <div class="login-divider">O</div>
+                        
+                        <button class="retro-btn retro-btn-small" onclick="loadSavedGame()" id="continue-btn" data-nav="continue-btn">
+                            📂 CONTINUAR PARTIDA GUARDADA
+                        </button>
+                        
+                        <button class="retro-btn retro-btn-small" onclick="importSaveFile()" data-nav="import-btn">
+                            💾 IMPORTAR PARTIDA (JSON)
+                        </button>
+                        <input type="file" id="import-file" class="file-input-hidden" accept=".json" onchange="handleImport(event)">
+                    </div>
+                </div>
+
+                <div id="setup-screen" class="screen">
+                    <h2 class="pixel-title setup-title">📋 EXPEDIENTE DEL PACIENTE</h2>
+                    <div class="patient-profile" id="patient-profile">
+                        <div class="patient-profile-name" id="profile-name">Cargando...</div>
+                        <div class="patient-profile-detail" id="profile-age"></div>
+                        <div class="patient-profile-detail" id="profile-conditions"></div>
+                        <div class="patient-profile-detail" id="profile-personality"></div>
+                    </div>
+                    <div class="menu-options">
+                        <button class="retro-btn" onclick="randomizePatient()" data-nav="randomize-btn">🔄 OTRO PERFIL</button>
+                        <button class="retro-btn retro-btn-primary" onclick="startGame()" data-nav="start-game-btn">▶ INICIAR JORNADA</button>
+                    </div>
+                </div>
+
+                <div id="main-screen" class="screen">
+                    <div class="hud-header">
+                        <span id="hud-name">PACIENTE</span>
+                        <span>SEM <span id="hud-week">01</span> | DÍA <span id="hud-day">01</span> | <span id="hud-time">08:00</span>
+                            <span class="hud-save-indicator" id="save-indicator"></span>
+                        </span>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-box" onclick="openInfoPanel('vitals')" data-nav="stat-0">
+                            🩸 SALUD
+                            <span>
+                                <span class="stat-value" id="stat-health">80</span>%
+                                <span class="stat-bar"><span class="stat-bar-fill" id="bar-health"></span></span>
+                            </span>
+                        </div>
+                        <div class="stat-box" onclick="openInfoPanel('mind')" data-nav="stat-1">🧠 MENTE <span class="stat-value" id="stat-mind">OK</span></div>
+                        <div class="stat-box" onclick="openInfoPanel('meds')" data-nav="stat-2">💊 MEDS <span class="stat-value" id="stat-meds">OK</span></div>
+                        <div class="stat-box" onclick="openInfoPanel('diagnosis')" data-nav="stat-3">📋 DIAG <span class="stat-value" id="stat-diag">VER</span></div>
+                    </div>
+
+                    <div class="sprite-zone">
+                        <div class="seat"></div>
+                        <div class="bookshelf"></div>
+                        <div class="sprite-container" id="sprite-container">
+                            <div class="pixel-sprite" id="main-character"></div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="event-panel" data-nav="event-panel" onclick="openEventModal()">
+                        <div class="event-label">⚠ EVENTO:</div>
+                        <div class="pixel-text" id="event-description">Cargando...</div>
+                    </div>
+
+                    <div class="feedback-panel" id="feedback-panel">
+                        <div class="feedback-title" id="feedback-title"></div>
+                        <div id="feedback-text"></div>
+                    </div>
+
+                    <div class="menu-options">
+                        <button class="retro-btn" id="option-a-btn" data-nav="opt-a" onclick="openOptionDetail(0)">
+                            <span class="key">A</span> <span id="option-a-text">Opción A</span>
+                        </button>
+                        <button class="retro-btn" id="option-b-btn" data-nav="opt-b" onclick="openOptionDetail(1)">
+                            <span class="key">B</span> <span id="option-b-text">Opción B</span>
+                        </button>
+                        <div class="options-nav" id="options-nav" data-nav="options-nav" onclick="handleRefresh()" style="display:none">
+                            ▼ <span id="options-nav-text">1/1</span>
+                        </div>
+                    </div>
+
+                    <!-- Panel de información detallada -->
+                    <div class="info-panel" id="info-panel">
+                        <div class="info-title" id="info-title">INFORMACIÓN</div>
+                        <div id="info-content"></div>
+                        <div class="info-close-hint">PRESIONA B O ↓ PARA CERRAR</div>
+                    </div>
+
+                    <!-- Panel modal para evento detallado -->
+                    <div class="event-modal" id="event-modal">
+                        <div class="event-modal-title" id="event-modal-title">EVENTO</div>
+                        <div class="event-modal-text" id="event-modal-text"></div>
+                        <div class="event-modal-hint">PRESIONA B O ↓ PARA CERRAR</div>
+                    </div>
+
+                    <!-- Panel modal para detalle de opción -->
+                    <div class="event-modal" id="option-detail">
+                        <div class="event-modal-title" id="option-detail-title">OPCIÓN</div>
+                        <div class="option-detail-context" id="option-detail-context"></div>
+                        <div class="option-detail-divider"></div>
+                        <div class="option-detail-text" id="option-detail-text"></div>
+                        <div class="event-modal-hint">A=ELEGIR | B=CANCELAR</div>
+                    </div>
+                </div>
+
+                <div id="save-screen" class="screen">
+                    <h2 class="pixel-title save-title">💾 GESTIÓN DE PARTIDA</h2>
+                    
+                    <div class="save-info">
+                        <div class="save-info-row">
+                            <span>ESTUDIANTE:</span>
+                            <span id="save-student">-</span>
+                        </div>
+                        <div class="save-info-row">
+                            <span>PACIENTE:</span>
+                            <span id="save-patient">-</span>
+                        </div>
+                        <div class="save-info-row">
+                            <span>SEMANA/DÍA:</span>
+                            <span id="save-progress">-</span>
+                        </div>
+                        <div class="save-info-row">
+                            <span>ÚLTIMO GUARDADO:</span>
+                            <span id="save-timestamp">-</span>
+                        </div>
+                    </div>
+
+                    <div class="save-buttons">
+                        <button class="retro-btn retro-btn-small" onclick="exportSaveFile()" data-nav="export-btn">📥 EXPORTAR JSON</button>
+                        <button class="retro-btn retro-btn-small" onclick="exportPDF()" data-nav="pdf-btn">📄 EXPORTAR PDF</button>
+                        <button class="retro-btn retro-btn-small" onclick="showSaveCode()" data-nav="code-btn">🔑 VER CÓDIGO</button>
+                        <button class="retro-btn retro-btn-small" onclick="importSaveFile()" data-nav="import-btn">📤 IMPORTAR</button>
+                        <button class="retro-btn retro-btn-small" onclick="showScreen('main-screen')" data-nav="back-btn">◀ VOLVER</button>
+                    </div>
+
+                    <div class="save-code-box" id="save-code-box"></div>
+                </div>
+
+            </div>
+
+            <div class="handheld-logo">
+                <span class="borromean">
+                    <span class="borr-ring r1"></span>
+                    <span class="borr-ring r2"></span>
+                    <span class="borr-ring r3"></span>
+                </span>
+                PSYCHE<span class="accent">NUDO</span>
+            </div>
+        </div>
+
+        <div class="controls-area">
+            <div class="dpad">
+                <div class="dpad-arm dpad-up" onclick="handleDpad('up')"></div>
+                <div class="dpad-arm dpad-down" onclick="handleDpad('down')"></div>
+                <div class="dpad-arm dpad-left" onclick="handleDpad('left')"></div>
+                <div class="dpad-arm dpad-right" onclick="handleDpad('right')"></div>
+                <div class="dpad-center"></div>
+            </div>
+
+            <div>
+                <div class="ab-buttons">
+                    <div class="circle-btn" id="btn-b" onclick="handlePhysicalButton('B')">B</div>
+                    <div class="circle-btn" id="btn-a" onclick="handlePhysicalButton('A')">A</div>
+                </div>
+                <div class="ab-labels">
+                    <span>B</span>
+                    <span>A</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="start-select">
+            <div class="pill-btn" onclick="openSaveMenu()"></div>
+            <div class="pill-btn" onclick="handlePhysicalButton('A')"></div>
+        </div>
+        <div class="start-select-labels">
+            <span>SAVE</span>
+            <span>START</span>
+        </div>
+
+        <div class="speaker">
+            <div class="speaker-line"></div>
+            <div class="speaker-line"></div>
+            <div class="speaker-line"></div>
+            <div class="speaker-line"></div>
+            <div class="speaker-line"></div>
+            <div class="speaker-line"></div>
+        </div>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.12/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.12/vfs_fonts.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/GameState.js"></script>
+    <script src="js/PatientSystem.js"></script>
+    <script src="js/EventSystem.js"></script>
+    <script src="js/TimeSystem.js"></script>
+    <script src="js/SaveSystem.js"></script>
+    <script src="js/SpriteSystem.js"></script>
+    <script src="js/NavigationSystem.js"></script>
+    <script src="js/UI.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
