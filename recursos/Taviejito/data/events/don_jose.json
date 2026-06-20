@@ -1,0 +1,122 @@
+[
+    {
+        "id": "hta_001",
+        "description": "La presión arterial de Don José es 160/95 mmHg. Refiere dolor de cabeza y visión borrosa.",
+        "patientConditions": ["Hipertensión"],
+        "requiresCheck": ["vitals"],
+        "timeOfDay": "morning",
+        "weeks": [1,2,3,4,5,6],
+        "options": {
+            "A": {
+                "text": "Administrar antihipertensivo de rescate y reevaluar en 30 min",
+                "correct": true,
+                "feedback": "CORRECTO. Crisis hipertensiva con síntomas de alarma requiere manejo inmediato.",
+                "modifiers": { "health": 10, "trust": 10 },
+                "icon": "💚"
+            },
+            "B": {
+                "text": "Indicarle que descanse y vuelva a medirse mañana",
+                "correct": false,
+                "feedback": "ERROR. Con PA >160/100 y síntomas neurológicos, esperar 24h es riesgoso.",
+                "modifiers": { "health": -20, "trust": -10 },
+                "icon": "💔"
+            }
+        }
+    },
+    {
+        "id": "hta_002",
+        "description": "No ha tomado su antihipertensivo en 2 días.",
+        "patientConditions": ["Hipertensión"],
+        "requiresCheck": ["meds"],
+        "timeOfDay": "morning",
+        "weeks": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
+        "options": {
+            "A": {
+                "text": "Investigar causa: olvido, efecto secundario o costo",
+                "correct": true,
+                "feedback": "CORRECTO. Evaluación de adherencia terapéutica integral.",
+                "modifiers": { "health": 5, "trust": 15 },
+                "icon": "💚"
+            },
+            "B": {
+                "text": "Reprenderlo por irresponsable",
+                "correct": false,
+                "feedback": "ERROR. La culpa deteriora la relación terapéutica.",
+                "modifiers": { "trust": -20, "mind": "ANSIEDAD" },
+                "icon": "😰"
+            }
+        }
+    },
+    {
+        "id": "dm2_001",
+        "description": "La glucosa capilar de Don José es 245 mg/dL. Refiere orina frecuente y sed excesiva.",
+        "patientConditions": ["Diabetes tipo 2"],
+        "requiresCheck": ["vitals"],
+        "timeOfDay": "morning",
+        "weeks": [1,2,3,4,5,6,7,8],
+        "options": {
+            "A": {
+                "text": "Administrarse insulina de corrección según tabla y vigilar en 2h",
+                "correct": true,
+                "feedback": "CORRECTO. Glucosa >200 con síntomas de hiperglucemia requiere corrección.",
+                "modifiers": { "health": 10, "trust": 5 },
+                "icon": "💚"
+            },
+            "B": {
+                "text": "Esperar a la siguiente dosis de Metformina",
+                "correct": false,
+                "feedback": "ERROR. Con glucosa >240 y síntomas, esperar puede causar cetoacidosis.",
+                "modifiers": { "health": -15, "trust": -5 },
+                "icon": "⚠️"
+            }
+        }
+    },
+    {
+        "id": "dm2_002",
+        "description": "Don José se siente mareado y tembloroso. Tiene el cabello húmedo.",
+        "patientConditions": ["Diabetes tipo 2"],
+        "requiresCheck": ["vitals", "meds"],
+        "timeOfDay": "morning",
+        "weeks": [2,3,4,5,6,7,8,9,10],
+        "options": {
+            "A": {
+                "text": "Medir glucosa capilar de inmediato y administrar jarabe si está baja",
+                "correct": true,
+                "feedback": "CORRECTO. Síntomas de hipoglucemia: temblor, sudoración, mareo.",
+                "modifiers": { "health": 10, "trust": 10 },
+                "icon": "💚"
+            },
+            "B": {
+                "text": "Darle agua y que espere a que pase",
+                "correct": false,
+                "feedback": "ERROR. La hipoglucemia no tratada puede causar convulsiones y coma.",
+                "modifiers": { "health": -25, "trust": -10 },
+                "icon": "💔"
+            }
+        }
+    },
+    {
+        "id": "hta_003",
+        "description": "Don José refiere dolor en el pecho y dificultad para respirar.",
+        "patientConditions": ["Hipertensión"],
+        "requiresCheck": ["vitals"],
+        "timeOfDay": "morning",
+        "weeks": [4,5,6,7,8,9,10,11,12],
+        "options": {
+            "A": {
+                "text": "Llamar emergencias, administrar aspirina y monitorear ECG",
+                "correct": true,
+                "feedback": "CORRECTO. Dolor torácico en hipertenso = protocolo de emergencia cardíaca.",
+                "modifiers": { "health": 15, "trust": 10 },
+                "icon": "💚"
+            },
+            "B": {
+                "text": "Darle un analgésico y que descanse",
+                "correct": false,
+                "feedback": "ERROR. El dolor torácico puede ser un IAM. Retraso = mayor daño miocárdico.",
+                "modifiers": { "health": -30, "trust": -15 },
+                "icon": "💔"
+            }
+        }
+    }
+]

@@ -1,0 +1,140 @@
+[
+    {
+        "id": "gen_001",
+        "description": "El paciente refiere que no ha comido bien en los últimos 2 días.",
+        "patientConditions": [],
+        "timeOfDay": "afternoon",
+        "weeks": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
+        "options": {
+            "A": {
+                "text": "Evaluar ingesta, estado anímico y dificultad para comer",
+                "correct": true,
+                "feedback": "CORRECTO. Abordaje integral: descartar disfagia, depresión o problemas dentales.",
+                "modifiers": { "health": 5, "trust": 10 },
+                "icon": "💚"
+            },
+            "B": {
+                "text": "Darle un sándwich y continuar con otras tareas",
+                "correct": false,
+                "feedback": "ERROR. Sin evaluar la causa, el problema persistirá y puede agravarse.",
+                "modifiers": { "health": -5, "trust": -5 },
+                "icon": "⚠️"
+            }
+        }
+    },
+    {
+        "id": "gen_002",
+        "description": "El paciente quiere participar en la preparación de su comida.",
+        "patientConditions": [],
+        "timeOfDay": "afternoon",
+        "weeks": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
+        "options": {
+            "A": {
+                "text": "Permitirle ayudar en tareas simples supervisadas",
+                "correct": true,
+                "feedback": "CORRECTO. Fomento de autonomía y autoestima.",
+                "modifiers": { "trust": 15, "mind": "OK" },
+                "icon": "❤️"
+            },
+            "B": {
+                "text": "Decirle que descanse y que usted lo hará mejor",
+                "correct": false,
+                "feedback": "ERROR. La sobreprotección acelera la dependencia funcional.",
+                "modifiers": { "trust": -10, "mind": "TRISTE" },
+                "icon": "💔"
+            }
+        }
+    },
+    {
+        "id": "gen_003",
+        "description": "Se le nota triste y no quiere hablar con nadie.",
+        "patientConditions": ["Depresión"],
+        "timeOfDay": "evening",
+        "weeks": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
+        "options": {
+            "A": {
+                "text": "Sentarse a su lado, escuchar sin juzgar",
+                "correct": true,
+                "feedback": "CORRECTO. Presencia terapéutica y escucha activa.",
+                "modifiers": { "mind": "OK", "trust": 20 },
+                "icon": "❤️"
+            },
+            "B": {
+                "text": "Decirle que no esté triste, que tiene una linda familia",
+                "correct": false,
+                "feedback": "ERROR. Invalidación emocional. Riesgo de depresión no detectada.",
+                "modifiers": { "mind": "DEPRESIÓN", "trust": -15 },
+                "icon": "💔"
+            }
+        }
+    },
+    {
+        "id": "gen_004",
+        "description": "Tiene problemas para conciliar el sueño.",
+        "patientConditions": ["Insomnio"],
+        "timeOfDay": "evening",
+        "weeks": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
+        "options": {
+            "A": {
+                "text": "Ofrecer leche tibia, reducir ruidos y ambiente tranquilo",
+                "correct": true,
+                "feedback": "CORRECTO. Higiene del sueño no farmacológica.",
+                "modifiers": { "health": 5, "trust": 10 },
+                "icon": "💚"
+            },
+            "B": {
+                "text": "Darle un somnífero de su medicación",
+                "correct": false,
+                "feedback": "ERROR. Riesgo de caídas nocturnas y dependencia.",
+                "modifiers": { "health": -10, "trust": -5 },
+                "icon": "⚠️"
+            }
+        }
+    },
+    {
+        "id": "gen_005",
+        "description": "Su familia no lo ha visitado en más de 2 semanas.",
+        "patientConditions": ["Depresión", "Aislamiento"],
+        "timeOfDay": "evening",
+        "weeks": [3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
+        "options": {
+            "A": {
+                "text": "Contactar a la familia y programar una videollamada",
+                "correct": true,
+                "feedback": "CORRECTO. Mantener vínculos familiares es parte del cuidado.",
+                "modifiers": { "mind": "OK", "trust": 15 },
+                "icon": "❤️"
+            },
+            "B": {
+                "text": "Decirle que la familia está muy ocupada",
+                "correct": false,
+                "feedback": "ERROR. Justificar el abandono profundiza la soledad.",
+                "modifiers": { "mind": "DEPRESIÓN", "trust": -15 },
+                "icon": "💔"
+            }
+        }
+    },
+    {
+        "id": "gen_006",
+        "description": "Se cayó en el baño pero dice que está bien.",
+        "patientConditions": ["Caídas", "Osteoporosis"],
+        "timeOfDay": "afternoon",
+        "weeks": [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
+        "options": {
+            "A": {
+                "text": "Valorar signos vitales, movilidad y revisar si hay lesión",
+                "correct": true,
+                "feedback": "CORRECTO. Protocolo post-caída completo.",
+                "modifiers": { "health": 5, "trust": 15 },
+                "icon": "💚"
+            },
+            "B": {
+                "text": "Creerle que está bien y no revisarlo",
+                "correct": false,
+                "feedback": "ERROR. El adulto mayor puede minimizar lesiones graves.",
+                "modifiers": { "health": -20, "trust": -10 },
+                "icon": "💔"
+            }
+        }
+    }
+]

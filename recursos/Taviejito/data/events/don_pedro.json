@@ -1,0 +1,98 @@
+[
+    {
+        "id": "epoc_001",
+        "description": "Don Pedro presenta dificultad para respirar al caminar. Saturación de O2: 87%.",
+        "patientConditions": ["EPOC"],
+        "requiresCheck": ["vitals"],
+        "timeOfDay": "morning",
+        "weeks": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
+        "options": {
+            "A": {
+                "text": "Sentarlo, administrar oxígeno suplementario y valorar derivación",
+                "correct": true,
+                "feedback": "CORRECTO. Saturación <90% en EPOC requiere oxígeno inmediato.",
+                "modifiers": { "health": 10, "trust": 10 },
+                "icon": "💚"
+            },
+            "B": {
+                "text": "Decirle que descanse un rato y ya pasará",
+                "correct": false,
+                "feedback": "ERROR. Saturación <90% es signo de descompensación. Puede evolucionar a falla respiratoria.",
+                "modifiers": { "health": -20, "trust": -5 },
+                "icon": "⚠️"
+            }
+        }
+    },
+    {
+        "id": "epoc_002",
+        "description": "Don Pedro tose con esputo amarillento y refiere fiebre.",
+        "patientConditions": ["EPOC"],
+        "requiresCheck": ["vitals"],
+        "timeOfDay": "morning",
+        "weeks": [2,3,4,5,6,7,8,9,10,11,12],
+        "options": {
+            "A": {
+                "text": "Tomar temperatura, valorar esputo y solicitar cultivo",
+                "correct": true,
+                "feedback": "CORRECTO. Exacerbación aguda de EPOC: evaluar infección respiratoria.",
+                "modifiers": { "health": 5, "trust": 10 },
+                "icon": "💚"
+            },
+            "B": {
+                "text": "Darle antibiótico que tenía de antes",
+                "correct": false,
+                "feedback": "ERROR. Automedicación: resistencia bacteriana y posible alergia.",
+                "modifiers": { "health": -10, "trust": -10 },
+                "icon": "⚠️"
+            }
+        }
+    },
+    {
+        "id": "art_001",
+        "description": "Don Pedro se queja de dolor intenso en las manos. Tiene los dedos hinchados.",
+        "patientConditions": ["Artritis reumatoide"],
+        "requiresCheck": ["vitals"],
+        "timeOfDay": "morning",
+        "weeks": [1,2,3,4,5,6,7,8,9,10],
+        "options": {
+            "A": {
+                "text": "Aplicar calor local, administrar antiinflamatorio y masaje suave",
+                "correct": true,
+                "feedback": "CORRECTO. Manejo integral del dolor articular en artritis reumatoide.",
+                "modifiers": { "health": 5, "trust": 10 },
+                "icon": "💚"
+            },
+            "B": {
+                "text": "Decirle que es parte normal de la enfermedad",
+                "correct": false,
+                "feedback": "ERROR. El dolor no debe normalizarse. Requiere manejo activo.",
+                "modifiers": { "trust": -15, "mind": "TRISTE" },
+                "icon": "💔"
+            }
+        }
+    },
+    {
+        "id": "epoc_003",
+        "description": "Don Pedro se resiste a usar su inhalador porque dice que no le hace efecto.",
+        "patientConditions": ["EPOC"],
+        "requiresCheck": ["meds"],
+        "timeOfDay": "morning",
+        "weeks": [3,4,5,6,7,8,9,10,11,12,13,14],
+        "options": {
+            "A": {
+                "text": "Revisar técnica de inhalación y educar sobre importancia de adherencia",
+                "correct": true,
+                "feedback": "CORRECTO. La técnica incorrecta reduce la eficacia del inhalador.",
+                "modifiers": { "trust": 15, "health": 5 },
+                "icon": "💚"
+            },
+            "B": {
+                "text": "Insistir que debe usarlo aunque no le haga efecto",
+                "correct": false,
+                "feedback": "ERROR. Sin verificar técnica, el paciente abandonará el tratamiento.",
+                "modifiers": { "trust": -10, "health": -5 },
+                "icon": "⚠️"
+            }
+        }
+    }
+]
