@@ -33,12 +33,17 @@ let pendingPatient = null;
 function registerNavigationActions() {
   NavigationSystem.registerAction('press-start', () => {
     const saved = localStorage.getItem('taviejito_save');
-    document.getElementById('continue-btn').style.display = saved ? 'block' : 'none';
+    document.getElementById('menu-continue-btn').style.display = saved ? 'block' : 'none';
+    NavigationSystem.showScreen(SCREENS.MENU);
+  });
+
+  NavigationSystem.registerAction('new-game-btn', () => {
+    document.getElementById('student-name').value = '';
+    document.getElementById('student-id').value = '';
     NavigationSystem.showScreen(SCREENS.LOGIN);
   });
 
-  NavigationSystem.registerAction('new-game-btn', registerStudent);
-
+  NavigationSystem.registerAction('register-btn', registerStudent);
   NavigationSystem.registerAction('continue-btn', loadSavedGame);
   NavigationSystem.registerAction('import-btn', importSaveFile);
 
@@ -55,6 +60,10 @@ function registerNavigationActions() {
     gameState.diagnoses = [...pendingPatient.conditions];
     gameState.stats = { health: 80, mind: 'OK', meds: 'OK', trust: 50 };
     gameState.history = [];
+      gameState.visitsThisWeek = 0;
+      gameState.eventsAnsweredThisWeek = 0;
+      gameState.visitDays = [];
+      gameState.lastVisitDay = null;
     gameState.progress.hour = 8;
     gameState.progress.minute = 0;
     gameState.progress.week = 1;
@@ -78,10 +87,19 @@ function registerNavigationActions() {
   NavigationSystem.registerAction('opt-b', () => openOptionDetail(1));
   NavigationSystem.registerAction('options-nav', handleRefresh);
 
+  // Day pill actions for login screen
+  for (let d = 1; d <= 7; d++) {
+    const dayId = 'day-' + d;
+    NavigationSystem.registerAction(dayId, () => {
+      const el = document.querySelector(`[data-nav="${dayId}"]`);
+      if (el && window.toggleDay) window.toggleDay(el);
+    });
+  }
+
   NavigationSystem.registerAction('export-btn', () => SaveSystem.exportToFile());
   NavigationSystem.registerAction('pdf-btn', exportPDF);
-  NavigationSystem.registerAction('code-btn', showSaveCode);
   NavigationSystem.registerAction('back-btn', () => NavigationSystem.showScreen(SCREENS.MAIN));
+  NavigationSystem.registerAction('menu-back-btn', () => NavigationSystem.showScreen(SCREENS.START));
 
   NavigationSystem.registerAction('closeFeedback', () => {
     const needsNext = UI.closeFeedback();
@@ -98,6 +116,38 @@ function registerNavigationActions() {
     UI.closeOptionDetail();
     NavigationSystem.optionDetailOpen = null;
   });
+
+  // Expose helper to register a visit from console or UI
+  window.registerVisit = () => {
+    if (!gameState.student) return UI.showFeedback('Registra un estudiante primero', 'ERROR', 'bad');
+    gameState.registerVisit();
+    UI.showFeedback('Visita registrada', 'OK', 'ok');
+    UI.updateHUD();
+    SaveSystem.autoSave();
+  };
+
+  window.setEvaluationInterval = (n) => {
+    const val = parseInt(n, 10);
+    if (isNaN(val) || val <= 0) return false;
+    gameState.evalConfig.interval = val;
+    return true;
+  };
+
+  window.toggleDay = (el) => {
+    el.classList.toggle('day-selected');
+    // Validate at least one day selected
+    const picker = document.getElementById('day-picker');
+    const selected = picker.querySelectorAll('.day-pill.day-selected');
+    if (selected.length === 0) {
+      el.classList.add('day-selected'); // force at least one
+    }
+  };
+
+  window.getSelectedDays = () => {
+    const picker = document.getElementById('day-picker');
+    const selected = picker.querySelectorAll('.day-pill.day-selected');
+    return Array.from(selected).map(pill => parseInt(pill.dataset.day, 10)).sort();
+  };
   NavigationSystem.registerAction('chooseOption', (opt) => chooseOption(opt));
   NavigationSystem.registerAction('openSaveMenu', () => {
     UI.openSaveMenu();
@@ -137,9 +187,33 @@ function registerStudent() {
     UI.showFeedback('Por favor completa ambos campos', 'AVISO', 'bad');
     return;
   }
+
+  // Evitar registro duplicado: guardar nombre+matrícula en localStorage
+  const REGISTRY_KEY = 'taviejito_registered_students';
+  let registered = [];
+  try {
+    registered = JSON.parse(localStorage.getItem(REGISTRY_KEY)) || [];
+  } catch(e) { registered = []; }
+  const nameLower = name.toLowerCase().trim();
+  const key = `${nameLower}|${id}`;
+  const existing = registered.find(r => `${r.name.toLowerCase().trim()}|${r.id}` === key);
+  if (existing) {
+    UI.showFeedback(`El estudiante "${name}" ya está registrado. No se permite re-registro.`, 'ERROR', 'bad');
+    return;
+  }
+  registered.push({ name, id, registeredAt: Date.now() });
+  localStorage.setItem(REGISTRY_KEY, JSON.stringify(registered));
+
   gameState.student = { name, id };
   gameState.progress.startTimestamp = Date.now();
   gameState.progress.lastRealTimestamp = Date.now();
+  // Leer intervalo de evaluación
+  const evalInput = document.getElementById('eval-interval');
+  if (evalInput && parseInt(evalInput.value, 10) > 0) {
+    gameState.evalConfig.interval = parseInt(evalInput.value, 10);
+  }
+  // Leer días de asistencia seleccionados
+  gameState.attendanceSchedule = window.getSelectedDays();
   document.getElementById('student-name').value = '';
   document.getElementById('student-id').value = '';
   pendingPatient = PatientSystem.selectRandomPatient();
@@ -214,6 +288,13 @@ function chooseOption(choice) {
     correct: choice.correct,
     correctAnswers
   });
+
+  // incrementar contador de eventos respondidos esta semana
+  gameState.eventsAnsweredThisWeek = (gameState.eventsAnsweredThisWeek || 0) + 1;
+  // responder un evento evaluativo se considera una visita (no cuentan los fallback)
+  if (gameState.currentEvent && !(gameState.currentEvent.id || '').startsWith('fallback_')) {
+    gameState.visitsThisWeek = (gameState.visitsThisWeek || 0) + 1;
+  }
 
   gameState.advanceTime(2);
 
@@ -294,20 +375,61 @@ function showSaveCode() {
 /* ============================================
    RELOJ EN TIEMPO REAL
    ============================================ */
+let gameTimeAccumulator = 0;
+
+function updateRealTimeClock() {
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const timeEl = document.getElementById('hud-real-time');
+  if (timeEl) timeEl.innerText = `${hh}:${mm}`;
+}
+
 setInterval(() => {
   const mainScreen = document.getElementById('main-screen');
   if (mainScreen?.classList.contains('active')) {
-    const timeEl = document.getElementById('hud-time');
-    if (timeEl) timeEl.innerText = TimeSystem.formatTime();
+    // Actualizar hora real del sistema
+    updateRealTimeClock();
+
+    // 3600 real seg = 1 día juego = 1440 min juego → 1 real seg = 0.4 min juego
+    gameTimeAccumulator += (24 * 60) / GAME_CONFIG.REAL_SECONDS_PER_GAME_DAY;
+
+    if (gameTimeAccumulator >= 1) {
+      const minutesToAdd = Math.floor(gameTimeAccumulator);
+      gameTimeAccumulator -= minutesToAdd;
+
+      // No avanzar más allá de las 22:00
+      const maxMinute = 22 * 60;
+      const currentMinutes = gameState.progress.hour * 60 + gameState.progress.minute;
+      const newMinutes = Math.min(currentMinutes + minutesToAdd, maxMinute);
+
+      gameState.progress.hour = Math.floor(newMinutes / 60);
+      gameState.progress.minute = Math.floor(newMinutes % 60);
+
+      if (newMinutes >= maxMinute) {
+        gameTimeAccumulator = 0;
+      }
+
+      UI.updateHUD();
+    }
+  } else {
+    gameTimeAccumulator = 0;
+    // Seguir actualizando la hora real aunque no esté en main-screen
+    updateRealTimeClock();
   }
-}, 60000);
+}, 1000);
 
 /* ============================================
    EXPORTAR FUNCIONES PARA onclick EN HTML
    ============================================ */
-window.goToLogin = () => {
+window.goToMenu = () => {
   const saved = localStorage.getItem('taviejito_save');
-  document.getElementById('continue-btn').style.display = saved ? 'block' : 'none';
+  document.getElementById('menu-continue-btn').style.display = saved ? 'block' : 'none';
+  NavigationSystem.showScreen(SCREENS.MENU);
+};
+window.goToRegistration = () => {
+  document.getElementById('student-name').value = '';
+  document.getElementById('student-id').value = '';
   NavigationSystem.showScreen(SCREENS.LOGIN);
 };
 window.registerStudent = registerStudent;
@@ -322,6 +444,10 @@ window.startGame = () => {
   gameState.diagnoses = [...pendingPatient.conditions];
   gameState.stats = { health: 80, mind: 'OK', meds: 'OK', trust: 50 };
   gameState.history = [];
+  gameState.visitsThisWeek = 0;
+  gameState.eventsAnsweredThisWeek = 0;
+  gameState.visitDays = [];
+  gameState.lastVisitDay = null;
   gameState.progress.hour = 8;
   gameState.progress.minute = 0;
   gameState.progress.week = 1;

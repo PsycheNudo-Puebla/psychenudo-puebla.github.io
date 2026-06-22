@@ -22,6 +22,11 @@ const SaveSystem = {
   },
 
   exportToFile() {
+    // Al exportar JSON se registra automáticamente la visita del día
+    const visitOk = gameState.registerVisit();
+    if (visitOk) {
+      gameState.addToHistory({ event: 'auto_visit', description: 'Visita registrada automáticamente al exportar partida' });
+    }
     const data = JSON.stringify(gameState, null, 2);
     const blob = new Blob([data], {type: 'application/json'});
     const url = URL.createObjectURL(blob);
@@ -30,6 +35,10 @@ const SaveSystem = {
     a.download = `taviejito_${gameState.student?.id}_${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    // Actualizar HUD después del registro
+    if (typeof UI !== 'undefined' && UI.updateHUD) {
+      UI.updateHUD();
+    }
   },
 
   importFromFile(file, callback) {

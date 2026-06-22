@@ -14,7 +14,8 @@ const EventSystem = {
                 options: [
                     { text: 'Evaluar escala de depresión geriátrica y revisar efectos secundarios de sus medicamentos', correct: true, feedback: 'CORRECTO. Muchos fármacos (betabloqueantes, benzodiacepinas, corticoides) causan síntomas depresivos. Evaluar ambas dimensiones es clave.', modifiers: { health: 5, trust: 10 }, icon: '💚' },
                     { text: 'Animarle a distraerse con actividades recreativas', correct: false, feedback: 'INCOMPLETO. La distracción ayuda, pero sin evaluar causa farmacológica ni estado emocional profundo, el alivio es temporal.', modifiers: { trust: 5 }, icon: '⚠️' },
-                    { text: 'Indicar que es normal sentirse triste a su edad y seguir rutina', correct: false, feedback: 'ERROR. La tristeza persistente NO es normal en el envejecimiento. Puede indicar depresión mayor tratable.', modifiers: { trust: -10, mind: 'DEPRESIÓN' }, icon: '💔' }
+                    { text: 'Indicar que es normal sentirse triste a su edad y seguir rutina', correct: false, feedback: 'ERROR. La tristeza persistente NO es normal en el envejecimiento. Puede indicar depresión mayor tratable.', modifiers: { trust: -10, mind: 'DEPRESIÓN' }, icon: '💔' },
+                    { text: 'Administrar antidepresivo de forma inmediata sin evaluación', correct: false, feedback: 'ERROR. Iniciar antidepresivos sin evaluar interacciones con sus otros medicamentos puede tener graves riesgos.', modifiers: { health: -8, trust: -10, mind: 'DEPRESIÓN' }, icon: '💔' }
                 ]
             },
             {
@@ -24,7 +25,8 @@ const EventSystem = {
                 options: [
                     { text: 'Mantener la calma, preguntar por qué no tomó la medicación y explorar su malestar emocional', correct: true, feedback: 'CORRECTO. La irritabilidad puede ser síntoma de hipertensión no controlada, ansiedad o efecto adverso. Abordar la causa y no la conducta.', modifiers: { health: 5, trust: 15 }, icon: '💚' },
                     { text: 'Llamarle la atención por su mal comportamiento', correct: false, feedback: 'ERROR. Confrontar incrementa la ansiedad y daña la relación terapéutica. La conducta es una forma de comunicación.', modifiers: { trust: -15, mind: 'ANSIEDAD' }, icon: '💔' },
-                    { text: 'Administrar su antihipertensivo sin más preguntas', correct: false, feedback: 'INCOMPLETO. Tratar solo el síntoma físico sin abordar el trasfondo emocional pierde la oportunidad de cuidado integral.', modifiers: { health: 3, trust: -5 }, icon: '⚠️' }
+                    { text: 'Administrar su antihipertensivo sin más preguntas', correct: false, feedback: 'INCOMPLETO. Tratar solo el síntoma físico sin abordar el trasfondo emocional pierde la oportunidad de cuidado integral.', modifiers: { health: 3, trust: -5 }, icon: '⚠️' },
+                    { text: 'Medir su presión arterial antes de decidir qué hacer', correct: false, feedback: 'INCOMPLETO. Medir la PA es correcto, pero sin explorar el malestar emocional subyacente se pierde la visión integral del paciente.', modifiers: { health: 3, trust: 3 }, icon: '🔍' }
                 ]
             },
             {
@@ -34,7 +36,8 @@ const EventSystem = {
                 options: [
                     { text: 'Revisar efectos secundarios de antibióticos (disgeusia) y ofrecer alternativas alimenticias', correct: true, feedback: 'CORRECTO. Muchos fármacos alteran el gusto. La inapetencia prolongada lleva a desnutrición y deterioro funcional.', modifiers: { health: 10, trust: 10 }, icon: '💚' },
                     { text: 'Insistir en que debe comer aunque no le guste', correct: false, feedback: 'ERROR. Forzar la alimentación genera rechazo y puede provocar atragantamiento. La causa puede ser médica, no obstinación.', modifiers: { health: -5, trust: -15, mind: 'ANSIEDAD' }, icon: '💔' },
-                    { text: 'Preguntar qué alimentos le gustaría y preparar algo especial', correct: false, feedback: 'BUENA INTENCIÓN pero incompleto. Aborda el síntoma sin investigar la causa farmacológica subyacente.', modifiers: { trust: 8, health: 3 }, icon: '⚠️' }
+                    { text: 'Preguntar qué alimentos le gustaría y preparar algo especial', correct: false, feedback: 'BUENA INTENCIÓN pero incompleto. Aborda el síntoma sin investigar la causa farmacológica subyacente.', modifiers: { trust: 8, health: 3 }, icon: '⚠️' },
+                    { text: 'Ofrecer un batido nutricional como complemento mientras pasa el efecto del antibiótico', correct: false, feedback: 'AYUDA PARCIAL. El batido aporta nutrientes pero no resuelve la disgeusia. Abordar la causa farmacológica sigue siendo prioritario.', modifiers: { health: 3, trust: 5 }, icon: '🥤' }
                 ]
             },
             {
@@ -44,7 +47,8 @@ const EventSystem = {
                 options: [
                     { text: 'Explorar sentimientos de abandono, contactar a la familia y revisar red de apoyo', correct: true, feedback: 'CORRECTO. El aislamiento social acelera el deterioro cognitivo. La falta de apoyo también afecta la adherencia a tratamientos como la insulina.', modifiers: { trust: 20, mind: 'OK' }, icon: '💚' },
                     { text: 'Decirle que la familia tiene sus propias vidas y debe entenderlo', correct: false, feedback: 'ERROR. Minimizar el abandono profundiza la soledad y la depresión. El adulto mayor necesita vínculos significativos.', modifiers: { trust: -20, mind: 'DEPRESIÓN' }, icon: '💔' },
-                    { text: 'Ofrecerse a acompañarlo un rato para que se sienta mejor', correct: false, feedback: 'BUENA ACCIÓN pero insuficiente. La solución debe ser sostenible e involucrar a la red familiar, no solo al personal.', modifiers: { trust: 8, mind: 'OK' }, icon: '⚠️' }
+                    { text: 'Ofrecerse a acompañarlo un rato para que se sienta mejor', correct: false, feedback: 'BUENA ACCIÓN pero insuficiente. La solución debe ser sostenible e involucrar a la red familiar, no solo al personal.', modifiers: { trust: 8, mind: 'OK' }, icon: '⚠️' },
+                    { text: 'Contactar a la familia para informarles que debe visitarlo más seguido', correct: false, feedback: 'CONFRONTATIVO. Exigir visitas puede tensionar la relación familiar. Es mejor explorar las barreras que impiden las visitas.', modifiers: { trust: -10 }, icon: '📞' }
                 ]
             },
             {
@@ -65,7 +69,8 @@ const EventSystem = {
                 options: [
                     { text: 'Realizar evaluación cognitiva breve (MMSE) y revisar si toma anticolinérgicos que afectan la memoria', correct: true, feedback: 'CORRECTO. El deterioro cognitivo puede ser por demencia o por fármacos anticolinérgicos (comunes en adultos mayores). Distinguir es crucial.', modifiers: { health: 5, trust: 15, mind: 'OK' }, icon: '💚' },
                     { text: 'Tranquilizar a la hija diciendo que es normal a su edad', correct: false, feedback: 'ERROR. El olvido patológico NO es normal. Normalizar retrasa el diagnóstico de demencia tratable o reversible.', modifiers: { trust: -10, mind: 'CONFUSO' }, icon: '💔' },
-                    { text: 'Responder con paciencia cada vez que repite la pregunta', correct: false, feedback: 'BUENA ACTITUD pero insuficiente. La paciencia es importante, pero sin evaluación no se determina si es progresivo ni su causa.', modifiers: { trust: 5 }, icon: '⚠️' }
+                    { text: 'Responder con paciencia cada vez que repite la pregunta', correct: false, feedback: 'BUENA ACTITUD pero insuficiente. La paciencia es importante, pero sin evaluación no se determina si es progresivo ni su causa.', modifiers: { trust: 5 }, icon: '⚠️' },
+                    { text: 'Animar al paciente a hacer ejercicios de memoria diariamente', correct: false, feedback: 'INSUFICIENTE. Los ejercicios cognitivos ayudan pero no reemplazan la evaluación diagnóstica ni la revisión de medicamentos anticolinérgicos.', modifiers: { trust: 3, mind: 'OK' }, icon: '🧩' }
                 ]
             },
             {
@@ -76,7 +81,8 @@ const EventSystem = {
                 options: [
                     { text: 'Administrar antihipertensivo de rescate, mantener reposo y reevaluar en 30 minutos', correct: true, feedback: 'CORRECTO. Cefalea + PA elevada + visión borrosa = emergencia hipertensiva. El manejo oportuno previene daño a órgano blanco.', modifiers: { health: 10, trust: 10 }, icon: '💚' },
                     { text: 'Dar analgésico y recomendar descanso', correct: false, feedback: 'ERROR. La cefalea es síntoma de la crisis hipertensiva, no la causa. El analgésico no trata la PA elevada.', modifiers: { health: -15, trust: -5 }, icon: '💔' },
-                    { text: 'Llamar al médico de guardia para reportar valores', correct: true, feedback: 'CORRECTO también. Ante duda, escalar el caso es siempre una opción válida y segura.', modifiers: { health: 5, trust: 10 }, icon: '💚' }
+                    { text: 'Llamar al médico de guardia para reportar valores', correct: true, feedback: 'CORRECTO también. Ante duda, escalar el caso es siempre una opción válida y segura.', modifiers: { health: 5, trust: 10 }, icon: '💚' },
+                    { text: 'Aplicar compresas frías y bajar las luces de la habitación para aliviar el dolor', correct: false, feedback: 'INSUFICIENTE. Las medidas de confort no tratan una emergencia hipertensiva. Se requiere intervención farmacológica urgente.', modifiers: { health: -10, trust: -5 }, icon: '⚠️' }
                 ]
             },
             {
@@ -86,7 +92,8 @@ const EventSystem = {
                 options: [
                     { text: 'Evaluar anhedonia con escala específica, revisar medicación y ofrecer actividad adaptada', correct: true, feedback: 'CORRECTO. La anhedonia es síntoma cardinal de depresión. La falta de interés también puede ser por fármacos o dolor crónico.', modifiers: { mind: 'OK', trust: 15, health: 5 }, icon: '💚' },
                     { text: 'Respetar su espacio y no forzarlo a actividades', correct: false, feedback: 'INCOMPLETO. Respetar está bien pero la pasividad terapéutica puede cronificar la depresión. Hay que intervenir activamente.', modifiers: { trust: 5 }, icon: '⚠️' },
-                    { text: 'Anotar en su expediente que está "desmotivado" sin acción', correct: false, feedback: 'ERROR. Documentar sin intervenir es omisión de cuidado. La depresión geriátrica tiene alta mortalidad si no se trata.', modifiers: { trust: -5, mind: 'DEPRESIÓN' }, icon: '💔' }
+                    { text: 'Anotar en su expediente que está "desmotivado" sin acción', correct: false, feedback: 'ERROR. Documentar sin intervenir es omisión de cuidado. La depresión geriátrica tiene alta mortalidad si no se trata.', modifiers: { trust: -5, mind: 'DEPRESIÓN' }, icon: '💔' },
+                    { text: 'Organizar una salida grupal al jardín con otros residentes', correct: false, feedback: 'INSUFICIENTE. La actividad grupal puede ser beneficiosa pero sin evaluar la depresión ni la medicación, se pierde la oportunidad de tratar la causa raíz.', modifiers: { trust: 5, mind: 'OK' }, icon: '🌿' }
                 ]
             }
         ];
@@ -96,21 +103,24 @@ const EventSystem = {
                 options: [
                     { text: 'Validar su sentir, recordarle lo que SÍ puede hacer y proponer actividades adaptadas a sus capacidades', correct: true, feedback: 'CORRECTO. La pérdida de rol es un duelo. La terapia de reminiscencia y actividades significativas mejoran autoestima y adherencia al tratamiento.', modifiers: { mind: 'OK', trust: 20, health: 5 }, icon: '💚' },
                     { text: 'Decirle que debe aceptar su nueva condición', correct: false, feedback: 'ERROR. "Aceptar" sin proceso de duelo es invalidante. El adulto mayor necesita apoyo para reconstruir su identidad.', modifiers: { trust: -15, mind: 'DEPRESIÓN' }, icon: '💔' },
-                    { text: 'Enfocarse solo en controlar sus signos vitales', correct: false, feedback: 'INCOMPLETO. El cuidado integral incluye salud mental. Ignorar el aspecto emocional afecta la adherencia al tratamiento médico.', modifiers: { health: 3, trust: -5 }, icon: '⚠️' }
+                    { text: 'Enfocarse solo en controlar sus signos vitales', correct: false, feedback: 'INCOMPLETO. El cuidado integral incluye salud mental. Ignorar el aspecto emocional afecta la adherencia al tratamiento médico.', modifiers: { health: 3, trust: -5 }, icon: '⚠️' },
+                    { text: 'Asignarle tareas simples dentro de sus capacidades actuales para darle propósito', correct: false, feedback: 'INCOMPLETO. Asignar tareas sin validar primero su sentir puede percibirse como desinterés por su sufrimiento emocional.', modifiers: { trust: 3, mind: 'OK' }, icon: '🌱' }
                 ]
             },
             { id: 'j_med_01', category: 'medicina', description: 'Don José olvidó si tomó su metformina. Está confundido y preocupado por su glucosa.', patientConditions: ['Diabetes tipo 2'], requiresCheck: ['meds'], timeOfDay: 'morning', weeks: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
                 options: [
                     { text: 'Revisar pastillero, verificar glucemia capilar y educar sobre sistema de recordatorio', correct: true, feedback: 'CORRECTO. La confusión sobre medicación es frecuente. Sistemas de pastillero y alarma mejoran adherencia y reducen ansiedad.', modifiers: { health: 5, trust: 15, mind: 'OK' }, icon: '💚' },
                     { text: 'Decirle que se salte la dosis por esta vez', correct: false, feedback: 'ERROR. Saltar dosis de metformina puede descompensar la glucosa. Siempre verificar antes de decidir.', modifiers: { health: -10, trust: -5 }, icon: '⚠️' },
-                    { text: 'Reñirle por no llevar control de sus pastillas', correct: false, feedback: 'ERROR. Los regaños generan vergüenza y el paciente ocultará futuros olvidos, empeorando la adherencia.', modifiers: { trust: -20, mind: 'ANSIEDAD' }, icon: '💔' }
+                    { text: 'Reñirle por no llevar control de sus pastillas', correct: false, feedback: 'ERROR. Los regaños generan vergüenza y el paciente ocultará futuros olvidos, empeorando la adherencia.', modifiers: { trust: -20, mind: 'ANSIEDAD' }, icon: '💔' },
+                    { text: 'Administrar la metformina y ajustar la próxima dosis para compensar', correct: false, feedback: 'ERROR. Nunca duplicar ni ajustar dosis sin certeza. Si ya la tomó, otra dosis puede causar hipoglucemia severa.', modifiers: { health: -15, trust: -10 }, icon: '💔' }
                 ]
             },
             { id: 'j_psico_02', category: 'psicologia', description: 'Don José está irritable y acusó a otro residente de esconder sus pertenencias. Su glucosa está en 190 mg/dL.', patientConditions: ['Diabetes tipo 2', 'Hipertensión'], requiresCheck: ['vitals', 'mind'], timeOfDay: 'afternoon', weeks: [3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
                 options: [
                     { text: 'Mantener la calma, ayudarle a buscar sus cosas y verificar si la hiperglucemia está afectando su estado de ánimo', correct: true, feedback: 'CORRECTO. La hiperglucemia causa irritabilidad y confusión. Abordar la glucemia puede resolver el síntoma conductual.', modifiers: { health: 8, trust: 15, mind: 'OK' }, icon: '💚' },
                     { text: 'Exigirle que se disculpe con el otro residente', correct: false, feedback: 'ERROR. Exigir disculpas cuando hay un componente médico involucrado es contraproducente. Tratar la causa primero.', modifiers: { trust: -15, mind: 'ANSIEDAD' }, icon: '💔' },
-                    { text: 'Alejar al otro residente para evitar conflicto', correct: false, feedback: 'SOLUCIÓN TEMPORAL. Separarlos evita el conflicto inmediato pero no aborda la hiperglucemia subyacente ni la paranoia.', modifiers: { health: -5 }, icon: '⚠️' }
+                    { text: 'Alejar al otro residente para evitar conflicto', correct: false, feedback: 'SOLUCIÓN TEMPORAL. Separarlos evita el conflicto inmediato pero no aborda la hiperglucemia subyacente ni la paranoia.', modifiers: { health: -5 }, icon: '⚠️' },
+                    { text: 'Aplicar técnica de contención verbal sin abordar la glucosa', correct: false, feedback: 'INCOMPLETO. La contención verbal ayuda pero la hiperglucemia de 190 mg/dL puede estar contribuyendo a su irritabilidad.', modifiers: { trust: 3, health: 3 }, icon: '🔍' }
                 ]
             }
         ];
@@ -120,7 +130,8 @@ const EventSystem = {
                 options: [
                     { text: 'Validar su preocupación por la imagen, explicar beneficios del oxígeno y mostrarle dispositivos discretos', correct: true, feedback: 'CORRECTO. La adherencia al oxígeno mejora cuando el paciente participa en la elección del dispositivo. La imagen corporal importa.', modifiers: { trust: 20, health: 10, mind: 'OK' }, icon: '💚' },
                     { text: 'Insistir en que debe usarlo sin discusión', correct: false, feedback: 'ERROR. Imponer tratamientos sin validar emociones genera resistencia pasiva. El paciente lo usará a escondidas o no lo usará.', modifiers: { trust: -15, health: -5, mind: 'ANSIEDAD' }, icon: '💔' },
-                    { text: 'Llamar a la familia y pedirles que le digan que lo use', correct: false, feedback: 'INCOMPLETO. Involucrar a la familia puede ayudar, pero evadir la conversión directo con el paciente daña la alianza terapéutica.', modifiers: { trust: -5 }, icon: '⚠️' }
+                    { text: 'Llamar a la familia y pedirles que le digan que lo use', correct: false, feedback: 'INCOMPLETO. Involucrar a la familia puede ayudar, pero evadir la conversación directa con el paciente daña la alianza terapéutica.', modifiers: { trust: -5 }, icon: '⚠️' },
+                    { text: 'Reducir el flujo de oxígeno para hacerlo más cómodo y que lo acepte', correct: false, feedback: 'ERROR. Reducir el oxígeno sin criterio médico puede comprometer su saturación. Mejor educar y negociar el uso.', modifiers: { health: -10, trust: -5 }, icon: '⚠️' }
                 ]
             },
             { id: 'p_med_01', category: 'medicina', description: 'Don Pedro tiene saturación de 85% y está agitado. Dice que siente que se ahoga.', patientConditions: ['EPOC'], requiresCheck: ['vitals'], timeOfDay: 'evening', weeks: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
@@ -135,7 +146,8 @@ const EventSystem = {
                 options: [
                     { text: 'Evaluar si la somnolencia es por hipoxia crónica, efecto de corticoides o depresión respiratoria', correct: true, feedback: 'CORRECTO. La somnolencia en EPOC puede ser por retención de CO2, efecto adverso de corticoides o depresión. La apatía puede ser depresión secundaria.', modifiers: { health: 10, trust: 10, mind: 'OK' }, icon: '💚' },
                     { text: 'Despertarlo y animarlo a hacer sus ejercicios respiratorios', correct: false, feedback: 'ERROR. Forzar actividad cuando hay somnolencia puede ser peligroso. Primero descartar hipoxia o hipercapnia.', modifiers: { health: -10, trust: -5 }, icon: '⚠️' },
-                    { text: 'Asumir que está deprimido y referir a psicología', correct: false, feedback: 'INCOMPLETO. Derivar es correcto, pero sin descartar causa orgánica (hipoxia, fármacos) se puede pasar por alto una emergencia médica.', modifiers: { mind: 'OK', trust: 5 }, icon: '🔍' }
+                    { text: 'Asumir que está deprimido y referir a psicología', correct: false, feedback: 'INCOMPLETO. Derivar es correcto, pero sin descartar causa orgánica (hipoxia, fármacos) se puede pasar por alto una emergencia médica.', modifiers: { mind: 'OK', trust: 5 }, icon: '🔍' },
+                    { text: 'Suspender temporalmente los corticoides por sospecha de efecto adverso', correct: false, feedback: 'ERROR. Suspender medicación sin orden médica es peligroso. Los corticoides no se suspenden abruptamente.', modifiers: { health: -15, trust: -15 }, icon: '💔' }
                 ]
             }
         ];
@@ -153,21 +165,24 @@ const EventSystem = {
                 options: [
                     { text: 'Verificar hora de última dosis, contactar al médico para ajuste y ayudarlo a movilizarse suavemente', correct: true, feedback: 'CORRECTO. El fenómeno "fin de dosis" es común en Parkinson. Ajustar horarios mejora la función motora y previene caídas.', modifiers: { health: 10, trust: 15 }, icon: '💚' },
                     { text: 'Esperar a la siguiente dosis programada sin intervenir', correct: false, feedback: 'ERROR. 4 horas de rigidez severa aumenta riesgo de caídas, contracturas y dolor. Reportar al médico es necesario.', modifiers: { health: -10, trust: -10 }, icon: '⚠️' },
-                    { text: 'Forzarlo a levantarse para que no pierda movilidad', correct: false, feedback: 'ERROR GRAVE. Forzar la movilización con rigidez severa puede causar fracturas o lesiones musculares.', modifiers: { health: -20, trust: -20 }, icon: '💔' }
+                    { text: 'Forzarlo a levantarse para que no pierda movilidad', correct: false, feedback: 'ERROR GRAVE. Forzar la movilización con rigidez severa puede causar fracturas o lesiones musculares.', modifiers: { health: -20, trust: -20 }, icon: '💔' },
+                    { text: 'Administrar la Levodopa ahora y adelantar la dosis', correct: false, feedback: 'ERROR. Adelantar dosis sin orden médica puede causar discinesias o efectos adversos. Contactar al médico es lo correcto.', modifiers: { health: -10, trust: -10 }, icon: '💔' }
                 ]
             },
             { id: 'm_psico_02', category: 'psicologia', description: 'Don Miguel llora y dice que es una carga para todos. Su hija dejó de visitarlo porque "no soporta verlo así".', patientConditions: ['Parkinson', 'Estreñimiento crónico'], requiresCheck: ['mind'], timeOfDay: 'evening', weeks: [3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
                 options: [
                     { text: 'Sentarse a su lado, validar su dolor y ofrecer contacto con trabajadora social para apoyo familiar', correct: true, feedback: 'CORRECTO. El sentimiento de carga es factor de riesgo suicida en Parkinson. La intervención familiar es parte del tratamiento.', modifiers: { mind: 'OK', trust: 25 }, icon: '💚' },
                     { text: 'Decirle que su hija lo ama aunque no venga', correct: false, feedback: 'ERROR. Justificar el abandono invalida su dolor real. Necesita apoyo, no excusas.', modifiers: { trust: -15, mind: 'DEPRESIÓN' }, icon: '💔' },
-                    { text: 'Derivar a psicología y registrar en expediente', correct: false, feedback: 'INCOMPLETO. Derivar es necesario pero el primer contacto terapéutico debe ser usted. La derivación fría se siente como rechazo.', modifiers: { mind: 'OK', trust: 5 }, icon: '🔍' }
+                    { text: 'Derivar a psicología y registrar en expediente', correct: false, feedback: 'INCOMPLETO. Derivar es necesario pero el primer contacto terapéutico debe ser usted. La derivación fría se siente como rechazo.', modifiers: { mind: 'OK', trust: 5 }, icon: '🔍' },
+                    { text: 'Sugerirle que llame a su hija para invitarla a visitarlo', correct: false, feedback: 'INSUFICIENTE. Que el paciente gestione el contacto familiar puede ser positivo, pero sin intervención profesional la dinámica familiar dañada no se repara sola.', modifiers: { trust: 3, mind: 'OK' }, icon: '📞' }
                 ]
             },
             { id: 'm_med_02', category: 'medicina', description: 'Don Miguel lleva 5 días sin evacuar. Tiene dolor abdominal y está muy inquieto.', patientConditions: ['Parkinson', 'Estreñimiento crónico'], requiresCheck: ['meds', 'vitals'], timeOfDay: 'afternoon', weeks: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
                 options: [
                     { text: 'Evaluar impacto del estreñimiento en su estado de ánimo, revisar hidratación y administrar laxante con autorización médica', correct: true, feedback: 'CORRECTO. El estreñimiento en Parkinson afecta significativamente la calidad de vida. El dolor abdominal aumenta la irritabilidad y la confusión.', modifiers: { health: 10, trust: 15, mind: 'OK' }, icon: '💚' },
                     { text: 'Solicitar una radiografía abdominal de inmediato', correct: false, feedback: 'SOBREDIAGNÓSTICO. Sin signos de obstrucción, la radiografía no es de primera línea. El manejo conservador debe intentarse primero.', modifiers: { health: -3 }, icon: '⚠️' },
-                    { text: 'Indicar que aumente la fibra en la próxima comida', correct: false, feedback: 'INSUFICIENTE. 5 días sin evacuar con dolor requiere intervención más allá de fibra dietética. Evaluar impactoemocional también.', modifiers: { health: -5, trust: -5 }, icon: '⚠️' }
+                    { text: 'Indicar que aumente la fibra en la próxima comida', correct: false, feedback: 'INSUFICIENTE. 5 días sin evacuar con dolor requiere intervención más allá de fibra dietética. Evaluar impacto emocional también.', modifiers: { health: -5, trust: -5 }, icon: '⚠️' },
+                    { text: 'Masajear suavemente el abdomen para estimular el movimiento intestinal', correct: false, feedback: 'AYUDA COMPLEMENTARIA. El masaje puede aliviar temporalmente pero no resuelve el estreñimiento crónico del Parkinson sin intervención farmacológica.', modifiers: { health: 2, trust: 5 }, icon: '🤲' }
                 ]
             }
         ];
@@ -185,7 +200,8 @@ const EventSystem = {
                 options: [
                     { text: 'Evaluar signos de descompensación, restringir líquidos, administrar diurético y elevar extremidades', correct: true, feedback: 'CORRECTO. Aumento de peso + edema + disnea = signos de insuficiencia cardíaca descompensada. Manejo inmediato.', modifiers: { health: 15, trust: 10 }, icon: '💚' },
                     { text: 'Indicarle que camine para activar la circulación', correct: false, feedback: 'ERROR. El ejercicio en IC descompensada empeora la disnea y puede precipitar una crisis.', modifiers: { health: -20, trust: -10 }, icon: '💔' },
-                    { text: 'Reducir la ingesta de sal en las comidas', correct: false, feedback: 'INSUFICIENTE. La restricción de sal ayuda a largo plazo pero no resuelve la descompensación aguda con edema y disnea.', modifiers: { health: -5 }, icon: '⚠️' }
+                    { text: 'Reducir la ingesta de sal en las comidas', correct: false, feedback: 'INSUFICIENTE. La restricción de sal ayuda a largo plazo pero no resuelve la descompensación aguda con edema y disnea.', modifiers: { health: -5 }, icon: '⚠️' },
+                    { text: 'Colocar a la paciente en posición Fowler y monitorizar saturación', correct: false, feedback: 'INCOMPLETO. La posición Fowler es correcta pero sin administrar diurético ni restringir líquidos, la descompensación cardíaca no se resuelve.', modifiers: { health: 3, trust: 5 }, icon: '🔍' }
                 ]
             },
             { id: 'ma_psico_02', category: 'psicologia', description: 'Doña María no quiere tomar su diurético porque "la hace ir al baño cada rato". Prefiere sentirse hinchada a tener accidentes.', patientConditions: ['Insuficiencia cardíaca', 'Depresión'], requiresCheck: ['meds', 'mind'], timeOfDay: 'morning', weeks: [3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
@@ -219,7 +235,8 @@ const EventSystem = {
                 options: [
                     { text: 'Administrar antihipertensivo sublingual, monitorear cada 15 min y evaluar nivel de conciencia', correct: true, feedback: 'CORRECTO. PA >170 + confusión aguda = emergencia hipertensiva con afectación neurológica. Manejo inmediato.', modifiers: { health: 15, trust: 10 }, icon: '💚' },
                     { text: 'Esperar a que se calme para tomarle la presión de nuevo', correct: false, feedback: 'ERROR. La confusión aguda con PA muy elevada puede indicar encefalopatía hipertensiva. No esperar.', modifiers: { health: -25, trust: -10 }, icon: '💔' },
-                    { text: 'Administrar su antihipertensivo oral habitual', correct: false, feedback: 'INSUFICIENTE. La vía oral tiene absorción lenta en crisis. Se requiere vía sublingual o intravenosa para acción rápida.', modifiers: { health: -5 }, icon: '⚠️' }
+                    { text: 'Administrar su antihipertensivo oral habitual', correct: false, feedback: 'INSUFICIENTE. La vía oral tiene absorción lenta en crisis. Se requiere vía sublingual o intravenosa para acción rápida.', modifiers: { health: -5 }, icon: '⚠️' },
+                    { text: 'Realizar un ECG para descartar afectación cardíaca por la crisis hipertensiva', correct: false, feedback: 'INSUFICIENTE. El ECG es útil pero no urgente. Lo prioritario es bajar la PA. La confusión aguda indica posible encefalopatía hipertensiva.', modifiers: { health: -3, trust: 3 }, icon: '📊' }
                 ]
             }
         ];
@@ -237,21 +254,24 @@ const EventSystem = {
                 options: [
                     { text: 'Explorar sentimientos de vergüenza, validar su experiencia y fomentar integración gradual', correct: true, feedback: 'CORRECTO. La percepción de estigma afecta la autoestima y la participación social. La integración gradual respeta sus tiempos.', modifiers: { mind: 'OK', trust: 20 }, icon: '💚' },
                     { text: 'Organizar una actividad grupal para integrarla', correct: false, feedback: 'BIEN INTENCIONADO pero forzar la socialización puede ser contraproducente si no se aborda primero la vergüenza.', modifiers: { trust: -5, mind: 'ANSIEDAD' }, icon: '⚠️' },
-                    { text: 'Decirle que nadie la mira y que está exagerando', correct: false, feedback: 'ERROR. Invalidar su percepción daña la confianza. La vergüenza es real aunque la causa no sea objetiva.', modifiers: { trust: -15, mind: 'TRISTE' }, icon: '💔' }
+                    { text: 'Decirle que nadie la mira y que está exagerando', correct: false, feedback: 'ERROR. Invalidar su percepción daña la confianza. La vergüenza es real aunque la causa no sea objetiva.', modifiers: { trust: -15, mind: 'TRISTE' }, icon: '💔' },
+                    { text: 'Ofrecer maquillaje o crema para cubrir los moretones si le da vergüenza', correct: false, feedback: 'INCOMPLETO. Ayudar con la apariencia alivia el síntoma superficial pero no aborda el trastorno de base que causa los moretones ni el aislamiento social.', modifiers: { trust: 8, mind: 'OK' }, icon: '🎨' }
                 ]
             },
             { id: 'e_med_01', category: 'medicina', description: 'Doña Elena tiene crisis de migraña con aura visual. No puede abrir los ojos por la luz. Su presión está elevada por el dolor.', patientConditions: ['Migraña', 'Asma'], requiresCheck: ['vitals'], timeOfDay: 'afternoon', weeks: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
                 options: [
                     { text: 'Llevarla a ambiente oscuro y silencioso, administrar triptán y monitorear PA', correct: true, feedback: 'CORRECTO. La migraña con aura requiere triptán específico. El ambiente sensorial reducido es parte del tratamiento. La PA elevada puede ser reactiva al dolor.', modifiers: { health: 10, trust: 15 }, icon: '💚' },
                     { text: 'Darle AINE y esperar a que pase', correct: false, feedback: 'INSUFICIENTE. La migraña con aura severa no responde bien a AINE solos. Se requiere triptán para abortar la crisis.', modifiers: { health: -5, trust: -5 }, icon: '⚠️' },
-                    { text: 'Indicar que respire profundo y se relaje', correct: false, feedback: 'ERROR. La migraña no se resuelve con relajación. Es un trastorno neurovascular que requiere tratamiento específico.', modifiers: { trust: -10 }, icon: '💔' }
+                    { text: 'Indicar que respire profundo y se relaje', correct: false, feedback: 'ERROR. La migraña no se resuelve con relajación. Es un trastorno neurovascular que requiere tratamiento específico.', modifiers: { trust: -10 }, icon: '💔' },
+                    { text: 'Aplicar compresa fría en la frente y masaje suave en sienes', correct: false, feedback: 'AYUDA COMPLEMENTARIA. Las medidas físicas alivian el malestar pero no abortan la crisis migrañosa con aura. Se necesita triptán.', modifiers: { health: 2, trust: 5 }, icon: '🧊' }
                 ]
             },
             { id: 'e_psico_03', category: 'psicologia', description: 'Doña Elena dice que ya no quiere usar su inhalador porque "no sirve para nada". Antes lo usaba 4 veces al día, ahora solo 1.', patientConditions: ['Asma'], requiresCheck: ['meds', 'mind'], timeOfDay: 'morning', weeks: [3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
                 options: [
                     { text: 'Revisar técnica de inhalación, preguntar por efectos secundarios y explorar si hay síntomas depresivos', correct: true, feedback: 'CORRECTO. La baja adherencia al inhalador puede ser por técnica incorrecta, efectos adversos o depresión. Evaluar las tres.', modifiers: { health: 10, trust: 20, mind: 'OK' }, icon: '💚' },
                     { text: 'Reforzar la importancia del inhalador y pedirle que lo use', correct: false, feedback: 'INSUFICIENTE. Reforzar sin explorar causas no resuelve la barrera de fondo. La educación sin indagación es incompleta.', modifiers: { trust: 3 }, icon: '⚠️' },
-                    { text: 'Anotar que no es adherente y reportar al médico', correct: false, feedback: 'INCOMPLETO. Documentar sin intervenir no mejora la adherencia. La relación terapéutica es la herramienta más poderosa.', modifiers: { trust: -5, health: -5 }, icon: '⚠️' }
+                    { text: 'Anotar que no es adherente y reportar al médico', correct: false, feedback: 'INCOMPLETO. Documentar sin intervenir no mejora la adherencia. La relación terapéutica es la herramienta más poderosa.', modifiers: { trust: -5, health: -5 }, icon: '⚠️' },
+                    { text: 'Cambiar a un inhalador de dosis medida con espaciador para mejor administración', correct: false, feedback: 'INCOMPLETO. Cambiar el dispositivo puede ayudar pero sin explorar la causa de la baja adherencia se puede repetir el problema.', modifiers: { health: 5, trust: 5 }, icon: '💨' }
                 ]
             }
         ];
@@ -265,7 +285,12 @@ const EventSystem = {
         const hour = gameState.progress.hour;
         const patient = gameState.patient;
         this.optionPage = 0;
-
+        // If student already answered the maximum number of evaluative events this week,
+        // return a non-evaluative fallback (captura de información / signos) to avoid extra evaluative questions.
+        const maxEvents = GAME_CONFIG.EVENTS_PER_WEEK || 3;
+        if ((gameState.eventsAnsweredThisWeek || 0) >= maxEvents) {
+            return this.getFallbackEvent(hour, gameState);
+        }
         const applicableEvents = this.events.filter(event => {
             const weekMatch = event.weeks && event.weeks.includes(week);
             const timeMatch = this.checkTimeOfDay(event, hour);
@@ -326,42 +351,48 @@ const EventSystem = {
                 options: [
                     { text: 'Aprovechar para revisar el expediente clínico y planificar cuidados', correct: true, feedback: 'Bien. La documentación y planificación anticipada son parte fundamental del cuidado de calidad.', modifiers: { health: 0, trust: 5 }, icon: '📋' },
                     { text: 'Ir a preparar la siguiente medicación con calma', correct: true, feedback: 'Correcto. La preparación anticipada reduce errores de medicación.', modifiers: { health: 0, trust: 5 }, icon: '💊' },
-                    { text: 'Descansar un momento porque todo está tranquilo', correct: false, feedback: 'El turno siempre tiene tareas pendientes. Aprovechar la calma para trabajo administrativo.', modifiers: { health: 0, trust: -5 }, icon: '😴' }
+                    { text: 'Descansar un momento porque todo está tranquilo', correct: false, feedback: 'El turno siempre tiene tareas pendientes. Aprovechar la calma para trabajo administrativo.', modifiers: { health: 0, trust: -5 }, icon: '😴' },
+                    { text: 'Hacer una ronda de supervisión a otros pacientes mientras está todo en orden', correct: true, feedback: 'Excelente. Aprovechar los momentos de calma para supervisar al resto de pacientes es una práctica preventiva.', modifiers: { health: 3, trust: 5 }, icon: '👀' }
                 ]
             },
             { id: 'fallback_02', category: 'general', description: 'El paciente solicita atención por molestia leve en una extremidad.',
                 options: [
                     { text: 'Evaluar el nivel de dolor con escala numérica y explorar la extremidad', correct: true, feedback: 'Buena evaluación clínica. Documentar siempre la intensidad y características del dolor.', modifiers: { health: 5, trust: 10 }, icon: '🔍' },
                     { text: 'Preguntar si quiere analgésico y administrarlo', correct: false, feedback: 'Es importante evaluar antes de medicar. El dolor puede tener causa que requiera otro abordaje.', modifiers: { health: -3, trust: -3 }, icon: '💊' },
-                    { text: 'Anotar en el reporte para el próximo turno', correct: false, feedback: 'Diferir la atención del dolor sin evaluar puede dejar pasar un problema tratable.', modifiers: { health: -5, trust: -5 }, icon: '📝' }
+                    { text: 'Anotar en el reporte para el próximo turno', correct: false, feedback: 'Diferir la atención del dolor sin evaluar puede dejar pasar un problema tratable.', modifiers: { health: -5, trust: -5 }, icon: '📝' },
+                    { text: 'Aplicar calor local en la extremidad y observar la respuesta', correct: false, feedback: 'INCOMPLETO. El calor local alivia pero no reemplaza una evaluación estructurada del dolor. Diagnosticar antes de tratar.', modifiers: { health: 2, trust: 3 }, icon: '🌡️' }
                 ]
             },
             { id: 'fallback_03', category: 'general', description: 'La enfermera jefe solicita revisar los signos vitales del turno anterior.',
                 options: [
                     { text: 'Buscar el registro, revisar tendencias y reportar hallazgos', correct: true, feedback: 'Excelente. La comunicación efectiva entre turnos y el análisis de tendencias es vital para detectar deterioros.', modifiers: { health: 5, trust: 10 }, icon: '📊' },
                     { text: 'Indicar que no hay novedad y continuar', correct: false, feedback: 'La falta de reporte estructurado puede omitir signos tempranos de deterioro.', modifiers: { health: -5, trust: -10 }, icon: '📝' },
-                    { text: 'Revisar solo los valores anormales', correct: false, feedback: 'Los valores normales también dan información sobre estabilidad. Revisión integral siempre.', modifiers: { health: -3, trust: -5 }, icon: '⚠️' }
+                    { text: 'Revisar solo los valores anormales', correct: false, feedback: 'Los valores normales también dan información sobre estabilidad. Revisión integral siempre.', modifiers: { health: -3, trust: -5 }, icon: '⚠️' },
+                    { text: 'Tomar los signos vitales de nuevo para verificar cambios recientes', correct: true, feedback: 'Correcto. Verificar personalmente los signos vitales permite detectar cambios que pudieron pasar desapercibidos en el reporte.', modifiers: { health: 5, trust: 8 }, icon: '🩺' }
                 ]
             },
             { id: 'fallback_04', category: 'psicologia', description: 'Un familiar del paciente llega preocupado y pregunta por su estado. El paciente tiene diagnóstico de depresión.',
                 options: [
                     { text: 'Brindar información clara y empática, validando la preocupación familiar', correct: true, feedback: 'La comunicación con la familia es terapéutica. Reduce la ansiedad del familiar y mejora la red de apoyo del paciente.', modifiers: { health: 0, trust: 15 }, icon: '👨‍👩‍👧' },
                     { text: 'Decir que no se puede dar información sin autorización del paciente', correct: false, feedback: 'Aunque hay límites legales, la empatía y orientación básica siempre son posibles sin violar confidencialidad.', modifiers: { trust: -10 }, icon: '🚫' },
-                    { text: 'Sugerir al familiar que hable con el psicólogo del hogar', correct: false, feedback: 'Derivar sin dar información básica se percibe como desinterés. Primero escuchar, luego orientar.', modifiers: { trust: -5 }, icon: '🔀' }
+                    { text: 'Sugerir al familiar que hable con el psicólogo del hogar', correct: false, feedback: 'Derivar sin dar información básica se percibe como desinterés. Primero escuchar, luego orientar.', modifiers: { trust: -5 }, icon: '🔀' },
+                    { text: 'Invitar al familiar a pasar un momento con el paciente para que lo vea tranquilo', correct: true, feedback: 'Excelente. Permitir que el familiar observe directamente el estado del paciente reduce su ansiedad y fortalece la confianza en el cuidado.', modifiers: { trust: 15, mind: 'OK' }, icon: '🤗' }
                 ]
             },
             { id: 'fallback_05', category: 'general', description: 'Se detecta que el equipo de oxígeno presenta una alerta menor de mantenimiento.',
                 options: [
                     { text: 'Verificar la conexión, revisar el equipo y documentar la alerta', correct: true, feedback: 'Prevención es mejor que cura. El mantenimiento preventivo del equipo salva vidas.', modifiers: { health: 5, trust: 5 }, icon: '⚠️' },
                     { text: 'Ignorar la alerta si el paciente está estable', correct: false, feedback: 'Nunca ignorar alertas del equipo. Una alerta menor puede ser síntoma de un problema mayor.', modifiers: { health: -10, trust: -5 }, icon: '🔧' },
-                    { text: 'Solicitar cambio de equipo de inmediato', correct: false, feedback: 'Puede ser una respuesta excesiva si la alerta es menor y el equipo funciona correctamente. Evaluar primero.', modifiers: { health: 0, trust: -3 }, icon: '📞' }
+                    { text: 'Solicitar cambio de equipo de inmediato', correct: false, feedback: 'Puede ser una respuesta excesiva si la alerta es menor y el equipo funciona correctamente. Evaluar primero.', modifiers: { health: 0, trust: -3 }, icon: '📞' },
+                    { text: 'Comprobar el manual de mantenimiento del equipo para solucionar la alerta', correct: false, feedback: 'INSUFICIENTE. Revisar el manual está bien pero si el equipo requiere mantenimiento mayor, debe reportarse. No asumir que puede resolverlo solo.', modifiers: { health: 3, trust: 3 }, icon: '📖' }
                 ]
             },
             { id: 'fallback_06', category: 'psicologia', description: 'El paciente está inquieto y no puede dormir. Pide compañía.',
                 options: [
                     { text: 'Sentarse con él, ofrecer un té y conversar sobre sus preocupaciones', correct: true, feedback: 'La presencia terapéutica es una intervención poderosa. El insomnio en adultos mayores suele tener componente emocional.', modifiers: { trust: 15, mind: 'OK', health: 3 }, icon: '💚' },
                     { text: 'Administrar somnífero de su medicación', correct: false, feedback: 'La medicación para dormir en adultos mayores aumenta riesgo de caídas y dependencia. Preferir abordaje no farmacológico.', modifiers: { health: -5, trust: 3 }, icon: '⚠️' },
-                    { text: 'Decirle que intente dormir, que tiene que descansar', correct: false, feedback: 'La indicación sin apoyo no resuelve la causa de la inquietud. El acompañamiento es más efectivo.', modifiers: { trust: -5 }, icon: '😴' }
+                    { text: 'Decirle que intente dormir, que tiene que descansar', correct: false, feedback: 'La indicación sin apoyo no resuelve la causa de la inquietud. El acompañamiento es más efectivo.', modifiers: { trust: -5 }, icon: '😴' },
+                    { text: 'Leerle un cuento o poner música suave para ayudarle a relajarse', correct: true, feedback: 'Excelente. Las intervenciones no farmacológicas como la música o la lectura tienen efecto calmante comprobado en adultos mayores con insomnio.', modifiers: { trust: 12, mind: 'OK', health: 3 }, icon: '📖' }
                 ]
             }
         ];

@@ -6,8 +6,13 @@ const GAME_CONFIG = {
     MIN_HEALTH: 0
 };
 
+// Gameplay tuning
+GAME_CONFIG.EVENTS_PER_WEEK = 3; // número de eventos evaluativos por semana (visitas obligatorias)
+GAME_CONFIG.EVALUATION_INTERVAL_DEFAULT = 5; // semanas por defecto entre cortes de evaluación
+
 const SCREENS = {
     START: 'start-screen',
+    MENU: 'menu-screen',
     LOGIN: 'login-screen',
     SETUP: 'setup-screen',
     MAIN: 'main-screen',

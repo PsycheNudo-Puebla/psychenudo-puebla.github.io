@@ -270,16 +270,17 @@ body::after {
 .screen.active { display: flex; }
 
 .pixel-title {
-    font-family: 'Press Start 2P', cursive;
+    font-family: 'VT323', monospace;
     color: var(--lcd-dark);
     text-align: center;
-    line-height: 1.4;
+    line-height: 1.3;
+    font-weight: bold;
 }
 
 .pixel-text {
     font-family: 'VT323', monospace;
     color: var(--lcd-dark);
-    font-size: 18px;
+    font-size: 20px;
     line-height: 1.2;
     overflow-wrap: break-word;
     word-break: break-word;
@@ -287,7 +288,7 @@ body::after {
 
 .pixel-text-center {
     text-align: center;
-    font-size: 14px;
+    font-size: 18px;
 }
 
 #start-screen {
@@ -343,12 +344,45 @@ body::after {
 }
 
 #login-screen {
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    padding: 10px;
+    padding: 15px 10px 10px 10px;
 }
 
-.login-title { font-size: 12px; margin-bottom: 15px; }
+/* ===== MENÚ PRINCIPAL ===== */
+#menu-screen {
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.menu-title {
+    font-size: 18px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.menu-buttons {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+}
+
+.menu-buttons .retro-btn {
+    width: 100%;
+    max-width: 280px;
+    text-align: center;
+    font-size: 17px;
+}
+
+.menu-buttons .retro-btn-primary {
+    font-size: 20px;
+    padding: 12px 10px;
+}
+
+.login-title { font-size: 18px; margin-bottom: 15px; }
 
 .login-form {
     width: 100%;
@@ -358,10 +392,11 @@ body::after {
 }
 
 .form-label {
-    font-family: 'Press Start 2P', cursive;
-    font-size: 7px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
     margin-bottom: 3px;
     display: block;
+    font-weight: bold;
 }
 
 .retro-input {
@@ -378,18 +413,77 @@ body::after {
 
 .retro-input:focus { background: #fff; }
 
+/* ===== SELECTOR DE DÍAS DE ASISTENCIA ===== */
+.attendance-picker {
+    margin-top: 4px;
+}
+
+.day-picker {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.day-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 2px solid var(--lcd-dark);
+    background: var(--lcd-lightest);
+    color: var(--lcd-dark);
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.15s;
+    user-select: none;
+    box-shadow: 2px 2px 0 var(--lcd-mid);
+}
+
+.day-pill:hover {
+    background: var(--lcd-light);
+}
+
+.day-pill.selected {
+    outline: 3px solid var(--lcd-dark);
+    outline-offset: 2px;
+    background: var(--lcd-light);
+}
+
+.day-pill.day-selected {
+    background: var(--lcd-dark);
+    color: var(--lcd-lightest);
+    box-shadow: none;
+    transform: translate(2px, 2px);
+}
+
+.day-pill-weekend {
+    opacity: 0.85;
+}
+
+.form-hint {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    color: var(--lcd-mid);
+    margin-top: 4px;
+    display: block;
+}
+
 .retro-btn {
-    font-family: 'Press Start 2P', cursive;
-    font-size: 9px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
     background: var(--lcd-lightest);
     color: var(--lcd-dark);
     border: 2px solid var(--lcd-dark);
-    padding: 10px;
+    padding: 8px 10px;
     cursor: pointer;
     box-shadow: 3px 3px 0 var(--lcd-dark);
     transition: all 0.1s;
     text-align: left;
-    line-height: 1.4;
+    line-height: 1.2;
     overflow-wrap: break-word;
     word-break: break-word;
     white-space: normal;
@@ -411,8 +505,8 @@ body::after {
 .retro-btn-primary:hover { background: var(--lcd-mid); }
 
 .retro-btn-small {
-    font-size: 7px;
-    padding: 6px 8px;
+    font-size: 15px;
+    padding: 6px 10px;
 }
 
 .retro-btn.selected {
@@ -422,8 +516,8 @@ body::after {
 
 .login-divider {
     text-align: center;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 7px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
     color: var(--lcd-mid);
     margin: 8px 0;
     position: relative;
@@ -461,18 +555,19 @@ body::after {
 }
 
 .patient-profile-name {
-    font-family: 'Press Start 2P', cursive;
-    font-size: 11px;
+    font-family: 'VT323', monospace;
+    font-size: 20px;
     text-align: center;
     margin-bottom: 10px;
     padding-bottom: 8px;
     border-bottom: 2px double var(--lcd-dark);
+    font-weight: bold;
 }
 
 .patient-profile-detail {
-    font-size: 14px;
+    font-size: 18px;
     margin-bottom: 6px;
-    line-height: 1.4;
+    line-height: 1.3;
 }
 
 #setup-screen .menu-options {
@@ -484,15 +579,52 @@ body::after {
     max-width: 280px;
 }
 
-.hud-header {
+/* ===== COMPACT HEADER (fusión de HUD + stats) ===== */
+.compact-header {
+    border-bottom: 2px solid var(--lcd-dark);
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+}
+
+.compact-header-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 3px double var(--lcd-dark);
-    padding-bottom: 6px;
-    margin-bottom: 8px;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 7px;
+    font-size: 16px;
+    margin-bottom: 2px;
+}
+
+.hud-name {
+    font-weight: bold;
+    font-size: 18px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 45%;
+}
+
+.hud-time-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    white-space: nowrap;
+}
+
+.hud-game-time {
+    font-size: 12px;
+    opacity: 0.65;
+}
+
+.hud-game-time::before {
+    content: '⏱';
+    margin-right: 1px;
+}
+
+.hud-time-info #hud-visits {
+    font-size: 15px;
+    margin-left: 2px;
+    opacity: 0.85;
 }
 
 .hud-save-indicator {
@@ -501,7 +633,6 @@ body::after {
     height: 8px;
     background: var(--lcd-dark);
     border-radius: 50%;
-    margin-left: 4px;
     vertical-align: middle;
     opacity: 0.3;
     transition: opacity 0.3s;
@@ -511,6 +642,50 @@ body::after {
     opacity: 1;
     background: #2d6a2d;
     box-shadow: 0 0 4px #2d6a2d;
+}
+
+.compact-stats {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 15px;
+}
+
+.stat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 1px 6px;
+    border: 1px solid var(--lcd-mid);
+    border-radius: 3px;
+    background: var(--lcd-lightest);
+    cursor: pointer;
+    transition: all 0.1s;
+    font-size: 15px;
+    line-height: 1.3;
+}
+
+.stat-pill:hover, .stat-pill.selected {
+    background: var(--lcd-dark);
+    color: var(--lcd-lightest);
+}
+
+.stat-pill .mini-bar {
+    display: inline-block;
+    width: 28px;
+    height: 5px;
+    background: var(--lcd-light);
+    border: 1px solid var(--lcd-dark);
+    vertical-align: middle;
+    margin-left: 2px;
+    overflow: hidden;
+}
+
+.stat-pill .mini-bar-fill {
+    display: block;
+    height: 100%;
+    background: var(--lcd-dark);
+    transition: width 0.5s;
 }
 
 .sprite-zone {
@@ -652,50 +827,7 @@ body::after {
     }
 }
 
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4px;
-    margin-bottom: 6px;
-}
-
-.stat-box {
-    border: 2px solid var(--lcd-dark);
-    padding: 3px 5px;
-    background: var(--lcd-light);
-    font-family: 'Press Start 2P', cursive;
-    font-size: 6px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    transition: all 0.1s;
-}
-
-.stat-box:hover, .stat-box.selected {
-    background: var(--lcd-dark);
-    color: var(--lcd-lightest);
-}
-
 .stat-value { font-weight: bold; }
-
-.stat-bar {
-    width: 40px;
-    height: 6px;
-    background: var(--lcd-lightest);
-    border: 1px solid var(--lcd-dark);
-    display: inline-block;
-    vertical-align: middle;
-    margin-left: 3px;
-    position: relative;
-    overflow: hidden;
-}
-
-.stat-bar-fill {
-    height: 100%;
-    background: var(--lcd-dark);
-    transition: width 0.5s;
-}
 
 #bar-health { width: 80%; }
 
@@ -735,22 +867,31 @@ body::after {
 }
 
 .event-label {
-    font-family: 'Press Start 2P', cursive;
-    font-size: 6px;
+    font-family: 'VT323', monospace;
+    font-size: 14px;
     color: var(--lcd-mid);
     margin-bottom: 3px;
+    font-weight: bold;
 }
 
 .feedback-panel {
     border: 3px solid var(--lcd-dark);
-    padding: 6px 8px;
-    margin-bottom: 6px;
-    font-size: 14px;
+    padding: 8px 10px;
+    font-family: 'VT323', monospace;
+    font-size: 18px;
     display: none;
     animation: feedbackIn 0.3s;
     flex-direction: column;
     justify-content: flex-start;
     max-height: 170px;
+    /* Overlay sobre la pantalla activa */
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    z-index: 60;
+    background: var(--lcd-bg);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
 .feedback-panel.show {
@@ -779,8 +920,8 @@ body::after {
 }
 
 .feedback-title {
-    font-family: 'Press Start 2P', cursive;
-    font-size: 10px;
+    font-family: 'VT323', monospace;
+    font-size: 20px;
     margin-bottom: 8px;
     font-weight: bold;
 }
@@ -793,8 +934,8 @@ body::after {
 
 .feedback-hint {
     margin-top: auto;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 6px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
     opacity: 0.8;
     text-align: center;
 }
@@ -940,12 +1081,13 @@ body::after {
 }
 
 .info-title {
-    font-family: 'Press Start 2P', cursive;
-    font-size: 10px;
+    font-family: 'VT323', monospace;
+    font-size: 22px;
     text-align: center;
     margin-bottom: 15px;
     padding-bottom: 8px;
     border-bottom: 3px double var(--lcd-dark);
+    font-weight: bold;
 }
 
 .info-section {
@@ -953,10 +1095,11 @@ body::after {
 }
 
 .info-section-title {
-    font-family: 'Press Start 2P', cursive;
-    font-size: 8px;
+    font-family: 'VT323', monospace;
+    font-size: 18px;
     margin-bottom: 6px;
     color: var(--lcd-mid);
+    font-weight: bold;
 }
 
 .info-grid {
@@ -967,28 +1110,30 @@ body::after {
 
 .info-item {
     border: 2px solid var(--lcd-dark);
-    padding: 6px;
+    padding: 8px;
     background: var(--lcd-lightest);
-    font-size: 14px;
+    font-family: 'VT323', monospace;
+    font-size: 18px;
 }
 
 .info-item-label {
-    font-family: 'Press Start 2P', cursive;
-    font-size: 6px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
     color: var(--lcd-mid);
     margin-bottom: 3px;
+    font-weight: bold;
 }
 
 .info-item-value {
     font-weight: bold;
-    font-size: 16px;
+    font-size: 20px;
 }
 
 .info-close-hint {
     margin-top: auto;
     text-align: center;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 7px;
+    font-family: 'VT323', monospace;
+    font-size: 18px;
     color: var(--lcd-mid);
     animation: blinker 1s step-start infinite;
 }
@@ -997,22 +1142,22 @@ body::after {
     padding: 10px;
 }
 
-.save-title { font-size: 11px; margin-bottom: 12px; }
+.save-title { font-size: 18px; margin-bottom: 12px; }
 
 .save-info {
     border: 2px solid var(--lcd-dark);
     background: var(--lcd-lightest);
-    padding: 8px;
-    margin-bottom: 10px;
-    font-size: 14px;
+    padding: 10px;
+    margin-bottom: 12px;
+    font-size: 18px;
 }
 
 .save-info-row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 3px;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 6px;
+    margin-bottom: 4px;
+    font-family: 'VT323', monospace;
+    font-size: 18px;
 }
 
 .save-code-box {

@@ -116,7 +116,9 @@ const UI = {
     if (!choice) return;
     const labels = ['A', 'B', 'C', 'D'];
     const eventDesc = gameState.currentEvent.description.replace(/"/g, '');
-    document.getElementById('option-detail-title').innerText = `OPCION ${labels[visibleIndex] || '?'}`;
+    // Usar índice absoluto para mostrar la letra correcta (C/D en página 2)
+    const absoluteIndex = EventSystem.optionPage * EventSystem.optionsPerPage + visibleIndex;
+    document.getElementById('option-detail-title').innerText = `OPCION ${labels[absoluteIndex] || '?'}`;
     document.getElementById('option-detail-context').innerText = eventDesc.length > 80 ? eventDesc.substring(0, 80) + '...' : eventDesc;
     document.getElementById('option-detail-text').innerText = choice.text;
     document.getElementById('option-detail').classList.add('active');
@@ -175,6 +177,12 @@ const UI = {
     document.getElementById('hud-week').innerText = String(gameState.progress.week).padStart(2, '0');
     document.getElementById('hud-day').innerText = String(gameState.progress.day).padStart(2, '0');
     document.getElementById('hud-time').innerText = TimeSystem.formatTime();
+        const visitsEl = document.getElementById('hud-visits');
+        if (visitsEl) {
+          const done = gameState.visitsThisWeek || 0;
+          const total = GAME_CONFIG.EVENTS_PER_WEEK || 3;
+          visitsEl.innerText = `🩺${done}/${total}`;
+        }
   },
 
   openInfoPanel(type) {
@@ -286,6 +294,9 @@ const UI = {
     document.getElementById('save-patient').innerText = gameState.patient?.name || '-';
     document.getElementById('save-progress').innerText =
       `SEM ${String(gameState.progress.week).padStart(2,'0')} / DIA ${String(gameState.progress.day).padStart(2,'0')}`;
+    const required = GAME_CONFIG.EVENTS_PER_WEEK || 3;
+    document.getElementById('save-visits').innerText =
+      `${gameState.visitsThisWeek || 0}/${required}`;
     document.getElementById('save-timestamp').innerText =
       gameState.progress.lastSaveTimestamp
         ? new Date(gameState.progress.lastSaveTimestamp).toLocaleString('es-MX')

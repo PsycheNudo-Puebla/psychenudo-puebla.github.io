@@ -6,10 +6,11 @@ const NavigationSystem = {
 
   navigableElements: {
     'start-screen': ['press-start'],
-    'login-screen': ['student-name', 'student-id', 'new-game-btn', 'continue-btn', 'import-btn'],
+    'menu-screen': ['new-game-btn', 'continue-btn', 'import-btn', 'menu-back-btn'],
+    'login-screen': ['student-name', 'student-id', 'eval-interval', 'day-1', 'day-2', 'day-3', 'day-4', 'day-5', 'day-6', 'day-7', 'register-btn', 'import-btn'],
     'setup-screen': ['randomize-btn', 'start-game-btn'],
     'main-screen': ['stat-0', 'stat-1', 'stat-2', 'stat-3', 'event-panel', 'opt-a', 'opt-b', 'options-nav'],
-    'save-screen': ['export-btn', 'pdf-btn', 'code-btn', 'import-btn', 'back-btn']
+    'save-screen': ['export-btn', 'pdf-btn', 'import-btn', 'back-btn'],
   },
 
   // Grid navigation maps for 2-column screens
@@ -23,11 +24,11 @@ const NavigationSystem = {
       right: [1,  1,  3,  3,  4,  6,  6,  7]
     },
     'save-screen': {
-      //  0→? 1→? 2→? 3→? 4→?
-      up:    [0,  1,  0,  1,  4],
-      down:  [2,  3,  4,  4,  4],
-      left:  [0,  0,  2,  2,  4],
-      right: [1,  1,  3,  3,  4]
+      //  0→? 1→? 2→? 3→?
+      up:    [0,  1,  0,  3],
+      down:  [2,  3,  3,  3],
+      left:  [0,  0,  2,  2],
+      right: [1,  1,  3,  3]
     }
   },
 
@@ -49,7 +50,10 @@ const NavigationSystem = {
   },
 
   showScreen(screenId) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.screen').forEach(s => {
+      s.classList.remove('active');
+      s.scrollTop = 0; // Reiniciar scroll al cambiar de pantalla
+    });
     const screen = document.getElementById(screenId);
     if (screen) screen.classList.add('active');
     this.currentScreen = screenId;
@@ -72,7 +76,8 @@ const NavigationSystem = {
       targetIndex--;
       if (targetIndex < 0) { targetIndex = 0; break; }
       const elId = elements[targetIndex];
-      const el = document.querySelector(`[data-nav="${elId}"]`) || document.getElementById(elId);
+      const screenEl = document.getElementById(this.currentScreen);
+      const el = screenEl?.querySelector(`[data-nav="${elId}"]`) || document.getElementById(elId);
       if (!el || el.style.display !== 'none') break;
     } while (targetIndex > 0);
     this.selectedIndex = targetIndex;
@@ -94,7 +99,8 @@ const NavigationSystem = {
       targetIndex++;
       if (targetIndex >= elements.length) { targetIndex = elements.length - 1; break; }
       const elId = elements[targetIndex];
-      const el = document.querySelector(`[data-nav="${elId}"]`) || document.getElementById(elId);
+      const screenEl = document.getElementById(this.currentScreen);
+      const el = screenEl?.querySelector(`[data-nav="${elId}"]`) || document.getElementById(elId);
       if (!el || el.style.display !== 'none') break;
     } while (targetIndex < elements.length - 1);
     this.selectedIndex = targetIndex;
@@ -201,11 +207,12 @@ const NavigationSystem = {
 
     let idx = this.selectedIndex;
     const elId = elements[idx];
-    const el = document.querySelector(`[data-nav="${elId}"]`) || document.getElementById(elId);
+    const screenEl = document.getElementById(this.currentScreen);
+    const el = screenEl?.querySelector(`[data-nav="${elId}"]`) || document.getElementById(elId);
     if (!el || el.style.display === 'none') {
       for (let i = 0; i < elements.length; i++) {
         const candidateId = elements[i];
-        const candidate = document.querySelector(`[data-nav="${candidateId}"]`) || document.getElementById(candidateId);
+        const candidate = screenEl?.querySelector(`[data-nav="${candidateId}"]`) || document.getElementById(candidateId);
         if (candidate && candidate.style.display !== 'none') {
           idx = i;
           break;
@@ -215,13 +222,30 @@ const NavigationSystem = {
     }
 
     const selected = elements[this.selectedIndex];
-    const element = document.querySelector(`[data-nav="${selected}"]`) || document.getElementById(selected);
+    const screenEl2 = document.getElementById(this.currentScreen);
+    const element = screenEl2?.querySelector(`[data-nav="${selected}"]`) || document.getElementById(selected);
     if (element) {
       element.classList.add('selected');
+      // Asegurar que el elemento esté visible dentro del LCD
+      // Usamos offsetTop/clientHeight que son relativos al contenedor scrollable
+      const screen = document.getElementById(this.currentScreen);
+      if (screen) {
+        const elTop = element.offsetTop;
+        const elBottom = elTop + element.offsetHeight;
+        const viewTop = screen.scrollTop;
+        const viewBottom = viewTop + screen.clientHeight;
+        if (elBottom > viewBottom) {
+          screen.scrollTop = elBottom - screen.clientHeight + 8;
+        } else if (elTop < viewTop) {
+          screen.scrollTop = elTop - 8;
+        }
+      }
       if (element.tagName === 'INPUT') {
-        element.focus();
+        element.focus({ preventScroll: true });
       } else {
-        document.activeElement?.blur();
+        // Dar foco programático a elementos no-input para mantener cadena de teclado viva
+        if (element.tabIndex < 0) element.setAttribute('tabindex', '-1');
+        element.focus({ preventScroll: true });
       }
     }
   },
@@ -266,12 +290,14 @@ const NavigationSystem = {
   },
 
   handleKey(key) {
-    const isTyping = document.activeElement?.tagName === 'INPUT' && document.activeElement.type === 'text';
+    const isTyping = document.activeElement?.tagName === 'INPUT'
+      && ['text','number'].includes(document.activeElement.type)
+      && this.currentScreen === 'main-screen';
     switch(key) {
       case 'ArrowUp': if (!isTyping) { this.handleDpad('up'); return true; } return false;
       case 'ArrowDown': if (!isTyping) { this.handleDpad('down'); return true; } return false;
-      case 'ArrowLeft': this.handleDpad('left'); return true;
-      case 'ArrowRight': this.handleDpad('right'); return true;
+      case 'ArrowLeft': if (!isTyping) { this.handleDpad('left'); return true; } return false;
+      case 'ArrowRight': if (!isTyping) { this.handleDpad('right'); return true; } return false;
       case 'a': case 'A': if (!isTyping) { this.handleButton('A'); return true; } return false;
       case 'Enter': this.handleButton('A'); return true;
       case 'b': case 'B': if (!isTyping) { this.handleButton('B'); return true; } return false;
