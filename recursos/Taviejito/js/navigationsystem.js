@@ -7,7 +7,7 @@ const NavigationSystem = {
   navigableElements: {
     'start-screen': ['press-start'],
     'menu-screen': ['new-game-btn', 'continue-btn', 'import-btn', 'menu-back-btn'],
-    'login-screen': ['student-name', 'student-id', 'eval-interval', 'day-1', 'day-2', 'day-3', 'day-4', 'day-5', 'day-6', 'day-7', 'register-btn', 'import-btn'],
+    'login-screen': ['student-name', 'student-id', 'eval-interval', 'day-1', 'day-2', 'day-3', 'day-4', 'day-5', 'day-6', 'day-7', 'register-btn', 'continue-btn', 'import-btn'],
     'setup-screen': ['randomize-btn', 'start-game-btn'],
     'main-screen': ['stat-0', 'stat-1', 'stat-2', 'stat-3', 'event-panel', 'opt-a', 'opt-b', 'options-nav'],
     'save-screen': ['export-btn', 'pdf-btn', 'import-btn', 'back-btn'],
@@ -16,6 +16,15 @@ const NavigationSystem = {
   // Grid navigation maps for 2-column screens
   // Each entry maps currentIndex -> targetIndex for that direction
   gridNav: {
+    'login-screen': {
+      //  0:student-name, 1:student-id, 2:eval-interval,
+      //  3:day-1 ... 9:day-7, 10:register-btn,
+      //  11:continue-btn, 12:import-btn
+      up:    [0,  0,  1,  2,  2,  2,  2,  2,  2,  2,  3, 10, 11],
+      down:  [1,  2,  3, 10, 10, 10, 10, 10, 10, 10, 11, 12, 12],
+      left:  [0,  1,  2,  3,  3,  4,  5,  6,  7,  8, 10, 11, 12],
+      right: [0,  1,  2,  4,  5,  6,  7,  8,  9,  9, 10, 11, 12]
+    },
     'main-screen': {
       //  0→? 1→? 2→? 3→? 4→? 5→? 6→? 7→?
       up:    [0,  1,  0,  1,  2,  4,  5,  6],
@@ -291,8 +300,21 @@ const NavigationSystem = {
 
   handleKey(key) {
     const isTyping = document.activeElement?.tagName === 'INPUT'
-      && ['text','number'].includes(document.activeElement.type)
-      && this.currentScreen === 'main-screen';
+      && ['text','number'].includes(document.activeElement.type);
+    const isHorizontal = key === 'ArrowLeft' || key === 'ArrowRight';
+    const isVertical = key === 'ArrowUp' || key === 'ArrowDown';
+
+    // En login-screen:
+    //   - Flechas horizontales en inputs → mover cursor (no navegar)
+    //   - Flechas verticales en inputs → navegar entre campos
+    //   - Flechas horizontales en días (span) → navegar horizontalmente
+    if (this.currentScreen === 'login-screen') {
+      if (isTyping && isHorizontal) return false; // cursor dentro del input
+      if (isTyping && isVertical) { this.handleDpad(key === 'ArrowUp' ? 'up' : 'down'); return true; }
+    }
+    // En main-screen: si está escribiendo, no interceptar
+    if (this.currentScreen === 'main-screen' && isTyping) return false;
+
     switch(key) {
       case 'ArrowUp': if (!isTyping) { this.handleDpad('up'); return true; } return false;
       case 'ArrowDown': if (!isTyping) { this.handleDpad('down'); return true; } return false;

@@ -40,7 +40,7 @@ const UI = {
   showFeedback(message, title = 'AVISO', severity = 'bad') {
     const panel = document.getElementById('feedback-panel');
     const eventPanel = document.querySelector('.event-panel');
-    const menuOpts = document.querySelector('.menu-options');
+    const menuOpts = document.querySelector('#main-screen .menu-options');
 
     gameState.feedbackActive = true;
 
@@ -72,7 +72,7 @@ const UI = {
   closeFeedback() {
     const panel = document.getElementById('feedback-panel');
     const eventPanel = document.querySelector('.event-panel');
-    const menuOpts = document.querySelector('.menu-options');
+    const menuOpts = document.querySelector('#main-screen .menu-options');
 
     panel.classList.remove('show', 'ok', 'bad');
     if (eventPanel) {

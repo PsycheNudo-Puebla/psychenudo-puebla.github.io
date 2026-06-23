@@ -33,7 +33,9 @@ const SaveSystem = {
     const a = document.createElement('a');
     a.href = url;
     a.download = `taviejito_${gameState.student?.id}_${Date.now()}.json`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
     // Actualizar HUD después del registro
     if (typeof UI !== 'undefined' && UI.updateHUD) {

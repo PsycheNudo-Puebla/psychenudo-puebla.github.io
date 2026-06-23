@@ -278,6 +278,7 @@ const EventSystem = {
 
         const patientEvents = { don_jose, don_pedro, don_miguel, dona_maria, dona_rosa, dona_elena };
         this.events = [...general, ...(patientEvents[patientId] || [])];
+        this._enrichWithRubric();
     },
 
     getEventForCurrentSituation(gameState) {
@@ -300,6 +301,34 @@ const EventSystem = {
         });
 
         if (applicableEvents.length === 0) return this.getFallbackEvent(hour, gameState);
+
+        const randomIndex = Math.floor(Math.random() * applicableEvents.length);
+        this.currentEvent = applicableEvents[randomIndex];
+        return this.currentEvent;
+    },
+
+    // Returns ONLY evaluative events (non-fallback), or null if none available
+    // Used by the daily flow to show evaluative events after info events
+    getEvaluativeEvent(gameState) {
+        const week = gameState.progress.week;
+        const hour = gameState.progress.hour;
+        const patient = gameState.patient;
+        this.optionPage = 0;
+
+        const maxEvents = GAME_CONFIG.EVENTS_PER_WEEK || 3;
+        if ((gameState.eventsAnsweredThisWeek || 0) >= maxEvents) {
+            return null; // weekly evaluative quota exhausted
+        }
+
+        const applicableEvents = this.events.filter(event => {
+            const weekMatch = event.weeks && event.weeks.includes(week);
+            const timeMatch = this.checkTimeOfDay(event, hour);
+            const conditionMatch = this.checkConditions(event, patient);
+            const notAlreadyUsed = !gameState.history.find(h => h.eventId === event.id);
+            return weekMatch && timeMatch && conditionMatch && notAlreadyUsed;
+        });
+
+        if (applicableEvents.length === 0) return null;
 
         const randomIndex = Math.floor(Math.random() * applicableEvents.length);
         this.currentEvent = applicableEvents[randomIndex];
@@ -410,5 +439,75 @@ const EventSystem = {
         this.currentEvent = null;
         this.optionPage = 0;
         this.pendingSelection = null;
+    },
+
+    // Mapa de rúbrica: [dimensión, valor] para cada opción de cada evento
+    RUBRIC_MAP: {
+        'gen_001': [['razonamiento',3], ['comunicacion',1], ['comunicacion',-1], ['razonamiento',-1]],
+        'gen_002': [['comunicacion',3], ['comunicacion',-1], ['razonamiento',1], ['razonamiento',2]],
+        'gen_003': [['razonamiento',3], ['comunicacion',-1], ['comunicacion',2], ['herramientas',1]],
+        'gen_004': [['funcional',3], ['comunicacion',-1], ['comunicacion',2], ['comunicacion',1]],
+        'gen_005': [['razonamiento',3], ['comunicacion',-1], ['razonamiento',-1], ['funcional',2]],
+        'gen_006': [['herramientas',3], ['comunicacion',-1], ['comunicacion',2], ['herramientas',1]],
+        'gen_007': [['razonamiento',3], ['razonamiento',-1], ['comunicacion',2], ['herramientas',1]],
+        'gen_008': [['herramientas',3], ['funcional',1], ['funcional',-1], ['funcional',2]],
+        'j_psico_01': [['comunicacion',3], ['comunicacion',-1], ['razonamiento',1], ['funcional',2]],
+        'j_med_01': [['herramientas',3], ['razonamiento',-1], ['comunicacion',-1], ['razonamiento',-1]],
+        'j_psico_02': [['razonamiento',3], ['comunicacion',-1], ['funcional',1], ['funcional',2]],
+        'p_psico_01': [['comunicacion',3], ['comunicacion',-1], ['comunicacion',1], ['razonamiento',-1]],
+        'p_med_01': [['razonamiento',3], ['razonamiento',-1], ['razonamiento',-1], ['comunicacion',1]],
+        'p_psico_02': [['razonamiento',3], ['razonamiento',-1], ['funcional',1], ['razonamiento',-1]],
+        'm_psico_01': [['herramientas',3], ['funcional',-1], ['comunicacion',-1], ['razonamiento',2]],
+        'm_med_01': [['razonamiento',3], ['razonamiento',-1], ['razonamiento',-1], ['razonamiento',-1]],
+        'm_psico_02': [['comunicacion',3], ['comunicacion',-1], ['herramientas',2], ['funcional',1]],
+        'm_med_02': [['razonamiento',3], ['herramientas',1], ['herramientas',1], ['funcional',2]],
+        'ma_psico_01': [['comunicacion',3], ['razonamiento',-1], ['funcional',1], ['herramientas',2]],
+        'ma_med_01': [['razonamiento',3], ['razonamiento',-1], ['herramientas',1], ['razonamiento',2]],
+        'ma_psico_02': [['comunicacion',3], ['comunicacion',-1], ['razonamiento',-1], ['herramientas',2]],
+        'r_psico_01': [['razonamiento',3], ['comunicacion',-1], ['comunicacion',-1], ['funcional',2]],
+        'r_psico_02': [['funcional',3], ['comunicacion',-1], ['comunicacion',-1], ['herramientas',2]],
+        'r_med_01': [['razonamiento',3], ['razonamiento',-1], ['herramientas',1], ['herramientas',1]],
+        'e_psico_01': [['razonamiento',3], ['comunicacion',1], ['comunicacion',-1], ['herramientas',2]],
+        'e_psico_02': [['comunicacion',3], ['funcional',1], ['comunicacion',-1], ['herramientas',2]],
+        'e_med_01': [['razonamiento',3], ['herramientas',1], ['comunicacion',-1], ['herramientas',2]],
+        'e_psico_03': [['herramientas',3], ['comunicacion',1], ['funcional',-1], ['herramientas',2]],
+        'fallback_01': [['herramientas',2], ['herramientas',2], ['funcional',-1], ['comunicacion',3]],
+        'fallback_02': [['herramientas',3], ['razonamiento',-1], ['comunicacion',-1], ['herramientas',1]],
+        'fallback_03': [['herramientas',3], ['comunicacion',-1], ['herramientas',1], ['herramientas',2]],
+        'fallback_04': [['comunicacion',3], ['comunicacion',-1], ['comunicacion',1], ['comunicacion',2]],
+        'fallback_05': [['razonamiento',3], ['razonamiento',-1], ['herramientas',1], ['herramientas',2]],
+        'fallback_06': [['comunicacion',3], ['razonamiento',-1], ['comunicacion',-1], ['herramientas',2]]
+    },
+
+    _enrichWithRubric() {
+        this.events.forEach(event => {
+            const entry = this.RUBRIC_MAP[event.id];
+            if (entry) {
+                event.options.forEach((opt, idx) => {
+                    if (entry[idx]) {
+                        opt.rubricDimension = entry[idx][0];
+                        opt.rubricValue = entry[idx][1];
+                    }
+                });
+            } else {
+                this._autoAssignRubric(event);
+            }
+        });
+    },
+
+    _autoAssignRubric(event) {
+        event.options.forEach(opt => {
+            if (event.category === 'medicina') {
+                opt.rubricDimension = 'razonamiento';
+            } else {
+                opt.rubricDimension = 'funcional';
+            }
+            if (opt.correct) {
+                opt.rubricValue = opt.text.length > 80 ? 3 : 2;
+            } else {
+                const harmful = ['ERROR', 'GRAVE', 'peligroso', 'invalidante', 'iatrogenia'];
+                opt.rubricValue = harmful.some(k => opt.feedback?.includes(k)) ? -1 : 1;
+            }
+        });
     }
 };

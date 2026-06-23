@@ -1,20 +1,5 @@
 const TimeSystem = {
-  calculateTimePassed() {
-    if (!gameState.progress.lastRealTimestamp) return 0;
-    const now = Date.now();
-    const elapsed = (now - gameState.progress.lastRealTimestamp) / 1000;
-    return Math.floor(elapsed / GAME_CONFIG.REAL_SECONDS_PER_GAME_DAY);
-  },
-
-  advanceTime(gameDays) {
-    for (let i = 0; i < gameDays; i++) {
-      gameState.advanceTime(24);
-    }
-  },
-
-  updateRealTimestamp() {
-    gameState.progress.lastRealTimestamp = Date.now();
-  },
+  // Tiempo real: la sincronización día/semana se maneja en gameState.synchronizeWithRealTime()
 
   formatTime() {
     const h = String(gameState.progress.hour).padStart(2, '0');

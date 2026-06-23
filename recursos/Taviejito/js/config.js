@@ -33,3 +33,21 @@ const MOODS = {
     CONFUSED: 'confused',
     SAD: 'sad'
 };
+
+// Rúbrica de evaluación
+const RUBRIC_DIMENSIONS = [
+    { id: 'razonamiento', label: 'Razonamiento Diagnóstico Diferencial', weight: 0.30 },
+    { id: 'herramientas', label: 'Selección y Aplicación de Herramientas de Evaluación', weight: 0.25 },
+    { id: 'funcional', label: 'Análisis Funcional del Comportamiento', weight: 0.25 },
+    { id: 'comunicacion', label: 'Comunicación Terapéutica y Recolección de Información', weight: 0.20 }
+];
+
+function getRubricLabel(value) {
+    const map = { 3: 'Óptimo (+3)', 2: 'Adecuado (+2)', 1: 'Parcial (+1)', '-1': 'Contraproducente (-1)' };
+    return map[value] || 'Sin valor';
+}
+
+function getDimensionLabel(dimensionId) {
+    const dim = RUBRIC_DIMENSIONS.find(d => d.id === dimensionId);
+    return dim ? dim.label : dimensionId;
+}
