@@ -655,9 +655,15 @@ function exportPDF() {
 
   // ---- DETERMINAR PERÍODO DE EVALUACIÓN ACTUAL ----
   const currentWeek = gameState.progress.week;
-  const periodNum = Math.ceil(currentWeek / evalInterval);
-  const periodStart = (periodNum - 1) * evalInterval + 1;
-  const periodEnd = Math.min(periodNum * evalInterval, GAME_CONFIG.SEMESTER_WEEKS || 18);
+  // Distribución dinámica de periodos:
+  // Los primeros (fullPeriods-1) periodos tienen 'evalInterval' semanas,
+  // el último periodo absorbe las semanas restantes
+  const totalWeeks = GAME_CONFIG.SEMESTER_WEEKS || 16;
+  const fullPeriods = Math.floor(totalWeeks / evalInterval);
+  const lastPeriodStart = (fullPeriods - 1) * evalInterval + 1;
+  const periodNum = currentWeek >= lastPeriodStart ? fullPeriods : Math.ceil(currentWeek / evalInterval);
+  const periodStart = periodNum < fullPeriods ? (periodNum - 1) * evalInterval + 1 : lastPeriodStart;
+  const periodEnd = periodNum < fullPeriods ? periodNum * evalInterval : totalWeeks;
 
   // ---- CÁLCULO DE RÚBRICA (SOLO EVENTOS DEL PERÍODO ACTUAL) ----
   const rubricData = { dimensions: {}, totalEvaluative: 0 };
