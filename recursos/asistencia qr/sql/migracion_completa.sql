@@ -1,110 +1,120 @@
 -- =============================================================
--- MIGRACIÓN COMPLETA — SISTEMA DE ASISTENCIA QR
--- =============================================================
--- Ejecutar UNA SOLA VEZ en el SQL Editor de Supabase.
--- Este script es IDEMPOTENTE (se puede ejecutar varias veces sin
--- romper nada) porque usa IF NOT EXISTS / IF EXISTS / OR REPLACE.
+-- SCRIPT DE BASE DE DATOS UNIFICADO: SISTEMA DE ASISTENCIAS
+-- DESPLEGADO EN SUPABASE
 -- =============================================================
 
 -- =============================================================
--- 1. CREAR TABLAS (en orden de dependencias)
+-- FASE 1: LIMPIEZA DE RESIDUOS (En orden inverso de dependencia)
+-- =============================================================
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+DROP FUNCTION IF EXISTS public.handle_new_user() CASCADE;
+DROP FUNCTION IF EXISTS public.marcar_asistencia_alumno(UUID, TEXT, DOUBLE PRECISION, DOUBLE PRECISION) CASCADE;
+DROP FUNCTION IF EXISTS public.registrar_salida_pantalla(UUID, TEXT, INTEGER) CASCADE;
+
+DROP TABLE IF EXISTS public.horarios CASCADE;
+DROP TABLE IF EXISTS public.perdones CASCADE;
+DROP TABLE IF EXISTS public.log_salidas CASCADE;
+DROP TABLE IF EXISTS public.asistencia CASCADE;
+DROP TABLE IF EXISTS public.sesiones_clase CASCADE;
+DROP TABLE IF EXISTS public.grupo_alumnos CASCADE;
+DROP TABLE IF EXISTS public.grupos CASCADE;
+DROP TABLE IF EXISTS public.alumnos CASCADE;
+DROP TABLE IF EXISTS public.profesores CASCADE;
+
+-- =============================================================
+-- FASE 2: CREACIÓN DE TABLAS ESTRUCTURALES
 -- =============================================================
 
--- 1.1 Profesores (vinculada a auth.users)
-CREATE TABLE IF NOT EXISTS profesores (
-    id UUID PRIMARY KEY,
-    email TEXT NOT NULL,
+-- 1. Tabla de Profesores
+CREATE TABLE public.profesores (
+    id UUID PRIMARY KEY, -- Se empareja con auth.users.id
+    email TEXT UNIQUE NOT NULL,
     nombre TEXT NOT NULL,
-    device_id TEXT,
-    sesion_token TEXT,
     creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 1.2 Grupos (depende de profesores)
-CREATE TABLE IF NOT EXISTS grupos (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    profesor_id UUID NOT NULL REFERENCES profesores(id) ON DELETE CASCADE,
+-- 2. Tabla de Alumnos
+CREATE TABLE public.alumnos (
+    id UUID PRIMARY KEY, -- Se empareja con auth.users.id
+    email TEXT UNIQUE NOT NULL,
     nombre TEXT NOT NULL,
-    materia TEXT,
-    limite_salidas INTEGER DEFAULT 3,
-    numero_perdones INTEGER DEFAULT 2,
-    codigo_unico TEXT UNIQUE,
+    matricula TEXT UNIQUE NOT NULL,
+    device_id TEXT,
+    creado_en TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. Tabla de Grupos
+CREATE TABLE public.grupos (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    profesor_id UUID NOT NULL REFERENCES public.profesores(id) ON DELETE CASCADE,
+    nombre_materia TEXT NOT NULL,
+    codigo_grupo TEXT UNIQUE NOT NULL, -- Código para que el alumno se inscriba
+    limite_tolerancia INTEGER DEFAULT 3, -- Máximo de pérdidas de foco permitidas
     latitud DOUBLE PRECISION,
     longitud DOUBLE PRECISION,
-    radio_metros INTEGER DEFAULT 100,
+    radio_metros DOUBLE PRECISION DEFAULT 100,
     creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 1.3 Alumnos (independiente, se asigna a grupos después)
-CREATE TABLE IF NOT EXISTS alumnos (
-    id UUID PRIMARY KEY,
-    email TEXT NOT NULL,
-    nombre TEXT NOT NULL,
-    matricula TEXT NOT NULL,
-    device_id TEXT,
-    sesion_token TEXT,
-    creado_en TIMESTAMPTZ DEFAULT NOW()
+-- 4. Tabla Intermedia: Inscripciones (Grupo <-> Alumnos)
+CREATE TABLE public.grupo_alumnos (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    grupo_id UUID NOT NULL REFERENCES public.grupos(id) ON DELETE CASCADE,
+    alumno_id UUID NOT NULL REFERENCES public.alumnos(id) ON DELETE CASCADE,
+    inscrito_en TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(grupo_id, alumno_id)
 );
 
--- 1.4 Relación alumno-grupo (depende de alumnos y grupos)
-CREATE TABLE IF NOT EXISTS grupo_alumnos (
+-- 5. Tabla de Sesiones de Clase (Pase de lista activo)
+CREATE TABLE public.sesiones_clase (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    alumno_id UUID NOT NULL REFERENCES alumnos(id) ON DELETE CASCADE,
-    grupo_id UUID NOT NULL REFERENCES grupos(id) ON DELETE CASCADE,
-    creado_en TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE(alumno_id, grupo_id)
-);
-
--- 1.5 Sesiones de clase (QR por clase)
-CREATE TABLE IF NOT EXISTS sesiones_clase (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    grupo_id UUID NOT NULL REFERENCES grupos(id) ON DELETE CASCADE,
-    profesor_id UUID NOT NULL REFERENCES profesores(id) ON DELETE CASCADE,
-    codigo_sesion TEXT NOT NULL,
+    grupo_id UUID NOT NULL REFERENCES public.grupos(id) ON DELETE CASCADE,
+    profesor_id UUID NOT NULL REFERENCES public.profesores(id) ON DELETE CASCADE,
+    codigo_sesion TEXT NOT NULL, -- Código dinámico del día
     activa BOOLEAN DEFAULT TRUE,
-    creado_en TIMESTAMPTZ DEFAULT NOW()
+    creada_en TIMESTAMPTZ DEFAULT NOW(),
+    expira_en TIMESTAMPTZ NOT NULL
 );
 
--- 1.6 Asistencias (depende de alumnos y grupos)
-CREATE TABLE IF NOT EXISTS asistencia (
+-- 6. Tabla Principal de Asistencia
+CREATE TABLE public.asistencia (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    alumno_id UUID NOT NULL REFERENCES alumnos(id) ON DELETE CASCADE,
-    grupo_id UUID NOT NULL REFERENCES grupos(id) ON DELETE CASCADE,
-    fecha DATE NOT NULL DEFAULT CURRENT_DATE,
-    estado TEXT DEFAULT 'presente',
-    tipo_asistencia TEXT DEFAULT 'presente',
+    alumno_id UUID NOT NULL REFERENCES public.alumnos(id) ON DELETE CASCADE,
+    grupo_id UUID NOT NULL REFERENCES public.grupos(id) ON DELETE CASCADE,
     sesion_codigo TEXT,
+    fecha DATE DEFAULT CURRENT_DATE,
+    hora_entrada TIME DEFAULT CURRENT_TIME,
+    estado TEXT NOT NULL CHECK (estado IN ('presente', 'retardo', 'falta', 'justificado')),
+    tipo_asistencia TEXT DEFAULT 'regular',
     cambios_pantalla INTEGER DEFAULT 0,
     confirmada BOOLEAN DEFAULT FALSE,
-    perdonada BOOLEAN DEFAULT FALSE,
-    ultimo_cambio TIMESTAMPTZ,
-    creado_en TIMESTAMPTZ DEFAULT NOW(),
+    ultimo_cambio TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(alumno_id, grupo_id, fecha)
 );
 
--- 1.7 Log de salidas (auditoría)
-CREATE TABLE IF NOT EXISTS log_salidas (
+-- 7. Tabla Log de Salidas (Auditoría de pérdida de foco)
+CREATE TABLE public.log_salidas (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    asistencia_id UUID REFERENCES asistencia(id) ON DELETE CASCADE,
+    asistencia_id UUID NOT NULL REFERENCES public.asistencia(id) ON DELETE CASCADE,
     tipo TEXT NOT NULL, -- 'blur', 'visibility_hidden'
-    duracion_segundos INT,
+    duracion_segundos INTEGER,
     registrada_en TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 1.8 Perdones (otorgados por profesor)
-CREATE TABLE IF NOT EXISTS perdones (
+-- 8. Tabla de Perdones (Justificaciones de incidencias)
+CREATE TABLE public.perdones (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    asistencia_id UUID REFERENCES asistencia(id) ON DELETE CASCADE,
-    profesor_id UUID REFERENCES profesores(id),
+    asistencia_id UUID NOT NULL REFERENCES public.asistencia(id) ON DELETE CASCADE,
+    profesor_id UUID REFERENCES public.profesores(id) ON DELETE SET NULL,
     razon TEXT,
     otorgado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 1.9 Horarios fijos de clase
-CREATE TABLE IF NOT EXISTS horarios (
+-- 9. Tabla de Horarios Fijos
+CREATE TABLE public.horarios (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    grupo_id UUID NOT NULL REFERENCES grupos(id) ON DELETE CASCADE,
-    dia_semana INTEGER NOT NULL CHECK (dia_semana BETWEEN 0 AND 6),
+    grupo_id UUID NOT NULL REFERENCES public.grupos(id) ON DELETE CASCADE,
+    dia_semana INTEGER NOT NULL CHECK (dia_semana BETWEEN 0 AND 6), -- 0 = Domingo, 1 = Lunes...
     hora_inicio TIME NOT NULL,
     hora_fin TIME NOT NULL,
     activo BOOLEAN DEFAULT TRUE,
@@ -114,275 +124,189 @@ CREATE TABLE IF NOT EXISTS horarios (
 );
 
 -- =============================================================
--- FUNCIÓN PARA BORRAR USUARIO + TODOS SUS DATOS
+-- FASE 3: ÍNDICES DE RENDIMIENTO
 -- =============================================================
--- Uso: SELECT borrar_usuario('uuid-del-usuario');
--- Borra al profesor y todos sus registros relacionados en todas las tablas,
--- incluyendo el usuario de auth.users.
+CREATE INDEX IF NOT EXISTS idx_asistencia_alumno_grupo_fecha ON public.asistencia(alumno_id, grupo_id, fecha);
+CREATE INDEX IF NOT EXISTS idx_asistencia_clase ON public.asistencia(grupo_id);
+CREATE INDEX IF NOT EXISTS idx_alumnos_grupo ON public.grupo_alumnos(grupo_id);
+CREATE INDEX IF NOT EXISTS idx_alumnos_device ON public.alumnos(device_id);
+CREATE INDEX IF NOT EXISTS idx_sesiones_codigo ON public.sesiones_clase(codigo_sesion);
+CREATE INDEX IF NOT EXISTS idx_horarios_grupo ON public.horarios(grupo_id);
+
 -- =============================================================
-CREATE OR REPLACE FUNCTION borrar_usuario(p_user_id UUID)
-RETURNS void AS $$
+-- FASE 4: CONFIGURACIÓN DE SEGURIDAD POR FILAS (RLS)
+-- =============================================================
+
+-- Habilitar RLS en todas las tablas
+ALTER TABLE public.profesores ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.alumnos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.grupos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.grupo_alumnos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.sesiones_clase ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.asistencia ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.log_salidas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.perdones ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.horarios ENABLE ROW LEVEL SECURITY;
+
+-- Políticas: PROFESORES
+CREATE POLICY "profesores_insert_own" ON public.profesores FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "profesores_select_own" ON public.profesores FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "profesores_update_own" ON public.profesores FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+
+-- Políticas: ALUMNOS
+CREATE POLICY "alumnos_insert_own" ON public.alumnos FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "alumnos_select_own" ON public.alumnos FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "alumnos_update_own" ON public.alumnos FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+CREATE POLICY "profesores_select_alumnos" ON public.alumnos FOR SELECT USING (EXISTS (SELECT 1 FROM public.profesores WHERE profesores.id = auth.uid()));
+
+-- Políticas: GRUPOS
+CREATE POLICY "profesores_all_grupos" ON public.grupos FOR ALL USING (auth.uid() = profesor_id) WITH CHECK (auth.uid() = profesor_id);
+CREATE POLICY "alumnos_select_grupos" ON public.grupos FOR SELECT USING (EXISTS (SELECT 1 FROM public.alumnos WHERE alumnos.id = auth.uid()));
+
+-- Políticas: GRUPO_ALUMNOS (Inscripciones)
+CREATE POLICY "alumnos_insert_inscripcion" ON public.grupo_alumnos FOR INSERT WITH CHECK (auth.uid() = alumno_id);
+CREATE POLICY "alumnos_select_inscripcion" ON public.grupo_alumnos FOR SELECT USING (auth.uid() = alumno_id);
+CREATE POLICY "profesores_all_inscripciones" ON public.grupo_alumnos FOR ALL USING (EXISTS (SELECT 1 FROM public.grupos WHERE grupos.id = grupo_alumnos.grupo_id AND grupos.profesor_id = auth.uid()));
+
+-- Políticas: SESIONES_CLASE
+CREATE POLICY "profesores_all_sesiones" ON public.sesiones_clase FOR ALL USING (auth.uid() = profesor_id) WITH CHECK (auth.uid() = profesor_id);
+CREATE POLICY "alumnos_select_sesiones" ON public.sesiones_clase FOR SELECT USING (EXISTS (SELECT 1 FROM public.grupo_alumnos WHERE grupo_alumnos.grupo_id = sesiones_clase.grupo_id AND grupo_alumnos.alumno_id = auth.uid()));
+
+-- Políticas: ASISTENCIA
+CREATE POLICY "alumnos_insert_asistencia" ON public.asistencia FOR INSERT WITH CHECK (auth.uid() = alumno_id);
+CREATE POLICY "alumnos_select_asistencia" ON public.asistencia FOR SELECT USING (auth.uid() = alumno_id);
+CREATE POLICY "alumnos_update_asistencia" ON public.asistencia FOR UPDATE USING (auth.uid() = alumno_id) WITH CHECK (auth.uid() = alumno_id);
+CREATE POLICY "profesores_all_asistencias" ON public.asistencia FOR ALL USING (EXISTS (SELECT 1 FROM public.grupos WHERE grupos.id = asistencia.grupo_id AND grupos.profesor_id = auth.uid()));
+
+-- Políticas: LOG_SALIDAS
+CREATE POLICY "alumnos_insert_log" ON public.log_salidas FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM public.asistencia WHERE asistencia.id = log_salidas.asistencia_id AND asistencia.alumno_id = auth.uid()));
+CREATE POLICY "alumnos_select_log" ON public.log_salidas FOR SELECT USING (EXISTS (SELECT 1 FROM public.asistencia WHERE asistencia.id = log_salidas.asistencia_id AND asistencia.alumno_id = auth.uid()));
+CREATE POLICY "profesores_select_logs" ON public.log_salidas FOR SELECT USING (EXISTS (SELECT 1 FROM public.asistencia JOIN public.grupos ON grupos.id = asistencia.grupo_id WHERE asistencia.id = log_salidas.asistencia_id AND grupos.profesor_id = auth.uid()));
+
+-- Políticas: PERDONES
+CREATE POLICY "profesores_all_perdones" ON public.perdones FOR ALL USING (EXISTS (SELECT 1 FROM public.asistencia JOIN public.grupos ON grupos.id = asistencia.grupo_id WHERE asistencia.id = perdones.asistencia_id AND grupos.profesor_id = auth.uid()));
+CREATE POLICY "alumnos_select_perdones" ON public.perdones FOR SELECT USING (EXISTS (SELECT 1 FROM public.asistencia WHERE asistencia.id = perdones.asistencia_id AND asistencia.alumno_id = auth.uid()));
+
+-- Políticas: HORARIOS
+CREATE POLICY "profesores_all_horarios" ON public.horarios FOR ALL USING (EXISTS (SELECT 1 FROM public.grupos WHERE grupos.id = horarios.grupo_id AND grupos.profesor_id = auth.uid()));
+CREATE POLICY "alumnos_select_horarios" ON public.horarios FOR SELECT USING (EXISTS (SELECT 1 FROM public.grupo_alumnos WHERE grupo_alumnos.grupo_id = horarios.grupo_id AND grupo_alumnos.alumno_id = auth.uid()));
+
+-- =============================================================
+-- FASE 5: AUTOMATIZACIONES (TRIGGERS)
+-- =============================================================
+
+-- Función que procesa el registro nativo de Supabase Auth
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+DECLARE
+    user_role TEXT;
+    user_name TEXT;
+    user_matricula TEXT;
 BEGIN
-    -- 1. Horarios (dependen de grupos, no tienen profesor_id directo)
-    DELETE FROM horarios WHERE grupo_id IN (SELECT id FROM grupos WHERE profesor_id = p_user_id);
+    user_role := COALESCE(new.raw_user_meta_data->>'role', 'alumno');
+    user_name := COALESCE(new.raw_user_meta_data->>'nombre', 'Usuario Nuevo');
     
-    -- 2. Alumnos del grupo (dependen de grupos)
-    DELETE FROM grupo_alumnos WHERE grupo_id IN (SELECT id FROM grupos WHERE profesor_id = p_user_id);
+    IF user_role = 'profesor' THEN
+        INSERT INTO public.profesores (id, email, nombre)
+        VALUES (new.id, new.email, user_name)
+        ON CONFLICT (id) DO UPDATE 
+        SET email = EXCLUDED.email, nombre = EXCLUDED.nombre;
+    ELSE
+        user_matricula := COALESCE(new.raw_user_meta_data->>'matricula', 'SIN_MATRICULA');
+        
+        INSERT INTO public.alumnos (id, email, nombre, matricula)
+        VALUES (new.id, new.email, user_name, user_matricula)
+        ON CONFLICT (id) DO UPDATE 
+        SET email = EXCLUDED.email, nombre = EXCLUDED.nombre, matricula = EXCLUDED.matricula;
+    END IF;
     
-    -- 3. Log de salidas (depende de asistencia)
-    DELETE FROM log_salidas WHERE asistencia_id IN (
-        SELECT id FROM asistencia WHERE grupo_id IN (SELECT id FROM grupos WHERE profesor_id = p_user_id)
-    );
-    
-    -- 4. Perdones (tiene profesor_id directo)
-    DELETE FROM perdones WHERE profesor_id = p_user_id;
-    
-    -- 5. Asistencias (dependen de grupos)
-    DELETE FROM asistencia WHERE grupo_id IN (SELECT id FROM grupos WHERE profesor_id = p_user_id);
-    
-    -- 6. Sesiones de clase (tiene profesor_id directo)
-    DELETE FROM sesiones_clase WHERE profesor_id = p_user_id;
-    
-    -- 7. Grupos (tiene profesor_id directo)
-    DELETE FROM grupos WHERE profesor_id = p_user_id;
-    
-    -- 8. Profesor
-    DELETE FROM profesores WHERE id = p_user_id;
-    
-    -- 9. Usuario de Auth (el que causa el error al borrar manualmente)
-    DELETE FROM auth.users WHERE id = p_user_id;
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- =============================================================
--- 2. COLUMNAS ADICIONALES (por si ya existen las tablas)
--- =============================================================
-
-ALTER TABLE grupos ADD COLUMN IF NOT EXISTS codigo_unico TEXT;
-ALTER TABLE grupos ADD COLUMN IF NOT EXISTS latitud DOUBLE PRECISION;
-ALTER TABLE grupos ADD COLUMN IF NOT EXISTS longitud DOUBLE PRECISION;
-ALTER TABLE grupos ADD COLUMN IF NOT EXISTS radio_metros INTEGER DEFAULT 100;
-
-ALTER TABLE alumnos ADD COLUMN IF NOT EXISTS device_id TEXT;
-ALTER TABLE alumnos ADD COLUMN IF NOT EXISTS sesion_token TEXT;
-
-ALTER TABLE profesores ADD COLUMN IF NOT EXISTS device_id TEXT;
-ALTER TABLE profesores ADD COLUMN IF NOT EXISTS sesion_token TEXT;
-
-ALTER TABLE asistencia ADD COLUMN IF NOT EXISTS cambios_pantalla INTEGER DEFAULT 0;
-ALTER TABLE asistencia ADD COLUMN IF NOT EXISTS confirmada BOOLEAN DEFAULT FALSE;
-ALTER TABLE asistencia ADD COLUMN IF NOT EXISTS perdonada BOOLEAN DEFAULT FALSE;
-ALTER TABLE asistencia ADD COLUMN IF NOT EXISTS ultimo_cambio TIMESTAMPTZ;
-ALTER TABLE asistencia ADD COLUMN IF NOT EXISTS tipo_asistencia TEXT DEFAULT 'presente';
-
-ALTER TABLE horarios ADD COLUMN IF NOT EXISTS puntual_minutos INTEGER DEFAULT 10;
-ALTER TABLE horarios ADD COLUMN IF NOT EXISTS retardo_minutos INTEGER DEFAULT 20;
+-- Disparador asociado a auth.users
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- =============================================================
--- 3. ÍNDICES
+-- FASE 6: PROCEDIMIENTOS REMOTOS (RPC) - LÓGICA DE NEGOCIO
 -- =============================================================
 
-CREATE INDEX IF NOT EXISTS idx_asistencia_alumno_grupo_fecha ON asistencia(alumno_id, grupo_id, fecha);
-CREATE INDEX IF NOT EXISTS idx_asistencia_clase ON asistencia(grupo_id);
-CREATE INDEX IF NOT EXISTS idx_alumnos_grupo ON grupo_alumnos(grupo_id);
-CREATE INDEX IF NOT EXISTS idx_alumnos_device ON alumnos(device_id);
-CREATE INDEX IF NOT EXISTS idx_sesiones_codigo ON sesiones_clase(codigo_sesion);
-CREATE INDEX IF NOT EXISTS idx_horarios_grupo ON horarios(grupo_id);
+-- 1. RPC para validar código de pase de lista y geolocalización (Haversine)
+CREATE OR REPLACE FUNCTION public.marcar_asistencia_alumno(
+    p_alumno_id UUID,
+    p_codigo_sesion TEXT,
+    p_latitud DOUBLE PRECISION,
+    p_longitud DOUBLE PRECISION
+)
+RETURNS JSONB AS $$
+DECLARE
+    v_sesion RECORD;
+    v_grupo RECORD;
+    v_distancia DOUBLE PRECISION;
+    v_estado TEXT := 'presente';
+    v_tipo TEXT := 'presente';
+    v_asistencia_id UUID;
+BEGIN
+    SELECT s.* INTO v_sesion FROM public.sesiones_clase s WHERE s.codigo_sesion = p_codigo_sesion AND s.activa = TRUE LIMIT 1;
+    IF NOT FOUND THEN
+        RETURN jsonb_build_object('ok', FALSE, 'mensaje', 'El código de sesión no es válido o ya expiró.');
+    END IF;
 
--- =============================================================
--- 4. HABILITAR ROW LEVEL SECURITY
--- =============================================================
+    SELECT g.* INTO v_grupo FROM public.grupos g WHERE g.id = v_sesion.grupo_id;
 
-ALTER TABLE profesores ENABLE ROW LEVEL SECURITY;
-ALTER TABLE grupos ENABLE ROW LEVEL SECURITY;
-ALTER TABLE alumnos ENABLE ROW LEVEL SECURITY;
-ALTER TABLE grupo_alumnos ENABLE ROW LEVEL SECURITY;
-ALTER TABLE sesiones_clase ENABLE ROW LEVEL SECURITY;
-ALTER TABLE asistencia ENABLE ROW LEVEL SECURITY;
-ALTER TABLE log_salidas ENABLE ROW LEVEL SECURITY;
-ALTER TABLE perdones ENABLE ROW LEVEL SECURITY;
-ALTER TABLE horarios ENABLE ROW LEVEL SECURITY;
+    IF v_grupo.latitud IS NOT NULL AND v_grupo.longitud IS NOT NULL THEN
+        v_distancia := 6371000 * acos(
+            cos(radians(p_latitud)) * cos(radians(v_grupo.latitud)) * cos(radians(v_grupo.longitud) - radians(p_longitud)) + 
+            sin(radians(p_latitud)) * sin(radians(v_grupo.latitud))
+        );
+        IF v_distancia > v_grupo.radio_metros THEN
+            RETURN jsonb_build_object('ok', FALSE, 'mensaje', 'No te encuentras dentro del rango geográfico del aula de clases.', 'distancia_metros', round(v_distancia::numeric, 2));
+        END IF;
+    END IF;
 
--- =============================================================
--- 5. POLÍTICAS RLS
--- =============================================================
+    INSERT INTO public.asistencia (alumno_id, grupo_id, sesion_codigo, estado, tipo_asistencia, confirmada)
+    VALUES (p_alumno_id, v_grupo.id, p_codigo_sesion, v_estado, v_tipo, TRUE)
+    ON CONFLICT (alumno_id, grupo_id, fecha) 
+    DO UPDATE SET sesion_codigo = EXCLUDED.sesion_codigo, estado = EXCLUDED.estado, tipo_asistencia = EXCLUDED.tipo_asistencia, confirmada = TRUE, ultimo_cambio = NOW()
+    RETURNING id INTO v_asistencia_id;
 
--- 5.1 Profesores: solo su propia fila
-DROP POLICY IF EXISTS "profesores_insert_own" ON profesores;
-CREATE POLICY "profesores_insert_own" ON profesores
-    FOR INSERT WITH CHECK (auth.uid() = id);
+    RETURN jsonb_build_object('ok', TRUE, 'mensaje', 'Asistencia registrada con éxito.', 'asistencia_id', v_asistencia_id, 'estado', v_estado);
+EXCEPTION WHEN OTHERS THEN
+    RETURN jsonb_build_object('ok', FALSE, 'mensaje', 'Error interno en el servidor: ' || SQLERRM);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
-DROP POLICY IF EXISTS "profesores_select_own" ON profesores;
-CREATE POLICY "profesores_select_own" ON profesores
-    FOR SELECT USING (auth.uid() = id);
+-- 2. RPC para registrar logs de pérdidas de foco y aplicar penalización automática
+CREATE OR REPLACE FUNCTION public.registrar_salida_pantalla(
+    p_asistencia_id UUID,
+    p_tipo TEXT,
+    p_duracion_segundos INTEGER
+)
+RETURNS JSONB AS $$
+DECLARE
+    v_grupo_id UUID;
+    v_cambios_actuales INTEGER;
+    v_limite_maximo INTEGER;
+BEGIN
+    INSERT INTO public.log_salidas (asistencia_id, tipo, duracion_segundos)
+    VALUES (p_asistencia_id, p_tipo, p_duracion_segundos);
 
-DROP POLICY IF EXISTS "profesores_update_own" ON profesores;
-CREATE POLICY "profesores_update_own" ON profesores
-    FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+    UPDATE public.asistencia
+    SET cambios_pantalla = cambios_pantalla + 1, ultimo_cambio = NOW()
+    WHERE id = p_asistencia_id
+    RETURNING grupo_id, cambios_pantalla INTO v_grupo_id, v_cambios_actuales;
 
--- 5.2 Alumnos: solo su propia fila
-DROP POLICY IF EXISTS "alumnos_insert_own" ON alumnos;
-CREATE POLICY "alumnos_insert_own" ON alumnos
-    FOR INSERT WITH CHECK (auth.uid() = id);
+    SELECT limite_tolerancia INTO v_limite_maximo FROM public.grupos WHERE id = v_grupo_id;
 
-DROP POLICY IF EXISTS "alumnos_select_own" ON alumnos;
-CREATE POLICY "alumnos_select_own" ON alumnos
-    FOR SELECT USING (auth.uid() = id);
+    IF v_limite_maximo IS NOT NULL AND v_cambios_actuales > v_limite_maximo THEN
+        UPDATE public.asistencia SET estado = 'retardo' WHERE id = p_asistencia_id;
+        RETURN jsonb_build_object('ok', TRUE, 'mensaje', 'Salida registrada. Se ha aplicado una penalización por exceder el límite de cambios de pantalla.', 'cambios_pantalla', v_cambios_actuales, 'penalizado', TRUE);
+    END IF;
 
-DROP POLICY IF EXISTS "alumnos_update_own" ON alumnos;
-CREATE POLICY "alumnos_update_own" ON alumnos
-    FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
-
--- 5.3 Alumnos: profesor puede ver alumnos de sus grupos
-DROP POLICY IF EXISTS "alumnos_select_profesor" ON alumnos;
-CREATE POLICY "alumnos_select_profesor" ON alumnos
-    FOR SELECT USING (EXISTS (
-        SELECT 1 FROM grupo_alumnos
-        JOIN grupos ON grupos.id = grupo_alumnos.grupo_id
-        WHERE grupo_alumnos.alumno_id = alumnos.id
-        AND grupos.profesor_id = auth.uid()
-    ));
-
--- 5.4 Grupos: profesor puede gestionar sus propios grupos
-DROP POLICY IF EXISTS "grupos_insert_own" ON grupos;
-CREATE POLICY "grupos_insert_own" ON grupos
-    FOR INSERT WITH CHECK (auth.uid() = profesor_id);
-
-DROP POLICY IF EXISTS "grupos_select_own" ON grupos;
-CREATE POLICY "grupos_select_own" ON grupos
-    FOR SELECT USING (auth.uid() = profesor_id);
-
-DROP POLICY IF EXISTS "grupos_delete_own" ON grupos;
-CREATE POLICY "grupos_delete_own" ON grupos
-    FOR DELETE USING (auth.uid() = profesor_id);
-
--- 5.5 Grupos: cualquier autenticado puede buscar por código (para unirse)
-DROP POLICY IF EXISTS "grupos_select_join" ON grupos;
-CREATE POLICY "grupos_select_join" ON grupos
-    FOR SELECT USING (auth.role() = 'authenticated');
-
--- 5.6 Grupo_Alumnos: alumno se inscribe solo
-DROP POLICY IF EXISTS "grupo_alumnos_insert_own" ON grupo_alumnos;
-CREATE POLICY "grupo_alumnos_insert_own" ON grupo_alumnos
-    FOR INSERT WITH CHECK (auth.uid() = alumno_id);
-
-DROP POLICY IF EXISTS "grupo_alumnos_select_own" ON grupo_alumnos;
-CREATE POLICY "grupo_alumnos_select_own" ON grupo_alumnos
-    FOR SELECT USING (auth.uid() = alumno_id);
-
--- 5.7 Grupo_Alumnos: profesor puede eliminar inscripciones
-DROP POLICY IF EXISTS "grupo_alumnos_delete_profesor" ON grupo_alumnos;
-CREATE POLICY "grupo_alumnos_delete_profesor" ON grupo_alumnos
-    FOR DELETE USING (EXISTS (
-        SELECT 1 FROM grupos WHERE grupos.id = grupo_alumnos.grupo_id
-        AND grupos.profesor_id = auth.uid()
-    ));
-
--- 5.8 Asistencia: alumno inserta su propia asistencia
-DROP POLICY IF EXISTS "asistencia_insert_own" ON asistencia;
-CREATE POLICY "asistencia_insert_own" ON asistencia
-    FOR INSERT WITH CHECK (auth.uid() = alumno_id);
-
--- 5.9 Asistencia: alumno selecciona su propia asistencia
-DROP POLICY IF EXISTS "asistencia_select_own" ON asistencia;
-CREATE POLICY "asistencia_select_own" ON asistencia
-    FOR SELECT USING (auth.uid() = alumno_id);
-
--- 5.10 Asistencia: alumno actualiza su propia asistencia
-DROP POLICY IF EXISTS "asistencia_update_own" ON asistencia;
-CREATE POLICY "asistencia_update_own" ON asistencia
-    FOR UPDATE USING (auth.uid() = alumno_id) WITH CHECK (auth.uid() = alumno_id);
-
--- 5.11 Asistencia: profesor puede SELECT/UPDATE/DELETE asistencia de sus grupos
-DROP POLICY IF EXISTS "asistencia_select_profesor" ON asistencia;
-CREATE POLICY "asistencia_select_profesor" ON asistencia
-    FOR SELECT USING (EXISTS (
-        SELECT 1 FROM grupos
-        WHERE grupos.id = asistencia.grupo_id AND grupos.profesor_id = auth.uid()
-    ));
-
-DROP POLICY IF EXISTS "asistencia_update_profesor" ON asistencia;
-CREATE POLICY "asistencia_update_profesor" ON asistencia
-    FOR UPDATE USING (EXISTS (
-        SELECT 1 FROM grupos
-        WHERE grupos.id = asistencia.grupo_id AND grupos.profesor_id = auth.uid()
-    )) WITH CHECK (EXISTS (
-        SELECT 1 FROM grupos
-        WHERE grupos.id = asistencia.grupo_id AND grupos.profesor_id = auth.uid()
-    ));
-
-DROP POLICY IF EXISTS "asistencia_delete_profesor" ON asistencia;
-CREATE POLICY "asistencia_delete_profesor" ON asistencia
-    FOR DELETE USING (EXISTS (
-        SELECT 1 FROM grupos
-        WHERE grupos.id = asistencia.grupo_id AND grupos.profesor_id = auth.uid()
-    ));
-
--- 5.12 Sesiones_Clase: profesor crea sus sesiones
-DROP POLICY IF EXISTS "sesiones_insert_own" ON sesiones_clase;
-CREATE POLICY "sesiones_insert_own" ON sesiones_clase
-    FOR INSERT WITH CHECK (auth.uid() = profesor_id);
-
-DROP POLICY IF EXISTS "sesiones_select_all" ON sesiones_clase;
-CREATE POLICY "sesiones_select_all" ON sesiones_clase
-    FOR SELECT USING (auth.role() = 'authenticated');
-
-DROP POLICY IF EXISTS "sesiones_update_own" ON sesiones_clase;
-CREATE POLICY "sesiones_update_own" ON sesiones_clase
-    FOR UPDATE USING (auth.uid() = profesor_id) WITH CHECK (auth.uid() = profesor_id);
-
-DROP POLICY IF EXISTS "sesiones_clase_delete_profesor" ON sesiones_clase;
-CREATE POLICY "sesiones_clase_delete_profesor" ON sesiones_clase
-    FOR DELETE USING (auth.uid() = profesor_id);
-
--- 5.13 Horarios: profesor gestiona horarios de sus grupos
-DROP POLICY IF EXISTS "horarios_insert_profesor" ON horarios;
-CREATE POLICY "horarios_insert_profesor" ON horarios
-    FOR INSERT WITH CHECK (EXISTS (
-        SELECT 1 FROM grupos WHERE grupos.id = horarios.grupo_id AND grupos.profesor_id = auth.uid()
-    ));
-
-DROP POLICY IF EXISTS "horarios_select_profesor" ON horarios;
-CREATE POLICY "horarios_select_profesor" ON horarios
-    FOR SELECT USING (EXISTS (
-        SELECT 1 FROM grupos WHERE grupos.id = horarios.grupo_id AND grupos.profesor_id = auth.uid()
-    ));
-
-DROP POLICY IF EXISTS "horarios_update_profesor" ON horarios;
-CREATE POLICY "horarios_update_profesor" ON horarios
-    FOR UPDATE USING (EXISTS (
-        SELECT 1 FROM grupos WHERE grupos.id = horarios.grupo_id AND grupos.profesor_id = auth.uid()
-    )) WITH CHECK (EXISTS (
-        SELECT 1 FROM grupos WHERE grupos.id = horarios.grupo_id AND grupos.profesor_id = auth.uid()
-    ));
-
-DROP POLICY IF EXISTS "horarios_delete_profesor" ON horarios;
-CREATE POLICY "horarios_delete_profesor" ON horarios
-    FOR DELETE USING (EXISTS (
-        SELECT 1 FROM grupos WHERE grupos.id = horarios.grupo_id AND grupos.profesor_id = auth.uid()
-    ));
-
--- =============================================================
--- 6. HABILITAR REALTIME (para monitoreo en vivo)
--- =============================================================
-
--- Nota: si ya están agregadas, "ADD TABLE" lanzará advertencia
--- pero no rompe nada. Puedes ignorarla.
-ALTER PUBLICATION supabase_realtime ADD TABLE asistencia;
-ALTER PUBLICATION supabase_realtime ADD TABLE log_salidas;
-ALTER PUBLICATION supabase_realtime ADD TABLE profesores;
-ALTER PUBLICATION supabase_realtime ADD TABLE alumnos;
-
--- =============================================================
--- 7. VERIFICACIÓN FINAL
--- =============================================================
-
--- Verificar que todas las tablas existen
-SELECT table_name FROM information_schema.tables
-WHERE table_schema = 'public'
-ORDER BY table_name;
-
--- Verificar políticas creadas
-SELECT schemaname, tablename, policyname FROM pg_policies
-WHERE schemaname = 'public'
-ORDER BY tablename, policyname;
+    RETURN jsonb_build_object('ok', TRUE, 'mensaje', 'Salida registrada correctamente.', 'cambios_pantalla', v_cambios_actuales, 'penalizado', FALSE);
+EXCEPTION WHEN OTHERS THEN
+    RETURN jsonb_build_object('ok', FALSE, 'mensaje', 'Error al registrar salida: ' || SQLERRM);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

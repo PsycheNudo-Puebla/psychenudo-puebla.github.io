@@ -57,9 +57,16 @@ async function handleRegister(e) {
     const email = document.getElementById('reg-email').value;
     const password = document.getElementById('reg-password').value;
     
-    // 1. Crear usuario en Auth de Supabase
+    // 1. Crear usuario en Auth de Supabase (con metadatos para el trigger)
     const { data: authData, error: authError } = await supabaseClient.auth.signUp({
-        email, password
+        email,
+        password,
+        options: {
+            data: {
+                role: 'profesor',
+                nombre: nombre
+            }
+        }
     });
     
     if (authError) {
@@ -67,10 +74,11 @@ async function handleRegister(e) {
         return;
     }
     
-    // 2. Guardar datos adicionales en tabla profesores con device_id
+    // 2. Guardar/actualizar datos en tabla profesores con device_id
+    // Usamos upsert porque el trigger ya pudo haber creado la fila automáticamente
     const { error: dbError } = await supabaseClient
         .from('profesores')
-        .insert({
+        .upsert({
             id: authData.user.id,
             email: email,
             nombre: nombre,
@@ -78,7 +86,7 @@ async function handleRegister(e) {
         });
     
     if (dbError) {
-        // INSERT falló — mostrar formulario completar perfil
+        // UPSERT falló — mostrar formulario completar perfil
         document.getElementById('register-error').textContent = '';
         document.getElementById('login-form').classList.add('hidden');
         document.getElementById('register-form').classList.add('hidden');
@@ -1416,7 +1424,7 @@ async function completarPerfil(e) {
     
     const { error: dbError } = await supabaseClient
         .from('profesores')
-        .insert({
+        .upsert({
             id: user.id,
             email: user.email || '',
             nombre: nombre,
