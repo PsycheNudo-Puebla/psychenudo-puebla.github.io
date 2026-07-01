@@ -307,6 +307,12 @@ BEGIN
 
     RETURN jsonb_build_object('ok', TRUE, 'mensaje', 'Salida registrada correctamente.', 'cambios_pantalla', v_cambios_actuales, 'penalizado', FALSE);
 EXCEPTION WHEN OTHERS THEN
-    RETURN jsonb_build_object('ok', FALSE, 'mensaje', 'Error al registrar salida: ' || SQLERRM);
-END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- =============================================================
+-- FASE 7: HABILITAR PUBLICACIÓN EN TIEMPO REAL
+-- =============================================================
+-- IMPORTANTE: Ejecuta esto en el SQL Editor de Supabase
+-- para que el monitoreo del profesor se actualice automáticamente
+ALTER PUBLICATION supabase_realtime ADD TABLE public.asistencia;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.sesiones_clase;

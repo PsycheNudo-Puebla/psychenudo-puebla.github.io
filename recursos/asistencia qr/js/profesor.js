@@ -300,6 +300,7 @@ async function cargarGrupos() {
                 <div class="list-item-actions" style="flex-shrink: 0;">
                     <button onclick="mostrarModalHorarios('${grupo.id}', '${grupo.nombre}')" class="btn-secondary" title="Configurar horarios y límites">📅</button>
                     <button onclick="generarQR('${grupo.id}', '${grupo.nombre}')" class="btn-qr">📷 QR</button>
+                    <button onclick="reabrirMonitoreo('${grupo.id}')" class="btn-secondary" title="Reabrir monitoreo en vivo">📡</button>
                     <button onclick="exportarAsistencia('${grupo.id}', '${grupo.nombre}')" class="btn-secondary" title="Exportar asistencias">📊</button>
                     <button onclick="verGrupo('${grupo.id}')" class="btn-secondary">Ver</button>
                     <button onclick="eliminarGrupo('${grupo.id}')" class="btn-danger">Eliminar</button>
@@ -1077,6 +1078,8 @@ async function generarQR(grupoId, grupoNombre) {
         if (g && g.numero_perdones != null) perdonesMax = g.numero_perdones;
     } catch (e) { /* usar default */ }
     iniciarMonitoreoProfesor(grupoId, sesion.id, perdonesMax);
+    // Guardar referencia para poder reabrir el monitoreo después
+    monitoreoActivoPorGrupo[grupoId] = { sesionId: sesion.id, grupoNombre, perdonesMax };
     
     // 6. Contador regresivo (120s o hasta fin de ventana)
     const segundosMaximos = await calcularSegundosMaximos(grupoId);
@@ -1244,6 +1247,8 @@ async function finalizarSesion(grupoId) {
             .eq('id', sesionActivaId);
         sesionActivaId = null;
     }
+    // Limpiar tracking de monitoreo para este grupo
+    delete monitoreoActivoPorGrupo[grupoId];
 }
 
 function cerrarQR() {
@@ -1268,6 +1273,7 @@ let monitorProfChannel = null;
 let monitorPerdonesUsados = 0;
 let monitorPerdonesMax = 2;
 let monitorAlumnosSet = new Set();
+let monitoreoActivoPorGrupo = {}; // { grupoId: { sesionId, grupoNombre, perdonesMax } }
 
 async function iniciarMonitoreoProfesor(grupoId, sesionId, perdonesMax) {
     monitorGrupoId = grupoId;
@@ -1419,15 +1425,36 @@ function cerrarMonitoreo() {
         supabaseClient.removeChannel(monitorProfChannel);
         monitorProfChannel = null;
     }
-    // Desactivar sesión activa en Supabase
-    if (monitorSesionId) {
-        supabaseClient.from('sesiones_clase').update({ activa: false }).eq('id', monitorSesionId);
-        monitorSesionId = null;
-    }
+    // NO desactivamos la sesión en BD — la clase sigue activa
+    // Solo limpiamos las variables locales de monitoreo
     monitorGrupoId = null;
+    monitorSesionId = null;
     monitorPerdonesUsados = 0;
     monitorAlumnosSet = new Set();
     document.getElementById('monitoreo-panel').classList.add('hidden');
+}
+
+/** Reabrir panel de monitoreo para un grupo que tenga sesión activa */
+async function reabrirMonitoreo(grupoId) {
+    const info = monitoreoActivoPorGrupo[grupoId];
+    if (!info) {
+        alert('No hay una sesión activa para este grupo. Abre el QR primero.');
+        return;
+    }
+    // Verificar que la sesión siga activa en BD
+    const { data: sesion } = await supabaseClient
+        .from('sesiones_clase')
+        .select('id, activa')
+        .eq('id', info.sesionId)
+        .maybeSingle();
+    
+    if (!sesion || !sesion.activa) {
+        delete monitoreoActivoPorGrupo[grupoId];
+        alert('La sesión de esta clase ya finalizó. Genera un nuevo QR para comenzar.');
+        return;
+    }
+    
+    await iniciarMonitoreoProfesor(grupoId, info.sesionId, info.perdonesMax);
 }
 
 // ====== COMPLETAR PERFIL (profesor - mismo fix que alumno) ======
