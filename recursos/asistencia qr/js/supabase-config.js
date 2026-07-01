@@ -21,3 +21,12 @@ function obtenerDeviceId() {
 function limpiarDeviceId() {
     localStorage.removeItem('asistencia_qr_device_id');
 }
+
+// ====== SISTEMA DE SESIÓN ACTIVA ======
+// Cada inicio de sesión genera un token único que se guarda en sessionStorage.
+// Se verifica periódicamente contra la BD para detectar si se abrió
+// otra sesión desde un navegador o dispositivo diferente.
+
+function generarSesionToken() {
+    return crypto.randomUUID();
+}

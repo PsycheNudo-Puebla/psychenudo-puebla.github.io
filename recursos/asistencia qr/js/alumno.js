@@ -2,6 +2,8 @@ let alumnoActual = null;
 let html5QrCode = null;
 let escaneando = false;
 let deviceId = obtenerDeviceId();
+let sesionToken = null;
+let sesionCheckInterval = null;
 
 // ====== VARIABLES DE MONITOREO DE ASISTENCIA ======
 let monitoreoActivo = false;
@@ -107,7 +109,12 @@ async function handleLogout() {
         html5QrCode = null;
         escaneando = false;
     }
-    await supabaseClient.auth.signOut();
+    try {
+        await supabaseClient.auth.signOut();
+    } catch (e) {
+        console.warn('Error al cerrar sesión:', e);
+    }
+    detenerChequeoSesion();
     mostrarLogin();
 }
 
@@ -130,16 +137,28 @@ async function verificarYcargarAlumno(user) {
         return;
     }
     
-    // Verificar device_id
+    // Verificar device_id — si cambió, actualizamos automáticamente con advertencia
     if (data.device_id && data.device_id !== deviceId) {
-        document.getElementById('login-error').textContent = '⚠️ Esta cuenta ya está vinculada a otro dispositivo. No puedes iniciar sesión desde aquí.';
-        await supabaseClient.auth.signOut();
-        return;
+        console.warn('⚠️ Device ID cambiado. Se actualiza al nuevo dispositivo.');
+        document.getElementById('login-error').textContent = '⚠️ Se detectó un cambio de dispositivo. Se ha actualizado el registro.';
+        document.getElementById('login-error').style.color = '#e65100';
+        // Actualizar al nuevo device_id
+        await supabaseClient.from('alumnos').update({ device_id: deviceId }).eq('id', user.id);
     }
     
     // Si no tenía device_id, asignarlo
     if (!data.device_id) {
         await supabaseClient.from('alumnos').update({ device_id: deviceId }).eq('id', user.id);
+    }
+    
+    // === TOKEN DE SESIÓN ACTIVA ===
+    sesionToken = generarSesionToken();
+    sessionStorage.setItem('asistencia_qr_sesion_token', sesionToken);
+    try {
+        await supabaseClient.from('alumnos').update({ sesion_token: sesionToken }).eq('id', user.id);
+        iniciarChequeoSesion(user.id, 'alumnos');
+    } catch (e) {
+        console.warn('⚠️ Control de sesión activa no disponible (columna sesion_token no existe en BD). El login continúa normalmente.');
     }
     
     alumnoActual = data;
@@ -247,6 +266,22 @@ async function cargarDatosAlumno(user, intentos = 0) {
         document.getElementById('completar-perfil-form').classList.remove('hidden');
         document.getElementById('completar-error').textContent = '✏️ Completa tus datos para continuar.';
         return;
+    }
+    
+    // Sincronizar device_id si cambió (recarga en otro origen/equipo)
+    if (data.device_id !== deviceId) {
+        console.warn('⚠️ Device ID cambiado. Se actualiza al nuevo dispositivo.');
+        await supabaseClient.from('alumnos').update({ device_id: deviceId }).eq('id', user.id);
+    }
+    
+    // === TOKEN DE SESIÓN ACTIVA ===
+    sesionToken = generarSesionToken();
+    sessionStorage.setItem('asistencia_qr_sesion_token', sesionToken);
+    try {
+        await supabaseClient.from('alumnos').update({ sesion_token: sesionToken }).eq('id', user.id);
+        iniciarChequeoSesion(user.id, 'alumnos');
+    } catch (e) {
+        console.warn('⚠️ Control de sesión activa no disponible (columna sesion_token no existe en BD). El login continúa normalmente.');
     }
     
     alumnoActual = data;
@@ -1040,4 +1075,43 @@ function mostrarConfirmada() {
         document.getElementById('dashboard-view').classList.remove('hidden');
         cargarGrupos();
     }, 2000);
+}
+
+// ====== CONTROL DE SESIÓN ACTIVA ======
+// Evita que un mismo usuario tenga sesión en varios navegadores/dispositivos
+
+function iniciarChequeoSesion(userId, tabla) {
+    detenerChequeoSesion();
+    sesionCheckInterval = setInterval(async () => {
+        const tokenGuardado = sessionStorage.getItem('asistencia_qr_sesion_token');
+        if (!tokenGuardado) return;
+        
+        try {
+            const { data } = await supabaseClient
+                .from(tabla)
+                .select('sesion_token')
+                .eq('id', userId)
+                .maybeSingle();
+            
+            if (data && data.sesion_token && data.sesion_token !== tokenGuardado) {
+                detenerChequeoSesion();
+                alert('⚠️ Tu sesión fue cerrada porque iniciaste sesión desde otro navegador o dispositivo.');
+                try {
+                    await supabaseClient.auth.signOut();
+                } catch (e) {
+                    console.warn('Error al cerrar sesión (posiblemente ya expiró):', e);
+                }
+                mostrarLogin();
+            }
+        } catch (e) {
+            console.warn('Error al verificar sesión activa:', e);
+        }
+    }, 5000);
+}
+
+function detenerChequeoSesion() {
+    if (sesionCheckInterval) {
+        clearInterval(sesionCheckInterval);
+        sesionCheckInterval = null;
+    }
 }

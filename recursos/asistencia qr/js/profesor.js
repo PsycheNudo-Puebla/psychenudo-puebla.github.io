@@ -1,5 +1,8 @@
 let profesorActual = null;
 let deviceId = obtenerDeviceId();
+let sesionToken = null;
+let sesionCheckInterval = null;
+let estaIniciandoSesion = false;
 
 // ====== INICIALIZACIÓN ======
 document.addEventListener('DOMContentLoaded', async () => {
@@ -7,13 +10,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     if (session) {
         await cargarDatosProfesor(session.user);
+        iniciarChequeoSesion(session.user.id, 'profesores');
     }
 });
 
 // Escuchar cambios de autenticación
 supabaseClient.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN' && session) {
-        cargarDatosProfesor(session.user);
+        // Si el usuario está iniciando sesión manualmente, NO ejecutamos
+        // cargarDatosProfesor aquí (handleLogin ya llama a verificarYcargarProfesor).
+        // Así evitamos la doble generación de token de sesión.
+        if (!estaIniciandoSesion) {
+            cargarDatosProfesor(session.user);
+        }
     } else if (event === 'SIGNED_OUT') {
         mostrarLogin();
     }
@@ -22,19 +31,24 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
 // ====== FUNCIONES DE LOGIN/REGISTRO ======
 async function handleLogin(e) {
     e.preventDefault();
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
-    
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-        email, password
-    });
-    
-    if (error) {
-        document.getElementById('login-error').textContent = 'Email o contraseña incorrectos';
-        return;
+    estaIniciandoSesion = true;
+    try {
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email, password
+        });
+        
+        if (error) {
+            document.getElementById('login-error').textContent = 'Email o contraseña incorrectos';
+            return;
+        }
+        
+        await verificarYcargarProfesor(data.user);
+    } finally {
+        estaIniciandoSesion = false;
     }
-    
-    await verificarYcargarProfesor(data.user);
 }
 
 async function handleRegister(e) {
@@ -96,16 +110,23 @@ async function verificarYcargarProfesor(user) {
         return;
     }
     
-    // Verificar device_id
-    if (data.device_id && data.device_id !== deviceId) {
-        document.getElementById('login-error').textContent = '⚠️ Esta cuenta ya está vinculada a otro dispositivo. No puedes iniciar sesión desde aquí.';
-        await supabaseClient.auth.signOut();
-        return;
+    // [Profesores] No bloqueamos por device_id.
+    // El profesor necesita acceder desde cualquier dispositivo.
+    // Solo actualizamos el device_id si es necesario (para trazabilidad).
+    if (data.device_id !== deviceId) {
+        await supabaseClient.from('profesores').update({ device_id: deviceId }).eq('id', user.id);
+        console.log('📱 Device ID actualizado para el profesor');
     }
     
-    // Si no tenía device_id, asignarlo
-    if (!data.device_id) {
-        await supabaseClient.from('profesores').update({ device_id: deviceId }).eq('id', user.id);
+    // === TOKEN DE SESIÓN ACTIVA ===
+    // Evitar múltiples sesiones simultáneas del mismo usuario
+    sesionToken = generarSesionToken();
+    sessionStorage.setItem('asistencia_qr_sesion_token', sesionToken);
+    try {
+        await supabaseClient.from('profesores').update({ sesion_token: sesionToken }).eq('id', user.id);
+        iniciarChequeoSesion(user.id, 'profesores');
+    } catch (e) {
+        console.warn('⚠️ Control de sesión activa no disponible (columna sesion_token no existe en BD). El login continúa normalmente.');
     }
     
     profesorActual = data;
@@ -118,8 +139,13 @@ async function verificarYcargarProfesor(user) {
 }
 
 async function handleLogout() {
-    await supabaseClient.auth.signOut();
+    try {
+        await supabaseClient.auth.signOut();
+    } catch (e) {
+        console.warn('Error al cerrar sesión:', e);
+    }
     detenerAutoScheduler();
+    detenerChequeoSesion();
     mostrarLogin();
 }
 
@@ -175,11 +201,20 @@ async function cargarDatosProfesor(user) {
         return;
     }
     
-    // Verificar device_id también aquí (por si cambió)
-    if (data.device_id && data.device_id !== deviceId) {
-        alert('⚠️ Esta cuenta está vinculada a otro dispositivo. Se cerrará la sesión.');
-        handleLogout();
-        return;
+    // [Profesores] Solo actualizamos device_id para trazabilidad, sin bloquear.
+    if (data.device_id !== deviceId) {
+        await supabaseClient.from('profesores').update({ device_id: deviceId }).eq('id', user.id);
+        console.log('📱 Device ID actualizado para el profesor');
+    }
+    
+    // === TOKEN DE SESIÓN ACTIVA ===
+    sesionToken = generarSesionToken();
+    sessionStorage.setItem('asistencia_qr_sesion_token', sesionToken);
+    try {
+        await supabaseClient.from('profesores').update({ sesion_token: sesionToken }).eq('id', user.id);
+        iniciarChequeoSesion(user.id, 'profesores');
+    } catch (e) {
+        console.warn('⚠️ Control de sesión activa no disponible (columna sesion_token no existe en BD). El login continúa normalmente.');
     }
     
     profesorActual = data;
@@ -1704,3 +1739,42 @@ document.addEventListener('DOMContentLoaded', () => {
     // Ya existe un DOMContentLoaded arriba, pero este solo inicia el scheduler
     // Se iniciará después del login exitoso
 });
+
+// ====== CONTROL DE SESIÓN ACTIVA ======
+// Evita que un mismo usuario tenga sesión en varios navegadores/dispositivos
+
+function iniciarChequeoSesion(userId, tabla) {
+    detenerChequeoSesion();
+    sesionCheckInterval = setInterval(async () => {
+        const tokenGuardado = sessionStorage.getItem('asistencia_qr_sesion_token');
+        if (!tokenGuardado) return;
+        
+        try {
+            const { data } = await supabaseClient
+                .from(tabla)
+                .select('sesion_token')
+                .eq('id', userId)
+                .maybeSingle();
+            
+            if (data && data.sesion_token && data.sesion_token !== tokenGuardado) {
+                detenerChequeoSesion();
+                alert('⚠️ Tu sesión fue cerrada porque iniciaste sesión desde otro navegador o dispositivo.');
+                try {
+                    await supabaseClient.auth.signOut();
+                } catch (e) {
+                    console.warn('Error al cerrar sesión (posiblemente ya expiró):', e);
+                }
+                mostrarLogin();
+            }
+        } catch (e) {
+            console.warn('Error al verificar sesión activa:', e);
+        }
+    }, 5000);
+}
+
+function detenerChequeoSesion() {
+    if (sesionCheckInterval) {
+        clearInterval(sesionCheckInterval);
+        sesionCheckInterval = null;
+    }
+}
