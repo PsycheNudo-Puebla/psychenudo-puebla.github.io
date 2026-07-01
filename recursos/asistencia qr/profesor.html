@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Panel del Profesor</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="js/supabase-config.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- VISTA DE LOGIN -->
+    <div id="login-view" class="container">
+        <h1>👨‍🏫 Acceso del Profesor</h1>
+        
+        <div class="card">
+            <div id="login-tabs">
+                <button class="tab active" onclick="showTab('login', event)">Iniciar Sesión</button>
+                <button class="tab" onclick="showTab('register', event)">Registrarse</button>
+            </div>
+            
+            <!-- Formulario de Login -->
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <h3>Iniciar Sesión</h3>
+                <input type="email" id="login-email" placeholder="Email" required>
+                <input type="password" id="login-password" placeholder="Contraseña" required>
+                <button type="submit" class="btn-primary">Entrar</button>
+                <div id="login-error" class="error-msg"></div>
+            </form>
+            
+            <!-- Formulario de Registro -->
+            <form id="register-form" class="hidden" onsubmit="handleRegister(event)">
+                <h3>Registro de Profesor</h3>
+                <input type="text" id="reg-nombre" placeholder="Nombre completo" required>
+                <input type="email" id="reg-email" placeholder="Email" required>
+                <input type="password" id="reg-password" placeholder="Contraseña (mín. 6 caracteres)" required minlength="6">
+                <button type="submit" class="btn-primary">Registrarme</button>
+                <div id="register-error" class="error-msg"></div>
+            </form>
+
+            <!-- Formulario para completar perfil -->
+            <form id="completar-perfil-form" class="hidden" onsubmit="completarPerfil(event)">
+                <h3>✏️ Completar tu perfil</h3>
+                <p style="color: #666; margin-bottom: 15px; font-size: 0.9em;">
+                    Tu cuenta ya existe pero necesita datos adicionales. Complétalos para continuar.
+                </p>
+                <input type="text" id="comp-nombre" placeholder="Nombre completo" required>
+                <button type="submit" class="btn-primary">Guardar y continuar</button>
+                <div id="completar-error" class="error-msg"></div>
+                <p style="text-align: center; margin-top: 10px;">
+                    <a href="#" onclick="mostrarLogin(); return false;" style="color: #667eea; font-size: 0.85em;">← Volver al inicio de sesión</a>
+                </p>
+            </form>
+        </div>
+        
+        <a href="index.html" class="back-link">← Volver al inicio</a>
+    </div>
+    
+    <!-- VISTA DEL DASHBOARD (oculta hasta login) -->
+    <div id="dashboard-view" class="container hidden">
+        <header class="dashboard-header">
+            <h1>👨‍🏫 Panel del Profesor</h1>
+            <div>
+                <span id="profesor-nombre"></span>
+                <button onclick="handleLogout()" class="btn-secondary">Cerrar sesión</button>
+            </div>
+        </header>
+        
+        <!-- Lista de grupos -->
+        <div class="card">
+            <h2>Mis Grupos</h2>
+            <button onclick="showCreateGroupModal()" class="btn-primary">+ Crear nuevo grupo</button>
+            <div id="grupos-lista" class="list-container">
+                <p class="empty-state">No tienes grupos aún. Crea uno para empezar.</p>
+            </div>
+        </div>
+
+        <!-- Monitoreo en vivo (visible solo durante clase activa) -->
+        <div id="monitoreo-panel" class="card hidden">
+            <h2 style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+                <span>📊 Monitoreo en Vivo</span>
+                <span id="monitoreo-estado-badge" style="font-size: 0.6em; background: #4caf50; color: white; padding: 3px 10px; border-radius: 20px;">ACTIVO</span>
+            </h2>
+            <p style="text-align: center; color: #666; font-size: 0.85em; margin-bottom: 12px;">
+                Grupo: <strong id="monitoreo-grupo-nombre"></strong> 
+                · Perdones: <span id="monitoreo-perdones-usados">0</span>/<span id="monitoreo-perdones-max">2</span>
+                · <span id="monitoreo-alumnos-count">0</span> alumnos
+            </p>
+            <div id="monitoreo-lista" class="list-container" style="max-height: 400px; overflow-y: auto;">
+                <p class="empty-state">Esperando que los alumnos escaneen el QR...</p>
+            </div>
+            <div style="text-align: center; margin-top: 12px;">
+                <button onclick="cerrarMonitoreo()" class="btn-secondary" style="width: 100%;">Cerrar monitoreo</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- MODAL: Crear grupo -->
+    <div id="modal-crear-grupo" class="modal-overlay hidden">
+        <div class="modal" style="max-width: 580px;">
+            <h3>📚 Crear nuevo grupo</h3>
+            <form id="form-crear-grupo">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px;">
+                    <div style="grid-column: span 2;">
+                        <label>Nombre del grupo</label>
+                        <input type="text" id="grupo-nombre" placeholder="Ej. Grupo 301 - Matemáticas" required>
+                    </div>
+                    <div>
+                        <label>Materia (opcional)</label>
+                        <input type="text" id="grupo-materia" placeholder="Ej. Matemáticas">
+                    </div>
+                    <div>
+                        <label>Código de grupo</label>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" id="grupo-codigo" placeholder="Generado auto" readonly style="flex:1; background:#f5f5f5; font-family:monospace; letter-spacing:2px;">
+                            <button type="button" onclick="generarNuevoCodigo()" style="padding: 8px 12px; border:1px solid #ddd; border-radius:8px; background:white; cursor:pointer;">🔄</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label>Límite de cambios</label>
+                        <input type="number" id="grupo-limite" value="3" min="1" max="15" required>
+                    </div>
+                    <div>
+                        <label>Número de perdones</label>
+                        <input type="number" id="grupo-perdones" value="2" min="0" max="10" required>
+                    </div>
+                </div>
+
+                <!-- HORARIOS POR DÍA (con límites por día) -->
+                <hr style="margin: 12px 0; border: none; border-top: 2px solid #f0f0f0;">
+                <label style="font-weight: 600; color:#333; font-size:0.95em; margin-bottom: 4px; display: block;">📅 Horarios de clase</label>
+                <p style="font-size:0.8em; color:#999; margin:0 0 8px;">Configura horario y límites por día. El 🟢 puntual excede → 🟡 retardo excede → ❌ cerrado</p>
+                <div id="crear-horarios-dias-container">
+                    <!-- Generado por JS -->
+                </div>
+
+                <!-- GPS (colapsable) -->
+                <details style="margin-top: 12px;">
+                    <summary style="cursor: pointer; color: #667eea; font-weight: 600; font-size: 0.9em;">📍 Ubicación GPS (opcional)</summary>
+                    <div style="margin-top: 8px; padding: 10px; background: #f8f8ff; border-radius: 10px;">
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+                            <input type="text" id="crear-grupo-latitud" placeholder="Latitud" style="flex:1;" readonly>
+                            <input type="text" id="crear-grupo-longitud" placeholder="Longitud" style="flex:1;" readonly>
+                            <button type="button" onclick="obtenerUbicacionCrearGrupo()" style="padding:8px 12px; border:1px solid #ddd; border-radius:8px; background:white; cursor:pointer;">📍</button>
+                        </div>
+                        <input type="number" id="crear-grupo-radio" value="100" min="10" max="500" placeholder="Radio en metros" style="margin:0;">
+                        <p style="font-size:0.8em; color:#999; margin-top:4px;">Radio de tolerancia en metros. Vacío = sin GPS.</p>
+                    </div>
+                </details>
+
+                <div class="modal-buttons" style="margin-top: 16px;">
+                    <button type="button" onclick="cerrarModal()" class="btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn-primary">✅ Crear grupo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: QR de asistencia -->
+    <div id="modal-qr-asistencia" class="modal-overlay hidden">
+        <div class="modal modal-qr">
+            <h3 id="qr-modal-titulo">📷 Código QR de Asistencia</h3>
+            <p style="color: #666; text-align: center; font-size: 0.9em; margin-bottom: 5px;">
+                Los alumnos deben escanear este código con su celular
+            </p>
+            <div id="qr-ventana" class="qr-ventana"></div>
+            <div id="qr-countdown" class="qr-countdown"></div>
+            <div id="qr-code-container" class="qr-code-container">
+                <div id="qrcode"></div>
+            </div>
+            <p id="qr-sesion-info" style="color: #666; text-align: center; font-size: 0.85em;"></p>
+            <div class="modal-buttons" style="flex-direction: column; gap: 8px;">
+                <button onclick="cerrarQR()" class="btn-secondary" style="width: 100%;">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Horarios de clase (por día) -->
+    <div id="modal-horarios" class="modal-overlay hidden">
+        <div class="modal" style="max-width: 580px;">
+            <h3>📅 Horarios de clase</h3>
+            <p id="horarios-grupo-info" style="color: #666; font-size: 0.9em; margin-bottom: 4px;"></p>
+            <div style="display: flex; align-items: center; gap: 10px; margin: 10px 0 6px; padding: 10px 14px; background: #f8f9ff; border-radius: 10px;">
+                <span style="font-weight:600; font-size:0.9em; color:#555;">🙏 Perdones</span>
+                <input type="number" id="horario-perdones" value="2" min="0" max="10" style="width: 70px; padding: 6px 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; text-align: center;">
+                <span style="font-size:0.8em; color:#999;">por grupo (0 = sin perdones)</span>
+            </div>
+            <p style="font-size:0.78em; color:#999; margin-bottom: 12px;">Cada día tiene su propio 🟢 puntual y 🟡 retardo. Edítalos libremente.</p>
+            
+            <div id="horarios-dias-container">
+                <!-- Cada fila generada por JS -->
+            </div>
+
+            <details style="margin-bottom: 16px;">
+                <summary style="cursor: pointer; color: #667eea; font-weight: 600; font-size: 0.9em;">📍 Configurar ubicación GPS (opcional)</summary>
+                <div style="margin-top: 10px; padding: 12px; background: #f8f8ff; border-radius: 10px;">
+                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+                        <input type="text" id="horario-latitud" placeholder="Latitud" style="flex:1;" readonly>
+                        <input type="text" id="horario-longitud" placeholder="Longitud" style="flex:1;" readonly>
+                        <button type="button" onclick="obtenerUbicacionActual()" class="btn-secondary" style="white-space: nowrap;">📍 Obtener</button>
+                    </div>
+                    <input type="number" id="horario-radio" value="100" min="10" max="500" placeholder="Radio en metros">
+                    <p style="font-size: 0.8em; color: #999; margin-top: 4px;">Radio de tolerancia (metros). Dejar vacío para desactivar GPS.</p>
+                </div>
+            </details>
+
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+                <button type="button" onclick="cerrarModalHorarios()" class="btn-secondary" style="flex:1;">Cancelar</button>
+                <button onclick="guardarHorarios()" class="btn-primary" style="flex:2;">💾 Guardar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- MODAL: Ver asistencias del grupo -->
+    <div id="modal-ver-grupo" class="modal-overlay hidden">
+        <div class="modal" style="max-width: 700px;">
+            <h3>📋 Asistencias del grupo</h3>
+            <p id="ver-grupo-info" style="color: #666; font-size: 0.9em; margin-bottom: 8px;"></p>
+            
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap;">
+                <span style="font-weight:600; font-size:0.9em; color:#555;">Filtrar:</span>
+                <select id="ver-filtro-alumno" style="flex:1; min-width:180px; padding:10px 12px; border:2px solid #e0e0e0; border-radius:10px; font-size:15px;">
+                    <option value="">— Todos los alumnos —</option>
+                </select>
+                <button onclick="renderVerGrupo()" class="btn-primary" style="padding:10px 20px; width:auto;">Actualizar</button>
+            </div>
+            
+            <div id="ver-grupo-contenido" style="max-height: 60vh; overflow-y: auto;">
+                <p class="empty-state">Cargando...</p>
+            </div>
+            
+            <div class="modal-buttons">
+                <button onclick="cerrarModalVer()" class="btn-secondary" style="flex:1;">Cerrar</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/profesor.js"></script>
+</body>
+</html>

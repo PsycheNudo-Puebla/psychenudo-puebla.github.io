@@ -1,0 +1,1043 @@
+let alumnoActual = null;
+let html5QrCode = null;
+let escaneando = false;
+let deviceId = obtenerDeviceId();
+
+// ====== VARIABLES DE MONITOREO DE ASISTENCIA ======
+let monitoreoActivo = false;
+let asistenciaActualId = null;
+let grupoActualId = null;
+let grupoActualNombre = '';
+let cambiosContador = 0;
+let cambiosLimite = 3;
+let monitorChannel = null;
+
+// ====== INICIALIZACIÓN ======
+document.addEventListener('DOMContentLoaded', async () => {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    
+    if (session) {
+        await cargarDatosAlumno(session.user);
+    }
+});
+
+// Escuchar cambios de autenticación
+supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_OUT') {
+        mostrarLogin();
+    }
+});
+
+// ====== FUNCIONES DE LOGIN/REGISTRO ======
+async function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email, password
+    });
+    
+    if (error) {
+        document.getElementById('login-error').textContent = 'Email o contraseña incorrectos';
+        return;
+    }
+    
+    await verificarYcargarAlumno(data.user);
+}
+
+async function handleRegister(e) {
+    e.preventDefault();
+    const nombre = document.getElementById('reg-nombre').value;
+    const matricula = document.getElementById('reg-matricula').value;
+    const email = document.getElementById('reg-email').value;
+    const password = document.getElementById('reg-password').value;
+    
+    document.getElementById('register-error').textContent = 'Registrando...';
+    
+    // 1. Crear usuario en Auth de Supabase
+    const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+        email, password
+    });
+    
+    if (authError) {
+        document.getElementById('register-error').textContent = authError.message;
+        return;
+    }
+    
+    // 2. Guardar datos adicionales en tabla alumnos con el device_id real
+    const { error: dbError } = await supabaseClient
+        .from('alumnos')
+        .insert({
+            id: authData.user.id,
+            email: email,
+            nombre: nombre,
+            matricula: matricula,
+            device_id: deviceId
+        });
+    
+    if (dbError) {
+        // El INSERT falló (probablemente RLS sin sesión) — mostrar formulario para completar
+        document.getElementById('register-error').textContent = '';
+        document.getElementById('login-form').classList.add('hidden');
+        document.getElementById('register-form').classList.add('hidden');
+        document.getElementById('completar-perfil-form').classList.remove('hidden');
+        document.getElementById('completar-error').textContent = '⚠️ El registro fue parcial. Completa tus datos para terminar.';
+        // Pre-llenar con lo que ya escribió
+        document.getElementById('comp-nombre').value = nombre;
+        document.getElementById('comp-matricula').value = matricula;
+        return;
+    }
+    
+    // Si hay sesión (sin confirmación de email), cargar dashboard directamente
+    if (authData.session) {
+        alumnoActual = authData.user;
+        await cargarDatosAlumno(authData.user, 3);
+    } else {
+        document.getElementById('register-error').textContent = '';
+        // El INSERT funcionó pero no hay sesión (email confirmation) — pedir login
+        alert('Registro exitoso. Revisa tu email para confirmar tu cuenta y luego inicia sesión.');
+        showTab('login');
+    }
+}
+
+async function handleLogout() {
+    if (html5QrCode) {
+        try { await html5QrCode.stop(); } catch (e) { /* ignore */ }
+        html5QrCode = null;
+        escaneando = false;
+    }
+    await supabaseClient.auth.signOut();
+    mostrarLogin();
+}
+
+// ====== VERIFICACIÓN DE DEVICE ID ======
+async function verificarYcargarAlumno(user) {
+    // Buscar alumno y verificar que coincida el device_id
+    const { data, error } = await supabaseClient
+        .from('alumnos')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+    
+    if (error || !data) {
+        // No hay fila en alumnos — mostrar formulario para completar perfil
+        document.getElementById('login-error').textContent = '';
+        document.getElementById('login-form').classList.add('hidden');
+        document.getElementById('register-form').classList.add('hidden');
+        document.getElementById('completar-perfil-form').classList.remove('hidden');
+        document.getElementById('completar-error').textContent = '';
+        return;
+    }
+    
+    // Verificar device_id
+    if (data.device_id && data.device_id !== deviceId) {
+        document.getElementById('login-error').textContent = '⚠️ Esta cuenta ya está vinculada a otro dispositivo. No puedes iniciar sesión desde aquí.';
+        await supabaseClient.auth.signOut();
+        return;
+    }
+    
+    // Si no tenía device_id, asignarlo
+    if (!data.device_id) {
+        await supabaseClient.from('alumnos').update({ device_id: deviceId }).eq('id', user.id);
+    }
+    
+    alumnoActual = data;
+    document.getElementById('alumno-nombre').textContent = `Hola, ${data.nombre}`;
+    document.getElementById('login-view').classList.add('hidden');
+    document.getElementById('dashboard-view').classList.remove('hidden');
+    
+    cargarGrupos();
+}
+
+async function completarPerfil(e) {
+    e.preventDefault();
+    const nombre = document.getElementById('comp-nombre').value.trim();
+    const matricula = document.getElementById('comp-matricula').value.trim();
+    const errorDiv = document.getElementById('completar-error');
+    
+    errorDiv.textContent = 'Guardando...';
+    
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) {
+        errorDiv.textContent = 'Error: No hay sesión activa. Intenta cerrar y abrir la página.';
+        return;
+    }
+    
+    const { error: dbError } = await supabaseClient
+        .from('alumnos')
+        .insert({
+            id: user.id,
+            email: user.email || '',
+            nombre: nombre,
+            matricula: matricula,
+            device_id: deviceId
+        });
+    
+    if (dbError) {
+        errorDiv.textContent = 'Error al guardar: ' + dbError.message;
+        return;
+    }
+    
+    // Éxito — cargar dashboard
+    alumnoActual = { id: user.id, nombre, email: user.email || '', matricula, device_id: deviceId };
+    document.getElementById('alumno-nombre').textContent = `Hola, ${nombre}`;
+    document.getElementById('login-view').classList.add('hidden');
+    document.getElementById('dashboard-view').classList.remove('hidden');
+    document.getElementById('completar-perfil-form').classList.add('hidden');
+    
+    cargarGrupos();
+}
+
+// ====== FUNCIONES DE UI ======
+function showTab(tab, eventElement) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    
+    if (eventElement && eventElement.target) {
+        eventElement.target.classList.add('active');
+    } else {
+        document.querySelectorAll('.tab').forEach(t => {
+            if (t.textContent.toLowerCase().includes(tab === 'login' ? 'iniciar' : 'registr')) {
+                t.classList.add('active');
+            }
+        });
+    }
+    
+    if (tab === 'login') {
+        document.getElementById('login-form').classList.remove('hidden');
+        document.getElementById('register-form').classList.add('hidden');
+    } else {
+        document.getElementById('login-form').classList.add('hidden');
+        document.getElementById('register-form').classList.remove('hidden');
+    }
+}
+
+function mostrarLogin() {
+    document.getElementById('login-view').classList.remove('hidden');
+    document.getElementById('dashboard-view').classList.add('hidden');
+    document.getElementById('completar-perfil-form').classList.add('hidden');
+    document.getElementById('login-form').classList.remove('hidden');
+    document.getElementById('register-form').classList.add('hidden');
+    document.getElementById('completar-error').textContent = '';
+    document.getElementById('comp-nombre').value = '';
+    document.getElementById('comp-matricula').value = '';
+}
+
+async function cargarDatosAlumno(user, intentos = 0) {
+    let data, error;
+    
+    for (let i = 0; i <= intentos; i++) {
+        const resultado = await supabaseClient
+            .from('alumnos')
+            .select('*')
+            .eq('id', user.id)
+            .maybeSingle();
+        
+        data = resultado.data;
+        error = resultado.error;
+        
+        if (data) break;
+        if (i < intentos) await new Promise(r => setTimeout(r, 500));
+    }
+    
+    if (error || !data) {
+        // No hay fila en alumnos — mostrar formulario para completar perfil
+        document.getElementById('login-form').classList.add('hidden');
+        document.getElementById('register-form').classList.add('hidden');
+        document.getElementById('completar-perfil-form').classList.remove('hidden');
+        document.getElementById('completar-error').textContent = '✏️ Completa tus datos para continuar.';
+        return;
+    }
+    
+    alumnoActual = data;
+    document.getElementById('alumno-nombre').textContent = `Hola, ${data.nombre}`;
+    document.getElementById('login-view').classList.add('hidden');
+    document.getElementById('dashboard-view').classList.remove('hidden');
+    
+    cargarGrupos();
+}
+
+// ====== GESTIÓN DE GRUPOS INSCRITOS ======
+async function cargarGrupos() {
+    // Obtener los grupos a los que el alumno está inscrito
+    const { data: inscripciones, error: inscError } = await supabaseClient
+        .from('grupo_alumnos')
+        .select('grupo_id')
+        .eq('alumno_id', alumnoActual.id);
+    
+    const lista = document.getElementById('grupos-lista');
+    
+    if (inscError || !inscripciones || inscripciones.length === 0) {
+        lista.innerHTML = '<p class="empty-state">No estás inscrito en ningún grupo. Usa el código de invitación de tu profesor para unirte.</p>';
+        document.getElementById('asistencia-lista').innerHTML = '<p class="empty-state">Selecciona un grupo para ver tu historial de asistencia.</p>';
+        return;
+    }
+    
+    const grupoIds = inscripciones.map(i => i.grupo_id);
+    
+    const { data: grupos, error: gruposError } = await supabaseClient
+        .from('grupos')
+        .select('*')
+        .in('id', grupoIds)
+        .order('creado_en', { ascending: false });
+    
+    if (gruposError || !grupos) {
+        lista.innerHTML = '<p class="empty-state">Error al cargar grupos.</p>';
+        return;
+    }
+    
+    lista.innerHTML = grupos.map(grupo => `
+        <div class="list-item">
+            <div>
+                <strong>${grupo.nombre}</strong>
+                <br><small>${grupo.materia || 'Sin materia'}</small>
+            </div>
+            <div>
+                <button onclick="verAsistencia('${grupo.id}', '${grupo.nombre}')" class="btn-secondary">Ver mi asistencia</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ====== UNIRSE A GRUPO POR CÓDIGO ======
+function showUnirseGrupoModal() {
+    document.getElementById('modal-unirse-grupo').classList.remove('hidden');
+    document.getElementById('unirse-error').textContent = '';
+    document.getElementById('grupo-codigo').value = '';
+}
+
+function cerrarModal() {
+    document.getElementById('modal-unirse-grupo').classList.add('hidden');
+    document.getElementById('form-unirse-grupo').reset();
+    document.getElementById('unirse-error').textContent = '';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('form-unirse-grupo');
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const codigo = document.getElementById('grupo-codigo').value.trim().toUpperCase();
+            
+            if (!codigo) {
+                document.getElementById('unirse-error').textContent = 'Ingresa un código válido.';
+                return;
+            }
+            
+            await unirseAGrupo(codigo);
+        });
+    }
+});
+
+async function unirseAGrupo(codigo) {
+    const errorDiv = document.getElementById('unirse-error');
+    
+    // Buscar grupo por código
+    const { data: grupo, error: busqError } = await supabaseClient
+        .from('grupos')
+        .select('*')
+        .eq('codigo_unico', codigo)
+        .maybeSingle();
+    
+    if (busqError || !grupo) {
+        errorDiv.textContent = 'Código inválido. Verifica con tu profesor.';
+        return;
+    }
+    
+    // Verificar si ya está inscrito
+    const { data: existente } = await supabaseClient
+        .from('grupo_alumnos')
+        .select('*')
+        .eq('alumno_id', alumnoActual.id)
+        .eq('grupo_id', grupo.id)
+        .maybeSingle();
+    
+    if (existente) {
+        errorDiv.textContent = 'Ya estás inscrito en este grupo.';
+        return;
+    }
+    
+    // Inscribir alumno en el grupo
+    const { error: insError } = await supabaseClient
+        .from('grupo_alumnos')
+        .insert({
+            alumno_id: alumnoActual.id,
+            grupo_id: grupo.id
+        });
+    
+    if (insError) {
+        errorDiv.textContent = 'Error al unirte al grupo: ' + insError.message;
+        return;
+    }
+    
+    alert(`✅ Te has unido al grupo: ${grupo.nombre}`);
+    cerrarModal();
+    cargarGrupos();
+}
+
+// ====== VER ASISTENCIA ======
+async function verAsistencia(grupoId, grupoNombre) {
+    const contenedor = document.getElementById('asistencia-lista');
+    contenedor.innerHTML = '<p class="empty-state">Cargando asistencia...</p>';
+    
+    // 1. Obtener TODAS las asistencias del alumno (todos los grupos) para el total
+    const { data: todasAsistencias, error: errTotal } = await supabaseClient
+        .from('asistencia')
+        .select('*, grupos!inner(id, nombre)')
+        .eq('alumno_id', alumnoActual.id)
+        .order('fecha', { ascending: false });
+    
+    if (errTotal) {
+        contenedor.innerHTML = '<p class="empty-state">Error al cargar asistencia.</p>';
+        return;
+    }
+    
+    // 2. Obtener asistencias solo de este grupo (para el detalle)
+    const asistencias = todasAsistencias ? todasAsistencias.filter(a => a.grupo_id === grupoId) : [];
+    
+    if (!todasAsistencias || todasAsistencias.length === 0) {
+        contenedor.innerHTML = `
+            <h3 style="margin-bottom: 10px; color: #667eea;">${grupoNombre}</h3>
+            <p class="empty-state">Aún no tienes registros de asistencia en ningún grupo.</p>
+        `;
+        return;
+    }
+    
+    // 3. Calcular totales globales (todos los grupos)
+    const totalGlobal = todasAsistencias.length;
+    const presentesGlobal = todasAsistencias.filter(a => a.estado === 'presente' && a.tipo_asistencia !== 'retardo').length;
+    const retardosGlobal = todasAsistencias.filter(a => a.tipo_asistencia === 'retardo').length;
+    const ausentesGlobal = todasAsistencias.filter(a => a.estado === 'ausente').length;
+    const justificadasGlobal = todasAsistencias.filter(a => a.estado === 'justificado').length;
+    const pctAsistenciaGlobal = totalGlobal > 0 ? Math.round((presentesGlobal / totalGlobal) * 100) : 0;
+    const pctAusenciaGlobal = totalGlobal > 0 ? Math.round((ausentesGlobal / totalGlobal) * 100) : 0;
+    
+    let alertaGlobal = '';
+    if (pctAusenciaGlobal > 20) {
+        alertaGlobal = '<div style="margin: 10px 0; padding: 10px 14px; background: #ffebee; border-left: 4px solid #c62828; border-radius: 8px; color: #c62828; font-weight: 500;">⚠️ Llevas <strong>' + ausentesGlobal + ' ausencias</strong> en total (' + pctAusenciaGlobal + '%). ¡Ponte al corriente!</div>';
+    } else if (pctAusenciaGlobal > 10) {
+        alertaGlobal = '<div style="margin: 10px 0; padding: 10px 14px; background: #fff3e0; border-left: 4px solid #e65100; border-radius: 8px; color: #e65100; font-weight: 500;">⚠️ Ya tienes <strong>' + ausentesGlobal + ' ausencias</strong> en total (' + pctAusenciaGlobal + '%). Cuida tu asistencia.</div>';
+    }
+    
+    // 4. Totales de este grupo (para el detalle)
+    const total = asistencias.length;
+    const presentes = asistencias.filter(a => a.estado === 'presente' && a.tipo_asistencia !== 'retardo').length;
+    const retardos = asistencias.filter(a => a.tipo_asistencia === 'retardo').length;
+    const ausentes = asistencias.filter(a => a.estado === 'ausente').length;
+    const justificadas = asistencias.filter(a => a.estado === 'justificado').length;
+    
+    // 5. Resumen por grupos (agrupar todas las asistencias por grupo)
+    const gruposMap = {};
+    todasAsistencias.forEach(a => {
+        const gId = a.grupo_id;
+        const gNom = a.grupos?.nombre || 'Grupo';
+        if (!gruposMap[gId]) {
+            gruposMap[gId] = { nombre: gNom, total: 0, ausentes: 0 };
+        }
+        gruposMap[gId].total++;
+        if (a.estado === 'ausente') gruposMap[gId].ausentes++;
+    });
+    
+    let htmlResumenGrupos = '';
+    for (const gId in gruposMap) {
+        const g = gruposMap[gId];
+        const pctAus = g.total > 0 ? Math.round((g.ausentes / g.total) * 100) : 0;
+        const colorBar = pctAus > 20 ? '#c62828' : pctAus > 10 ? '#e65100' : '#2e7d32';
+        htmlResumenGrupos += `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.9em;">
+                <span>📚 ${g.nombre}</span>
+                <span>${g.total} clases • <span style="color: ${colorBar}; font-weight: 600;">${g.ausentes} ausencias</span> (${pctAus}%)</span>
+            </div>`;
+    }
+    
+    contenedor.innerHTML = `
+        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 16px; padding: 20px; margin-bottom: 20px;">
+            <h3 style="margin: 0 0 4px 0; color: white;">📊 Resumen General</h3>
+            <div style="opacity: 0.85; font-size: 0.9em; margin-bottom: 14px;">Total de clases: <strong>${totalGlobal}</strong></div>
+            <div class="stats-container">
+                <div class="stat-box" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                    <strong style="color: #a5d6a7; font-size: 1.3em;">${presentesGlobal}</strong>
+                    <small style="color: rgba(255,255,255,0.9);">✅ Presentes</small>
+                </div>
+                <div class="stat-box" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                    <strong style="color: #ffcc80; font-size: 1.3em;">${retardosGlobal}</strong>
+                    <small style="color: rgba(255,255,255,0.9);">⚠️ Retardos</small>
+                </div>
+                <div class="stat-box" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                    <strong style="color: #ef9a9a; font-size: 1.3em;">${ausentesGlobal}</strong>
+                    <small style="color: rgba(255,255,255,0.9);">❌ Ausencias</small>
+                </div>
+                <div class="stat-box" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                    <strong style="color: #fff59d; font-size: 1.3em;">${justificadasGlobal}</strong>
+                    <small style="color: rgba(255,255,255,0.9);">🟡 Justificadas</small>
+                </div>
+            </div>
+            <div style="margin-top: 12px; background: rgba(255,255,255,0.15); border-radius: 8px; padding: 10px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.85em; margin-bottom: 4px;">
+                    <span>Asistencia total</span>
+                    <span style="font-weight: 600;">${pctAsistenciaGlobal}%</span>
+                </div>
+                <div style="height: 8px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden;">
+                    <div style="height: 100%; width: ${pctAsistenciaGlobal}%; background: linear-gradient(90deg, #66bb6a, #a5d6a7); border-radius: 4px; transition: width 0.5s;"></div>
+                </div>
+            </div>
+        </div>
+        ${alertaGlobal}
+        
+        <div style="background: #f8f9ff; border-radius: 12px; padding: 14px; margin-bottom: 16px;">
+            <h4 style="margin: 0 0 8px 0; color: #555; font-size: 0.95em;">📋 Resumen por grupo</h4>
+            ${htmlResumenGrupos}
+        </div>
+        
+        <h4 style="margin: 16px 0 10px 0; color: #667eea;">📋 Detalle: ${grupoNombre}</h4>
+        ${asistencias.length === 0 ? '<p class="empty-state">Sin registros en este grupo.</p>' : `
+        <div class="stats-container" style="margin-bottom: 12px;">
+            <div class="stat-box" style="background: #e8f5e9;">
+                <strong style="color: #2e7d32;">${presentes}</strong>
+                <small>Presentes</small>
+            </div>
+            <div class="stat-box" style="background: #fff3e0;">
+                <strong style="color: #e65100;">${retardos}</strong>
+                <small>Retardos</small>
+            </div>
+            <div class="stat-box" style="background: #ffebee;">
+                <strong style="color: #c62828;">${ausentes}</strong>
+                <small>Ausentes</small>
+            </div>
+            <div class="stat-box" style="background: #fff8e1;">
+                <strong style="color: #f57f17;">${justificadas}</strong>
+                <small>Justificadas</small>
+            </div>
+        </div>
+        <div style="max-height: 300px; overflow-y: auto;">
+            ${asistencias.map(a => {
+                let icono = '✅ Presente';
+                let color = '#2e7d32';
+                if (a.tipo_asistencia === 'sin_derecho') { icono = '❌ Llegó tarde (sin derecho)'; color = '#c62828'; }
+                else if (a.tipo_asistencia === 'retardo') { icono = '⚠️ Retardo'; color = '#e65100'; }
+                else if (a.estado === 'ausente') { icono = '❌ Ausente'; color = '#c62828'; }
+                else if (a.estado === 'justificado') { icono = '🟡 Justificado'; color = '#f57f17'; }
+                return `
+                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                    <span>${new Date(a.fecha + 'T12:00:00').toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                    <span style="font-weight: 600; color: ${color};">${icono}</span>
+                </div>`;
+            }).join('')}
+        </div>
+        `}
+    `;
+}
+
+// ====== ESCANEO DE QR ======
+async function iniciarEscaneo() {
+    const btn = document.getElementById('btn-escanear');
+    const lectorDiv = document.getElementById('qr-reader');
+    const resultadoDiv = document.getElementById('escaneo-resultado');
+    
+    if (escaneando) {
+        // Detener escaneo
+        if (html5QrCode) {
+            await html5QrCode.stop();
+            html5QrCode.clear();
+        }
+        lectorDiv.classList.add('hidden');
+        btn.textContent = '📷 Escanear QR';
+        escaneando = false;
+        resultadoDiv.textContent = '';
+        return;
+    }
+    
+    resultadoDiv.textContent = '';
+    lectorDiv.classList.remove('hidden');
+    btn.textContent = '⏹️ Detener escaneo';
+    
+    try {
+        html5QrCode = new Html5Qrcode("qr-reader");
+        
+        await html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            async (decodedText) => {
+                // QR detectado exitosamente
+                await html5QrCode.stop();
+                lectorDiv.classList.add('hidden');
+                btn.textContent = '📷 Escanear QR';
+                escaneando = false;
+                
+                resultadoDiv.textContent = 'Procesando...';
+                await procesarQR(decodedText, resultadoDiv);
+            },
+            () => { /* ignore - no QR encontrado aún */ }
+        );
+        
+        escaneando = true;
+    } catch (err) {
+        resultadoDiv.textContent = 'Error al acceder a la cámara: ' + err.message;
+        lectorDiv.classList.add('hidden');
+        btn.textContent = '📷 Escanear QR';
+        escaneando = false;
+    }
+}
+
+async function procesarQR(qrData, resultadoDiv) {
+    try {
+        let datos;
+        try {
+            datos = JSON.parse(qrData);
+        } catch {
+            resultadoDiv.textContent = '❌ Código QR inválido.';
+            return;
+        }
+        
+        if (!datos.grupo_id && !datos.codigo_sesion) {
+            resultadoDiv.textContent = '❌ QR no reconocido.';
+            return;
+        }
+        
+        const grupoId = datos.grupo_id;
+        const codigoSesion = datos.codigo_sesion || '';
+        const ts = datos.ts || 0;
+        
+        // === VALIDACIÓN DE TIMESTAMP (anti-screenshot) ===
+        const ahora = Date.now();
+        const diffMs = Math.abs(ahora - ts);
+        if (ts > 0 && diffMs > 15000) { // 15 segundos de tolerancia
+            resultadoDiv.textContent = '❌ QR expirado (timestamp inválido). Escanea directamente del profesor.';
+            return;
+        }
+        
+        // Verificar membresía
+        const { data: inscripcion } = await supabaseClient
+            .from('grupo_alumnos')
+            .select('*')
+            .eq('alumno_id', alumnoActual.id)
+            .eq('grupo_id', grupoId)
+            .maybeSingle();
+        if (!inscripcion) {
+            resultadoDiv.textContent = '❌ No estás inscrito en este grupo.';
+            return;
+        }
+        
+        // === VALIDACIÓN GPS (si el grupo tiene ubicación configurada) ===
+        const { data: grupo } = await supabaseClient
+            .from('grupos')
+            .select('latitud, longitud, radio_metros, nombre, limite_salidas')
+            .eq('id', grupoId)
+            .maybeSingle();
+        
+        if (grupo && grupo.latitud && grupo.longitud) {
+            try {
+                const gpsOk = await verificarGPS(grupo.latitud, grupo.longitud, grupo.radio_metros || 100);
+                if (!gpsOk) {
+                    resultadoDiv.textContent = '❌ Debes estar en el salón de clase para escanear. GPS no coincide.';
+                    return;
+                }
+            } catch (gpsErr) {
+                resultadoDiv.textContent = '❌ Activa tu ubicación (GPS) para escanear.';
+                return;
+            }
+        }
+        
+        const limiteCambios = grupo?.limite_salidas ?? 3;
+        
+        // Verificar sesión activa
+        const { data: sesion } = await supabaseClient
+            .from('sesiones_clase')
+            .select('*')
+            .eq('grupo_id', grupoId)
+            .eq('activa', true)
+            .maybeSingle();
+        if (!sesion) {
+            resultadoDiv.textContent = '❌ No hay clase activa.';
+            return;
+        }
+        if (sesion.codigo_sesion !== codigoSesion) {
+            resultadoDiv.textContent = '❌ QR expirado.';
+            return;
+        }
+        
+        const hoy = new Date().toISOString().split('T')[0];
+        
+        // Verificar si ya hay registro hoy
+        const { data: asistenciaHoy } = await supabaseClient
+            .from('asistencia')
+            .select('*')
+            .eq('alumno_id', alumnoActual.id)
+            .eq('grupo_id', grupoId)
+            .eq('fecha', hoy)
+            .maybeSingle();
+        
+        if (asistenciaHoy) {
+            // Reanudar monitoreo si no está confirmada
+            if (!asistenciaHoy.confirmada) {
+                resultadoDiv.textContent = '⚠️ Reanudando monitoreo...';
+                const nomG = grupo?.nombre || 'Grupo';
+                setTimeout(() => iniciarMonitoreo(asistenciaHoy.id, grupoId, nomG, limiteCambios), 500);
+                return;
+            }
+            resultadoDiv.textContent = '⚠️ Ya registraste asistencia hoy.';
+            return;
+        }
+        
+        // === DETERMINAR VENTANA DE TIEMPO ===
+        let tipoAsistencia = 'presente';
+        let estadoAsistencia = 'presente';
+        const ventanaInfo = await calcularVentanaAlumno(grupoId);
+        if (ventanaInfo === 'cerrado') {
+            resultadoDiv.textContent = '❌ Fuera del horario de clase. La ventana de asistencia está cerrada.';
+            return;
+        } else if (ventanaInfo === 'sin_derecho') {
+            tipoAsistencia = 'sin_derecho';
+            estadoAsistencia = 'ausente';
+            window._tipoAsistenciaActual = 'sin_derecho';
+        } else if (ventanaInfo === 'retardo') {
+            tipoAsistencia = 'retardo';
+        }
+        
+        const nomGrupo = grupo?.nombre || 'Grupo';
+        
+        // Insertar con columnas de monitoreo
+        const { data: nueva, error: asisError } = await supabaseClient
+            .from('asistencia')
+            .insert({
+                alumno_id: alumnoActual.id,
+                grupo_id: grupoId,
+                fecha: hoy,
+                estado: estadoAsistencia,
+                tipo_asistencia: tipoAsistencia,
+                sesion_codigo: codigoSesion,
+                cambios_pantalla: 0,
+                confirmada: false,
+                perdonada: false
+            })
+            .select()
+            .maybeSingle();
+        
+        if (asisError || !nueva) {
+            resultadoDiv.textContent = '❌ Error al registrar: ' + (asisError?.message || '');
+            return;
+        }
+        
+        if (tipoAsistencia === 'sin_derecho') {
+            resultadoDiv.textContent = '⚠️ Llegaste muy tarde. Registrado como AUSENCIA sin derecho.';
+            resultadoDiv.style.color = '#c62828';
+        } else if (tipoAsistencia === 'retardo') {
+            resultadoDiv.textContent = '⚠️ ¡Asistencia registrada como RETARDO!';
+            resultadoDiv.style.color = '#e65100';
+        } else {
+            resultadoDiv.textContent = '✅ ¡Asistencia registrada!';
+            resultadoDiv.style.color = '#2e7d32';
+        }
+        
+        setTimeout(() => iniciarMonitoreo(nueva.id, grupoId, nomGrupo, limiteCambios), 500);
+        
+    } catch (err) {
+        resultadoDiv.textContent = '❌ Error: ' + err.message;
+    }
+}
+
+async function nombreGrupo(grupoId) {
+    const { data } = await supabaseClient.from('grupos').select('nombre').eq('id', grupoId).maybeSingle();
+    return data?.nombre || 'Grupo';
+}
+
+// ====== GPS: Verificar ubicación del alumno ======
+function verificarGPS(latSalon, lonSalon, radioMetros) {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            reject(new Error('GPS no disponible'));
+            return;
+        }
+        
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const distancia = calcularDistancia(
+                    pos.coords.latitude, pos.coords.longitude,
+                    latSalon, lonSalon
+                );
+                if (distancia <= radioMetros) {
+                    resolve(true);
+                } else {
+                    console.log(`📍 GPS: distancia ${distancia.toFixed(0)}m (máx ${radioMetros}m)`);
+                    resolve(false);
+                }
+            },
+            (err) => {
+                reject(err);
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+        );
+    });
+}
+
+function calcularDistancia(lat1, lon1, lat2, lon2) {
+    // Fórmula de Haversine
+    const R = 6371000; // radio Tierra en metros
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+
+// ====== VENTANA DE TIEMPO (horario fijo) ======
+async function calcularVentanaAlumno(grupoId) {
+    const hoy = new Date().getDay();
+    const ahora = new Date();
+    const horaActual = `${ahora.getHours().toString().padStart(2,'0')}:${ahora.getMinutes().toString().padStart(2,'0')}`;
+    
+    const { data: horarios } = await supabaseClient
+        .from('horarios')
+        .select('*')
+        .eq('grupo_id', grupoId)
+        .eq('dia_semana', hoy)
+        .eq('activo', true);
+    
+    if (!horarios || horarios.length === 0) {
+        return 'libre'; // Sin horario fijo, permitir
+    }
+    
+    for (const h of horarios) {
+        const inicio = h.hora_inicio.substring(0, 5);
+        const fin = h.hora_fin.substring(0, 5);
+        
+        if (horaActual >= inicio && horaActual <= fin) {
+            const [hI, mI] = inicio.split(':').map(Number);
+            const [hA, mA] = horaActual.split(':').map(Number);
+            const minutosDesdeInicio = (hA - hI) * 60 + (mA - mI);
+            
+            const puntualMin = h.puntual_minutos ?? 10;
+            const retardoMin = h.retardo_minutos ?? 20;
+            
+            if (minutosDesdeInicio <= puntualMin) return 'puntual';
+            if (minutosDesdeInicio <= retardoMin) return 'retardo';
+            return 'sin_derecho'; // Llegó después del retardo, pero aún en horario
+        }
+    }
+    
+    return 'cerrado';
+}
+
+// ====== MONITOREO DE ASISTENCIA ======
+let cambioEnProgreso = false;
+let monitorInterval = null;
+
+function iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite) {
+    monitoreoActivo = true;
+    asistenciaActualId = asistenciaId;
+    grupoActualId = grupoId;
+    grupoActualNombre = grupoNombre;
+    cambiosLimite = limite || 3;
+    cambiosContador = 0;
+    
+    document.getElementById('dashboard-view').classList.add('hidden');
+    document.getElementById('monitor-view').classList.remove('hidden');
+    document.getElementById('monitor-grupo').textContent = `📚 ${grupoNombre}`;
+    document.getElementById('monitor-limite').textContent = cambiosLimite;
+    document.getElementById('monitor-historial').innerHTML = '<div style="color: #999;">Cargando...</div>';
+    
+    // Registrar momento del escaneo
+    window._inicioMonitoreo = Date.now();
+    window._confirmarDesde = null;
+    
+    // Ocultar botón confirmar hasta 5 min antes de que termine la clase
+    const btnConfirmar = document.getElementById('btn-confirmar-asistencia');
+    btnConfirmar.style.display = 'none';
+    window._btnConfirmarMostrado = false;
+    
+    // Obtener horario de hoy para saber hora_fin
+    const hoy = new Date().getDay();
+    supabaseClient
+        .from('horarios')
+        .select('hora_fin')
+        .eq('grupo_id', grupoId)
+        .eq('dia_semana', hoy)
+        .eq('activo', true)
+        .then(({ data: horarios }) => {
+            if (horarios && horarios.length > 0) {
+                const horaFin = horarios[0].hora_fin.substring(0, 5);
+                const [hf, mf] = horaFin.split(':').map(Number);
+                const finDate = new Date();
+                finDate.setHours(hf, mf, 0, 0);
+                window._confirmarDesde = new Date(finDate.getTime() - 5 * 60 * 1000);
+                window._horaFinStr = horaFin;
+                
+                // Si es sin_derecho, mostrar mensaje diferente
+                if (window._tipoAsistenciaActual === 'sin_derecho') {
+                    const st = document.getElementById('monitor-estado');
+                    st.innerHTML = '⚠️ <strong>Llegaste tarde.</strong> Registrado como ausencia. Debes permanecer en clase.';
+                    st.style.background = '#ffebee';
+                    st.style.color = '#c62828';
+                } else {
+                    const st = document.getElementById('monitor-estado');
+                    st.innerHTML = `⏳ Clase hasta las <strong>${horaFin}</strong>. Podrás confirmar 5 minutos antes.`;
+                    st.style.background = '#e3f2fd';
+                    st.style.color = '#1565c0';
+                }
+            } else {
+                // Sin horario fijo: NO mostrar botón, esperar a que termine la clase o el profesor perdone
+                const st = document.getElementById('monitor-estado');
+                st.innerHTML = '✅ Asistencia registrada. ¡Mantén la app abierta!';
+                st.style.background = '#e8f5e9';
+                st.style.color = '#2e7d32';
+            }
+        });
+    
+    // Canal en tiempo real para detectar perdón
+    monitorChannel = supabaseClient
+        .channel('monitor-asistencia')
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'asistencia', filter: `id=eq.${asistenciaId}` }, (payload) => {
+            if (payload.new.perdonada && !payload.new.confirmada) {
+                const st = document.getElementById('monitor-estado');
+                st.innerHTML = '🙏 <strong>¡Perdonado!</strong> Ya puedes confirmar.';
+                st.style.background = '#e8f5e9'; st.style.color = '#2e7d32';
+                // Mostrar botón si está perdonado aunque no haya llegado el tiempo
+                if (!window._btnConfirmarMostrado) {
+                    window._btnConfirmarMostrado = true;
+                    document.getElementById('btn-confirmar-asistencia').style.display = '';
+                }
+            }
+        })
+        .subscribe();
+    
+    // Verificar cada 5s: cuándo mostrar botón y si la sesión terminó
+    if (monitorInterval) clearInterval(monitorInterval);
+    monitorInterval = setInterval(async () => {
+        if (!monitoreoActivo || !grupoActualId) { clearInterval(monitorInterval); return; }
+        const ahora = new Date();
+        
+        // 1. Mostrar botón solo si: han pasado 2 min desde el escaneo Y es 5 min antes del fin
+        const minutosDesdeEscaneo = (ahora - window._inicioMonitoreo) / 60000;
+        if (minutosDesdeEscaneo >= 1 && window._confirmarDesde && ahora >= window._confirmarDesde && !window._btnConfirmarMostrado) {
+            window._btnConfirmarMostrado = true;
+            document.getElementById('btn-confirmar-asistencia').style.display = '';
+            const st = document.getElementById('monitor-estado');
+            st.innerHTML = '✅ <strong>Ya puedes confirmar tu asistencia.</strong>';
+            st.style.background = '#e8f5e9';
+            st.style.color = '#2e7d32';
+        }
+        
+        // 2. Verificar si la sesión aún está activa
+        const { data: sesion } = await supabaseClient
+            .from('sesiones_clase')
+            .select('activa').eq('grupo_id', grupoActualId).eq('activa', true).maybeSingle();
+        if (!sesion) {
+            clearInterval(monitorInterval);
+            const mins = (new Date() - window._inicioMonitoreo) / 60000;
+            if (!window._btnConfirmarMostrado && mins >= 1) {
+                window._btnConfirmarMostrado = true;
+                document.getElementById('btn-confirmar-asistencia').style.display = '';
+            }
+            const st = document.getElementById('monitor-estado');
+            st.innerHTML = '⏰ <strong>Clase terminada.</strong> Confirma tu asistencia.';
+            st.style.background = '#e3f2fd'; st.style.color = '#1565c0';
+        }
+    }, 5000);
+    
+    // Event listeners para detectar cambios de pantalla
+    document.addEventListener('visibilitychange', manejarVisibilidad);
+    window.addEventListener('blur', manejarBlur);
+    
+    // Cargar contador existente (por si se reanuda monitoreo)
+    cargarContadorExistente();
+}
+
+function detenerMonitoreo() {
+    monitoreoActivo = false;
+    document.removeEventListener('visibilitychange', manejarVisibilidad);
+    window.removeEventListener('blur', manejarBlur);
+    if (monitorChannel) { supabaseClient.removeChannel(monitorChannel); monitorChannel = null; }
+    if (monitorInterval) { clearInterval(monitorInterval); monitorInterval = null; }
+    asistenciaActualId = null;
+    grupoActualId = null;
+}
+
+async function cargarContadorExistente() {
+    if (!asistenciaActualId) return;
+    const { data } = await supabaseClient
+        .from('asistencia').select('cambios_pantalla,confirmada,perdonada').eq('id', asistenciaActualId).maybeSingle();
+    if (!data) return;
+    cambiosContador = data.cambios_pantalla || 0;
+    if (data.confirmada) { mostrarConfirmada(); return; }
+    if (data.perdonada) document.getElementById('monitor-estado').innerHTML = '🙏 Perdonado por el profesor.';
+    actualizarMonitorUI();
+}
+
+function manejarVisibilidad() {
+    if (document.visibilityState === 'hidden' && monitoreoActivo && !cambioEnProgreso) {
+        incrementarCambio();
+    }
+}
+function manejarBlur() {
+    if (monitoreoActivo && !cambioEnProgreso) incrementarCambio();
+}
+
+async function incrementarCambio() {
+    if (!asistenciaActualId || cambiosContador >= cambiosLimite) return;
+    cambioEnProgreso = true;
+    cambiosContador++;
+    await supabaseClient.from('asistencia').update({ cambios_pantalla: cambiosContador, ultimo_cambio: new Date().toISOString() }).eq('id', asistenciaActualId);
+    actualizarMonitorUI();
+    cambioEnProgreso = false;
+    if (cambiosContador >= cambiosLimite) {
+        const st = document.getElementById('monitor-estado');
+        st.innerHTML = '⚠️ Límite alcanzado. <strong>Espera que el profesor te perdone</strong> para confirmar.';
+        st.style.background = '#fff3e0'; st.style.color = '#e65100';
+    }
+}
+
+function actualizarMonitorUI() {
+    document.getElementById('monitor-contador').textContent = cambiosContador;
+    const pct = Math.min((cambiosContador / cambiosLimite) * 100, 100);
+    const barra = document.getElementById('monitor-barra');
+    barra.style.width = pct + '%';
+    const icono = document.getElementById('monitor-icon');
+    const cont = document.getElementById('monitor-contador');
+    if (cambiosContador === 0) { barra.style.background = '#4caf50'; cont.style.color = '#333'; icono.textContent = '📱'; }
+    else if (cambiosContador < cambiosLimite) { barra.style.background = '#ff9800'; cont.style.color = '#e65100'; icono.textContent = '👀'; }
+    else { barra.style.background = '#f44336'; cont.style.color = '#c62828'; icono.textContent = '⚠️'; }
+    
+    const hist = document.getElementById('monitor-historial');
+    if (cambiosContador > 0) {
+        let items = '';
+        for (let i = 1; i <= cambiosContador; i++) items += `<div style="padding:3px 0;">🔴 Cambio #${i}</div>`;
+        hist.innerHTML = `<div style="font-weight:600;color:#333;">📋 Historial:</div>${items}`;
+    } else {
+        hist.innerHTML = '<div style="color:#999;">Sin cambios. ✅</div>';
+    }
+}
+
+async function confirmarAsistencia() {
+    if (!asistenciaActualId) return;
+    if (cambiosContador >= cambiosLimite) {
+        const { data: a } = await supabaseClient.from('asistencia').select('perdonada').eq('id', asistenciaActualId).maybeSingle();
+        if (!a?.perdonada) {
+            alert('⚠️ Has excedido el límite. El profesor debe perdonarte primero.');
+            return;
+        }
+    }
+    await supabaseClient.from('asistencia').update({ confirmada: true }).eq('id', asistenciaActualId);
+    mostrarConfirmada();
+}
+
+function mostrarConfirmada() {
+    monitoreoActivo = false;
+    document.getElementById('monitor-icon').textContent = '✅';
+    document.getElementById('monitor-estado').innerHTML = '🎉 <strong>¡Asistencia confirmada!</strong>';
+    document.getElementById('monitor-estado').style.background = '#e8f5e9';
+    document.getElementById('monitor-estado').style.color = '#2e7d32';
+    const btn = document.getElementById('btn-confirmar-asistencia');
+    btn.textContent = '✅ Confirmada';
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+    btn.onclick = null;
+    detenerMonitoreo();
+    setTimeout(() => {
+        document.getElementById('monitor-view').classList.add('hidden');
+        document.getElementById('dashboard-view').classList.remove('hidden');
+        cargarGrupos();
+    }, 2000);
+}
