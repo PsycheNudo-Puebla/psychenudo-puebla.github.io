@@ -113,9 +113,13 @@ async function verificarYcargarProfesor(user) {
     // [Profesores] No bloqueamos por device_id.
     // El profesor necesita acceder desde cualquier dispositivo.
     // Solo actualizamos el device_id si es necesario (para trazabilidad).
-    if (data.device_id !== deviceId) {
-        await supabaseClient.from('profesores').update({ device_id: deviceId }).eq('id', user.id);
-        console.log('📱 Device ID actualizado para el profesor');
+    try {
+        if (data.device_id !== deviceId) {
+            await supabaseClient.from('profesores').update({ device_id: deviceId }).eq('id', user.id);
+            console.log('📱 Device ID actualizado para el profesor');
+        }
+    } catch (e) {
+        console.warn('⚠️ No se pudo actualizar device_id:', e);
     }
     
     // === TOKEN DE SESIÓN ACTIVA ===
@@ -202,9 +206,13 @@ async function cargarDatosProfesor(user) {
     }
     
     // [Profesores] Solo actualizamos device_id para trazabilidad, sin bloquear.
-    if (data.device_id !== deviceId) {
-        await supabaseClient.from('profesores').update({ device_id: deviceId }).eq('id', user.id);
-        console.log('📱 Device ID actualizado para el profesor');
+    try {
+        if (data.device_id !== deviceId) {
+            await supabaseClient.from('profesores').update({ device_id: deviceId }).eq('id', user.id);
+            console.log('📱 Device ID actualizado para el profesor');
+        }
+    } catch (e) {
+        console.warn('⚠️ No se pudo actualizar device_id:', e);
     }
     
     // === TOKEN DE SESIÓN ACTIVA ===

@@ -114,6 +114,47 @@ CREATE TABLE IF NOT EXISTS horarios (
 );
 
 -- =============================================================
+-- FUNCIÓN PARA BORRAR USUARIO + TODOS SUS DATOS
+-- =============================================================
+-- Uso: SELECT borrar_usuario('uuid-del-usuario');
+-- Borra al profesor y todos sus registros relacionados en todas las tablas,
+-- incluyendo el usuario de auth.users.
+-- =============================================================
+CREATE OR REPLACE FUNCTION borrar_usuario(p_user_id UUID)
+RETURNS void AS $$
+BEGIN
+    -- 1. Horarios (dependen de grupos, no tienen profesor_id directo)
+    DELETE FROM horarios WHERE grupo_id IN (SELECT id FROM grupos WHERE profesor_id = p_user_id);
+    
+    -- 2. Alumnos del grupo (dependen de grupos)
+    DELETE FROM grupo_alumnos WHERE grupo_id IN (SELECT id FROM grupos WHERE profesor_id = p_user_id);
+    
+    -- 3. Log de salidas (depende de asistencia)
+    DELETE FROM log_salidas WHERE asistencia_id IN (
+        SELECT id FROM asistencia WHERE grupo_id IN (SELECT id FROM grupos WHERE profesor_id = p_user_id)
+    );
+    
+    -- 4. Perdones (tiene profesor_id directo)
+    DELETE FROM perdones WHERE profesor_id = p_user_id;
+    
+    -- 5. Asistencias (dependen de grupos)
+    DELETE FROM asistencia WHERE grupo_id IN (SELECT id FROM grupos WHERE profesor_id = p_user_id);
+    
+    -- 6. Sesiones de clase (tiene profesor_id directo)
+    DELETE FROM sesiones_clase WHERE profesor_id = p_user_id;
+    
+    -- 7. Grupos (tiene profesor_id directo)
+    DELETE FROM grupos WHERE profesor_id = p_user_id;
+    
+    -- 8. Profesor
+    DELETE FROM profesores WHERE id = p_user_id;
+    
+    -- 9. Usuario de Auth (el que causa el error al borrar manualmente)
+    DELETE FROM auth.users WHERE id = p_user_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- =============================================================
 -- 2. COLUMNAS ADICIONALES (por si ya existen las tablas)
 -- =============================================================
 

@@ -138,17 +138,21 @@ async function verificarYcargarAlumno(user) {
     }
     
     // Verificar device_id — si cambió, actualizamos automáticamente con advertencia
-    if (data.device_id && data.device_id !== deviceId) {
-        console.warn('⚠️ Device ID cambiado. Se actualiza al nuevo dispositivo.');
-        document.getElementById('login-error').textContent = '⚠️ Se detectó un cambio de dispositivo. Se ha actualizado el registro.';
-        document.getElementById('login-error').style.color = '#e65100';
-        // Actualizar al nuevo device_id
-        await supabaseClient.from('alumnos').update({ device_id: deviceId }).eq('id', user.id);
-    }
-    
-    // Si no tenía device_id, asignarlo
-    if (!data.device_id) {
-        await supabaseClient.from('alumnos').update({ device_id: deviceId }).eq('id', user.id);
+    try {
+        if (data.device_id && data.device_id !== deviceId) {
+            console.warn('⚠️ Device ID cambiado. Se actualiza al nuevo dispositivo.');
+            document.getElementById('login-error').textContent = '⚠️ Se detectó un cambio de dispositivo. Se ha actualizado el registro.';
+            document.getElementById('login-error').style.color = '#e65100';
+            // Actualizar al nuevo device_id
+            await supabaseClient.from('alumnos').update({ device_id: deviceId }).eq('id', user.id);
+        }
+        
+        // Si no tenía device_id, asignarlo
+        if (!data.device_id) {
+            await supabaseClient.from('alumnos').update({ device_id: deviceId }).eq('id', user.id);
+        }
+    } catch (e) {
+        console.warn('⚠️ No se pudo actualizar device_id:', e);
     }
     
     // === TOKEN DE SESIÓN ACTIVA ===
@@ -269,9 +273,13 @@ async function cargarDatosAlumno(user, intentos = 0) {
     }
     
     // Sincronizar device_id si cambió (recarga en otro origen/equipo)
-    if (data.device_id !== deviceId) {
-        console.warn('⚠️ Device ID cambiado. Se actualiza al nuevo dispositivo.');
-        await supabaseClient.from('alumnos').update({ device_id: deviceId }).eq('id', user.id);
+    try {
+        if (data.device_id !== deviceId) {
+            console.warn('⚠️ Device ID cambiado. Se actualiza al nuevo dispositivo.');
+            await supabaseClient.from('alumnos').update({ device_id: deviceId }).eq('id', user.id);
+        }
+    } catch (e) {
+        console.warn('⚠️ No se pudo actualizar device_id:', e);
     }
     
     // === TOKEN DE SESIÓN ACTIVA ===
