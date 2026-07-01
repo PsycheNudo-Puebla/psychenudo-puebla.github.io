@@ -99,7 +99,7 @@
     <!-- MODAL: Crear grupo -->
     <div id="modal-crear-grupo" class="modal-overlay hidden">
         <div class="modal" style="max-width: 580px;">
-            <h3>📚 Crear nuevo grupo</h3>
+            <h3 id="modal-crear-grupo-title">📚 Crear nuevo grupo</h3>
             <form id="form-crear-grupo">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px;">
                     <div style="grid-column: span 2;">
@@ -127,10 +127,10 @@
                     </div>
                 </div>
 
-                <!-- HORARIOS POR DÍA (con límites por día) -->
+                <!-- HORARIOS: selector día + hora -->
                 <hr style="margin: 12px 0; border: none; border-top: 2px solid #f0f0f0;">
                 <label style="font-weight: 600; color:#333; font-size:0.95em; margin-bottom: 4px; display: block;">📅 Horarios de clase</label>
-                <p style="font-size:0.8em; color:#999; margin:0 0 8px;">Configura horario y límites por día. El 🟢 puntual excede → 🟡 retardo excede → ❌ cerrado</p>
+                <p style="font-size:0.8em; color:#999; margin:0 0 8px;">Agrega uno o más horarios por día. 🟢 puntual → 🟡 retardo → ❌ cerrado.</p>
                 <div id="crear-horarios-dias-container">
                     <!-- Generado por JS -->
                 </div>
@@ -151,7 +151,7 @@
 
                 <div class="modal-buttons" style="margin-top: 16px;">
                     <button type="button" onclick="cerrarModal()" class="btn-secondary">Cancelar</button>
-                    <button type="submit" class="btn-primary">✅ Crear grupo</button>
+                    <button type="submit" id="btn-guardar-grupo" class="btn-primary">✅ Crear grupo</button>
                 </div>
             </form>
         </div>
@@ -176,39 +176,13 @@
         </div>
     </div>
 
-    <!-- MODAL: Horarios de clase (por día) -->
+    <!-- MODAL: Horarios (redirigido al modal de edición por JS) -->
     <div id="modal-horarios" class="modal-overlay hidden">
-        <div class="modal" style="max-width: 580px;">
+        <div class="modal" style="max-width: 400px; text-align:center; padding:30px;">
             <h3>📅 Horarios de clase</h3>
-            <p id="horarios-grupo-info" style="color: #666; font-size: 0.9em; margin-bottom: 4px;"></p>
-            <div style="display: flex; align-items: center; gap: 10px; margin: 10px 0 6px; padding: 10px 14px; background: #f8f9ff; border-radius: 10px;">
-                <span style="font-weight:600; font-size:0.9em; color:#555;">🙏 Perdones</span>
-                <input type="number" id="horario-perdones" value="2" min="0" max="10" style="width: 70px; padding: 6px 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; text-align: center;">
-                <span style="font-size:0.8em; color:#999;">por grupo (0 = sin perdones)</span>
-            </div>
-            <p style="font-size:0.78em; color:#999; margin-bottom: 12px;">Cada día tiene su propio 🟢 puntual y 🟡 retardo. Edítalos libremente.</p>
-            
-            <div id="horarios-dias-container">
-                <!-- Cada fila generada por JS -->
-            </div>
-
-            <details style="margin-bottom: 16px;">
-                <summary style="cursor: pointer; color: #667eea; font-weight: 600; font-size: 0.9em;">📍 Configurar ubicación GPS (opcional)</summary>
-                <div style="margin-top: 10px; padding: 12px; background: #f8f8ff; border-radius: 10px;">
-                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
-                        <input type="text" id="horario-latitud" placeholder="Latitud" style="flex:1;" readonly>
-                        <input type="text" id="horario-longitud" placeholder="Longitud" style="flex:1;" readonly>
-                        <button type="button" onclick="obtenerUbicacionActual()" class="btn-secondary" style="white-space: nowrap;">📍 Obtener</button>
-                    </div>
-                    <input type="number" id="horario-radio" value="100" min="10" max="500" placeholder="Radio en metros">
-                    <p style="font-size: 0.8em; color: #999; margin-top: 4px;">Radio de tolerancia (metros). Dejar vacío para desactivar GPS.</p>
-                </div>
-            </details>
-
-            <div style="display: flex; gap: 8px; margin-top: 16px;">
-                <button type="button" onclick="cerrarModalHorarios()" class="btn-secondary" style="flex:1;">Cancelar</button>
-                <button onclick="guardarHorarios()" class="btn-primary" style="flex:2;">💾 Guardar</button>
-            </div>
+            <p style="color:#666;">La configuración de horarios ahora está integrada en el editor de grupos.</p>
+            <p style="margin:16px 0; font-size:1.2em;">✏️ Usa el botón <strong>Editar</strong> en la lista de grupos.</p>
+            <button onclick="cerrarModalHorarios()" class="btn-secondary">Cerrar</button>
         </div>
     </div>
     

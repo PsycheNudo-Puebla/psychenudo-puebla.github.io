@@ -74,13 +74,13 @@ CREATE TABLE IF NOT EXISTS public.asistencia (
     fecha DATE DEFAULT CURRENT_DATE,
     estado TEXT DEFAULT 'presente',
     tipo_asistencia TEXT DEFAULT 'regular',
-    sesion_codigo TEXT,
+    sesion_codigo TEXT NOT NULL,
     cambios_pantalla INTEGER DEFAULT 0,
     confirmada BOOLEAN DEFAULT FALSE,
     perdonada BOOLEAN DEFAULT FALSE,
     ultimo_cambio TIMESTAMPTZ DEFAULT NOW(),
     creado_en TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE(alumno_id, grupo_id, fecha)
+    UNIQUE(alumno_id, sesion_codigo)
 );
 
 -- 7. Log de Salidas (auditoría de pérdida de foco)
@@ -300,7 +300,14 @@ CREATE INDEX IF NOT EXISTS idx_log_salidas_asistencia
     ON public.log_salidas(asistencia_id);
 
 -- =============================================================
--- ✅ VERIFICACIÓN: debe mostrar 26 políticas (tras limpiar fantasmas)
+-- 🔄 MIGRACIÓN: Soporte múltiples clases por día
+-- =============================================================
+ALTER TABLE public.asistencia DROP CONSTRAINT IF EXISTS asistencia_alumno_grupo_fecha_key;
+ALTER TABLE public.asistencia DROP CONSTRAINT IF EXISTS unique_alumno_grupo_fecha;
+ALTER TABLE public.asistencia ADD CONSTRAINT unique_alumno_sesion UNIQUE(alumno_id, sesion_codigo);
+
+-- =============================================================
+-- ✅ VERIFICACIÓN: debe mostrar 25 políticas (tras limpiar fantasmas)
 -- =============================================================
 -- SELECT tablename, policyname, cmd
 -- FROM pg_policies

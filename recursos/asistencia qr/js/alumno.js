@@ -734,13 +734,12 @@ async function procesarQR(qrData, resultadoDiv) {
         
         const hoy = new Date().toISOString().split('T')[0];
         
-        // Verificar si ya hay registro hoy
+        // Verificar si ya hay registro para esta sesión (código QR único)
         const { data: asistenciaHoy } = await supabaseClient
             .from('asistencia')
             .select('*')
             .eq('alumno_id', alumnoActual.id)
-            .eq('grupo_id', grupoId)
-            .eq('fecha', hoy)
+            .eq('sesion_codigo', codigoSesion)
             .maybeSingle();
         
         if (asistenciaHoy) {
@@ -751,7 +750,7 @@ async function procesarQR(qrData, resultadoDiv) {
                 setTimeout(() => iniciarMonitoreo(asistenciaHoy.id, grupoId, nomG, limiteCambios), 500);
                 return;
             }
-            resultadoDiv.textContent = '⚠️ Ya registraste asistencia hoy.';
+            resultadoDiv.textContent = '⚠️ Ya registraste asistencia para esta sesión.';
             return;
         }
         

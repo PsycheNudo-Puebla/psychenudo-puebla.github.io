@@ -294,29 +294,37 @@ async function cargarGrupos() {
         <div class="list-item" style="flex-direction: column; align-items: stretch; gap: 10px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                 <div>
-                    <strong>${grupo.nombre}</strong>
-                    <br><small>${grupo.materia || 'Sin materia'} • Límite: ${grupo.limite_salidas} salidas • ${grupo.numero_perdones} perdones</small>
+                    <strong style="font-size:1.1em;">${grupo.nombre}</strong>
+                    <br><small>${grupo.materia || 'Sin materia'} · Límite: ${grupo.limite_salidas} salidas · ${grupo.numero_perdones} perdones</small>
                 </div>
-                <div class="list-item-actions" style="flex-shrink: 0;">
-                    <button onclick="mostrarModalHorarios('${grupo.id}', '${grupo.nombre}')" class="btn-secondary" title="Configurar horarios y límites">📅</button>
+                <div class="list-item-actions" style="flex-shrink: 0; gap: 4px;">
+                    <button onclick="mostrarEditarGrupo('${grupo.id}')" class="btn-secondary" title="Editar grupo y horarios">✏️</button>
                     <button onclick="generarQR('${grupo.id}', '${grupo.nombre}')" class="btn-qr">📷 QR</button>
-                    <button onclick="reabrirMonitoreo('${grupo.id}')" class="btn-secondary" title="Reabrir monitoreo en vivo">📡</button>
+                    <button onclick="reabrirMonitoreo('${grupo.id}')" class="btn-secondary" title="Monitoreo en vivo">📡</button>
                     <button onclick="exportarAsistencia('${grupo.id}', '${grupo.nombre}')" class="btn-secondary" title="Exportar asistencias">📊</button>
                     <button onclick="verGrupo('${grupo.id}')" class="btn-secondary">Ver</button>
-                    <button onclick="eliminarGrupo('${grupo.id}')" class="btn-danger">Eliminar</button>
+                    <button onclick="eliminarGrupo('${grupo.id}')" class="btn-danger">🗑️</button>
                 </div>
             </div>
-            <div style="background: #f0f4ff; border: 2px dashed #667eea; border-radius: 12px; padding: 12px; text-align: center;">
-                <div style="font-size: 0.8em; color: #667eea; font-weight: 600; margin-bottom: 4px;">🔑 CÓDIGO DEL GRUPO</div>
-                <div style="font-size: 1.6em; font-family: monospace; letter-spacing: 4px; font-weight: 700; color: #333;">
-                    ${grupo.codigo_unico || '---'}
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <div style="background: #f0f4ff; border: 2px dashed #667eea; border-radius: 12px; padding: 10px 14px; text-align: center; flex:1;">
+                    <div style="font-size: 0.75em; color: #667eea; font-weight: 600; margin-bottom: 2px;">🔑 CÓDIGO</div>
+                    <div style="font-size: 1.4em; font-family: monospace; letter-spacing: 4px; font-weight: 700; color: #333;">
+                        ${grupo.codigo_unico || '---'}
+                    </div>
+                    <button onclick="copiarCodigo('${grupo.codigo_unico}')" style="margin-top: 4px; background: #667eea; color: white; border: none; border-radius: 6px; padding: 4px 12px; font-size: 0.8em; cursor: pointer;">
+                        📋 Copiar
+                    </button>
                 </div>
-                <button onclick="copiarCodigo('${grupo.codigo_unico}')" style="margin-top: 6px; background: #667eea; color: white; border: none; border-radius: 8px; padding: 6px 16px; font-size: 0.85em; cursor: pointer;">
-                    📋 Copiar código
-                </button>
+                <div id="grupo-horario-resumen-${grupo.id}" style="background: #f9fafb; border-radius: 12px; padding: 10px 14px; flex:2; font-size:0.85em; color:#555;">
+                    Cargando horarios...
+                </div>
             </div>
         </div>
     `).join('');
+    
+    // Cargar resumen de horarios para cada grupo
+    data.forEach(grupo => cargarResumenHorarios(grupo.id));
 }
 
 function copiarCodigo(codigo) {
@@ -335,6 +343,44 @@ function copiarCodigo(codigo) {
     });
 }
 
+async function cargarResumenHorarios(grupoId) {
+    const container = document.getElementById(`grupo-horario-resumen-${grupoId}`);
+    if (!container) return;
+    try {
+        const { data, error } = await supabaseClient
+            .from('horarios')
+            .select('*')
+            .eq('grupo_id', grupoId)
+            .order('dia_semana', { ascending: true });
+        if (error) throw error;
+        if (!data || data.length === 0) {
+            container.innerHTML = `<span style="color:#999;">⏰ Sin horarios configurados</span>`;
+            return;
+        }
+        const diasNum = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+        const agrupados = {};
+        data.forEach(h => {
+            if (!agrupados[h.dia_semana]) agrupados[h.dia_semana] = [];
+            agrupados[h.dia_semana].push(h);
+        });
+        let html = `<div style="display:flex; flex-wrap:wrap; gap:4px;">`;
+        for (let d = 0; d <= 6; d++) {
+            if (agrupados[d]) {
+                const horariosDia = agrupados[d].map(h =>
+                    `${h.hora_inicio.substring(0,5)}-${h.hora_fin.substring(0,5)}`
+                ).join(', ');
+                html += `<span style="background:#e8edf5; padding:2px 8px; border-radius:8px; font-size:0.85em;">
+                    <strong>${diasNum[d]}</strong> ${horariosDia}
+                </span>`;
+            }
+        }
+        html += `</div>`;
+        container.innerHTML = html;
+    } catch (e) {
+        container.innerHTML = `<span style="color:#999;">⏰ Sin horarios</span>`;
+    }
+}
+
 function showCreateGroupModal() {
     document.getElementById('modal-crear-grupo').classList.remove('hidden');
     generarNuevoCodigo();
@@ -344,6 +390,13 @@ function showCreateGroupModal() {
 function cerrarModal() {
     document.getElementById('modal-crear-grupo').classList.add('hidden');
     document.getElementById('form-crear-grupo').reset();
+    // Limpiar estado de edición
+    const form = document.getElementById('form-crear-grupo');
+    delete form.dataset.editando;
+    const titulo = document.getElementById('modal-crear-grupo-title') || document.querySelector('#modal-crear-grupo h2');
+    if (titulo) titulo.textContent = '📚 Crear nuevo grupo';
+    const btnGuardar = document.getElementById('btn-guardar-grupo');
+    if (btnGuardar) btnGuardar.textContent = '✅ Crear grupo';
 }
 
 function generarNuevoCodigo() {
@@ -371,70 +424,100 @@ function obtenerUbicacionCrearGrupo() {
     );
 }
 
+// Estado local para los horarios del formulario de crear/editar grupo
+let horariosFormularioCrear = [];
+
 function renderCrearHorariosRows() {
     const container = document.getElementById('crear-horarios-dias-container');
     if (!container) return;
-    container.innerHTML = '';
+    horariosFormularioCrear = [];
+    renderHorariosCreados();
+}
+
+function renderHorariosCreados() {
+    const container = document.getElementById('crear-horarios-dias-container');
+    if (!container) return;
     
-    for (let dia = 0; dia <= 6; dia++) {
-        const row = document.createElement('div');
-        row.className = 'dia-horario-row';
-        row.innerHTML = `
-            <div class="dia-horario-label">${DIAS[dia]}</div>
-            <div class="dia-horario-inputs">
-                <input type="time" class="crear-hora-inicio" placeholder="Inicio" data-dia="${dia}">
-                <span style="color:#999;">→</span>
-                <input type="time" class="crear-hora-fin" placeholder="Fin" data-dia="${dia}">
+    let html = `
+        <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:end; margin-bottom:12px; padding:12px; background:#f8f9fc; border-radius:10px;">
+            <div>
+                <label style="font-size:0.8em; color:#555;">Día</label>
+                <select id="nuevo-horario-dia" style="padding:8px 10px; border:1px solid #ddd; border-radius:6px;">
+                    ${DIAS.map((d, i) => `<option value="${i}">${d}</option>`).join('')}
+                </select>
             </div>
-            <div style="display:flex;align-items:center;gap:2px;white-space:nowrap;">
-                <span class="dia-limite-label">🟢</span>
-                <input type="number" class="dia-limite-input crear-puntual-min" value="10" min="1" max="120" data-dia="${dia}">
-                <span class="dia-limite-label">🟡</span>
-                <input type="number" class="dia-limite-input crear-retardo-min" value="20" min="1" max="999" data-dia="${dia}">
+            <div>
+                <label style="font-size:0.8em; color:#555;">Inicio</label>
+                <input type="time" id="nuevo-horario-inicio" style="padding:8px 10px; border:1px solid #ddd; border-radius:6px;">
             </div>
-            <span class="dia-sin-clase" style="display:inline;">(sin clase)</span>
-        `;
-        
-        const inicioInput = row.querySelector('.crear-hora-inicio');
-        const finInput = row.querySelector('.crear-hora-fin');
-        const sinClaseSpan = row.querySelector('.dia-sin-clase');
-        
-        inicioInput.addEventListener('change', () => {
-            if (inicioInput.value && !finInput.value) {
-                const [h, m] = inicioInput.value.split(':').map(Number);
-                const fin = new Date();
-                fin.setHours(h, m + 50, 0);
-                finInput.value = `${fin.getHours().toString().padStart(2,'0')}:${fin.getMinutes().toString().padStart(2,'0')}`;
-            }
-            sinClaseSpan.style.display = (inicioInput.value || finInput.value) ? 'none' : '';
-        });
-        finInput.addEventListener('change', () => {
-            sinClaseSpan.style.display = (inicioInput.value || finInput.value) ? 'none' : '';
-        });
-        
-        container.appendChild(row);
+            <div>
+                <label style="font-size:0.8em; color:#555;">Fin</label>
+                <input type="time" id="nuevo-horario-fin" style="padding:8px 10px; border:1px solid #ddd; border-radius:6px;">
+            </div>
+            <div>
+                <label style="font-size:0.8em; color:#555;">🟢 Puntual (min)</label>
+                <input type="number" id="nuevo-horario-puntual" value="10" min="1" max="120" style="padding:8px 10px; border:1px solid #ddd; border-radius:6px; width:70px;">
+            </div>
+            <div>
+                <label style="font-size:0.8em; color:#555;">🟡 Retardo (min)</label>
+                <input type="number" id="nuevo-horario-retardo" value="20" min="1" max="999" style="padding:8px 10px; border:1px solid #ddd; border-radius:6px; width:70px;">
+            </div>
+            <div>
+                <button onclick="agregarHorarioFormulario()" style="padding:8px 16px; background:#667eea; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;">
+                    ➕ Agregar horario
+                </button>
+            </div>
+        </div>
+        <div id="lista-horarios-creados" style="display:flex; flex-direction:column; gap:6px;"></div>
+    `;
+    container.innerHTML = html;
+    actualizarListaHorariosCreados();
+}
+
+function agregarHorarioFormulario() {
+    const dia = parseInt(document.getElementById('nuevo-horario-dia').value);
+    const inicio = document.getElementById('nuevo-horario-inicio').value;
+    const fin = document.getElementById('nuevo-horario-fin').value;
+    const puntual = parseInt(document.getElementById('nuevo-horario-puntual').value) || 10;
+    const retardo = parseInt(document.getElementById('nuevo-horario-retardo').value) || 20;
+    
+    if (!inicio || !fin) {
+        alert('Selecciona hora de inicio y fin del horario.');
+        return;
     }
+    
+    horariosFormularioCrear.push({ dia, inicio, fin, puntual, retardo });
+    actualizarListaHorariosCreados();
+    
+    // Reset solo los inputs de tiempo para el siguiente horario
+    document.getElementById('nuevo-horario-inicio').value = '';
+    document.getElementById('nuevo-horario-fin').value = '';
+}
+
+function eliminarHorarioFormulario(index) {
+    horariosFormularioCrear.splice(index, 1);
+    actualizarListaHorariosCreados();
+}
+
+function actualizarListaHorariosCreados() {
+    const lista = document.getElementById('lista-horarios-creados');
+    if (!lista) return;
+    if (horariosFormularioCrear.length === 0) {
+        lista.innerHTML = `<span style="color:#999; font-size:0.9em; padding:8px;">No hay horarios agregados. Usa el formulario de arriba para añadir.</span>`;
+        return;
+    }
+    const diasCorto = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+    lista.innerHTML = horariosFormularioCrear.map((h, i) => `
+        <div style="display:flex; align-items:center; gap:8px; padding:8px 12px; background:white; border:1px solid #e0e4f0; border-radius:8px;">
+            <span style="font-weight:600; min-width:50px;">${diasCorto[h.dia]}</span>
+            <span>${h.inicio.substring(0,5)} → ${h.fin.substring(0,5)}</span>
+            <span style="color:#666; font-size:0.85em;">🟢${h.puntual}min 🟡${h.retardo}min</span>
+            <button onclick="eliminarHorarioFormulario(${i})" style="margin-left:auto; background:none; border:none; color:#e74c3c; cursor:pointer; font-size:1.2em;">✕</button>
+        </div>
+    `).join('');
 }
 
 // Manejar el envío del formulario
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('form-crear-grupo');
-    if (form) {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const nombre = document.getElementById('grupo-nombre').value;
-            const materia = document.getElementById('grupo-materia').value;
-            const limite = parseInt(document.getElementById('grupo-limite').value);
-            const perdones = parseInt(document.getElementById('grupo-perdones').value);
-            const codigoUnico = document.getElementById('grupo-codigo').value || generarCodigoGrupo();
-            
-            await crearGrupo(nombre, materia, limite, perdones, codigoUnico);
-            cerrarModal();
-        });
-    }
-});
-
 // Generar un código único para el grupo
 function generarCodigoGrupo() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -464,27 +547,18 @@ async function crearGrupo(nombre, materia, limite, perdones, codigoUnico) {
         return;
     }
     
-    // Guardar horarios del formulario de creación (cada día con sus límites)
-    const horariosACrear = [];
-    document.querySelectorAll('#crear-horarios-dias-container .dia-horario-row').forEach((row, dia) => {
-        const inicio = row.querySelector('.crear-hora-inicio').value;
-        const fin = row.querySelector('.crear-hora-fin').value;
-        const puntual = parseInt(row.querySelector('.crear-puntual-min').value) || 10;
-        const retardo = parseInt(row.querySelector('.crear-retardo-min').value) || 20;
-        if (inicio && fin) {
-            horariosACrear.push({ dia_semana: dia, hora_inicio: inicio, hora_fin: fin, puntual_minutos: puntual, retardo_minutos: retardo });
-        }
-    });
-    
+    // Guardar horarios usando el array del formulario (con soporte multi-sesión)
     let errores = 0;
-    for (const h of horariosACrear) {
+    for (const h of horariosFormularioCrear) {
         const { error: err } = await supabaseClient
             .from('horarios')
             .insert({
                 grupo_id: grupo.id,
-                dia_semana: h.dia_semana,
-                hora_inicio: h.hora_inicio,
-                hora_fin: h.hora_fin,
+                dia_semana: h.dia,
+                hora_inicio: h.inicio,
+                hora_fin: h.fin,
+                puntual_minutos: h.puntual,
+                retardo_minutos: h.retardo,
                 activo: true,
                 creado_en: new Date().toISOString()
             });
@@ -509,6 +583,128 @@ async function crearGrupo(nombre, materia, limite, perdones, codigoUnico) {
     if (errores > 0) {
         console.warn('Algunos horarios no se guardaron.');
     }
+    
+    cargarGrupos();
+}
+
+async function mostrarEditarGrupo(grupoId) {
+    // Obtener datos del grupo
+    const { data: grupo, error } = await supabaseClient
+        .from('grupos')
+        .select('*')
+        .eq('id', grupoId)
+        .maybeSingle();
+    if (error || !grupo) { alert('Error al cargar grupo'); return; }
+    
+    // Obtener horarios actuales
+    const { data: horariosExistentes } = await supabaseClient
+        .from('horarios')
+        .select('*')
+        .eq('grupo_id', grupoId);
+    
+    // Pre-poblar el modal de crear grupo con los datos existentes
+    document.getElementById('grupo-nombre').value = grupo.nombre || '';
+    document.getElementById('grupo-materia').value = grupo.materia || '';
+    document.getElementById('grupo-limite').value = grupo.limite_salidas || 3;
+    document.getElementById('grupo-perdones').value = grupo.numero_perdones || 2;
+    document.getElementById('grupo-codigo').value = grupo.codigo_unico || '';
+    if (grupo.latitud) {
+        document.getElementById('crear-grupo-latitud').value = grupo.latitud || '';
+        document.getElementById('crear-grupo-longitud').value = grupo.longitud || '';
+        document.getElementById('crear-grupo-radio').value = grupo.radio_metros || 100;
+    }
+    
+    // Cargar horarios existentes en el formulario
+    renderCrearHorariosRows();
+    horariosFormularioCrear = (horariosExistentes || []).map(h => ({
+        dia: h.dia_semana,
+        inicio: h.hora_inicio.substring(0,5),
+        fin: h.hora_fin.substring(0,5),
+        puntual: h.puntual_minutos || 10,
+        retardo: h.retardo_minutos || 20
+    }));
+    actualizarListaHorariosCreados();
+    
+    // Mostrar modal y cambiar comportamiento del form
+    const form = document.getElementById('form-crear-grupo');
+    const titulo = document.getElementById('modal-crear-grupo-title') || document.querySelector('#modal-crear-grupo h2');
+    if (titulo) titulo.textContent = '✏️ Editar grupo';
+    
+    // Guardar referencia al grupo que se está editando
+    form.dataset.editando = grupoId;
+    const btnGuardar = document.getElementById('btn-guardar-grupo');
+    if (btnGuardar) btnGuardar.textContent = '💾 Guardar cambios';
+    
+    document.getElementById('modal-crear-grupo').classList.remove('hidden');
+}
+
+// Hook: cuando se guarda el formulario, si estamos editando llamar a guardarEdicion
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('form-crear-grupo');
+    if (form) {
+        // Reemplazar el submit para soportar edición
+        const submitHandler = async (e) => {
+            e.preventDefault();
+            const editandoId = form.dataset.editando;
+            const nombre = document.getElementById('grupo-nombre').value;
+            const materia = document.getElementById('grupo-materia').value;
+            const limite = parseInt(document.getElementById('grupo-limite').value);
+            const perdones = parseInt(document.getElementById('grupo-perdones').value);
+            const codigoUnico = document.getElementById('grupo-codigo').value || generarCodigoGrupo();
+            
+            if (editandoId) {
+                await guardarEdicionGrupo(editandoId, nombre, materia, limite, perdones, codigoUnico);
+            } else {
+                await crearGrupo(nombre, materia, limite, perdones, codigoUnico);
+            }
+            cerrarModal();
+        };
+        // Reemplazar el listener anterior
+        form.removeEventListener('submit', submitHandler);
+        form.addEventListener('submit', submitHandler);
+    }
+});
+
+async function guardarEdicionGrupo(id, nombre, materia, limite, perdones, codigoUnico) {
+    // Actualizar datos del grupo
+    const { error } = await supabaseClient
+        .from('grupos')
+        .update({ nombre, materia, limite_salidas: limite, numero_perdones: perdones, codigo_unico: codigoUnico })
+        .eq('id', id);
+    if (error) { alert('Error al actualizar grupo: ' + error.message); return; }
+    
+    // Guardar GPS si cambió
+    const latitud = parseFloat(document.getElementById('crear-grupo-latitud').value) || null;
+    const longitud = parseFloat(document.getElementById('crear-grupo-longitud').value) || null;
+    const radio = parseInt(document.getElementById('crear-grupo-radio').value) || null;
+    if (latitud && longitud) {
+        await supabaseClient.from('grupos').update({ latitud, longitud, radio_metros: radio || 100 }).eq('id', id);
+    }
+    
+    // Reemplazar horarios: borrar existentes y crear los nuevos
+    await supabaseClient.from('horarios').delete().eq('grupo_id', id);
+    
+    for (const h of horariosFormularioCrear) {
+        const { error: err } = await supabaseClient
+            .from('horarios')
+            .insert({
+                grupo_id: id,
+                dia_semana: h.dia,
+                hora_inicio: h.inicio,
+                hora_fin: h.fin,
+                puntual_minutos: h.puntual,
+                retardo_minutos: h.retardo,
+                activo: true,
+                creado_en: new Date().toISOString()
+            });
+        if (err) console.error('Error actualizando horario:', err.message);
+    }
+    
+    // Limpiar estado de edición
+    const form = document.getElementById('form-crear-grupo');
+    delete form.dataset.editando;
+    const titulo = document.getElementById('modal-crear-grupo-title') || document.querySelector('#modal-crear-grupo h2');
+    if (titulo) titulo.textContent = '📚 Crear nuevo grupo';
     
     cargarGrupos();
 }
@@ -1021,7 +1217,7 @@ async function generarQR(grupoId, grupoNombre) {
     } else if (qrVentanaActual === 'puntual') {
         ventanaEl.textContent = '✅ VENTANA: A TIEMPO (asistencia normal)';
         ventanaEl.className = 'qr-ventana qr-ventana-puntual';
-    } else {
+    } else if (qrVentanaActual === 'libre') {
         ventanaEl.textContent = '📷 VENTANA LIBRE (sin horario fijo)';
         ventanaEl.className = 'qr-ventana qr-ventana-libre';
     }
@@ -1169,7 +1365,7 @@ async function calcularVentanaActual(grupoId) {
         .eq('activo', true);
     
     if (!horarios || horarios.length === 0) {
-        return { ventana: 'libre' }; // Sin horario, QR libre
+        return { ventana: 'cerrado' }; // Sin horario configurado → no se puede abrir QR
     }
     
     // Buscar el horario que aplica ahora
@@ -1202,7 +1398,7 @@ async function calcularVentanaActual(grupoId) {
 
 async function calcularSegundosMaximos(grupoId) {
     const v = await calcularVentanaActual(grupoId);
-    if (v.ventana === 'libre') return 7200; // 2 horas por defecto si no hay horario
+    if (v.ventana === 'cerrado') return 0; // No hay clase activa
     
     if (v.horario) {
         const ahora = new Date();
@@ -1210,10 +1406,10 @@ async function calcularSegundosMaximos(grupoId) {
         const fin = new Date(ahora);
         fin.setHours(hF, mF, 0);
         const segundosHastaFin = Math.floor((fin - ahora) / 1000);
-        if (segundosHastaFin <= 0) return 60; // Ya casi termina, dar 1 minuto
-        return segundosHastaFin; // El QR dura hasta el fin de la clase
+        if (segundosHastaFin <= 0) return 60;
+        return segundosHastaFin;
     }
-    return 7200;
+    return 0;
 }
 
 function actualizarCountdown(el, segundos) {
@@ -1498,26 +1694,8 @@ const DIAS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', '
 const DIAS_CORTO = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
 function mostrarModalHorarios(grupoId, grupoNombre) {
-    horariosGrupoActual = grupoId;
-    document.getElementById('horarios-grupo-info').textContent = `Configurando horarios para: ${grupoNombre}`;
-    document.getElementById('modal-horarios').classList.remove('hidden');
-    
-    // Cargar GPS y perdones del grupo
-    supabaseClient
-        .from('grupos')
-        .select('latitud, longitud, radio_metros, numero_perdones')
-        .eq('id', grupoId)
-        .single()
-        .then(({ data: grupo }) => {
-            if (grupo) {
-                document.getElementById('horario-latitud').value = grupo.latitud || '';
-                document.getElementById('horario-longitud').value = grupo.longitud || '';
-                document.getElementById('horario-radio').value = grupo.radio_metros || 100;
-                document.getElementById('horario-perdones').value = grupo.numero_perdones ?? 2;
-            }
-        });
-    
-    generarFilasHorarios(grupoId);
+    // Redirigir al modal de edición que ahora incluye horarios
+    mostrarEditarGrupo(grupoId);
 }
 
 function cerrarModalHorarios() {

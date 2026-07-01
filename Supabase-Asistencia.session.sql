@@ -229,9 +229,19 @@ CREATE INDEX IF NOT EXISTS idx_horarios_grupo ON public.horarios(grupo_id);
 CREATE INDEX IF NOT EXISTS idx_log_salidas_asistencia ON public.log_salidas(asistencia_id);
 
 -- =============================================================
--- ✅ 5. VERIFICACIÓN: 24 políticas sin fantasmas
+-- 🔄 5. MIGRACIÓN: Soporte múltiples clases por día
+-- =============================================================
+-- Cambia UNIQUE(alumno_id, grupo_id, fecha) → UNIQUE(alumno_id, sesion_codigo)
+-- Así un alumno puede escanear en diferentes sesiones el mismo día
+ALTER TABLE public.asistencia DROP CONSTRAINT IF EXISTS asistencia_alumno_grupo_fecha_key;
+ALTER TABLE public.asistencia DROP CONSTRAINT IF EXISTS unique_alumno_grupo_fecha;
+ALTER TABLE public.asistencia ADD CONSTRAINT unique_alumno_sesion UNIQUE(alumno_id, sesion_codigo);
+
+-- =============================================================
+-- ✅ 6. VERIFICACIÓN: políticas sin fantasmas
 -- =============================================================
 SELECT tablename, policyname, cmd
 FROM pg_policies
 WHERE schemaname = 'public'
 ORDER BY tablename, policyname;
+SELECT NOW() AS hora_actual;
