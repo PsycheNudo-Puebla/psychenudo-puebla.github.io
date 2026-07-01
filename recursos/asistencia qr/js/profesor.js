@@ -118,6 +118,17 @@ async function verificarYcargarProfesor(user) {
         return;
     }
     
+    // Si el registro tiene datos placeholder del trigger, pedir completar perfil
+    if (data.nombre === 'Usuario Nuevo') {
+        document.getElementById('login-error').textContent = '';
+        document.getElementById('login-form').classList.add('hidden');
+        document.getElementById('register-form').classList.add('hidden');
+        document.getElementById('completar-perfil-form').classList.remove('hidden');
+        document.getElementById('completar-error').textContent = '✏️ Tu cuenta ya existe pero necesita datos adicionales. Complétalos para continuar.';
+        document.getElementById('comp-nombre').value = data.nombre === 'Usuario Nuevo' ? '' : data.nombre;
+        return;
+    }
+    
     // [Profesores] No bloqueamos por device_id.
     // El profesor necesita acceder desde cualquier dispositivo.
     // Solo actualizamos el device_id si es necesario (para trazabilidad).
@@ -210,6 +221,16 @@ async function cargarDatosProfesor(user) {
         document.getElementById('register-form').classList.add('hidden');
         document.getElementById('completar-perfil-form').classList.remove('hidden');
         document.getElementById('completar-error').textContent = '✏️ Completa tus datos para continuar.';
+        return;
+    }
+    
+    // Si el registro tiene datos placeholder del trigger, pedir completar perfil
+    if (data.nombre === 'Usuario Nuevo') {
+        document.getElementById('login-form').classList.add('hidden');
+        document.getElementById('register-form').classList.add('hidden');
+        document.getElementById('completar-perfil-form').classList.remove('hidden');
+        document.getElementById('completar-error').textContent = '✏️ Tu cuenta ya existe pero necesita datos adicionales. Complétalos para continuar.';
+        document.getElementById('comp-nombre').value = '';
         return;
     }
     
