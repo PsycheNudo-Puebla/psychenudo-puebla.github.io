@@ -1302,7 +1302,7 @@ async function generarQR(grupoId, grupoNombre) {
     
     if (qrVentanaActual === 'sin_derecho') {
         ventanaEl.textContent = '🔴 SIN DERECHO (solo registro, cuenta como ausencia)';
-        ventanaEl.className = 'qr-ventana qr-ventana-cerrado';
+        ventanaEl.className = 'qr-ventana qr-ventana-sin_derecho';
     } else if (qrVentanaActual === 'retardo') {
         ventanaEl.textContent = '⚠️ VENTANA: RETARDO (llegas tarde)';
         ventanaEl.className = 'qr-ventana qr-ventana-retardo';
@@ -1400,7 +1400,7 @@ async function generarQR(grupoId, grupoNombre) {
                 qrVentanaActual = vInfo.ventana;
                 if (qrVentanaActual === 'sin_derecho') {
                     ventanaEl.textContent = '🔴 SIN DERECHO (solo registro, cuenta como ausencia)';
-                    ventanaEl.className = 'qr-ventana qr-ventana-cerrado';
+                    ventanaEl.className = 'qr-ventana qr-ventana-sin_derecho';
                 } else if (qrVentanaActual === 'retardo') {
                     ventanaEl.textContent = '⚠️ VENTANA: RETARDO (llegas tarde)';
                     ventanaEl.className = 'qr-ventana qr-ventana-retardo';

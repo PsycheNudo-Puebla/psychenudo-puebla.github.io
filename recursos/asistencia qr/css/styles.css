@@ -524,15 +524,21 @@ footer {
     border: 1px solid #a5d6a7;
 }
 .qr-ventana-retardo {
-    background: #fff3e0;
-    color: #e65100;
-    border: 1px solid #ffcc80;
+    background: #fff8e1;
+    color: #f57f17;
+    border: 1px solid #ffe082;
     animation: pulse 1.5s infinite;
 }
-.qr-ventana-cerrado {
+.qr-ventana-sin_derecho {
     background: #ffebee;
     color: #c62828;
     border: 1px solid #ef9a9a;
+    animation: pulse 1.5s infinite;
+}
+.qr-ventana-cerrado {
+    background: #fce4ec;
+    color: #880e4f;
+    border: 1px solid #f48fb1;
 }
 .qr-ventana-libre {
     background: #e3f2fd;
