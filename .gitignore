@@ -1,0 +1,23 @@
+# ==========================================
+# Carpetas generadas automáticamente por Jekyll / Sitio web
+# ==========================================
+_site/
+.sass-cache/
+.jekyll-cache/
+.bundle/
+vendor/bundle/
+
+# ==========================================
+# Entornos virtuales de Python (Locales)
+# ==========================================
+venv*/
+.venv/
+Env/
+ENV/
+
+# ==========================================
+# Archivos temporales del sistema operativo
+# ==========================================
+.DS_Store
+Thumbs.db
+desktop.ini
