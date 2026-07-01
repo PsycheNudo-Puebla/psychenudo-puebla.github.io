@@ -686,7 +686,7 @@ async function crearGrupo(nombre, materia, limite, perdones, codigoUnico) {
     if (latitud && longitud) {
         await supabaseClient
             .from('grupos')
-            .update({ latitud, longitud, radio_metros: radio || 100 })
+            .update({ latitud, longitud, radio_metros: radio || 50 })
             .eq('id', grupo.id);
     }
     
@@ -724,7 +724,7 @@ async function mostrarEditarGrupo(grupoId) {
     if (grupo.latitud) {
         document.getElementById('crear-grupo-latitud').value = grupo.latitud || '';
         document.getElementById('crear-grupo-longitud').value = grupo.longitud || '';
-        document.getElementById('crear-grupo-radio').value = grupo.radio_metros || 100;
+        document.getElementById('crear-grupo-radio').value = grupo.radio_metros || 50;
     }
     
     // Cargar horarios existentes en el formulario
@@ -793,7 +793,7 @@ async function guardarEdicionGrupo(id, nombre, materia, limite, perdones, codigo
     const longitud = parseFloat(document.getElementById('crear-grupo-longitud').value) || null;
     const radio = parseInt(document.getElementById('crear-grupo-radio').value) || null;
     if (latitud && longitud) {
-        await supabaseClient.from('grupos').update({ latitud, longitud, radio_metros: radio || 100 }).eq('id', id);
+        await supabaseClient.from('grupos').update({ latitud, longitud, radio_metros: radio || 50 }).eq('id', id);
     }
     
     // Reemplazar horarios: borrar existentes y crear los nuevos

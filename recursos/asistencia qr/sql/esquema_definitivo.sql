@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS public.grupos (
     codigo_unico TEXT,
     latitud DOUBLE PRECISION,
     longitud DOUBLE PRECISION,
-    radio_metros DOUBLE PRECISION DEFAULT 100,
+    radio_metros DOUBLE PRECISION DEFAULT 50,
     creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 

@@ -736,7 +736,7 @@ async function procesarQR(qrData, resultadoDiv) {
         
         if (grupo && grupo.latitud && grupo.longitud) {
             try {
-                const gpsOk = await verificarGPS(grupo.latitud, grupo.longitud, grupo.radio_metros || 100);
+                const gpsOk = await verificarGPS(grupo.latitud, grupo.longitud, grupo.radio_metros || 50);
                 if (!gpsOk) {
                     resultadoDiv.textContent = '❌ Debes estar en el salón de clase para escanear. GPS no coincide.';
                     return;
