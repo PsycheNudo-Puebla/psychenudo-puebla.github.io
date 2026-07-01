@@ -7,6 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <script src="js/supabase-config.js?v=2"></script>
+    <script src="js/toaster.js?v=2"></script>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -25,8 +26,11 @@
                 <h3>Iniciar Sesión</h3>
                 <input type="email" id="login-email" placeholder="Email" required>
                 <input type="password" id="login-password" placeholder="Contraseña" required>
-                <button type="submit" class="btn-primary">Entrar</button>
+                <button type="submit" class="btn-primary" id="btn-login">Entrar</button>
                 <div id="login-error" class="error-msg"></div>
+                <p style="text-align:center; margin-top:4px;">
+                    <a href="#" onclick="handleResetPassword(event)" style="color:#667eea; font-size:0.85em; text-decoration:none;">¿Olvidaste tu contraseña?</a>
+                </p>
             </form>
             
             <!-- Formulario de Registro -->
@@ -36,7 +40,7 @@
                 <input type="text" id="reg-matricula" placeholder="Matrícula" required>
                 <input type="email" id="reg-email" placeholder="Email" required>
                 <input type="password" id="reg-password" placeholder="Contraseña (mín. 6 caracteres)" required minlength="6">
-                <button type="submit" class="btn-primary">Registrarme</button>
+                <button type="submit" class="btn-primary" id="btn-register">Registrarme</button>
                 <div id="register-error" class="error-msg"></div>
             </form>
             
@@ -48,7 +52,7 @@
                 </p>
                 <input type="text" id="comp-nombre" placeholder="Nombre completo" required>
                 <input type="text" id="comp-matricula" placeholder="Matrícula" required>
-                <button type="submit" class="btn-primary">Guardar y continuar</button>
+                <button type="submit" class="btn-primary" id="btn-completar-perfil">Guardar y continuar</button>
                 <div id="completar-error" class="error-msg"></div>
                 <p style="text-align: center; margin-top: 10px;">
                     <a href="#" onclick="mostrarLogin(); return false;" style="color: #667eea; font-size: 0.85em;">← Volver al inicio de sesión</a>

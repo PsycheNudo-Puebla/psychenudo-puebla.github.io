@@ -32,6 +32,7 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
 async function handleLogin(e) {
     e.preventDefault();
     estaIniciandoSesion = true;
+    setLoading('btn-login', true);
     try {
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
@@ -42,17 +43,41 @@ async function handleLogin(e) {
         
         if (error) {
             document.getElementById('login-error').textContent = 'Email o contraseña incorrectos';
+            setLoading('btn-login', false, 'Entrar');
             return;
         }
         
+        setLoading('btn-login', false, 'Entrar');
         await verificarYcargarProfesor(data.user);
     } finally {
         estaIniciandoSesion = false;
     }
 }
 
+async function handleResetPassword(e) {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value.trim();
+    if (!email) {
+        mostrarToast('Ingresa tu email en el campo de arriba primero.', 'warning');
+        return;
+    }
+    try {
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin + '/recursos/asistencia%20qr/profesor.html'
+        });
+        if (error) {
+            mostrarToast('Error: ' + error.message, 'error');
+        } else {
+            mostrarToast('📧 Revisa tu email para restablecer la contraseña.', 'exito');
+        }
+    } catch (err) {
+        mostrarToast('Error al enviar correo: ' + err.message, 'error');
+    }
+}
+
 async function handleRegister(e) {
     e.preventDefault();
+    setLoading('btn-register', true);
     const nombre = document.getElementById('reg-nombre').value;
     const email = document.getElementById('reg-email').value;
     const password = document.getElementById('reg-password').value;
@@ -71,6 +96,7 @@ async function handleRegister(e) {
     
     if (authError) {
         document.getElementById('register-error').textContent = authError.message;
+        setLoading('btn-register', false, 'Registrarme');
         return;
     }
     
@@ -93,10 +119,12 @@ async function handleRegister(e) {
         document.getElementById('completar-perfil-form').classList.remove('hidden');
         document.getElementById('completar-error').textContent = '⚠️ El registro fue parcial. Completa tus datos.';
         document.getElementById('comp-nombre').value = nombre;
+        setLoading('btn-register', false, 'Registrarme');
         return;
     }
     
-    alert('Registro exitoso. Ya puedes iniciar sesión.');
+    setLoading('btn-register', false, 'Registrarme');
+    mostrarToast('Registro exitoso. Ya puedes iniciar sesión.', 'exito');
     showTab('login');
 }
 
@@ -321,7 +349,7 @@ async function cargarGrupos() {
 function copiarCodigo(codigo) {
     if (!codigo) return;
     navigator.clipboard.writeText(codigo).then(() => {
-        alert('✅ Código copiado al portapapeles: ' + codigo);
+        mostrarToast('✅ Código copiado: ' + codigo, 'exito');
     }).catch(() => {
         // Fallback para navegadores sin clipboard API
         const textarea = document.createElement('textarea');
@@ -330,7 +358,7 @@ function copiarCodigo(codigo) {
         textarea.select();
         document.execCommand('copy');
         document.body.removeChild(textarea);
-        alert('✅ Código copiado: ' + codigo);
+        mostrarToast('✅ Código copiado: ' + codigo, 'exito');
     });
 }
 
@@ -493,7 +521,7 @@ function generarNuevoCodigo() {
 
 function obtenerUbicacionCrearGrupo() {
     if (!navigator.geolocation) {
-        alert('Tu navegador no soporta geolocalización.');
+        mostrarToast('Tu navegador no soporta geolocalización.', 'error');
         return;
     }
     navigator.geolocation.getCurrentPosition(
@@ -501,7 +529,7 @@ function obtenerUbicacionCrearGrupo() {
             document.getElementById('crear-grupo-latitud').value = pos.coords.latitude.toFixed(6);
             document.getElementById('crear-grupo-longitud').value = pos.coords.longitude.toFixed(6);
         },
-        (err) => alert('No se pudo obtener ubicación: ' + err.message),
+        (err) => mostrarToast('No se pudo obtener ubicación: ' + err.message, 'error'),
         { enableHighAccuracy: true, timeout: 10000 }
     );
 }
@@ -564,7 +592,7 @@ function agregarHorarioFormulario() {
     const retardo = parseInt(document.getElementById('nuevo-horario-retardo').value) || 20;
     
     if (!inicio || !fin) {
-        alert('Selecciona hora de inicio y fin del horario.');
+        mostrarToast('Selecciona hora de inicio y fin del horario.', 'warning');
         return;
     }
     
@@ -625,7 +653,7 @@ async function crearGrupo(nombre, materia, limite, perdones, codigoUnico) {
         .maybeSingle();
     
     if (error) {
-        alert('Error al crear grupo: ' + error.message);
+        mostrarToast('Error al crear grupo: ' + error.message, 'error');
         return;
     }
     
@@ -666,6 +694,7 @@ async function crearGrupo(nombre, materia, limite, perdones, codigoUnico) {
         console.warn('Algunos horarios no se guardaron.');
     }
     
+    setLoading('btn-guardar-grupo', false, '✅ Crear grupo');
     cargarGrupos();
     // Ir al detalle del grupo recién creado
     seleccionarGrupo(grupo.id);
@@ -678,7 +707,7 @@ async function mostrarEditarGrupo(grupoId) {
         .select('*')
         .eq('id', grupoId)
         .maybeSingle();
-    if (error || !grupo) { alert('Error al cargar grupo'); return; }
+    if (error || !grupo) { mostrarToast('Error al cargar grupo', 'error'); return; }
     
     // Obtener horarios actuales
     const { data: horariosExistentes } = await supabaseClient
@@ -739,6 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (editandoId) {
                 await guardarEdicionGrupo(editandoId, nombre, materia, limite, perdones, codigoUnico);
             } else {
+                setLoading('btn-guardar-grupo', true);
                 await crearGrupo(nombre, materia, limite, perdones, codigoUnico);
             }
             cerrarModal();
@@ -750,12 +780,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function guardarEdicionGrupo(id, nombre, materia, limite, perdones, codigoUnico) {
+    setLoading('btn-guardar-grupo', true);
     // Actualizar datos del grupo
     const { error } = await supabaseClient
         .from('grupos')
         .update({ nombre, materia, limite_salidas: limite, numero_perdones: perdones, codigo_unico: codigoUnico })
         .eq('id', id);
-    if (error) { alert('Error al actualizar grupo: ' + error.message); return; }
+    if (error) { mostrarToast('Error al actualizar grupo: ' + error.message, 'error'); setLoading('btn-guardar-grupo', false, 'Guardar cambios'); return; }
     
     // Guardar GPS si cambió
     const latitud = parseFloat(document.getElementById('crear-grupo-latitud').value) || null;
@@ -790,6 +821,7 @@ async function guardarEdicionGrupo(id, nombre, materia, limite, perdones, codigo
     const titulo = document.getElementById('modal-crear-grupo-title') || document.querySelector('#modal-crear-grupo h2');
     if (titulo) titulo.textContent = '📚 Crear nuevo grupo';
     
+    setLoading('btn-guardar-grupo', false, 'Guardar cambios');
     cargarGrupos();
     // Si estamos en la vista detalle, refrescarla
     if (grupoSeleccionadoId === id) {
@@ -803,7 +835,7 @@ async function eliminarGrupo(id) {
     // 1. Verificar sesión activa
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (!session) {
-        alert('Error: Tu sesión ha expirado. Recarga la página y vuelve a iniciar sesión.');
+        mostrarToast('Error: Tu sesión ha expirado. Recarga la página y vuelve a iniciar sesión.', 'error');
         return;
     }
     
@@ -905,7 +937,8 @@ async function eliminarGrupo(id) {
                 + '    ADD FOREIGN KEY (grupo_id) REFERENCES grupos(id) ON DELETE CASCADE;';
         }
         
-        alert(mensaje);
+        mostrarToast('No se pudo eliminar el grupo por políticas de seguridad. Revisa la consola.', 'error');
+        console.warn(mensaje);
         
         if (errores.length > 0) {
             console.warn('Errores al limpiar tablas relacionadas:', errores);
@@ -939,7 +972,7 @@ async function exportarAsistencia(grupoId, grupoNombre) {
         
         if (errAl) throw errAl;
         if (!alumnos || alumnos.length === 0) {
-            alert('No hay alumnos inscritos en este grupo.');
+            mostrarToast('No hay alumnos inscritos en este grupo.', 'warning');
             if (btn) btn.textContent = '📊';
             return;
         }
@@ -955,7 +988,7 @@ async function exportarAsistencia(grupoId, grupoNombre) {
         if (fechasData) fechasData.forEach(a => fechasSet.add(a.fecha));
         
         if (fechasSet.size === 0) {
-            alert('Aún no hay registros de asistencia en este grupo.');
+            mostrarToast('Aún no hay registros de asistencia en este grupo.', 'warning');
             if (btn) btn.textContent = '📊';
             return;
         }
@@ -1056,7 +1089,7 @@ async function exportarAsistencia(grupoId, grupoNombre) {
         
     } catch (err) {
         console.error('Error exportando:', err);
-        alert('Error al exportar: ' + err.message);
+        mostrarToast('Error al exportar: ' + err.message, 'error');
         if (btn) btn.textContent = '📊';
     }
 }
@@ -1074,7 +1107,7 @@ async function verGrupo(grupoId) {
         .eq('id', grupoId)
         .single();
     
-    if (!grupo) return alert('Error al cargar grupo');
+    if (!grupo) return mostrarToast('Error al cargar grupo', 'error');
     
     document.getElementById('ver-grupo-info').textContent = `📚 ${grupo.nombre}${grupo.materia ? ' — ' + grupo.materia : ''}`;
     document.getElementById('modal-ver-grupo').classList.remove('hidden');
@@ -1338,7 +1371,7 @@ async function generarQR(grupoId, grupoNombre) {
     
     if (error || !sesion) {
         console.error('Error al crear sesión:', error, sesion);
-        alert('Error al crear sesión: ' + (error?.message || 'No se pudo crear la sesión.'));
+        mostrarToast('Error al crear sesión: ' + (error?.message || 'No se pudo crear la sesión.'), 'error');
         cerrarQR();
         return;
     }
@@ -1685,7 +1718,7 @@ async function perdonarAlumno(asistenciaId) {
         .eq('id', asistenciaId);
     
     if (error) {
-        alert('Error al perdonar: ' + error.message);
+        mostrarToast('Error al perdonar: ' + error.message, 'error');
         return;
     }
     
@@ -1732,7 +1765,7 @@ async function reabrirMonitoreo(grupoId) {
     
     const info = monitoreoActivoPorGrupo[grupoId];
     if (!info) {
-        alert('No hay una sesión activa para este grupo. Abre el QR primero.');
+        mostrarToast('No hay una sesión activa para este grupo. Abre el QR primero.', 'warning');
         return;
     }
     // Verificar que la sesión siga activa en BD
@@ -1744,7 +1777,7 @@ async function reabrirMonitoreo(grupoId) {
     
     if (!sesion || !sesion.activa) {
         delete monitoreoActivoPorGrupo[grupoId];
-        alert('La sesión de esta clase ya finalizó. Genera un nuevo QR para comenzar.');
+        mostrarToast('La sesión de esta clase ya finalizó. Genera un nuevo QR para comenzar.', 'warning');
         return;
     }
     
@@ -1754,6 +1787,7 @@ async function reabrirMonitoreo(grupoId) {
 // ====== COMPLETAR PERFIL (profesor - mismo fix que alumno) ======
 async function completarPerfil(e) {
     e.preventDefault();
+    setLoading('btn-completar-perfil', true);
     const nombre = document.getElementById('comp-nombre').value.trim();
     const errorDiv = document.getElementById('completar-error');
     errorDiv.textContent = 'Guardando...';
@@ -1761,6 +1795,7 @@ async function completarPerfil(e) {
     const { data: { user } } = await supabaseClient.auth.getUser();
     if (!user) {
         errorDiv.textContent = 'Error: No hay sesión activa.';
+        setLoading('btn-completar-perfil', false, 'Guardar y continuar');
         return;
     }
     
@@ -1775,6 +1810,7 @@ async function completarPerfil(e) {
     
     if (dbError) {
         errorDiv.textContent = 'Error al guardar: ' + dbError.message;
+        setLoading('btn-completar-perfil', false, 'Guardar y continuar');
         return;
     }
     
@@ -1873,7 +1909,7 @@ function copiarHorarioDia(origen) {
     const retardoOrig = origenRow.querySelector('.edit-retardo-min').value;
     
     if (!inicioOrig) {
-        alert('Primero configura el horario del día ' + DIAS[origen]);
+        mostrarToast('Primero configura el horario del día ' + DIAS[origen], 'warning');
         return;
     }
     
@@ -1887,7 +1923,7 @@ function copiarHorarioDia(origen) {
         }
     });
     
-    alert(`✅ Horario de ${DIAS[origen]} copiado a todos los días.`);
+    mostrarToast(`✅ Horario de ${DIAS[origen]} copiado a todos los días.`, 'exito');
 }
 
 async function guardarHorarios() {
@@ -1910,7 +1946,7 @@ async function guardarHorarios() {
     });
     
     if (horariosAGuardar.length === 0) {
-        alert('Configura al menos un día con horario.');
+        mostrarToast('Configura al menos un día con horario.', 'warning');
         return;
     }
     
@@ -1964,9 +2000,9 @@ async function guardarHorarios() {
     }
     
     if (errores > 0) {
-        alert('⚠️ Algunos horarios no se guardaron. Revisa la consola.');
+        mostrarToast('⚠️ Algunos horarios no se guardaron. Revisa la consola.', 'warning');
     } else {
-        alert('✅ Horarios guardados correctamente.');
+        mostrarToast('✅ Horarios guardados correctamente.', 'exito');
     }
     
     cerrarModalHorarios();
@@ -1976,7 +2012,7 @@ async function guardarHorarios() {
 // ====== GPS ======
 function obtenerUbicacionActual() {
     if (!navigator.geolocation) {
-        alert('Tu navegador no soporta geolocalización.');
+        mostrarToast('Tu navegador no soporta geolocalización.', 'error');
         return;
     }
     
@@ -1991,7 +2027,7 @@ function obtenerUbicacionActual() {
             document.getElementById('horario-longitud').placeholder = 'Longitud';
         },
         (err) => {
-            alert('No se pudo obtener la ubicación: ' + err.message);
+            mostrarToast('No se pudo obtener la ubicación: ' + err.message, 'error');
             document.getElementById('horario-latitud').placeholder = 'Latitud';
             document.getElementById('horario-longitud').placeholder = 'Longitud';
         },
@@ -2074,12 +2110,6 @@ async function verificarHorarios() {
     }
 }
 
-// Iniciar auto-scheduler cuando carga el dashboard
-document.addEventListener('DOMContentLoaded', () => {
-    // Ya existe un DOMContentLoaded arriba, pero este solo inicia el scheduler
-    // Se iniciará después del login exitoso
-});
-
 // ====== CONTROL DE SESIÓN ACTIVA ======
 // Evita que un mismo usuario tenga sesión en varios navegadores/dispositivos
 
@@ -2098,7 +2128,7 @@ function iniciarChequeoSesion(userId, tabla) {
             
             if (data && data.sesion_token && data.sesion_token !== tokenGuardado) {
                 detenerChequeoSesion();
-                alert('⚠️ Tu sesión fue cerrada porque iniciaste sesión desde otro navegador o dispositivo.');
+                mostrarToast('⚠️ Tu sesión fue cerrada porque iniciaste sesión desde otro dispositivo.', 'warning');
                 try {
                     await supabaseClient.auth.signOut();
                 } catch (e) {

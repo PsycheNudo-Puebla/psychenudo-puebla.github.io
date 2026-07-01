@@ -33,6 +33,7 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
 // ====== FUNCIONES DE LOGIN/REGISTRO ======
 async function handleLogin(e) {
     e.preventDefault();
+    setLoading('btn-login', true);
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
     
@@ -42,14 +43,38 @@ async function handleLogin(e) {
     
     if (error) {
         document.getElementById('login-error').textContent = 'Email o contraseña incorrectos';
+        setLoading('btn-login', false, 'Entrar');
         return;
     }
     
+    setLoading('btn-login', false, 'Entrar');
     await verificarYcargarAlumno(data.user);
+}
+
+async function handleResetPassword(e) {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value.trim();
+    if (!email) {
+        mostrarToast('Ingresa tu email en el campo de arriba primero.', 'warning');
+        return;
+    }
+    try {
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin + '/recursos/asistencia%20qr/alumno.html'
+        });
+        if (error) {
+            mostrarToast('Error: ' + error.message, 'error');
+        } else {
+            mostrarToast('📧 Revisa tu email para restablecer la contraseña.', 'exito');
+        }
+    } catch (err) {
+        mostrarToast('Error al enviar correo: ' + err.message, 'error');
+    }
 }
 
 async function handleRegister(e) {
     e.preventDefault();
+    setLoading('btn-register', true);
     const nombre = document.getElementById('reg-nombre').value;
     const matricula = document.getElementById('reg-matricula').value;
     const email = document.getElementById('reg-email').value;
@@ -72,6 +97,7 @@ async function handleRegister(e) {
     
     if (authError) {
         document.getElementById('register-error').textContent = authError.message;
+        setLoading('btn-register', false, 'Registrarme');
         return;
     }
     
@@ -97,17 +123,20 @@ async function handleRegister(e) {
         // Pre-llenar con lo que ya escribió
         document.getElementById('comp-nombre').value = nombre;
         document.getElementById('comp-matricula').value = matricula;
+        setLoading('btn-register', false, 'Registrarme');
         return;
     }
     
     // Si hay sesión (sin confirmación de email), cargar dashboard directamente
     if (authData.session) {
         alumnoActual = authData.user;
+        setLoading('btn-register', false, 'Registrarme');
         await cargarDatosAlumno(authData.user, 3);
     } else {
         document.getElementById('register-error').textContent = '';
         // El INSERT funcionó pero no hay sesión (email confirmation) — pedir login
-        alert('Registro exitoso. Revisa tu email para confirmar tu cuenta y luego inicia sesión.');
+        setLoading('btn-register', false, 'Registrarme');
+        mostrarToast('Registro exitoso. Revisa tu email para confirmar tu cuenta.', 'exito');
         showTab('login');
     }
 }
@@ -196,6 +225,7 @@ async function verificarYcargarAlumno(user) {
 
 async function completarPerfil(e) {
     e.preventDefault();
+    setLoading('btn-completar-perfil', true);
     const nombre = document.getElementById('comp-nombre').value.trim();
     const matricula = document.getElementById('comp-matricula').value.trim();
     const errorDiv = document.getElementById('completar-error');
@@ -205,6 +235,7 @@ async function completarPerfil(e) {
     const { data: { user } } = await supabaseClient.auth.getUser();
     if (!user) {
         errorDiv.textContent = 'Error: No hay sesión activa. Intenta cerrar y abrir la página.';
+        setLoading('btn-completar-perfil', false, 'Guardar y continuar');
         return;
     }
     
@@ -220,10 +251,12 @@ async function completarPerfil(e) {
     
     if (dbError) {
         errorDiv.textContent = 'Error al guardar: ' + dbError.message;
+        setLoading('btn-completar-perfil', false, 'Guardar y continuar');
         return;
     }
     
     // Éxito — cargar dashboard
+    setLoading('btn-completar-perfil', false, 'Guardar y continuar');
     alumnoActual = { id: user.id, nombre, email: user.email || '', matricula, device_id: deviceId };
     document.getElementById('alumno-nombre').textContent = `Hola, ${nombre}`;
     document.getElementById('login-view').classList.add('hidden');
@@ -446,7 +479,7 @@ async function unirseAGrupo(codigo) {
         return;
     }
     
-    alert(`✅ Te has unido al grupo: ${grupo.nombre}`);
+    mostrarToast(`✅ Te has unido al grupo: ${grupo.nombre}`, 'exito');
     cerrarModal();
     cargarGrupos();
 }
@@ -1089,7 +1122,7 @@ async function confirmarAsistencia() {
     if (cambiosContador >= cambiosLimite) {
         const { data: a } = await supabaseClient.from('asistencia').select('perdonada').eq('id', asistenciaActualId).maybeSingle();
         if (!a?.perdonada) {
-            alert('⚠️ Has excedido el límite. El profesor debe perdonarte primero.');
+            mostrarToast('⚠️ Has excedido el límite. El profesor debe perdonarte primero.', 'warning');
             return;
         }
     }
@@ -1134,7 +1167,7 @@ function iniciarChequeoSesion(userId, tabla) {
             
             if (data && data.sesion_token && data.sesion_token !== tokenGuardado) {
                 detenerChequeoSesion();
-                alert('⚠️ Tu sesión fue cerrada porque iniciaste sesión desde otro navegador o dispositivo.');
+                mostrarToast('⚠️ Tu sesión fue cerrada porque iniciaste sesión desde otro dispositivo.', 'warning');
                 try {
                     await supabaseClient.auth.signOut();
                 } catch (e) {
