@@ -136,7 +136,7 @@
     </div>
     
     <!-- MODAL: Crear grupo -->
-    <div id="modal-crear-grupo" class="modal-overlay hidden">
+    <div id="modal-crear-grupo" class="modal-overlay hidden" onclick="if(event.target===this) cerrarModal()">
         <div class="modal" style="max-width: 580px;">
             <h3 id="modal-crear-grupo-title">📚 Crear nuevo grupo</h3>
             <form id="form-crear-grupo">
@@ -197,7 +197,7 @@
     </div>
 
     <!-- MODAL: QR de asistencia -->
-    <div id="modal-qr-asistencia" class="modal-overlay hidden">
+    <div id="modal-qr-asistencia" class="modal-overlay hidden" onclick="if(event.target===this) cerrarQR()">
         <div class="modal modal-qr">
             <h3 id="qr-modal-titulo">📷 Código QR de Asistencia</h3>
             <p style="color: #666; text-align: center; font-size: 0.9em; margin-bottom: 5px;">
@@ -216,17 +216,8 @@
     </div>
 
     <!-- MODAL: Horarios (redirigido al modal de edición por JS) -->
-    <div id="modal-horarios" class="modal-overlay hidden">
-        <div class="modal" style="max-width: 400px; text-align:center; padding:30px;">
-            <h3>📅 Horarios de clase</h3>
-            <p style="color:#666;">La configuración de horarios ahora está integrada en el editor de grupos.</p>
-            <p style="margin:16px 0; font-size:1.2em;">✏️ Usa el botón <strong>Editar</strong> en la lista de grupos.</p>
-            <button onclick="cerrarModalHorarios()" class="btn-secondary">Cerrar</button>
-        </div>
-    </div>
-    
     <!-- MODAL: Ver asistencias del grupo -->
-    <div id="modal-ver-grupo" class="modal-overlay hidden">
+    <div id="modal-ver-grupo" class="modal-overlay hidden" onclick="if(event.target===this) cerrarModalVer()">
         <div class="modal" style="max-width: 800px;">
             <h3>📋 Asistencias del grupo</h3>
             <p id="ver-grupo-info" style="color: #666; font-size: 0.9em; margin-bottom: 8px;"></p>

@@ -143,7 +143,7 @@
     </div>
 
     <!-- MODAL: Unirse a grupo -->
-    <div id="modal-unirse-grupo" class="modal-overlay hidden">
+    <div id="modal-unirse-grupo" class="modal-overlay hidden" onclick="if(event.target===this) cerrarModal()">
         <div class="modal">
             <h3>Unirse a un grupo</h3>
             <form id="form-unirse-grupo">

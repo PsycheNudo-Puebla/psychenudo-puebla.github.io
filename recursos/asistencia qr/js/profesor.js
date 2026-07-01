@@ -2099,192 +2099,7 @@ async function completarPerfil(e) {
     cargarGrupos();
 }
 
-// ====== HORARIOS DE CLASE (por día) ======
-let horariosGrupoActual = null;
 const DIAS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-const DIAS_CORTO = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-
-function mostrarModalHorarios(grupoId, grupoNombre) {
-    // Redirigir al modal de edición que ahora incluye horarios
-    mostrarEditarGrupo(grupoId);
-}
-
-function cerrarModalHorarios() {
-    document.getElementById('modal-horarios').classList.add('hidden');
-    horariosGrupoActual = null;
-}
-
-async function generarFilasHorarios(grupoId) {
-    const container = document.getElementById('horarios-dias-container');
-    container.innerHTML = '';
-    
-    // Cargar horarios existentes del grupo
-    const { data: horarios } = await supabaseClient
-        .from('horarios')
-        .select('*')
-        .eq('grupo_id', grupoId)
-        .eq('activo', true);
-    
-    const horarioMap = {};
-    if (horarios) {
-        horarios.forEach(h => { horarioMap[h.dia_semana] = h; });
-    }
-    
-    for (let dia = 0; dia <= 6; dia++) {
-        const existente = horarioMap[dia];
-        const row = document.createElement('div');
-        row.className = 'dia-horario-row';
-        const pMin = existente ? (existente.puntual_minutos ?? 10) : 10;
-        const rMin = existente ? (existente.retardo_minutos ?? 20) : 20;
-        row.innerHTML = `
-            <div class="dia-horario-label">${DIAS[dia]}</div>
-            <div class="dia-horario-inputs">
-                <input type="time" class="hora-inicio-dia" value="${existente ? existente.hora_inicio.substring(0,5) : ''}" placeholder="Inicio" data-dia="${dia}">
-                <span style="color:#999;">→</span>
-                <input type="time" class="hora-fin-dia" value="${existente ? existente.hora_fin.substring(0,5) : ''}" placeholder="Fin" data-dia="${dia}">
-            </div>
-            <div style="display:flex;align-items:center;gap:2px;white-space:nowrap;">
-                <span class="dia-limite-label">🟢</span>
-                <input type="number" class="dia-limite-input edit-puntual-min" value="${pMin}" min="1" max="120" data-dia="${dia}">
-                <span class="dia-limite-label">🟡</span>
-                <input type="number" class="dia-limite-input edit-retardo-min" value="${rMin}" min="1" max="999" data-dia="${dia}">
-            </div>
-            <span class="dia-sin-clase" style="${existente ? 'display:none;' : ''}">(sin clase)</span>
-            <button class="btn-copy-horario" onclick="copiarHorarioDia(${dia})" title="Copiar horario a todos los días">📋</button>
-        `;
-        
-        // Auto-completar hora_fin cuando cambia hora_inicio (+50 min)
-        const inicioInput = row.querySelector('.hora-inicio-dia');
-        const finInput = row.querySelector('.hora-fin-dia');
-        const sinClaseSpan = row.querySelector('.dia-sin-clase');
-        
-        inicioInput.addEventListener('change', () => {
-            if (inicioInput.value && !finInput.value) {
-                const [h, m] = inicioInput.value.split(':').map(Number);
-                const fin = new Date();
-                fin.setHours(h, m + 50, 0);
-                finInput.value = `${fin.getHours().toString().padStart(2,'0')}:${fin.getMinutes().toString().padStart(2,'0')}`;
-            }
-            sinClaseSpan.style.display = (inicioInput.value || finInput.value) ? 'none' : '';
-        });
-        
-        finInput.addEventListener('change', () => {
-            sinClaseSpan.style.display = (inicioInput.value || finInput.value) ? 'none' : '';
-        });
-        
-        container.appendChild(row);
-    }
-}
-
-function copiarHorarioDia(origen) {
-    const rows = document.querySelectorAll('#horarios-dias-container .dia-horario-row');
-    if (rows.length === 0) return;
-    const origenRow = rows[origen];
-    const inicioOrig = origenRow.querySelector('.hora-inicio-dia').value;
-    const finOrig = origenRow.querySelector('.hora-fin-dia').value;
-    const puntualOrig = origenRow.querySelector('.edit-puntual-min').value;
-    const retardoOrig = origenRow.querySelector('.edit-retardo-min').value;
-    
-    if (!inicioOrig) {
-        mostrarToast('Primero configura el horario del día ' + DIAS[origen], 'warning');
-        return;
-    }
-    
-    rows.forEach((row, i) => {
-        if (i !== origen) {
-            row.querySelector('.hora-inicio-dia').value = inicioOrig;
-            row.querySelector('.hora-fin-dia').value = finOrig;
-            row.querySelector('.edit-puntual-min').value = puntualOrig;
-            row.querySelector('.edit-retardo-min').value = retardoOrig;
-            row.querySelector('.dia-sin-clase').style.display = 'none';
-        }
-    });
-    
-    mostrarToast(`✅ Horario de ${DIAS[origen]} copiado a todos los días.`, 'exito');
-}
-
-async function guardarHorarios() {
-    if (!horariosGrupoActual) return;
-    
-    const rows = document.querySelectorAll('#horarios-dias-container .dia-horario-row');
-    let horariosAGuardar = [];
-    
-    rows.forEach((row, dia) => {
-        const inicio = row.querySelector('.hora-inicio-dia').value;
-        const fin = row.querySelector('.hora-fin-dia').value;
-        const puntual = parseInt(row.querySelector('.edit-puntual-min').value) || 10;
-        const retardo = parseInt(row.querySelector('.edit-retardo-min').value) || 20;
-        if (inicio && fin) {
-            // Normalizar formato TIME (PostgreSQL espera HH:MM:SS)
-            const horaInicio = inicio.length === 5 ? inicio + ':00' : inicio;
-            const horaFin = fin.length === 5 ? fin + ':00' : fin;
-            horariosAGuardar.push({ dia_semana: dia, hora_inicio: horaInicio, hora_fin: horaFin, puntual_minutos: puntual, retardo_minutos: retardo });
-        }
-    });
-    
-    if (horariosAGuardar.length === 0) {
-        mostrarToast('Configura al menos un día con horario.', 'warning');
-        return;
-    }
-    
-    // Guardar GPS en el grupo (si se configuró)
-    const latitud = parseFloat(document.getElementById('horario-latitud').value) || null;
-    const longitud = parseFloat(document.getElementById('horario-longitud').value) || null;
-    const radio = parseInt(document.getElementById('horario-radio').value) || null;
-    const perdones = parseInt(document.getElementById('horario-perdones').value) ?? 2;
-    
-    const updateData = { numero_perdones: perdones };
-    if (latitud && longitud) {
-        updateData.latitud = latitud;
-        updateData.longitud = longitud;
-        updateData.radio_metros = radio || 100;
-    }
-    const { error: errGrupo } = await supabaseClient
-        .from('grupos')
-        .update(updateData)
-        .eq('id', horariosGrupoActual);
-    if (errGrupo) {
-        console.error('Error actualizando grupo:', JSON.stringify(errGrupo));
-    }
-    
-    // Desactivar horarios anteriores
-    const { error: errDesactivar } = await supabaseClient
-        .from('horarios')
-        .update({ activo: false })
-        .eq('grupo_id', horariosGrupoActual)
-        .eq('activo', true);
-    if (errDesactivar) {
-        console.error('Error desactivando horarios:', JSON.stringify(errDesactivar));
-    }
-    
-    // Insertar nuevos horarios (cada día con sus límites)
-    let errores = 0;
-    for (const h of horariosAGuardar) {
-        const { error } = await supabaseClient
-            .from('horarios')
-            .insert({
-                grupo_id: horariosGrupoActual,
-                dia_semana: h.dia_semana,
-                hora_inicio: h.hora_inicio,
-                hora_fin: h.hora_fin,
-                activo: true,
-                creado_en: new Date().toISOString()
-            });
-        if (error) {
-            console.error('Error guardando horario - mensaje:', error.message, 'detalles:', error.details, 'codigo:', error.code, 'hint:', error.hint);
-            errores++;
-        }
-    }
-    
-    if (errores > 0) {
-        mostrarToast('⚠️ Algunos horarios no se guardaron. Revisa la consola.', 'warning');
-    } else {
-        mostrarToast('✅ Horarios guardados correctamente.', 'exito');
-    }
-    
-    cerrarModalHorarios();
-    cargarGrupos();
-}
 
 // ====== GPS ======
 function obtenerUbicacionActual() {
@@ -2328,62 +2143,66 @@ function detenerAutoScheduler() {
 }
 
 async function verificarHorarios() {
-    if (!profesorActual || !profesorActual.id) return;
-    
-    const hoy = new Date().getDay();
-    const ahora = new Date();
-    const horaActual = `${ahora.getHours().toString().padStart(2,'0')}:${ahora.getMinutes().toString().padStart(2,'0')}`;
-    
-    // Obtener todos los grupos del profesor
-    const { data: grupos } = await supabaseClient
-        .from('grupos')
-        .select('id, nombre')
-        .eq('profesor_id', profesorActual.id);
-    
-    if (!grupos || grupos.length === 0) return;
-    
-    const grupoIds = grupos.map(g => g.id);
-    
-    // Obtener horarios activos para hoy
-    const { data: horarios } = await supabaseClient
-        .from('horarios')
-        .select('*, grupos!inner(nombre)')
-        .in('grupo_id', grupoIds)
-        .eq('dia_semana', hoy)
-        .eq('activo', true);
-    
-    if (!horarios || horarios.length === 0) return;
-    
-    for (const h of horarios) {
-        const inicio = h.hora_inicio.substring(0, 5);
-        const fin = h.hora_fin.substring(0, 5);
+    try {
+        if (!profesorActual || !profesorActual.id) return;
         
-        // Solo abrir si estamos dentro del horario de clase
-        if (horaActual >= inicio && horaActual <= fin) {
-            // Verificar si ya hay sesión activa para este grupo
-            const { data: sesionActiva } = await supabaseClient
-                .from('sesiones_clase')
-                .select('id')
-                .eq('grupo_id', h.grupo_id)
-                .eq('activa', true)
-                .maybeSingle();
+        const hoy = new Date().getDay();
+        const ahora = new Date();
+        const horaActual = `${ahora.getHours().toString().padStart(2,'0')}:${ahora.getMinutes().toString().padStart(2,'0')}`;
+        
+        // Obtener todos los grupos del profesor
+        const { data: grupos } = await supabaseClient
+            .from('grupos')
+            .select('id, nombre')
+            .eq('profesor_id', profesorActual.id);
+        
+        if (!grupos || grupos.length === 0) return;
+        
+        const grupoIds = grupos.map(g => g.id);
+        
+        // Obtener horarios activos para hoy
+        const { data: horarios } = await supabaseClient
+            .from('horarios')
+            .select('*, grupos!inner(nombre)')
+            .in('grupo_id', grupoIds)
+            .eq('dia_semana', hoy)
+            .eq('activo', true);
+        
+        if (!horarios || horarios.length === 0) return;
+        
+        for (const h of horarios) {
+            const inicio = h.hora_inicio.substring(0, 5);
+            const fin = h.hora_fin.substring(0, 5);
             
-            if (!sesionActiva) {
-                // Auto-generar QR
-                const grupo = grupos.find(g => g.id === h.grupo_id);
-                if (grupo) {
-                    console.log('⏰ Auto-generando QR para:', grupo.nombre);
-                    await generarQR(h.grupo_id, grupo.nombre);
+            // Solo abrir si estamos dentro del horario de clase
+            if (horaActual >= inicio && horaActual <= fin) {
+                // Verificar si ya hay sesión activa para este grupo
+                const { data: sesionActiva } = await supabaseClient
+                    .from('sesiones_clase')
+                    .select('id')
+                    .eq('grupo_id', h.grupo_id)
+                    .eq('activa', true)
+                    .maybeSingle();
+                
+                if (!sesionActiva) {
+                    // Auto-generar QR
+                    const grupo = grupos.find(g => g.id === h.grupo_id);
+                    if (grupo) {
+                        console.log('⏰ Auto-generando QR para:', grupo.nombre);
+                        await generarQR(h.grupo_id, grupo.nombre);
+                    }
                 }
+            } else if (horaActual > fin) {
+                // Cerrar sesiones vencidas
+                await supabaseClient
+                    .from('sesiones_clase')
+                    .update({ activa: false })
+                    .eq('grupo_id', h.grupo_id)
+                    .eq('activa', true);
             }
-        } else if (horaActual > fin) {
-            // Cerrar sesiones vencidas
-            await supabaseClient
-                .from('sesiones_clase')
-                .update({ activa: false })
-                .eq('grupo_id', h.grupo_id)
-                .eq('activa', true);
         }
+    } catch (e) {
+        console.error('Error en verificarHorarios:', e);
     }
 }
 

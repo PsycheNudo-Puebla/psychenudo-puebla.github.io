@@ -1011,7 +1011,13 @@ function iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite) {
                 }
             }
         })
-        .subscribe();
+        .subscribe((status, err) => {
+            if (status === 'SUBSCRIBED') {
+                console.log('✅ Canal de monitoreo conectado');
+            } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+                console.warn('⚠️ Canal de monitoreo:', status, err);
+            }
+        });
     
     // Verificar cada 5s: cuándo mostrar botón y si la sesión terminó
     if (monitorInterval) clearInterval(monitorInterval);
