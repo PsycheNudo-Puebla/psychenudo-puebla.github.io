@@ -291,32 +291,23 @@ async function cargarGrupos() {
     }
     
     lista.innerHTML = data.map(grupo => `
-        <div class="list-item" style="flex-direction: column; align-items: stretch; gap: 10px;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                <div>
-                    <strong style="font-size:1.1em;">${grupo.nombre}</strong>
-                    <br><small>${grupo.materia || 'Sin materia'} · Límite: ${grupo.limite_salidas} salidas · ${grupo.numero_perdones} perdones</small>
+        <div class="list-item" style="flex-direction: column; align-items: stretch; gap: 8px; cursor:pointer;" onclick="seleccionarGrupo('${grupo.id}')">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="flex:1;">
+                    <strong style="font-size:1.15em; color:#333;">${grupo.nombre}</strong>
+                    <br><small style="color:#888;">${grupo.materia || 'Sin materia'} · Límite: ${grupo.limite_salidas} salidas · ${grupo.numero_perdones} perdones</small>
                 </div>
-                <div class="list-item-actions" style="flex-shrink: 0; gap: 4px;">
+                <div class="list-item-actions" style="flex-shrink:0; gap:4px;" onclick="event.stopPropagation();">
                     <button onclick="mostrarEditarGrupo('${grupo.id}')" class="btn-secondary" title="Editar grupo y horarios">✏️</button>
-                    <button onclick="generarQR('${grupo.id}', '${grupo.nombre}')" class="btn-qr">📷 QR</button>
-                    <button onclick="reabrirMonitoreo('${grupo.id}')" class="btn-secondary" title="Monitoreo en vivo">📡</button>
-                    <button onclick="exportarAsistencia('${grupo.id}', '${grupo.nombre}')" class="btn-secondary" title="Exportar asistencias">📊</button>
-                    <button onclick="verGrupo('${grupo.id}')" class="btn-secondary">Ver</button>
-                    <button onclick="eliminarGrupo('${grupo.id}')" class="btn-danger">🗑️</button>
+                    <button onclick="eliminarGrupo('${grupo.id}')" class="btn-danger" title="Eliminar grupo">🗑️</button>
                 </div>
             </div>
             <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                <div style="background: #f0f4ff; border: 2px dashed #667eea; border-radius: 12px; padding: 10px 14px; text-align: center; flex:1;">
-                    <div style="font-size: 0.75em; color: #667eea; font-weight: 600; margin-bottom: 2px;">🔑 CÓDIGO</div>
-                    <div style="font-size: 1.4em; font-family: monospace; letter-spacing: 4px; font-weight: 700; color: #333;">
-                        ${grupo.codigo_unico || '---'}
-                    </div>
-                    <button onclick="copiarCodigo('${grupo.codigo_unico}')" style="margin-top: 4px; background: #667eea; color: white; border: none; border-radius: 6px; padding: 4px 12px; font-size: 0.8em; cursor: pointer;">
-                        📋 Copiar
-                    </button>
+                <div style="background:#f5f7ff; border-radius:8px; padding:6px 12px; font-size:0.8em; font-family:monospace; letter-spacing:2px; color:#667eea; display:flex; align-items:center; gap:6px;">
+                    🔑 ${grupo.codigo_unico || '---'}
+                    <span onclick="event.stopPropagation(); copiarCodigo('${grupo.codigo_unico}')" style="cursor:pointer; color:#999; font-size:1.1em;" title="Copiar código">📋</span>
                 </div>
-                <div id="grupo-horario-resumen-${grupo.id}" style="background: #f9fafb; border-radius: 12px; padding: 10px 14px; flex:2; font-size:0.85em; color:#555;">
+                <div id="grupo-horario-resumen-${grupo.id}" style="flex:1; font-size:0.8em; color:#888; display:flex; align-items:center;">
                     Cargando horarios...
                 </div>
             </div>
@@ -375,6 +366,97 @@ async function cargarResumenHorarios(grupoId) {
             }
         }
         html += `</div>`;
+        container.innerHTML = html;
+    } catch (e) {
+        container.innerHTML = `<span style="color:#999;">⏰ Sin horarios</span>`;
+    }
+}
+
+// ====== NAVEGACIÓN MASTER-DETAIL ======
+let grupoSeleccionadoId = null;
+
+function seleccionarGrupo(grupoId) {
+    grupoSeleccionadoId = grupoId;
+    document.getElementById('grupos-list-view').classList.add('hidden');
+    document.getElementById('grupo-detalle-view').classList.remove('hidden');
+    renderDetalleGrupo(grupoId);
+}
+
+function volverALista() {
+    grupoSeleccionadoId = null;
+    document.getElementById('grupo-detalle-view').classList.add('hidden');
+    document.getElementById('grupos-list-view').classList.remove('hidden');
+    // Ocultar monitoreo al volver
+    document.getElementById('monitoreo-panel').classList.add('hidden');
+    if (monitorProfChannel) {
+        supabaseClient.removeChannel(monitorProfChannel);
+        monitorProfChannel = null;
+    }
+    monitorGrupoId = null;
+    cargarGrupos();
+}
+
+async function renderDetalleGrupo(grupoId) {
+    const { data: grupo, error } = await supabaseClient
+        .from('grupos')
+        .select('*')
+        .eq('id', grupoId)
+        .maybeSingle();
+    if (error || !grupo) { volverALista(); return; }
+    
+    // Cabecera
+    document.getElementById('detalle-grupo-nombre').textContent = grupo.nombre;
+    document.getElementById('detalle-grupo-materia').textContent = grupo.materia || 'Sin materia';
+    document.getElementById('detalle-grupo-codigo').textContent = grupo.codigo_unico || '---';
+    
+    // Horarios
+    cargarDetalleHorarios(grupoId);
+    
+    // Botones
+    const btnQR = document.getElementById('detalle-btn-qr');
+    const btnMonitoreo = document.getElementById('detalle-btn-monitoreo');
+    const btnExportar = document.getElementById('detalle-btn-exportar');
+    const btnVer = document.getElementById('detalle-btn-ver');
+    const btnEditar = document.getElementById('detalle-btn-editar');
+    
+    // Reemplazar onclick para que usen el grupo actual
+    btnQR.onclick = () => generarQR(grupoId, grupo.nombre);
+    btnMonitoreo.onclick = () => reabrirMonitoreo(grupoId);
+    btnExportar.onclick = () => exportarAsistencia(grupoId, grupo.nombre);
+    btnVer.onclick = () => verGrupo(grupoId);
+    btnEditar.onclick = () => mostrarEditarGrupo(grupoId);
+}
+
+async function cargarDetalleHorarios(grupoId) {
+    const container = document.getElementById('detalle-grupo-horarios');
+    try {
+        const { data, error } = await supabaseClient
+            .from('horarios')
+            .select('*')
+            .eq('grupo_id', grupoId)
+            .order('dia_semana', { ascending: true });
+        if (error) throw error;
+        if (!data || data.length === 0) {
+            container.innerHTML = `<span style="color:#999;">⏰ Sin horarios configurados</span>`;
+            return;
+        }
+        const diasNum = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+        const agrupados = {};
+        data.forEach(h => {
+            if (!agrupados[h.dia_semana]) agrupados[h.dia_semana] = [];
+            agrupados[h.dia_semana].push(h);
+        });
+        let html = `<strong style="font-size:0.85em;">📅 Horarios:</strong> `;
+        for (let d = 0; d <= 6; d++) {
+            if (agrupados[d]) {
+                const horariosDia = agrupados[d].map(h =>
+                    `${h.hora_inicio.substring(0,5)}-${h.hora_fin.substring(0,5)}`
+                ).join(', ');
+                html += `<span style="background:#e8edf5; padding:2px 8px; border-radius:8px; font-size:0.85em; margin:2px;">
+                    <strong>${diasNum[d]}</strong> ${horariosDia}
+                </span>`;
+            }
+        }
         container.innerHTML = html;
     } catch (e) {
         container.innerHTML = `<span style="color:#999;">⏰ Sin horarios</span>`;
@@ -585,6 +667,8 @@ async function crearGrupo(nombre, materia, limite, perdones, codigoUnico) {
     }
     
     cargarGrupos();
+    // Ir al detalle del grupo recién creado
+    seleccionarGrupo(grupo.id);
 }
 
 async function mostrarEditarGrupo(grupoId) {
@@ -707,6 +791,10 @@ async function guardarEdicionGrupo(id, nombre, materia, limite, perdones, codigo
     if (titulo) titulo.textContent = '📚 Crear nuevo grupo';
     
     cargarGrupos();
+    // Si estamos en la vista detalle, refrescarla
+    if (grupoSeleccionadoId === id) {
+        renderDetalleGrupo(id);
+    }
 }
 
 async function eliminarGrupo(id) {
@@ -831,6 +919,10 @@ async function eliminarGrupo(id) {
     }
     
     cargarGrupos();
+    // Si estábamos en el detalle de este grupo, volver a la lista
+    if (grupoSeleccionadoId === id) {
+        volverALista();
+    }
 }
 
 // ====== EXPORTAR ASISTENCIA A CSV ======
@@ -1632,6 +1724,12 @@ function cerrarMonitoreo() {
 
 /** Reabrir panel de monitoreo para un grupo que tenga sesión activa */
 async function reabrirMonitoreo(grupoId) {
+    // Si estamos en la lista, ir al detalle primero
+    const detalleView = document.getElementById('grupo-detalle-view');
+    if (detalleView.classList.contains('hidden')) {
+        seleccionarGrupo(grupoId);
+    }
+    
     const info = monitoreoActivoPorGrupo[grupoId];
     if (!info) {
         alert('No hay una sesión activa para este grupo. Abre el QR primero.');

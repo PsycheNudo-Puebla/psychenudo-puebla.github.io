@@ -67,31 +67,66 @@
             </div>
         </header>
         
-        <!-- Lista de grupos -->
-        <div class="card">
-            <h2>Mis Grupos</h2>
-            <button onclick="showCreateGroupModal()" class="btn-primary">+ Crear nuevo grupo</button>
-            <div id="grupos-lista" class="list-container">
-                <p class="empty-state">No tienes grupos aún. Crea uno para empezar.</p>
+        <!-- VISTA LISTA DE GRUPOS (master) -->
+        <div id="grupos-list-view">
+            <div class="card">
+                <h2>Mis Grupos</h2>
+                <button onclick="showCreateGroupModal()" class="btn-primary">+ Crear nuevo grupo</button>
+                <div id="grupos-lista" class="list-container">
+                    <p class="empty-state">No tienes grupos aún. Crea uno para empezar.</p>
+                </div>
             </div>
         </div>
 
-        <!-- Monitoreo en vivo (visible solo durante clase activa) -->
-        <div id="monitoreo-panel" class="card hidden">
-            <h2 style="display: flex; align-items: center; gap: 8px; justify-content: center;">
-                <span>📊 Monitoreo en Vivo</span>
-                <span id="monitoreo-estado-badge" style="font-size: 0.6em; background: #4caf50; color: white; padding: 3px 10px; border-radius: 20px;">ACTIVO</span>
-            </h2>
-            <p style="text-align: center; color: #666; font-size: 0.85em; margin-bottom: 12px;">
-                Grupo: <strong id="monitoreo-grupo-nombre"></strong> 
-                · Perdones: <span id="monitoreo-perdones-usados">0</span>/<span id="monitoreo-perdones-max">2</span>
-                · <span id="monitoreo-alumnos-count">0</span> alumnos
-            </p>
-            <div id="monitoreo-lista" class="list-container" style="max-height: 400px; overflow-y: auto;">
-                <p class="empty-state">Esperando que los alumnos escaneen el QR...</p>
+        <!-- VISTA DETALLE DEL GRUPO (detail) -->
+        <div id="grupo-detalle-view" class="hidden">
+            <div class="card" style="position:relative;">
+                <button onclick="volverALista()" style="background:none; border:none; color:#667eea; cursor:pointer; font-size:0.9em; margin-bottom:10px; display:flex; align-items:center; gap:4px;">
+                    ← Volver a mis grupos
+                </button>
+                
+                <!-- Cabecera del grupo -->
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <h2 id="detalle-grupo-nombre" style="margin:0;"></h2>
+                        <p id="detalle-grupo-materia" style="color:#666; font-size:0.9em; margin:4px 0 0;"></p>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:0.75em; color:#667eea; font-weight:600;">🔑 CÓDIGO</div>
+                        <div id="detalle-grupo-codigo" style="font-size:1.3em; font-family:monospace; letter-spacing:3px; font-weight:700;"></div>
+                    </div>
+                </div>
+
+                <!-- Resumen de horarios -->
+                <div id="detalle-grupo-horarios" style="margin:12px 0; font-size:0.85em; color:#555;"></div>
+
+                <!-- Acciones del grupo -->
+                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; padding-top:12px; border-top:1px solid #eee;">
+                    <button id="detalle-btn-qr" class="btn-qr" style="flex:1; min-width:80px;">📷 QR</button>
+                    <button id="detalle-btn-monitoreo" class="btn-secondary" style="flex:1; min-width:80px;">📡 Monitoreo</button>
+                    <button id="detalle-btn-exportar" class="btn-secondary" style="flex:1; min-width:80px;">📊 Exportar</button>
+                    <button id="detalle-btn-ver" class="btn-secondary" style="flex:1; min-width:80px;">Ver</button>
+                    <button id="detalle-btn-editar" class="btn-secondary" style="flex:1; min-width:80px;">✏️ Editar</button>
+                </div>
             </div>
-            <div style="text-align: center; margin-top: 12px;">
-                <button onclick="cerrarMonitoreo()" class="btn-secondary" style="width: 100%;">Cerrar monitoreo</button>
+
+            <!-- Monitoreo en vivo (dentro del detalle) -->
+            <div id="monitoreo-panel" class="card hidden">
+                <h2 style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+                    <span>📊 Monitoreo en Vivo</span>
+                    <span id="monitoreo-estado-badge" style="font-size: 0.6em; background: #4caf50; color: white; padding: 3px 10px; border-radius: 20px;">ACTIVO</span>
+                </h2>
+                <p style="text-align: center; color: #666; font-size: 0.85em; margin-bottom: 12px;">
+                    Grupo: <strong id="monitoreo-grupo-nombre"></strong> 
+                    · Perdones: <span id="monitoreo-perdones-usados">0</span>/<span id="monitoreo-perdones-max">2</span>
+                    · <span id="monitoreo-alumnos-count">0</span> alumnos
+                </p>
+                <div id="monitoreo-lista" class="list-container" style="max-height: 400px; overflow-y: auto;">
+                    <p class="empty-state">Esperando que los alumnos escaneen el QR...</p>
+                </div>
+                <div style="text-align: center; margin-top: 12px;">
+                    <button onclick="cerrarMonitoreo()" class="btn-secondary" style="width: 100%;">Cerrar monitoreo</button>
+                </div>
             </div>
         </div>
     </div>
