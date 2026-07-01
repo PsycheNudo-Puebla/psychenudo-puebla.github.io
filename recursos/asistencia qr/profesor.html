@@ -108,8 +108,8 @@
                 <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; padding-top:12px; border-top:1px solid #eee;">
                     <button id="detalle-btn-qr" class="btn-qr" style="flex:1; min-width:80px;">📷 QR</button>
                     <button id="detalle-btn-monitoreo" class="btn-secondary" style="flex:1; min-width:80px;">📡 Monitoreo</button>
-                    <button id="detalle-btn-exportar" class="btn-secondary" style="flex:1; min-width:80px;">📊 Exportar</button>
-                    <button id="detalle-btn-ver" class="btn-secondary" style="flex:1; min-width:80px;">Ver</button>
+                    <button id="detalle-btn-exportar" class="btn-secondary" style="flex:1; min-width:80px;">📊 Excel</button>
+                    <button id="detalle-btn-ver" class="btn-secondary" style="flex:1; min-width:80px;">📋 Ver</button>
                     <button id="detalle-btn-editar" class="btn-secondary" style="flex:1; min-width:80px;">✏️ Editar</button>
                 </div>
             </div>
@@ -227,16 +227,22 @@
     
     <!-- MODAL: Ver asistencias del grupo -->
     <div id="modal-ver-grupo" class="modal-overlay hidden">
-        <div class="modal" style="max-width: 700px;">
+        <div class="modal" style="max-width: 800px;">
             <h3>📋 Asistencias del grupo</h3>
             <p id="ver-grupo-info" style="color: #666; font-size: 0.9em; margin-bottom: 8px;"></p>
             
-            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap;">
-                <span style="font-weight:600; font-size:0.9em; color:#555;">Filtrar:</span>
-                <select id="ver-filtro-alumno" style="flex:1; min-width:180px; padding:10px 12px; border:2px solid #e0e0e0; border-radius:10px; font-size:15px;">
-                    <option value="">— Todos los alumnos —</option>
+            <!-- Filtros mejorados -->
+            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
+                <span style="font-weight:600; font-size:0.85em; color:#555;">Alumno:</span>
+                <select id="ver-filtro-alumno" style="flex:1; min-width:140px; padding:9px 10px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;">
+                    <option value="">— Todos —</option>
                 </select>
-                <button onclick="renderVerGrupo()" class="btn-primary" style="padding:10px 20px; width:auto;">Actualizar</button>
+                <input type="text" id="ver-buscar-alumno" placeholder="🔍 Buscar..." style="flex:1; min-width:120px; padding:9px 10px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;">
+                <span style="font-weight:600; font-size:0.85em; color:#555;">Desde:</span>
+                <input type="date" id="ver-filtro-desde" style="padding:9px 10px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;">
+                <span style="font-weight:600; font-size:0.85em; color:#555;">Hasta:</span>
+                <input type="date" id="ver-filtro-hasta" style="padding:9px 10px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;">
+                <button onclick="renderVerGrupo()" class="btn-primary" style="padding:9px 18px; width:auto; font-size:14px;">Filtrar</button>
             </div>
             
             <div id="ver-grupo-contenido" style="max-height: 60vh; overflow-y: auto;">

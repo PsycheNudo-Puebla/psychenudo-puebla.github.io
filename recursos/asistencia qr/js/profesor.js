@@ -958,9 +958,9 @@ async function eliminarGrupo(id) {
     }
 }
 
-// ====== EXPORTAR ASISTENCIA A CSV ======
+// ====== EXPORTAR ASISTENCIA A EXCEL (.xls) CON COLORES ======
 async function exportarAsistencia(grupoId, grupoNombre) {
-    const btn = event?.target || document.querySelector(`button[onclick*="${grupoId}"]`);
+    const btn = document.getElementById('detalle-btn-exportar');
     if (btn) btn.textContent = '⏳...';
     
     try {
@@ -977,7 +977,7 @@ async function exportarAsistencia(grupoId, grupoNombre) {
             return;
         }
         
-        // 2. Obtener todas las fechas con asistencia (ordenadas ascendente)
+        // 2. Obtener todas las fechas con asistencia
         const { data: fechasData } = await supabaseClient
             .from('asistencia')
             .select('fecha')
@@ -995,7 +995,7 @@ async function exportarAsistencia(grupoId, grupoNombre) {
         
         const fechas = Array.from(fechasSet);
         
-        // 3. Obtener todos los registros de asistencia para este grupo
+        // 3. Obtener todos los registros de asistencia
         const { data: asistencias, error: errAs } = await supabaseClient
             .from('asistencia')
             .select('*')
@@ -1003,7 +1003,6 @@ async function exportarAsistencia(grupoId, grupoNombre) {
         
         if (errAs) throw errAs;
         
-        // Indexar asistencias por alumno+fecha
         const asistenciaMap = {};
         if (asistencias) {
             asistencias.forEach(a => {
@@ -1012,73 +1011,196 @@ async function exportarAsistencia(grupoId, grupoNombre) {
             });
         }
         
-        // 4. Construir CSV
-        const BOM = '\uFEFF'; // BOM para que Excel detecte UTF-8
-        const separador = ',';
+        // 4. Helper para obtener estado y estilo
+        function getEstadoCelda(a) {
+            if (!a) return { texto: '—', estilo: 'SinReg' };
+            if (a.tipo_asistencia === 'sin_derecho') return { texto: 'SD', estilo: 'SinDer' };
+            if (a.estado === 'presente' && a.tipo_asistencia === 'retardo') return { texto: 'Retardo', estilo: 'Retardo' };
+            if (a.estado === 'presente' && (!a.tipo_asistencia || a.tipo_asistencia === 'presente') && (a.cambios_pantalla || 0) >= 3) {
+                return { texto: 'SD', estilo: 'SinDer' };
+            }
+            if (a.estado === 'presente' && (!a.tipo_asistencia || a.tipo_asistencia === 'presente')) return { texto: 'Presente', estilo: 'Presente' };
+            if (a.estado === 'ausente') return { texto: 'Ausente', estilo: 'Ausente' };
+            if (a.estado === 'justificado') return { texto: 'Justificado', estilo: 'Justif' };
+            return { texto: a.estado || '?', estilo: 'SinReg' };
+        }
         
-        // Encabezado: Nombre, Fecha1, Fecha2, ...
-        let csv = BOM;
-        csv += '"Nombre del alumno"';
-        fechas.forEach(f => { csv += separador + '"' + f + '"'; });
-        csv += ',"Presentes","Retardos","Ausencias","Justificadas"\r\n';
+        function escXML(s) {
+            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
         
-        // Por cada alumno
+        function formatearFecha(f) {
+            const d = new Date(f + 'T12:00:00');
+            return d.toLocaleDateString('es-MX', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+        }
+        
+        // 5. Construir XML Spreadsheet 2003
+        let xls = '<?xml version="1.0" encoding="UTF-8"?>\n';
+        xls += '<?mso-application progid="Excel.Sheet"?>\n';
+        xls += '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"\n';
+        xls += ' xmlns:o="urn:schemas-microsoft-com:office:office"\n';
+        xls += ' xmlns:x="urn:schemas-microsoft-com:office:excel"\n';
+        xls += ' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"\n';
+        xls += ' xmlns:html="http://www.w3.org/TR/REC-html40">\n';
+        
+        // Document properties
+        xls += '<DocumentProperties><Author>Sistema de Asistencia QR</Author>';
+        xls += '<LastAuthor>Profesor</LastAuthor>';
+        xls += '<Created>' + new Date().toISOString() + '</Created>';
+        xls += '</DocumentProperties>\n';
+        
+        // === STYLES ===
+        xls += '<Styles>\n';
+        // Título
+        xls += '<Style ss:ID="Titulo"><Font ss:Bold="1" ss:Size="16" ss:Color="#1a1a2e"/></Style>\n';
+        xls += '<Style ss:ID="SubTitulo"><Font ss:Size="11" ss:Color="#666666"/></Style>\n';
+        // Headers
+        xls += '<Style ss:ID="Header"><Font ss:Bold="1" ss:Size="10" ss:Color="#FFFFFF"/>';
+        xls += '<Interior ss:Color="#1a1a2e" ss:Pattern="Solid"/>';
+        xls += '<Alignment ss:Horizontal="Center" ss:Vertical="Center"/>';
+        xls += '<Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/></Borders></Style>\n';
+        // Summary headers colored
+        ['#2e7d32','#e65100','#c62828','#f57f17','#7b1fa2'].forEach((c, i) => {
+            const names = ['HeaderP','HeaderR','HeaderA','HeaderJ','HeaderPant'];
+            xls += '<Style ss:ID="' + names[i] + '"><Font ss:Bold="1" ss:Size="10" ss:Color="#FFFFFF"/>';
+            xls += '<Interior ss:Color="' + c + '" ss:Pattern="Solid"/>';
+            xls += '<Alignment ss:Horizontal="Center"/></Style>\n';
+        });
+        // Cell styles for each status
+        const estilos = [
+            {id:'Presente', bg:'#e8f5e9', font:'#2e7d32'},
+            {id:'Retardo', bg:'#fff3e0', font:'#e65100'},
+            {id:'Ausente', bg:'#ffebee', font:'#c62828'},
+            {id:'SinDer', bg:'#f3e5f5', font:'#7b1fa2'},
+            {id:'Justif', bg:'#fff8e1', font:'#f57f17'},
+            {id:'SinReg', bg:'#fafafa', font:'#cccccc'},
+            {id:'TotP', bg:'#f0faf0', font:'#2e7d32'},
+            {id:'TotR', bg:'#fff8f0', font:'#e65100'},
+            {id:'TotA', bg:'#fff0f0', font:'#c62828'},
+            {id:'TotJ', bg:'#fffef0', font:'#f57f17'},
+            {id:'TotPant', bg:'#faf0ff', font:'#7b1fa2'},
+            {id:'BoldName', bg:'#ffffff', font:'#1a1a2e'}
+        ];
+        estilos.forEach(s => {
+            xls += '<Style ss:ID="' + s.id + '"><Font ss:Color="' + s.font + '" ss:Bold="1" ss:Size="10"/>';
+            xls += '<Interior ss:Color="' + s.bg + '" ss:Pattern="Solid"/>';
+            xls += '<Alignment ss:Horizontal="Center" ss:Vertical="Center"/>';
+            xls += '</Style>\n';
+        });
+        // Date header style
+        xls += '<Style ss:ID="FechaHeader"><Font ss:Bold="1" ss:Size="9" ss:Color="#333333"/>';
+        xls += '<Interior ss:Color="#f0f4ff" ss:Pattern="Solid"/>';
+        xls += '<Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/></Style>\n';
+        // Normal cell
+        xls += '<Style ss:ID="NormalCell"><Font ss:Size="10"/><Alignment ss:Horizontal="Left"/></Style>\n';
+        xls += '</Styles>\n';
+        
+        // === SHEET 1: ASISTENCIAS ===
+        xls += '<Worksheet ss:Name="Asistencias">\n';
+        xls += '<Table>\n';
+        
+        // Column widths
+        xls += '<Column ss:AutoFitWidth="1" ss:Width="220"/>'; // Nombre
+        fechas.forEach(() => { xls += '<Column ss:AutoFitWidth="1" ss:Width="90"/>'; });
+        xls += '<Column ss:AutoFitWidth="1" ss:Width="70"/>'; // Presentes
+        xls += '<Column ss:AutoFitWidth="1" ss:Width="65"/>'; // Retardos
+        xls += '<Column ss:AutoFitWidth="1" ss:Width="65"/>'; // Ausencias
+        xls += '<Column ss:AutoFitWidth="1" ss:Width="75"/>'; // Justificadas
+        xls += '<Column ss:AutoFitWidth="1" ss:Width="65"/>'; // 📱 Pantalla
+        xls += '\n';
+        
+        // === FILA TÍTULO ===
+        xls += '<Row><Cell ss:StyleID="Titulo" ss:MergeAcross="' + (fechas.length + 4) + '"><Data ss:Type="String">📊 Reporte de Asistencias — ' + escXML(grupoNombre) + '</Data></Cell></Row>\n';
+        xls += '<Row><Cell ss:StyleID="SubTitulo" ss:MergeAcross="' + (fechas.length + 4) + '"><Data ss:Type="String">' + fechas.length + ' sesiones · ' + alumnos.length + ' alumnos · Generado: ' + new Date().toLocaleString('es-MX') + '</Data></Cell></Row>\n';
+        xls += '<Row></Row>\n'; // Espacio
+        
+        // === FILA ENCABEZADOS ===
+        xls += '<Row>\n';
+        xls += '<Cell ss:StyleID="Header"><Data ss:Type="String">Alumno</Data></Cell>\n';
+        fechas.forEach(f => {
+            xls += '<Cell ss:StyleID="FechaHeader"><Data ss:Type="String">' + escXML(formatearFecha(f)) + '</Data></Cell>\n';
+        });
+        xls += '<Cell ss:StyleID="HeaderP"><Data ss:Type="String">✅ Presentes</Data></Cell>\n';
+        xls += '<Cell ss:StyleID="HeaderR"><Data ss:Type="String">⚠️ Retardos</Data></Cell>\n';
+        xls += '<Cell ss:StyleID="HeaderA"><Data ss:Type="String">❌ Ausencias</Data></Cell>\n';
+        xls += '<Cell ss:StyleID="HeaderJ"><Data ss:Type="String">🟡 Justificadas</Data></Cell>\n';
+        xls += '<Cell ss:StyleID="HeaderPant"><Data ss:Type="String">📱 Pantalla</Data></Cell>\n';
+        xls += '</Row>\n';
+        
+        // === DATOS POR ALUMNO ===
         for (const item of alumnos) {
             const alumno = item.alumnos;
-            const nombre = (alumno.nombre || alumno.email || 'Sin nombre').replace(/"/g, '""');
-            csv += '"' + nombre + '"';
+            const nombre = (alumno.nombre || alumno.email || 'Sin nombre');
+            xls += '<Row>\n';
+            xls += '<Cell ss:StyleID="BoldName"><Data ss:Type="String">' + escXML(nombre) + '</Data></Cell>\n';
             
-            let countPresentes = 0, countRetardos = 0, countAusentes = 0, countJustificadas = 0;
+            function esSDExcel(a) {
+                return a.estado === 'presente' && (!a.tipo_asistencia || a.tipo_asistencia === 'presente') && (a.cambios_pantalla || 0) >= 3;
+            }
+            
+            let cP = 0, cR = 0, cA = 0, cJ = 0, cPant = 0;
             
             for (const fecha of fechas) {
                 const key = `${item.alumno_id}|${fecha}`;
                 const a = asistenciaMap[key];
+                const estado = getEstadoCelda(a);
+                const texto = estado.texto;
+                xls += '<Cell ss:StyleID="' + estado.estilo + '"><Data ss:Type="String">' + escXML(texto) + '</Data></Cell>\n';
                 
-                let estado = 'Sin registro';
                 if (a) {
-                    if (a.tipo_asistencia === 'sin_derecho') {
-                        estado = 'Ausente (llegó tarde)';
-                        countAusentes++;
-                    } else if (a.estado === 'presente' && a.tipo_asistencia === 'retardo') {
-                        estado = 'Retardo';
-                        countRetardos++;
-                    } else if (a.estado === 'presente' && (!a.tipo_asistencia || a.tipo_asistencia === 'presente')) {
-                        estado = 'Presente';
-                        countPresentes++;
-                    } else if (a.estado === 'ausente') {
-                        if (a.cambios_pantalla && a.cambios_pantalla > 0) {
-                            estado = 'Ausente (📱)';
-                        } else {
-                            estado = 'Ausente';
-                        }
-                        countAusentes++;
-                    } else if (a.estado === 'justificado') {
-                        estado = 'Justificado';
-                        countJustificadas++;
-                    } else if (a.estado === 'presente') {
-                        // Presente sin tipo especificado
-                        estado = 'Presente';
-                        countPresentes++;
-                    }
+                    if (a.tipo_asistencia === 'sin_derecho') { cA++; cPant += (a.cambios_pantalla || 0); }
+                    else if (a.estado === 'presente' && a.tipo_asistencia === 'retardo') { cR++; cPant += (a.cambios_pantalla || 0); }
+                    else if (esSDExcel(a)) { cA++; cPant += (a.cambios_pantalla || 0); }
+                    else if (a.estado === 'presente' && (!a.tipo_asistencia || a.tipo_asistencia === 'presente')) { cP++; cPant += (a.cambios_pantalla || 0); }
+                    else if (a.estado === 'ausente') { cA++; cPant += (a.cambios_pantalla || 0); }
+                    else if (a.estado === 'justificado') { cJ++; }
                 }
-                
-                csv += separador + '"' + estado + '"';
             }
             
-            // Totales
-            csv += separador + '"' + countPresentes + '"';
-            csv += separador + '"' + countRetardos + '"';
-            csv += separador + '"' + countAusentes + '"';
-            csv += separador + '"' + countJustificadas + '"';
-            csv += '\r\n';
+            xls += '<Cell ss:StyleID="TotP"><Data ss:Type="Number">' + cP + '</Data></Cell>\n';
+            xls += '<Cell ss:StyleID="TotR"><Data ss:Type="Number">' + cR + '</Data></Cell>\n';
+            xls += '<Cell ss:StyleID="TotA"><Data ss:Type="Number">' + cA + '</Data></Cell>\n';
+            xls += '<Cell ss:StyleID="TotJ"><Data ss:Type="Number">' + cJ + '</Data></Cell>\n';
+            xls += '<Cell ss:StyleID="TotPant"><Data ss:Type="Number">' + cPant + '</Data></Cell>\n';
+            xls += '</Row>\n';
         }
         
-        // 5. Descargar archivo
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        xls += '</Table>\n</Worksheet>\n';
+        
+        // === SHEET 2: LEYENDA ===
+        xls += '<Worksheet ss:Name="Leyenda">\n<Table>\n';
+        xls += '<Column ss:AutoFitWidth="1" ss:Width="300"/>\n';
+        xls += '<Row><Cell ss:StyleID="Titulo"><Data ss:Type="String">🎯 Leyenda de colores y columnas</Data></Cell></Row>\n<Row></Row>\n';
+        xls += '<Row><Cell ss:StyleID="Header"><Data ss:Type="String">Columna</Data></Cell><Cell ss:StyleID="Header"><Data ss:Type="String">Significado</Data></Cell></Row>\n';
+        const leyenda = [
+            ['✅ Presentes', 'Número de asistencias puntuales (llegó a tiempo)'],
+            ['⚠️ Retardos', 'Número de retardos (llegó tarde pero dentro del margen)'],
+            ['❌ Ausencias', 'Número de ausencias (no asistió o llegó sin derecho)'],
+            ['🟡 Justificadas', 'Faltas justificadas por el profesor'],
+            ['📱 Pantalla', 'Suma total de cambios de pantalla (abandonó la app)'],
+            ['', ''],
+            ['Color de celda', 'Significado'],
+            ['Verde claro', '✅ Presente — Asistencia puntual'],
+            ['Naranja claro', '⚠️ Retardo — Llegó tarde pero con derecho'],
+            ['Rojo claro', '❌ Ausente — No asistió o llegó sin derecho'],
+            ['Púrpura claro', '📱 SD (Sin derecho) — Llegó muy tarde o tuvo 3+ cambios de pantalla'],
+            ['Amarillo claro', '🟡 Justificado — Falta justificada'],
+            ['Blanco/gris', '— Sin registro ese día']
+        ];
+        leyenda.forEach(l => {
+            xls += '<Row><Cell ss:StyleID="NormalCell"><Data ss:Type="String">' + escXML(l[0]) + '</Data></Cell>';
+            xls += '<Cell ss:StyleID="NormalCell"><Data ss:Type="String">' + escXML(l[1]) + '</Data></Cell></Row>\n';
+        });
+        xls += '</Table>\n</Worksheet>\n';
+        
+        xls += '</Workbook>';
+        
+        // 5. Descargar como .xls
+        const blob = new Blob([xls], { type: 'application/vnd.ms-excel;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        const nombreArchivo = `asistencias_${grupoNombre.replace(/[^a-zA-Z0-9]/g, '_')}.csv`;
+        const nombreArchivo = `asistencias_${grupoNombre.replace(/[^a-zA-Z0-9]/g, '_')}.xls`;
         link.download = nombreArchivo;
         document.body.appendChild(link);
         link.click();
@@ -1086,6 +1208,7 @@ async function exportarAsistencia(grupoId, grupoNombre) {
         URL.revokeObjectURL(url);
         
         if (btn) btn.textContent = '📊';
+        mostrarToast(`✅ Excel generado: ${fechas.length} sesiones, ${alumnos.length} alumnos`, 'exito');
         
     } catch (err) {
         console.error('Error exportando:', err);
@@ -1094,7 +1217,7 @@ async function exportarAsistencia(grupoId, grupoNombre) {
     }
 }
 
-// ====== VER ASISTENCIAS DEL GRUPO ======
+// ====== VER ASISTENCIAS DEL GRUPO (REDISEÑADO) ======
 let verGrupoActualId = null;
 
 async function verGrupo(grupoId) {
@@ -1136,6 +1259,11 @@ async function verGrupo(grupoId) {
         asistenciasPorAlumno[a.alumno_id].push(a);
     });
     
+    // Obtener fechas únicas
+    const fechasSet = new Set();
+    asistencias.forEach(a => fechasSet.add(a.fecha));
+    const todasFechas = Array.from(fechasSet).sort((a, b) => a < b ? 1 : -1);
+    
     // Poblar dropdown de alumnos
     const select = document.getElementById('ver-filtro-alumno');
     select.innerHTML = '<option value="">— Todos los alumnos —</option>';
@@ -1144,10 +1272,35 @@ async function verGrupo(grupoId) {
         select.innerHTML += `<option value="${item.alumno_id}">${al.nombre || al.email || 'Sin nombre'}</option>`;
     });
     
+    // Resetear filtros de fecha
+    document.getElementById('ver-buscar-alumno').value = '';
+    if (todasFechas.length > 0) {
+        document.getElementById('ver-filtro-desde').value = todasFechas[todasFechas.length - 1];
+        document.getElementById('ver-filtro-hasta').value = todasFechas[0];
+    } else {
+        document.getElementById('ver-filtro-desde').value = '';
+        document.getElementById('ver-filtro-hasta').value = '';
+    }
+    
     // Guardar datos para el render
-    select._alumnos = alumnos;
-    select._asistenciasPorAlumno = asistenciasPorAlumno;
-    select._todasAsistencias = asistencias;
+    const store = document.getElementById('ver-filtro-alumno');
+    store._alumnos = alumnos;
+    store._asistenciasPorAlumno = asistenciasPorAlumno;
+    store._todasAsistencias = asistencias;
+    store._todasFechas = todasFechas;
+    
+    // Vincular búsqueda al filtro
+    document.getElementById('ver-buscar-alumno').oninput = function() {
+        const q = this.value.toLowerCase().trim();
+        const opts = document.getElementById('ver-filtro-alumno');
+        for (const opt of opts.options) {
+            if (opt.value === '') continue;
+            opt.style.display = opt.text.toLowerCase().includes(q) ? '' : 'none';
+        }
+        // Auto-seleccionar si solo hay uno visible
+        const visibles = Array.from(opts.options).filter(o => o.style.display !== 'none' && o.value !== '');
+        if (visibles.length === 1) opts.value = visibles[0].value;
+    };
     
     renderVerGrupo();
 }
@@ -1155,134 +1308,258 @@ async function verGrupo(grupoId) {
 function renderVerGrupo() {
     const select = document.getElementById('ver-filtro-alumno');
     const filtroAlumnoId = select.value;
+    const buscarTexto = (document.getElementById('ver-buscar-alumno').value || '').toLowerCase().trim();
+    const filtroDesde = document.getElementById('ver-filtro-desde').value;
+    const filtroHasta = document.getElementById('ver-filtro-hasta').value;
     const alumnos = select._alumnos || [];
     const asistenciasPorAlumno = select._asistenciasPorAlumno || {};
     const todasAsistencias = select._todasAsistencias || [];
+    const todasFechas = select._todasFechas || [];
     const container = document.getElementById('ver-grupo-contenido');
     
-    // Generar fechas únicas ordenadas
-    const fechasSet = new Set();
-    todasAsistencias.forEach(a => fechasSet.add(a.fecha));
-    const fechas = Array.from(fechasSet).sort((a, b) => a < b ? 1 : -1); // más reciente primero
+    // Aplicar filtro de fechas
+    let fechas = todasFechas;
+    if (filtroDesde) fechas = fechas.filter(f => f >= filtroDesde);
+    if (filtroHasta) fechas = fechas.filter(f => f <= filtroHasta);
     
-    // Totales del grupo
-    const totalPresentes = todasAsistencias.filter(a => a.estado === 'presente' && a.tipo_asistencia !== 'retardo').length;
-    const totalRetardos = todasAsistencias.filter(a => a.tipo_asistencia === 'retardo').length;
-    const totalAusentes = todasAsistencias.filter(a => a.estado === 'ausente').length;
-    const totalJustificadas = todasAsistencias.filter(a => a.estado === 'justificado').length;
+    // Si hay búsqueda y no hay selección, filtrar alumnos
+    let alumnosFiltrados = alumnos;
+    if (buscarTexto && !filtroAlumnoId) {
+        alumnosFiltrados = alumnos.filter(item => {
+            const al = item.alumnos;
+            const nombre = (al.nombre || al.email || '').toLowerCase();
+            return nombre.includes(buscarTexto);
+        });
+    }
+    
+    function estadoIcono(a) {
+        if (!a) return { icono: '—', texto: 'Sin registro', bg: '#fafafa', color: '#ccc' };
+        if (a.tipo_asistencia === 'sin_derecho') return { icono: '📱', texto: 'SD', bg: '#f3e5f5', color: '#7b1fa2' };
+        if (a.estado === 'presente' && a.tipo_asistencia === 'retardo') return { icono: '⚠️', texto: 'Retardo', bg: '#fff3e0', color: '#e65100' };
+        if (a.estado === 'presente' && (!a.tipo_asistencia || a.tipo_asistencia === 'presente') && (a.cambios_pantalla || 0) >= 3) {
+            return { icono: '📱', texto: 'SD', bg: '#f3e5f5', color: '#7b1fa2' };
+        }
+        if (a.estado === 'presente' && (!a.tipo_asistencia || a.tipo_asistencia === 'presente')) return { icono: '✅', texto: 'Presente', bg: '#e8f5e9', color: '#2e7d32' };
+        if (a.estado === 'ausente') return { icono: '❌', texto: 'Ausente', bg: '#ffebee', color: '#c62828' };
+        if (a.estado === 'justificado') return { icono: '🟡', texto: 'Justificado', bg: '#fff8e1', color: '#f57f17' };
+        return { icono: '❓', texto: a.estado || '?', bg: '#f5f5f5', color: '#666' };
+    }
+    
+    function formatearFecha(fechaStr) {
+        const d = new Date(fechaStr + 'T12:00:00');
+        return d.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' });
+    }
+    
+    // Calcular totales del grupo (con filtro de fechas)
+    function filtrarAsistencias(lista) {
+        if (!filtroDesde && !filtroHasta) return lista;
+        return lista.filter(a => {
+            if (filtroDesde && a.fecha < filtroDesde) return false;
+            if (filtroHasta && a.fecha > filtroHasta) return false;
+            return true;
+        });
+    }
+    
+    function esSD(a) {
+        return a.estado === 'presente' && (!a.tipo_asistencia || a.tipo_asistencia === 'presente') && (a.cambios_pantalla || 0) >= 3;
+    }
+    
+    const asistenciasFiltradas = filtrarAsistencias(todasAsistencias);
+    const totalPresentes = asistenciasFiltradas.filter(a => a.estado === 'presente' && a.tipo_asistencia !== 'retardo' && !esSD(a)).length;
+    const totalRetardos = asistenciasFiltradas.filter(a => a.tipo_asistencia === 'retardo').length;
+    const totalAusentes = asistenciasFiltradas.filter(a => a.estado === 'ausente' || esSD(a)).length;
+    const totalJustificadas = asistenciasFiltradas.filter(a => a.estado === 'justificado').length;
+    const totalPantalla = asistenciasFiltradas.reduce((sum, a) => sum + (a.cambios_pantalla || 0), 0);
     
     let html = `
-        <div class="stats-container" style="margin-bottom: 14px;">
-            <div class="stat-box" style="background: #e8f5e9;">
-                <strong style="color: #2e7d32;">${totalPresentes}</strong>
-                <small>Presentes</small>
+        <div class="stats-container" style="margin-bottom: 14px; flex-wrap:wrap;">
+            <div class="stat-box" style="background:#e8f5e9; flex:1; min-width:70px;">
+                <strong style="color:#2e7d32;">${totalPresentes}</strong>
+                <small>✅ Presentes</small>
             </div>
-            <div class="stat-box" style="background: #fff3e0;">
-                <strong style="color: #e65100;">${totalRetardos}</strong>
-                <small>Retardos</small>
+            <div class="stat-box" style="background:#fff3e0; flex:1; min-width:70px;">
+                <strong style="color:#e65100;">${totalRetardos}</strong>
+                <small>⚠️ Retardos</small>
             </div>
-            <div class="stat-box" style="background: #ffebee;">
-                <strong style="color: #c62828;">${totalAusentes}</strong>
-                <small>Ausencias</small>
+            <div class="stat-box" style="background:#ffebee; flex:1; min-width:70px;">
+                <strong style="color:#c62828;">${totalAusentes}</strong>
+                <small>❌ Ausencias</small>
             </div>
-            <div class="stat-box" style="background: #fff8e1;">
-                <strong style="color: #f57f17;">${totalJustificadas}</strong>
-                <small>Justificadas</small>
+            <div class="stat-box" style="background:#fff8e1; flex:1; min-width:70px;">
+                <strong style="color:#f57f17;">${totalJustificadas}</strong>
+                <small>🟡 Justificadas</small>
+            </div>
+            <div class="stat-box" style="background:#f3e5f5; flex:1; min-width:70px;">
+                <strong style="color:#7b1fa2;">${totalPantalla}</strong>
+                <small>📱 Pantalla</small>
             </div>
         </div>`;
     
-    if (filtroAlumnoId === '') {
-        // ====== VISTA: TODOS LOS ALUMNOS ======
-        if (alumnos.length === 0) {
+    if (fechas.length === 0) {
+        html += '<p class="empty-state">📅 No hay asistencias en el rango de fechas seleccionado.</p>';
+        container.innerHTML = html;
+        return;
+    }
+    
+    if (filtroAlumnoId === '' && !buscarTexto) {
+        // ====== VISTA: TODOS LOS ALUMNOS (TABLA COMPACTA CON COLORES) ======
+        if (alumnosFiltrados.length === 0) {
             html += '<p class="empty-state">No hay alumnos inscritos en este grupo.</p>';
         } else {
-            html += '<div style="overflow-x:auto;"><table style="width:100%; border-collapse: collapse; font-size:0.85em;">';
-            html += '<thead><tr style="background:#f0f4ff; position:sticky; top:0;">';
-            html += '<th style="padding:10px 8px; text-align:left; border-bottom:2px solid #667eea;">Alumno</th>';
-            html += '<th style="padding:10px 8px; text-align:center; border-bottom:2px solid #667eea;">✅</th>';
-            html += '<th style="padding:10px 8px; text-align:center; border-bottom:2px solid #667eea;">⚠️</th>';
-            html += '<th style="padding:10px 8px; text-align:center; border-bottom:2px solid #667eea;">❌</th>';
-            html += '<th style="padding:10px 8px; text-align:center; border-bottom:2px solid #667eea;">🟡</th>';
-            html += '<th style="padding:10px 8px; text-align:center; border-bottom:2px solid #667eea;">% Asist</th>';
+            // Leyenda
+            html += '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; font-size:0.75em;">';
+            html += '<span style="background:#e8f5e9; color:#2e7d32; padding:2px 8px; border-radius:12px;">✅ Presente</span>';
+            html += '<span style="background:#fff3e0; color:#e65100; padding:2px 8px; border-radius:12px;">⚠️ Retardo</span>';
+            html += '<span style="background:#ffebee; color:#c62828; padding:2px 8px; border-radius:12px;">❌ Ausente</span>';
+            html += '<span style="background:#fff8e1; color:#f57f17; padding:2px 8px; border-radius:12px;">🟡 Justificado</span>';
+            html += '<span style="background:#f3e5f5; color:#7b1fa2; padding:2px 8px; border-radius:12px;">📱 SD (Sin derecho — 3+ cambios de pantalla)</span>';
+            if (fechas.length > 7) html += '<span style="color:#999;"> (' + fechas.length + ' sesiones — despliega horizontalmente)</span>';
+            html += '</div>';
+            
+            html += '<div style="overflow-x:auto; max-height:400px; overflow-y:auto;">';
+            html += '<table style="width:100%; border-collapse:collapse; font-size:0.8em;">';
+            html += '<thead><tr style="background:#1a1a2e; color:white; position:sticky; top:0; z-index:2;">';
+            html += '<th style="padding:8px 6px; text-align:left; min-width:140px; position:sticky; left:0; background:#1a1a2e; z-index:3;">Alumno</th>';
+            fechas.forEach(f => {
+                const partes = formatearFecha(f).split(' ');
+                html += `<th style="padding:8px 4px; text-align:center; font-size:0.7em; font-weight:400; line-height:1.3;">
+                    ${partes[0]}<br>${partes[1]}
+                </th>`;
+            });
+            html += '<th style="padding:8px 4px; text-align:center; background:#2e7d32;">✅</th>';
+            html += '<th style="padding:8px 4px; text-align:center; background:#e65100;">⚠️</th>';
+            html += '<th style="padding:8px 4px; text-align:center; background:#c62828;">❌</th>';
+            html += '<th style="padding:8px 4px; text-align:center; background:#f57f17;">🟡</th>';
+            html += '<th style="padding:8px 4px; text-align:center; background:#7b1fa2;">📱</th>';
+            html += '<th style="padding:8px 4px; text-align:center; background:#1a1a2e;">%</th>';
             html += '</tr></thead><tbody>';
             
-            for (const item of alumnos) {
+            for (const item of alumnosFiltrados) {
                 const al = item.alumnos;
                 const list = asistenciasPorAlumno[item.alumno_id] || [];
-                const p = list.filter(a => a.estado === 'presente' && a.tipo_asistencia !== 'retardo').length;
-                const r = list.filter(a => a.tipo_asistencia === 'retardo').length;
-                const au = list.filter(a => a.estado === 'ausente').length;
-                const j = list.filter(a => a.estado === 'justificado').length;
+                const listFiltrada = filtrarAsistencias(list);
+                const p = listFiltrada.filter(a => a.estado === 'presente' && a.tipo_asistencia !== 'retardo' && !esSD(a)).length;
+                const r = listFiltrada.filter(a => a.tipo_asistencia === 'retardo').length;
+                const au = listFiltrada.filter(a => a.estado === 'ausente' || esSD(a)).length;
+                const j = listFiltrada.filter(a => a.estado === 'justificado').length;
+                const pant = listFiltrada.reduce((sum, a) => sum + (a.cambios_pantalla || 0), 0);
                 const total = p + r + au + j;
-                const pct = total > 0 ? Math.round(((p) / total) * 100) : 0;
+                const pct = total > 0 ? Math.round(((p + r) / total) * 100) : 0;
                 const colorPct = pct >= 80 ? '#2e7d32' : pct >= 60 ? '#e65100' : '#c62828';
                 
-                html += `<tr style="border-bottom:1px solid #f0f0f0;">
-                    <td style="padding:10px 8px; font-weight:600;">${al.nombre || al.email || 'Sin nombre'}</td>
-                    <td style="padding:10px 8px; text-align:center; color:#2e7d32;">${p}</td>
-                    <td style="padding:10px 8px; text-align:center; color:#e65100;">${r}</td>
-                    <td style="padding:10px 8px; text-align:center; color:#c62828;">${au}</td>
-                    <td style="padding:10px 8px; text-align:center; color:#f57f17;">${j}</td>
-                    <td style="padding:10px 8px; text-align:center; font-weight:700; color:${colorPct};">${pct}%</td>
-                </tr>`;
+                html += `<tr style="border-bottom:1px solid #f0f0f0;">`;
+                html += `<td style="padding:6px 6px; font-weight:600; position:sticky; left:0; background:white; z-index:1;">${al.nombre || al.email || 'Sin nombre'}</td>`;
+                
+                // Celdas de fechas con color
+                for (const fecha of fechas) {
+                    const a = list.find(x => x.fecha === fecha);
+                    if (a) {
+                        const ei = estadoIcono(a);
+                        html += `<td style="padding:4px 2px; text-align:center; background:${ei.bg}; color:${ei.color}; border-radius:3px; font-size:0.8em; font-weight:600;">
+                            ${ei.icono}
+                        </td>`;
+                    } else {
+                        html += `<td style="padding:4px 2px; text-align:center; color:#ddd; font-size:0.7em;">—</td>`;
+                    }
+                }
+                
+                html += `<td style="padding:6px 4px; text-align:center; font-weight:700; color:#2e7d32; background:#f0faf0;">${p}</td>`;
+                html += `<td style="padding:6px 4px; text-align:center; font-weight:700; color:#e65100; background:#fff8f0;">${r}</td>`;
+                html += `<td style="padding:6px 4px; text-align:center; font-weight:700; color:#c62828; background:#fff0f0;">${au}</td>`;
+                html += `<td style="padding:6px 4px; text-align:center; font-weight:700; color:#f57f17; background:#fffef0;">${j}</td>`;
+                html += `<td style="padding:6px 4px; text-align:center; font-weight:700; color:#7b1fa2; background:#faf0ff;">${pant}</td>`;
+                html += `<td style="padding:6px 4px; text-align:center; font-weight:700; color:${colorPct};">${pct}%</td>`;
+                html += `</tr>`;
             }
             
             html += '</tbody></table></div>';
         }
     } else {
-        // ====== VISTA: ALUMNO ESPECÍFICO ======
-        const alumno = alumnos.find(item => item.alumno_id === filtroAlumnoId)?.alumnos;
-        if (!alumno) {
-            html += '<p class="empty-state">Alumno no encontrado.</p>';
+        // ====== VISTA: ALUMNO ESPECÍFICO (DETALLE CON TODAS LAS FECHAS) ======
+        // Determinar qué alumno(s) mostrar
+        let alumnosMostrar = [];
+        if (filtroAlumnoId) {
+            const found = alumnos.find(item => item.alumno_id === filtroAlumnoId);
+            if (found) alumnosMostrar = [found];
+        } else if (buscarTexto) {
+            alumnosMostrar = alumnosFiltrados;
+        }
+        
+        if (alumnosMostrar.length === 0) {
+            html += '<p class="empty-state">Selecciona un alumno para ver su detalle.</p>';
         } else {
-            const list = asistenciasPorAlumno[filtroAlumnoId] || [];
-            const p = list.filter(a => a.estado === 'presente' && a.tipo_asistencia !== 'retardo').length;
-            const r = list.filter(a => a.tipo_asistencia === 'retardo').length;
-            const au = list.filter(a => a.estado === 'ausente').length;
-            const j = list.filter(a => a.estado === 'justificado').length;
-            
-            html += `
-                <h4 style="margin:0 0 10px; color:#333;">👤 ${alumno.nombre || alumno.email || 'Sin nombre'}</h4>
-                <div class="stats-container" style="margin-bottom: 12px;">
-                    <div class="stat-box" style="background: #e8f5e9;">
-                        <strong style="color: #2e7d32;">${p}</strong>
-                        <small>Presentes</small>
+            for (const item of alumnosMostrar) {
+                const al = item.alumnos;
+                const list = asistenciasPorAlumno[item.alumno_id] || [];
+                const listFiltrada = filtrarAsistencias(list);
+                const p = listFiltrada.filter(a => a.estado === 'presente' && a.tipo_asistencia !== 'retardo' && !esSD(a)).length;
+                const r = listFiltrada.filter(a => a.tipo_asistencia === 'retardo').length;
+                const au = listFiltrada.filter(a => a.estado === 'ausente' || esSD(a)).length;
+                const j = listFiltrada.filter(a => a.estado === 'justificado').length;
+                const pant = listFiltrada.reduce((sum, a) => sum + (a.cambios_pantalla || 0), 0);
+                const total = p + r + au + j;
+                const pct = total > 0 ? Math.round(((p + r) / total) * 100) : 0;
+                
+                html += `
+                <div style="background:white; border-radius:12px; padding:16px; margin-bottom:12px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <h4 style="margin:0; color:#1a1a2e;">👤 ${al.nombre || al.email || 'Sin nombre'}</h4>
+                        <span style="font-size:1.2em; font-weight:700; color:${pct >= 80 ? '#2e7d32' : pct >= 60 ? '#e65100' : '#c62828'};">${pct}%</span>
                     </div>
-                    <div class="stat-box" style="background: #fff3e0;">
-                        <strong style="color: #e65100;">${r}</strong>
-                        <small>Retardos</small>
+                    <div class="stats-container" style="margin-bottom:10px;">
+                        <div class="stat-box" style="background:#e8f5e9; flex:1;">
+                            <strong style="color:#2e7d32;">${p}</strong>
+                            <small>✅ Presentes</small>
+                        </div>
+                        <div class="stat-box" style="background:#fff3e0; flex:1;">
+                            <strong style="color:#e65100;">${r}</strong>
+                            <small>⚠️ Retardos</small>
+                        </div>
+                        <div class="stat-box" style="background:#ffebee; flex:1;">
+                            <strong style="color:#c62828;">${au}</strong>
+                            <small>❌ Ausencias</small>
+                        </div>
+                        <div class="stat-box" style="background:#fff8e1; flex:1;">
+                            <strong style="color:#f57f17;">${j}</strong>
+                            <small>🟡 Justificadas</small>
+                        </div>
+                        <div class="stat-box" style="background:#f3e5f5; flex:1;">
+                            <strong style="color:#7b1fa2;">${pant}</strong>
+                            <small>📱 Pantalla</small>
+                        </div>
                     </div>
-                    <div class="stat-box" style="background: #ffebee;">
-                        <strong style="color: #c62828;">${au}</strong>
-                        <small>Ausencias</small>
-                    </div>
-                    <div class="stat-box" style="background: #fff8e1;">
-                        <strong style="color: #f57f17;">${j}</strong>
-                        <small>Justificadas</small>
-                    </div>
-                </div>
-                <div style="max-height: 350px; overflow-y: auto;">
-                    ${list.length === 0 ? '<p class="empty-state">Sin registros de asistencia.</p>' : list.map(a => {
-                        let icono = '✅ Presente';
-                        let color = '#2e7d32';
-                        if (a.tipo_asistencia === 'sin_derecho') { icono = '⚠️ Llegó tarde (sin derecho)'; color = '#c62828'; }
-                        else if (a.tipo_asistencia === 'retardo') { icono = '⚠️ Retardo'; color = '#e65100'; }
-                        else if (a.estado === 'ausente') { 
+                    <div style="max-height:400px; overflow-y:auto;">
+                        ${listFiltrada.length === 0 ? '<p class="empty-state">Sin registros en este rango.</p>' :
+                            listFiltrada.sort((a,b) => a.fecha < b.fecha ? 1 : -1).map(a => {
+                            const ei = estadoIcono(a);
+                            const fechaStr = new Date(a.fecha + 'T12:00:00').toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                            // Barra de cambios de pantalla
+                            let cambiosHTML = '';
                             if (a.cambios_pantalla && a.cambios_pantalla > 0) {
-                                icono = '❌ Ausente (📱)';
-                            } else {
-                                icono = '❌ Ausente';
+                                const ancho = Math.min((a.cambios_pantalla / 3) * 100, 100);
+                                cambiosHTML = `
+                                    <div style="margin-top:4px; font-size:0.75em; color:#888;">
+                                        📱 Cambios de pantalla:
+                                        <div style="height:4px; background:#eee; border-radius:2px; margin-top:2px;">
+                                            <div style="height:100%; width:${ancho}%; background:${ancho >= 100 ? '#c62828' : '#ff9800'}; border-radius:2px;"></div>
+                                        </div>
+                                        <span style="color:${ancho >= 100 ? '#c62828' : '#ff9800'};">${a.cambios_pantalla}/3</span>
+                                    </div>`;
                             }
-                            color = '#c62828'; 
-                        }
-                        else if (a.estado === 'justificado') { icono = '🟡 Justificado'; color = '#f57f17'; }
-                        return `
-                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
-                            <span>${new Date(a.fecha + 'T12:00:00').toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                            <span style="font-weight: 600; color: ${color};">${icono}</span>
-                        </div>`;
-                    }).join('')}
+                            return `
+                            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-bottom:1px solid #f0f0f0; background:${ei.bg}; border-radius:8px; margin-bottom:4px;">
+                                <div>
+                                    <div style="font-weight:600; color:#333;">${fechaStr}</div>
+                                    ${cambiosHTML}
+                                </div>
+                                <span style="font-weight:700; color:${ei.color}; font-size:1.1em; white-space:nowrap;">
+                                    ${ei.icono} ${ei.texto}
+                                </span>
+                            </div>`;
+                        }).join('')}
+                    </div>
                 </div>`;
+            }
         }
     }
     

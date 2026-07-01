@@ -953,6 +953,7 @@ function iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite) {
     // Ocultar botón confirmar hasta 5 min antes de que termine la clase
     const btnConfirmar = document.getElementById('btn-confirmar-asistencia');
     btnConfirmar.style.display = 'none';
+    document.getElementById('espera-confirmar').style.display = '';
     window._btnConfirmarMostrado = false;
     
     // Obtener horario de hoy para saber hora_fin
@@ -972,12 +973,13 @@ function iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite) {
                 window._confirmarDesde = new Date(finDate.getTime() - 5 * 60 * 1000);
                 window._horaFinStr = horaFin;
                 
-                // Si es sin_derecho, mostrar mensaje diferente
+                // Si es sin_derecho, mostrar mensaje diferente y ocultar espera
                 if (window._tipoAsistenciaActual === 'sin_derecho') {
                     const st = document.getElementById('monitor-estado');
                     st.innerHTML = '⚠️ <strong>Llegaste tarde.</strong> Registrado como ausencia. Debes permanecer en clase.';
                     st.style.background = '#ffebee';
                     st.style.color = '#c62828';
+                    document.getElementById('espera-confirmar').style.display = 'none';
                 } else {
                     const st = document.getElementById('monitor-estado');
                     st.innerHTML = `⏳ Clase hasta las <strong>${horaFin}</strong>. Podrás confirmar 5 minutos antes.`;
@@ -1005,6 +1007,7 @@ function iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite) {
                 if (!window._btnConfirmarMostrado) {
                     window._btnConfirmarMostrado = true;
                     document.getElementById('btn-confirmar-asistencia').style.display = '';
+                    document.getElementById('espera-confirmar').style.display = 'none';
                 }
             }
         })
@@ -1021,6 +1024,7 @@ function iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite) {
         if (minutosDesdeEscaneo >= 1 && window._confirmarDesde && ahora >= window._confirmarDesde && !window._btnConfirmarMostrado) {
             window._btnConfirmarMostrado = true;
             document.getElementById('btn-confirmar-asistencia').style.display = '';
+            document.getElementById('espera-confirmar').style.display = 'none';
             const st = document.getElementById('monitor-estado');
             st.innerHTML = '✅ <strong>Ya puedes confirmar tu asistencia.</strong>';
             st.style.background = '#e8f5e9';
@@ -1034,12 +1038,21 @@ function iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite) {
         if (!sesion) {
             clearInterval(monitorInterval);
             const mins = (new Date() - window._inicioMonitoreo) / 60000;
-            if (!window._btnConfirmarMostrado && mins >= 1) {
+            if (!window._btnConfirmarMostrado && mins >= 1 && window._tipoAsistenciaActual !== 'sin_derecho') {
                 window._btnConfirmarMostrado = true;
                 document.getElementById('btn-confirmar-asistencia').style.display = '';
+                document.getElementById('espera-confirmar').style.display = 'none';
+            } else if (window._tipoAsistenciaActual === 'sin_derecho') {
+                document.getElementById('espera-confirmar').style.display = 'none';
             }
             const st = document.getElementById('monitor-estado');
-            st.innerHTML = '⏰ <strong>Clase terminada.</strong> Confirma tu asistencia.';
+            if (window._tipoAsistenciaActual === 'sin_derecho') {
+                st.innerHTML = '⏰ <strong>Clase terminada.</strong> No registraste asistencia por llegar tarde.';
+                st.style.background = '#ffebee';
+                st.style.color = '#c62828';
+            } else {
+                st.innerHTML = '⏰ <strong>Clase terminada.</strong> Confirma tu asistencia.';
+            }
             st.style.background = '#e3f2fd'; st.style.color = '#1565c0';
         }
     }, 5000);
