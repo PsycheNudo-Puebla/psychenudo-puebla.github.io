@@ -76,7 +76,7 @@ async function handleRegister(e) {
     }
     
     // 2. Guardar/actualizar datos en tabla alumnos con el device_id real
-    // Usamos upsert porque el trigger ya pudo haber creado la fila automáticamente
+    // Usamos upsert con onConflict porque el trigger ya pudo haber creado la fila
     const { error: dbError } = await supabaseClient
         .from('alumnos')
         .upsert({
@@ -85,7 +85,7 @@ async function handleRegister(e) {
             nombre: nombre,
             matricula: matricula,
             device_id: deviceId
-        });
+        }, { onConflict: 'id' });
     
     if (dbError) {
         // El UPSERT falló — mostrar formulario para completar
@@ -204,7 +204,7 @@ async function completarPerfil(e) {
             nombre: nombre,
             matricula: matricula,
             device_id: deviceId
-        });
+        }, { onConflict: 'id' });
     
     if (dbError) {
         errorDiv.textContent = 'Error al guardar: ' + dbError.message;
