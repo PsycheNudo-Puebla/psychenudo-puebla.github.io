@@ -1029,6 +1029,17 @@ async function exportarAsistencia(grupoId, grupoNombre) {
             return { texto: a.estado || '?', estilo: 'SinReg' };
         }
         
+        function formatearHoraAsistencia(a) {
+            if (!a || !a.creado_en) return '';
+            try {
+                const d = new Date(a.creado_en);
+                if (isNaN(d.getTime())) return '';
+                const hh = d.getHours().toString().padStart(2,'0');
+                const mm = d.getMinutes().toString().padStart(2,'0');
+                return hh + ':' + mm;
+            } catch (e) { return ''; }
+        }
+        
         function escXML(s) {
             return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
         }
@@ -1105,7 +1116,7 @@ async function exportarAsistencia(grupoId, grupoNombre) {
         
         // Column widths
         xls += '<Column ss:AutoFitWidth="1" ss:Width="220"/>'; // Nombre
-        fechas.forEach(() => { xls += '<Column ss:AutoFitWidth="1" ss:Width="90"/>'; });
+        fechas.forEach(() => { xls += '<Column ss:AutoFitWidth="1" ss:Width="120"/>'; });
         xls += '<Column ss:AutoFitWidth="1" ss:Width="70"/>'; // Presentes
         xls += '<Column ss:AutoFitWidth="1" ss:Width="65"/>'; // Retardos
         xls += '<Column ss:AutoFitWidth="1" ss:Width="65"/>'; // Ausencias
@@ -1148,7 +1159,12 @@ async function exportarAsistencia(grupoId, grupoNombre) {
                 const key = `${item.alumno_id}|${fecha}`;
                 const a = asistenciaMap[key];
                 const estado = getEstadoCelda(a);
-                const texto = estado.texto;
+                let texto = estado.texto;
+                // Agregar hora de escaneo si existe
+                if (a && a.creado_en && texto !== '—') {
+                    const hora = formatearHoraAsistencia(a);
+                    if (hora) texto += ' (' + hora + ' hs)';
+                }
                 xls += '<Cell ss:StyleID="' + estado.estilo + '"><Data ss:Type="String">' + escXML(texto) + '</Data></Cell>\n';
                 
                 if (a) {
@@ -1426,7 +1442,7 @@ function renderVerGrupo() {
             html += '<th style="padding:8px 6px; text-align:left; min-width:140px; position:sticky; left:0; background:#1a1a2e; z-index:3;">Alumno</th>';
             fechas.forEach(f => {
                 const partes = formatearFecha(f).split(' ');
-                html += `<th style="padding:8px 4px; text-align:center; font-size:0.7em; font-weight:400; line-height:1.3;">
+                html += `<th style="padding:8px 4px; text-align:center; font-size:0.7em; font-weight:400; line-height:1.3; min-width:50px;">
                     ${partes[0]}<br>${partes[1]}
                 </th>`;
             });
@@ -1459,8 +1475,19 @@ function renderVerGrupo() {
                     const a = list.find(x => x.fecha === fecha);
                     if (a) {
                         const ei = estadoIcono(a);
-                        html += `<td style="padding:4px 2px; text-align:center; background:${ei.bg}; color:${ei.color}; border-radius:3px; font-size:0.8em; font-weight:600;">
-                            ${ei.icono}
+                        let horaMini = '';
+                        try {
+                            if (a.creado_en) {
+                                const d = new Date(a.creado_en);
+                                if (!isNaN(d.getTime())) {
+                                    horaMini = '<br><span style="font-size:0.65em; font-weight:400;">' 
+                                        + d.getHours().toString().padStart(2,'0') + ':'
+                                        + d.getMinutes().toString().padStart(2,'0') + '</span>';
+                                }
+                            }
+                        } catch(e) {}
+                        html += `<td style="padding:2px 2px; text-align:center; background:${ei.bg}; color:${ei.color}; border-radius:3px; font-size:0.8em; font-weight:600;">
+                            ${ei.icono}${horaMini}
                         </td>`;
                     } else {
                         html += `<td style="padding:4px 2px; text-align:center; color:#ddd; font-size:0.7em;">—</td>`;
@@ -1537,6 +1564,16 @@ function renderVerGrupo() {
                             listFiltrada.sort((a,b) => a.fecha < b.fecha ? 1 : -1).map(a => {
                             const ei = estadoIcono(a);
                             const fechaStr = new Date(a.fecha + 'T12:00:00').toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                            // Hora de escaneo
+                            let horaStr = '';
+                            try {
+                                if (a.creado_en) {
+                                    const d = new Date(a.creado_en);
+                                    if (!isNaN(d.getTime())) {
+                                        horaStr = ' 🕐 ' + d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0') + ' hs';
+                                    }
+                                }
+                            } catch(e) {}
                             // Barra de cambios de pantalla
                             let cambiosHTML = '';
                             if (a.cambios_pantalla && a.cambios_pantalla > 0) {
@@ -1553,7 +1590,7 @@ function renderVerGrupo() {
                             return `
                             <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-bottom:1px solid #f0f0f0; background:${ei.bg}; border-radius:8px; margin-bottom:4px;">
                                 <div>
-                                    <div style="font-weight:600; color:#333;">${fechaStr}</div>
+                                    <div style="font-weight:600; color:#333;">${fechaStr}${horaStr}</div>
                                     ${cambiosHTML}
                                 </div>
                                 <span style="font-weight:700; color:${ei.color}; font-size:1.1em; white-space:nowrap;">
