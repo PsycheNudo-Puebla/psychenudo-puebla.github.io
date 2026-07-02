@@ -24,7 +24,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Escuchar cambios de autenticación
 supabaseClient.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_OUT') {
+    if (event === 'SIGNED_IN' && session) {
+        // Al recuperar sesión automáticamente (recarga de página), cargar datos
+        cargarDatosAlumno(session.user);
+    } else if (event === 'SIGNED_OUT') {
         mostrarLogin();
     }
 });
@@ -33,21 +36,27 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
 async function handleLogin(e) {
     e.preventDefault();
     setLoading('btn-login', true);
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
-    
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-        email, password
-    });
-    
-    if (error) {
-        document.getElementById('login-error').textContent = 'Email o contraseña incorrectos';
+    try {
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email, password
+        });
+        
+        if (error) {
+            document.getElementById('login-error').textContent = 'Email o contraseña incorrectos';
+            setLoading('btn-login', false, 'Entrar');
+            return;
+        }
+        
         setLoading('btn-login', false, 'Entrar');
-        return;
+        await verificarYcargarAlumno(data.user);
+    } catch (err) {
+        console.error('Error en login:', err);
+        document.getElementById('login-error').textContent = 'Error de conexión. Verifica tu internet e intenta de nuevo.';
+        setLoading('btn-login', false, 'Entrar');
     }
-    
-    setLoading('btn-login', false, 'Entrar');
-    await verificarYcargarAlumno(data.user);
 }
 
 async function handleResetPassword(e) {
