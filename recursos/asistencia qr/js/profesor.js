@@ -420,6 +420,10 @@ function volverALista() {
         supabaseClient.removeChannel(monitorProfChannel);
         monitorProfChannel = null;
     }
+    if (monitorPollInterval) {
+        clearInterval(monitorPollInterval);
+        monitorPollInterval = null;
+    }
     monitorGrupoId = null;
     cargarGrupos();
 }
@@ -1862,12 +1866,18 @@ function cerrarQR() {
     document.getElementById('modal-qr-asistencia').classList.add('hidden');
     // NOTA: ya no cerramos el monitoreo ni desactivamos la sesión
     // El profesor puede seguir viendo a los alumnos aunque cierre el QR
+    
+    // Refrescar inmediatamente el monitoreo para mostrar datos actuales
+    if (monitorGrupoId) {
+        cargarAsistenciasActivas();
+    }
 }
 
 // ====== MONITOREO EN VIVO (PROFESOR) ======
 let monitorGrupoId = null;
 let monitorSesionId = null;
 let monitorProfChannel = null;
+let monitorPollInterval = null;
 let monitorPerdonesUsados = 0;
 let monitorPerdonesMax = 2;
 let monitorAlumnosSet = new Set();
@@ -1913,6 +1923,16 @@ async function iniciarMonitoreoProfesor(grupoId, sesionId, perdonesMax) {
             }
         )
         .subscribe();
+
+    // Polling de respaldo: refresca cada 5s por si la suscripción en tiempo real falla
+    if (monitorPollInterval) {
+        clearInterval(monitorPollInterval);
+    }
+    monitorPollInterval = setInterval(() => {
+        if (monitorGrupoId) {
+            cargarAsistenciasActivas();
+        }
+    }, 5000);
 }
 
 async function cargarAsistenciasActivas() {
@@ -2022,6 +2042,10 @@ function cerrarMonitoreo() {
     if (monitorProfChannel) {
         supabaseClient.removeChannel(monitorProfChannel);
         monitorProfChannel = null;
+    }
+    if (monitorPollInterval) {
+        clearInterval(monitorPollInterval);
+        monitorPollInterval = null;
     }
     // NO desactivamos la sesión en BD — la clase sigue activa
     // Solo limpiamos las variables locales de monitoreo
