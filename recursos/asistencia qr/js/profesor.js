@@ -1435,6 +1435,7 @@ function renderVerGrupo() {
     
     function estadoIcono(a) {
         if (!a) return { icono: '—', texto: 'Sin registro', bg: '#fafafa', color: '#ccc' };
+        if (a.perdonada || a.estado === 'justificado') return { icono: '🟡', texto: 'Justificado', bg: '#fff8e1', color: '#f57f17' };
         if (a.tipo_asistencia === 'sin_derecho') return { icono: '📱', texto: 'SD', bg: '#f3e5f5', color: '#7b1fa2' };
         if (a.estado === 'presente' && a.tipo_asistencia === 'retardo') return { icono: '⚠️', texto: 'Retardo', bg: '#fff3e0', color: '#e65100' };
         if (a.estado === 'presente' && (!a.tipo_asistencia || a.tipo_asistencia === 'presente') && (a.cambios_pantalla || 0) >= 3) {
@@ -1442,7 +1443,6 @@ function renderVerGrupo() {
         }
         if (a.estado === 'presente' && (!a.tipo_asistencia || a.tipo_asistencia === 'presente')) return { icono: '✅', texto: 'Presente', bg: '#e8f5e9', color: '#2e7d32' };
         if (a.estado === 'ausente') return { icono: '❌', texto: 'Ausente', bg: '#ffebee', color: '#c62828' };
-        if (a.estado === 'justificado') return { icono: '🟡', texto: 'Justificado', bg: '#fff8e1', color: '#f57f17' };
         return { icono: '❓', texto: a.estado || '?', bg: '#f5f5f5', color: '#666' };
     }
     
@@ -1466,10 +1466,10 @@ function renderVerGrupo() {
     }
     
     const asistenciasFiltradas = filtrarAsistencias(todasAsistencias);
-    const totalPresentes = asistenciasFiltradas.filter(a => a.estado === 'presente' && a.tipo_asistencia !== 'retardo' && !esSD(a)).length;
-    const totalRetardos = asistenciasFiltradas.filter(a => a.tipo_asistencia === 'retardo').length;
-    const totalAusentes = asistenciasFiltradas.filter(a => a.estado === 'ausente' || esSD(a)).length;
-    const totalJustificadas = asistenciasFiltradas.filter(a => a.estado === 'justificado').length;
+    const totalPresentes = asistenciasFiltradas.filter(a => a.estado === 'presente' && a.tipo_asistencia !== 'retardo' && !esSD(a) && !a.perdonada).length;
+    const totalRetardos = asistenciasFiltradas.filter(a => a.tipo_asistencia === 'retardo' && !a.perdonada).length;
+    const totalAusentes = asistenciasFiltradas.filter(a => (a.estado === 'ausente' || esSD(a)) && !a.perdonada).length;
+    const totalJustificadas = asistenciasFiltradas.filter(a => a.estado === 'justificado' || a.perdonada).length;
     const totalPantalla = asistenciasFiltradas.reduce((sum, a) => sum + (a.cambios_pantalla || 0), 0);
     
     let html = `
@@ -2161,7 +2161,7 @@ async function perdonarAlumno(asistenciaId) {
     
     const { error } = await supabaseClient
         .from('asistencia')
-        .update({ perdonada: true })
+        .update({ perdonada: true, estado: 'justificado' })
         .eq('id', asistenciaId);
     
     if (error) {
