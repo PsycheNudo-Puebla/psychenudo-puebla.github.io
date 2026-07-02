@@ -686,26 +686,60 @@ async function iniciarEscaneo() {
     try {
         html5QrCode = new Html5Qrcode("qr-reader");
         
-        // NO forzamos aspectRatio — la cámara del celular tiene su propia orientación
-        // y forzarla causa rotación/distorsión en muchos dispositivos.
-        // El CSS con object-fit: cover se encarga de ajustar la vista correctamente.
-        const configCamara = { fps: 10, qrbox: { width: 250, height: 250 } };
+        // --- Configuración de cámara en portrait ---
+        // El aspectRatio en MediaTrackConstraints es WIDTH/HEIGHT.
+        // En un celular vertical (375×812), el ratio portrait correcto es 375/812 ≈ 0.46.
+        // Esto le pide al navegador una resolución vertical nativa, evitando rotación.
+        const esPortrait = window.innerHeight > window.innerWidth;
+        const aspectRatio = esPortrait ? window.innerWidth / window.innerHeight : undefined;
         
-        await html5QrCode.start(
-            { facingMode: "environment" },
-            configCamara,
-            async (decodedText) => {
-                // QR detectado exitosamente
-                await html5QrCode.stop();
-                lectorDiv.classList.add('hidden');
-                btn.textContent = '📷 Escanear QR';
-                escaneando = false;
-                
-                resultadoDiv.textContent = 'Procesando...';
-                await procesarQR(decodedText, resultadoDiv);
-            },
-            () => { /* ignore - no QR encontrado aún */ }
-        );
+        const configCamara = { fps: 10, qrbox: { width: 250, height: 250 } };
+        if (aspectRatio) configCamara.aspectRatio = aspectRatio;
+        
+        // Intentar con aspectRatio portrait; si no es soportado, reintentar sin él
+        try {
+            await html5QrCode.start(
+                { facingMode: "environment" },
+                configCamara,
+                async (decodedText) => {
+                    await html5QrCode.stop();
+                    lectorDiv.classList.add('hidden');
+                    btn.textContent = '📷 Escanear QR';
+                    escaneando = false;
+                    resultadoDiv.textContent = 'Procesando...';
+                    await procesarQR(decodedText, resultadoDiv);
+                },
+                () => { /* ignore */ }
+            );
+        } catch (camErr) {
+            // Si falló por aspectRatio (OverconstrainedError), reintentar sin él
+            const errMsg = camErr?.message || camErr?.toString() || '';
+            if (aspectRatio && (
+                errMsg.includes('Overconstrained') ||
+                errMsg.includes('aspectRatio') ||
+                errMsg.includes('aspectratio') ||
+                errMsg.includes('aspect ratio') ||
+                errMsg.includes('AspectRatio') ||
+                errMsg.includes('Constraint')
+            )) {
+                console.warn('⚠️ aspectRatio portrait no soportado, reintentando sin él');
+                await html5QrCode.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    async (decodedText) => {
+                        await html5QrCode.stop();
+                        lectorDiv.classList.add('hidden');
+                        btn.textContent = '📷 Escanear QR';
+                        escaneando = false;
+                        resultadoDiv.textContent = 'Procesando...';
+                        await procesarQR(decodedText, resultadoDiv);
+                    },
+                    () => { /* ignore */ }
+                );
+            } else {
+                throw camErr;
+            }
+        }
         
         escaneando = true;
     } catch (err) {
