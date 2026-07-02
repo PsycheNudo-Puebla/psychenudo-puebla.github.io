@@ -123,16 +123,15 @@ async function handleRegister(e) {
         }, { onConflict: 'id' });
     
     if (dbError) {
-        // El UPSERT falló — mostrar formulario para completar
-        document.getElementById('register-error').textContent = '';
-        document.getElementById('login-form').classList.add('hidden');
-        document.getElementById('register-form').classList.add('hidden');
-        document.getElementById('completar-perfil-form').classList.remove('hidden');
-        document.getElementById('completar-error').textContent = '⚠️ El registro fue parcial. Completa tus datos para terminar.';
-        // Pre-llenar con lo que ya escribió
-        document.getElementById('comp-nombre').value = nombre;
-        document.getElementById('comp-matricula').value = matricula;
+        console.error('Error al guardar alumno en BD:', dbError);
+        mostrarToast('⚠️ Registro creado, pero hubo un problema al guardar datos extra. Al iniciar sesión se completarán.', 'warning');
         setLoading('btn-register', false, 'Registrarme');
+        if (authData.session) {
+            alumnoActual = authData.user;
+            await cargarDatosAlumno(authData.user, 3);
+        } else {
+            showTab('login');
+        }
         return;
     }
     
@@ -171,33 +170,38 @@ async function handleLogout() {
 
 // ====== VERIFICACIÓN DE DEVICE ID ======
 async function verificarYcargarAlumno(user) {
-    // Buscar alumno y verificar que coincida el device_id
-    const { data, error } = await supabaseClient
+    // Buscar alumno
+    let { data, error } = await supabaseClient
         .from('alumnos')
         .select('*')
         .eq('id', user.id)
         .maybeSingle();
     
-    if (error || !data) {
-        // No hay fila en alumnos — mostrar formulario para completar perfil
-        document.getElementById('login-error').textContent = '';
-        document.getElementById('login-form').classList.add('hidden');
-        document.getElementById('register-form').classList.add('hidden');
-        document.getElementById('completar-perfil-form').classList.remove('hidden');
-        document.getElementById('completar-error').textContent = '';
-        return;
-    }
+    const esPlaceholder = data && (data.nombre === 'Usuario Nuevo' || data.matricula === 'SIN_MATRICULA');
     
-    // Si el registro tiene datos placeholder del trigger, pedir completar perfil
-    if (data.nombre === 'Usuario Nuevo' || data.matricula === 'SIN_MATRICULA') {
-        document.getElementById('login-error').textContent = '';
-        document.getElementById('login-form').classList.add('hidden');
-        document.getElementById('register-form').classList.add('hidden');
-        document.getElementById('completar-perfil-form').classList.remove('hidden');
-        document.getElementById('completar-error').textContent = '✏️ Tu cuenta ya existe pero necesita datos adicionales. Complétalos para continuar.';
-        document.getElementById('comp-nombre').value = data.nombre === 'Usuario Nuevo' ? '' : data.nombre;
-        document.getElementById('comp-matricula').value = data.matricula === 'SIN_MATRICULA' ? '' : data.matricula;
-        return;
+    // Si no existe la fila o tiene datos placeholder, crear/actualizar automáticamente
+    if (error || !data || esPlaceholder) {
+        const nombre = user.user_metadata?.nombre || data?.nombre || user.email?.split('@')[0] || 'Alumno';
+        const matricula = user.user_metadata?.matricula || data?.matricula || 'SIN_MATRICULA';
+        
+        const { error: upsertError } = await supabaseClient
+            .from('alumnos')
+            .upsert({
+                id: user.id,
+                email: user.email || '',
+                nombre: nombre,
+                matricula: matricula,
+                device_id: deviceId
+            }, { onConflict: 'id' });
+        
+        if (upsertError) {
+            document.getElementById('login-error').textContent = 'Error al cargar perfil. Contacta al administrador.';
+            console.error('Error upsert alumnos:', upsertError);
+            return;
+        }
+        
+        // Usar datos en memoria y continuar al dashboard
+        data = { id: user.id, email: user.email || '', nombre, matricula, device_id: deviceId };
     }
     
     // Verificar device_id — si cambió, actualizamos automáticamente con advertencia
@@ -206,11 +210,9 @@ async function verificarYcargarAlumno(user) {
             console.warn('⚠️ Device ID cambiado. Se actualiza al nuevo dispositivo.');
             document.getElementById('login-error').textContent = '⚠️ Se detectó un cambio de dispositivo. Se ha actualizado el registro.';
             document.getElementById('login-error').style.color = '#e65100';
-            // Actualizar al nuevo device_id
             await supabaseClient.from('alumnos').update({ device_id: deviceId }).eq('id', user.id);
         }
         
-        // Si no tenía device_id, asignarlo
         if (!data.device_id) {
             await supabaseClient.from('alumnos').update({ device_id: deviceId }).eq('id', user.id);
         }
@@ -226,48 +228,7 @@ async function verificarYcargarAlumno(user) {
     cargarGrupos();
 }
 
-async function completarPerfil(e) {
-    e.preventDefault();
-    setLoading('btn-completar-perfil', true);
-    const nombre = document.getElementById('comp-nombre').value.trim();
-    const matricula = document.getElementById('comp-matricula').value.trim();
-    const errorDiv = document.getElementById('completar-error');
-    
-    errorDiv.textContent = 'Guardando...';
-    
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    if (!user) {
-        errorDiv.textContent = 'Error: No hay sesión activa. Intenta cerrar y abrir la página.';
-        setLoading('btn-completar-perfil', false, 'Guardar y continuar');
-        return;
-    }
-    
-    const { error: dbError } = await supabaseClient
-        .from('alumnos')
-        .upsert({
-            id: user.id,
-            email: user.email || '',
-            nombre: nombre,
-            matricula: matricula,
-            device_id: deviceId
-        }, { onConflict: 'id' });
-    
-    if (dbError) {
-        errorDiv.textContent = 'Error al guardar: ' + dbError.message;
-        setLoading('btn-completar-perfil', false, 'Guardar y continuar');
-        return;
-    }
-    
-    // Éxito — cargar dashboard
-    setLoading('btn-completar-perfil', false, 'Guardar y continuar');
-    alumnoActual = { id: user.id, nombre, email: user.email || '', matricula, device_id: deviceId };
-    document.getElementById('alumno-nombre').textContent = `Hola, ${nombre}`;
-    document.getElementById('login-view').classList.add('hidden');
-    document.getElementById('dashboard-view').classList.remove('hidden');
-    document.getElementById('completar-perfil-form').classList.add('hidden');
-    
-    cargarGrupos();
-}
+
 
 // ====== FUNCIONES DE UI ======
 function showTab(tab, eventElement) {
@@ -295,12 +256,8 @@ function showTab(tab, eventElement) {
 function mostrarLogin() {
     document.getElementById('login-view').classList.remove('hidden');
     document.getElementById('dashboard-view').classList.add('hidden');
-    document.getElementById('completar-perfil-form').classList.add('hidden');
     document.getElementById('login-form').classList.remove('hidden');
     document.getElementById('register-form').classList.add('hidden');
-    document.getElementById('completar-error').textContent = '';
-    document.getElementById('comp-nombre').value = '';
-    document.getElementById('comp-matricula').value = '';
 }
 
 async function cargarDatosAlumno(user, intentos = 0) {
@@ -320,24 +277,29 @@ async function cargarDatosAlumno(user, intentos = 0) {
         if (i < intentos) await new Promise(r => setTimeout(r, 500));
     }
     
-    if (error || !data) {
-        // No hay fila en alumnos — mostrar formulario para completar perfil
-        document.getElementById('login-form').classList.add('hidden');
-        document.getElementById('register-form').classList.add('hidden');
-        document.getElementById('completar-perfil-form').classList.remove('hidden');
-        document.getElementById('completar-error').textContent = '✏️ Completa tus datos para continuar.';
-        return;
-    }
+    const esPlaceholder = data && (data.nombre === 'Usuario Nuevo' || data.matricula === 'SIN_MATRICULA');
     
-    // Si el registro tiene datos placeholder del trigger, pedir completar perfil
-    if (data.nombre === 'Usuario Nuevo' || data.matricula === 'SIN_MATRICULA') {
-        document.getElementById('login-form').classList.add('hidden');
-        document.getElementById('register-form').classList.add('hidden');
-        document.getElementById('completar-perfil-form').classList.remove('hidden');
-        document.getElementById('completar-error').textContent = '✏️ Tu cuenta ya existe pero necesita datos adicionales. Complétalos para continuar.';
-        document.getElementById('comp-nombre').value = data.nombre === 'Usuario Nuevo' ? '' : data.nombre;
-        document.getElementById('comp-matricula').value = data.matricula === 'SIN_MATRICULA' ? '' : data.matricula;
-        return;
+    if (error || !data || esPlaceholder) {
+        const nombre = user.user_metadata?.nombre || data?.nombre || user.email?.split('@')[0] || 'Alumno';
+        const matricula = user.user_metadata?.matricula || data?.matricula || 'SIN_MATRICULA';
+        
+        const { error: upsertError } = await supabaseClient
+            .from('alumnos')
+            .upsert({
+                id: user.id,
+                email: user.email || '',
+                nombre: nombre,
+                matricula: matricula,
+                device_id: deviceId
+            }, { onConflict: 'id' });
+        
+        if (upsertError) {
+            console.error('Error upsert alumnos en cargarDatosAlumno:', upsertError);
+            document.getElementById('login-error').textContent = 'Error al cargar perfil. Contacta al administrador.';
+            return;
+        }
+        
+        data = { id: user.id, email: user.email || '', nombre, matricula, device_id: deviceId };
     }
     
     // Sincronizar device_id si cambió (recarga en otro origen/equipo)

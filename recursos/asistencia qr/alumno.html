@@ -44,20 +44,7 @@
                 <div id="register-error" class="error-msg"></div>
             </form>
             
-            <!-- Formulario para completar perfil (cuando el registro no creó la fila en alumnos) -->
-            <form id="completar-perfil-form" class="hidden" onsubmit="completarPerfil(event)">
-                <h3>✏️ Completar tu perfil</h3>
-                <p style="color: #666; margin-bottom: 15px; font-size: 0.9em;">
-                    Tu cuenta ya existe pero necesita datos adicionales. Complétalos para continuar.
-                </p>
-                <input type="text" id="comp-nombre" placeholder="Nombre completo" required>
-                <input type="text" id="comp-matricula" placeholder="Matrícula" required>
-                <button type="submit" class="btn-primary" id="btn-completar-perfil">Guardar y continuar</button>
-                <div id="completar-error" class="error-msg"></div>
-                <p style="text-align: center; margin-top: 10px;">
-                    <a href="#" onclick="mostrarLogin(); return false;" style="color: #667eea; font-size: 0.85em;">← Volver al inicio de sesión</a>
-                </p>
-            </form>
+
         </div>
         
         <a href="index.html" class="back-link">← Volver al inicio</a>

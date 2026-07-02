@@ -109,14 +109,10 @@ async function handleRegister(e) {
         }, { onConflict: 'id' });
     
     if (dbError) {
-        // UPSERT falló — mostrar formulario completar perfil
-        document.getElementById('register-error').textContent = '';
-        document.getElementById('login-form').classList.add('hidden');
-        document.getElementById('register-form').classList.add('hidden');
-        document.getElementById('completar-perfil-form').classList.remove('hidden');
-        document.getElementById('completar-error').textContent = '⚠️ El registro fue parcial. Completa tus datos.';
-        document.getElementById('comp-nombre').value = nombre;
+        console.error('Error al guardar profesor en BD:', dbError);
+        mostrarToast('⚠️ Registro creado, pero hubo un problema al guardar datos extra. Al iniciar sesión se completarán.', 'warning');
         setLoading('btn-register', false, 'Registrarme');
+        showTab('login');
         return;
     }
     
@@ -127,31 +123,33 @@ async function handleRegister(e) {
 
 // ====== VERIFICACIÓN DE DEVICE ID ======
 async function verificarYcargarProfesor(user) {
-    const { data, error } = await supabaseClient
+    let { data, error } = await supabaseClient
         .from('profesores')
         .select('*')
         .eq('id', user.id)
         .maybeSingle();
     
-    if (error || !data) {
-        // No hay fila en profesores — mostrar formulario para completar perfil
-        document.getElementById('login-error').textContent = '';
-        document.getElementById('login-form').classList.add('hidden');
-        document.getElementById('register-form').classList.add('hidden');
-        document.getElementById('completar-perfil-form').classList.remove('hidden');
-        document.getElementById('completar-error').textContent = '';
-        return;
-    }
+    const esPlaceholder = data && data.nombre === 'Usuario Nuevo';
     
-    // Si el registro tiene datos placeholder del trigger, pedir completar perfil
-    if (data.nombre === 'Usuario Nuevo') {
-        document.getElementById('login-error').textContent = '';
-        document.getElementById('login-form').classList.add('hidden');
-        document.getElementById('register-form').classList.add('hidden');
-        document.getElementById('completar-perfil-form').classList.remove('hidden');
-        document.getElementById('completar-error').textContent = '✏️ Tu cuenta ya existe pero necesita datos adicionales. Complétalos para continuar.';
-        document.getElementById('comp-nombre').value = data.nombre === 'Usuario Nuevo' ? '' : data.nombre;
-        return;
+    if (error || !data || esPlaceholder) {
+        const nombre = user.user_metadata?.nombre || data?.nombre || user.email?.split('@')[0] || 'Profesor';
+        
+        const { error: upsertError } = await supabaseClient
+            .from('profesores')
+            .upsert({
+                id: user.id,
+                email: user.email || '',
+                nombre: nombre,
+                device_id: deviceId
+            }, { onConflict: 'id' });
+        
+        if (upsertError) {
+            document.getElementById('login-error').textContent = 'Error al cargar perfil. Contacta al administrador.';
+            console.error('Error upsert profesores:', upsertError);
+            return;
+        }
+        
+        data = { id: user.id, email: user.email || '', nombre, device_id: deviceId };
     }
     
     // [Profesores] No bloqueamos por device_id.
@@ -213,11 +211,8 @@ function showTab(tab, eventElement) {
 function mostrarLogin() {
     document.getElementById('login-view').classList.remove('hidden');
     document.getElementById('dashboard-view').classList.add('hidden');
-    document.getElementById('completar-perfil-form').classList.add('hidden');
     document.getElementById('login-form').classList.remove('hidden');
     document.getElementById('register-form').classList.add('hidden');
-    document.getElementById('completar-error').textContent = '';
-    document.getElementById('comp-nombre').value = '';
 }
 
 async function cargarDatosProfesor(user) {
@@ -228,23 +223,27 @@ async function cargarDatosProfesor(user) {
         .eq('id', user.id)
         .maybeSingle();
     
-    if (error || !data) {
-        // No hay fila — mostrar formulario completar
-        document.getElementById('login-form').classList.add('hidden');
-        document.getElementById('register-form').classList.add('hidden');
-        document.getElementById('completar-perfil-form').classList.remove('hidden');
-        document.getElementById('completar-error').textContent = '✏️ Completa tus datos para continuar.';
-        return;
-    }
+    const esPlaceholder = data && data.nombre === 'Usuario Nuevo';
     
-    // Si el registro tiene datos placeholder del trigger, pedir completar perfil
-    if (data.nombre === 'Usuario Nuevo') {
-        document.getElementById('login-form').classList.add('hidden');
-        document.getElementById('register-form').classList.add('hidden');
-        document.getElementById('completar-perfil-form').classList.remove('hidden');
-        document.getElementById('completar-error').textContent = '✏️ Tu cuenta ya existe pero necesita datos adicionales. Complétalos para continuar.';
-        document.getElementById('comp-nombre').value = '';
-        return;
+    if (error || !data || esPlaceholder) {
+        const nombre = user.user_metadata?.nombre || data?.nombre || user.email?.split('@')[0] || 'Profesor';
+        
+        const { error: upsertError } = await supabaseClient
+            .from('profesores')
+            .upsert({
+                id: user.id,
+                email: user.email || '',
+                nombre: nombre,
+                device_id: deviceId
+            }, { onConflict: 'id' });
+        
+        if (upsertError) {
+            console.error('Error upsert profesores en cargarDatosProfesor:', upsertError);
+            document.getElementById('login-error').textContent = 'Error al cargar perfil. Contacta al administrador.';
+            return;
+        }
+        
+        data = { id: user.id, email: user.email || '', nombre, device_id: deviceId };
     }
     
     // [Profesores] Solo actualizamos device_id para trazabilidad, sin bloquear.
@@ -2249,44 +2248,6 @@ async function reabrirMonitoreo(grupoId) {
     }
     
     await iniciarMonitoreoProfesor(grupoId, info.sesionId, info.perdonesMax);
-}
-
-// ====== COMPLETAR PERFIL (profesor - mismo fix que alumno) ======
-async function completarPerfil(e) {
-    e.preventDefault();
-    setLoading('btn-completar-perfil', true);
-    const nombre = document.getElementById('comp-nombre').value.trim();
-    const errorDiv = document.getElementById('completar-error');
-    errorDiv.textContent = 'Guardando...';
-    
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    if (!user) {
-        errorDiv.textContent = 'Error: No hay sesión activa.';
-        setLoading('btn-completar-perfil', false, 'Guardar y continuar');
-        return;
-    }
-    
-    const { error: dbError } = await supabaseClient
-        .from('profesores')
-        .upsert({
-            id: user.id,
-            email: user.email || '',
-            nombre: nombre,
-            device_id: deviceId
-        }, { onConflict: 'id' });
-    
-    if (dbError) {
-        errorDiv.textContent = 'Error al guardar: ' + dbError.message;
-        setLoading('btn-completar-perfil', false, 'Guardar y continuar');
-        return;
-    }
-    
-    profesorActual = { id: user.id, nombre, email: user.email || '', device_id: deviceId };
-    document.getElementById('profesor-nombre').textContent = `Hola, ${nombre}`;
-    document.getElementById('login-view').classList.add('hidden');
-    document.getElementById('dashboard-view').classList.remove('hidden');
-    document.getElementById('completar-perfil-form').classList.add('hidden');
-    cargarGrupos();
 }
 
 const DIAS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
