@@ -711,7 +711,14 @@ async function iniciarEscaneo() {
             );
         } catch (camErr) {
             // Si falló por aspect ratio, reintentar sin él
-            if (aspectRatio && camErr.message && camErr.message.includes('aspectRatio')) {
+            const errMsg = camErr?.message || camErr?.toString() || '';
+            const esErrorAspectRatio = aspectRatio && (
+                errMsg.includes('aspectRatio') ||
+                errMsg.includes('aspectratio') ||
+                errMsg.includes('aspect ratio') ||
+                errMsg.includes('AspectRatio')
+            );
+            if (esErrorAspectRatio) {
                 console.warn('⚠️ aspectRatio no soportado, reintentando sin él');
                 await html5QrCode.start(
                     { facingMode: "environment" },
@@ -733,7 +740,25 @@ async function iniciarEscaneo() {
         
         escaneando = true;
     } catch (err) {
-        resultadoDiv.textContent = 'Error al acceder a la cámara: ' + err.message;
+        const msg = err?.message || err?.toString() || 'Error desconocido';
+        let userMsg = 'Error al acceder a la cámara: ' + msg;
+        // Mensajes más útiles según el error
+        if (msg.includes('NotAllowedError') || msg.includes('Permission denied') || msg.includes('permission')) {
+            userMsg = '❌ Permiso de cámara denegado. Por favor, permite el acceso a la cámara en la configuración de tu navegador e intenta de nuevo.';
+        } else if (msg.includes('NotFoundError') || msg.includes('No camera')) {
+            userMsg = '❌ No se encontró una cámara en este dispositivo.';
+        } else if (msg.includes('NotReadableError') || msg.includes('in use')) {
+            userMsg = '❌ La cámara está siendo usada por otra aplicación. Ciérrala e intenta de nuevo.';
+        } else if (msg.includes('OverconstrainedError') || msg.includes('facingMode')) {
+            userMsg = '❌ No se pudo activar la cámara trasera. Intenta con otra cámara.';
+        }
+        resultadoDiv.textContent = userMsg;
+        resultadoDiv.style.color = '#e74c3c';
+        resultadoDiv.style.fontWeight = 'bold';
+        resultadoDiv.style.padding = '10px';
+        resultadoDiv.style.backgroundColor = '#fef0f0';
+        resultadoDiv.style.borderRadius = '8px';
+        resultadoDiv.style.marginTop = '10px';
         lectorDiv.classList.add('hidden');
         btn.textContent = '📷 Escanear QR';
         escaneando = false;
