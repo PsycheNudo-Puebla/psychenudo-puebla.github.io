@@ -83,15 +83,16 @@ async function handleResetPassword(e) {
 async function handleRegister(e) {
     e.preventDefault();
     setLoading('btn-register', true);
-    const nombre = document.getElementById('reg-nombre').value;
-    const matricula = document.getElementById('reg-matricula').value;
-    const email = document.getElementById('reg-email').value;
-    const password = document.getElementById('reg-password').value;
-    
-    document.getElementById('register-error').textContent = 'Registrando...';
-    
-    // 1. Crear usuario en Auth de Supabase (con metadatos para el trigger)
-    const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+    try {
+        const nombre = document.getElementById('reg-nombre').value;
+        const matricula = document.getElementById('reg-matricula').value;
+        const email = document.getElementById('reg-email').value;
+        const password = document.getElementById('reg-password').value;
+        
+        document.getElementById('register-error').textContent = 'Registrando...';
+        
+        // 1. Crear usuario en Auth de Supabase (con metadatos para el trigger)
+        const { data: authData, error: authError } = await supabaseClient.auth.signUp({
         email,
         password,
         options: {
@@ -146,6 +147,11 @@ async function handleRegister(e) {
         setLoading('btn-register', false, 'Registrarme');
         mostrarToast('Registro exitoso. Revisa tu email para confirmar tu cuenta.', 'exito');
         showTab('login');
+    }
+    } catch (err) {
+        console.error('Error en registro:', err);
+        document.getElementById('register-error').textContent = 'Error de conexión. Verifica tu internet e intenta de nuevo.';
+        setLoading('btn-register', false, 'Registrarme');
     }
 }
 
@@ -796,8 +802,8 @@ async function procesarQR(qrData, resultadoDiv) {
         
         // Buscar el horario actual para usar su GPS específico (cada horario puede tener su propio salón)
         const diaHoy = new Date().getDay();
-        const ahora = new Date();
-        const horaActualStr = `${ahora.getHours().toString().padStart(2,'0')}:${ahora.getMinutes().toString().padStart(2,'0')}`;
+        const fechaActual = new Date();
+        const horaActualStr = `${fechaActual.getHours().toString().padStart(2,'0')}:${fechaActual.getMinutes().toString().padStart(2,'0')}`;
         const { data: horariosHoy } = await supabaseClient
             .from('horarios')
             .select('hora_inicio, hora_fin, latitud, longitud, radio_metros')
