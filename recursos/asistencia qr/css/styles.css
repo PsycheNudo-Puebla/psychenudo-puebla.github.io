@@ -386,11 +386,23 @@ footer {
     margin: 0 auto;
     border-radius: 12px;
     overflow: hidden;
+    position: relative;
+    background: #000;
 }
 
 #qr-reader video {
     border-radius: 12px;
     width: 100%;
+    height: auto;
+    object-fit: cover;
+    display: block;
+}
+
+/* En portrait, asegurar que la cámara ocupe bien el espacio */
+@media (orientation: portrait) {
+    #qr-reader video {
+        max-height: 70vh;
+    }
 }
 
 /* ====== ASISTENCIA (stats) ====== */

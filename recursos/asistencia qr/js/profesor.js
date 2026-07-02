@@ -522,27 +522,11 @@ function renderHorariosCreados() {
                 </div>
                 <div>
                     <label style="font-size:0.8em; color:#555;">Inicio</label>
-                    <div style="display:flex; gap:4px; align-items:center;">
-                        <input type="number" id="nuevo-horario-inicio-h" min="1" max="12" placeholder="HH" style="padding:8px 6px; border:1px solid #ddd; border-radius:6px; width:50px;">
-                        <span style="font-weight:700;">:</span>
-                        <input type="number" id="nuevo-horario-inicio-m" min="0" max="59" placeholder="MM" style="padding:8px 6px; border:1px solid #ddd; border-radius:6px; width:50px;">
-                        <select id="nuevo-horario-inicio-ampm" style="padding:8px 6px; border:1px solid #ddd; border-radius:6px;">
-                            <option value="AM">AM</option>
-                            <option value="PM">PM</option>
-                        </select>
-                    </div>
+                    <input type="time" id="nuevo-horario-inicio" style="padding:8px 10px; border:1px solid #ddd; border-radius:6px; width:140px;">
                 </div>
                 <div>
                     <label style="font-size:0.8em; color:#555;">Fin</label>
-                    <div style="display:flex; gap:4px; align-items:center;">
-                        <input type="number" id="nuevo-horario-fin-h" min="1" max="12" placeholder="HH" style="padding:8px 6px; border:1px solid #ddd; border-radius:6px; width:50px;">
-                        <span style="font-weight:700;">:</span>
-                        <input type="number" id="nuevo-horario-fin-m" min="0" max="59" placeholder="MM" style="padding:8px 6px; border:1px solid #ddd; border-radius:6px; width:50px;">
-                        <select id="nuevo-horario-fin-ampm" style="padding:8px 6px; border:1px solid #ddd; border-radius:6px;">
-                            <option value="AM">AM</option>
-                            <option value="PM">PM</option>
-                        </select>
-                    </div>
+                    <input type="time" id="nuevo-horario-fin" style="padding:8px 10px; border:1px solid #ddd; border-radius:6px; width:140px;">
                 </div>
                 <div>
                     <label style="font-size:0.8em; color:#555;">🟢 Puntual (min)</label>
@@ -601,22 +585,18 @@ function obtenerUbicacionParaHorario() {
     );
 }
 
-function leerHoraInput(prefix) {
-    const h = parseInt(document.getElementById(prefix + '-h').value);
-    const m = document.getElementById(prefix + '-m').value.padStart(2, '0');
-    const ampm = document.getElementById(prefix + '-ampm').value;
-    if (!h || h < 1 || h > 12) return null;
-    if (!m || isNaN(parseInt(m)) || parseInt(m) < 0 || parseInt(m) > 59) return null;
-    let h24 = h;
-    if (ampm === 'PM' && h < 12) h24 = h + 12;
-    if (ampm === 'AM' && h === 12) h24 = 0;
-    return h24.toString().padStart(2, '0') + ':' + m;
+function leerHoraInput(id) {
+    const val = document.getElementById(id).value;
+    if (!val) return null;
+    // Validar formato HH:MM (24h)
+    const partes = val.split(':').map(Number);
+    if (partes.length !== 2 || isNaN(partes[0]) || isNaN(partes[1])) return null;
+    if (partes[0] < 0 || partes[0] > 23 || partes[1] < 0 || partes[1] > 59) return null;
+    return val;
 }
 
-function resetearInputsHora(prefix) {
-    document.getElementById(prefix + '-h').value = '';
-    document.getElementById(prefix + '-m').value = '';
-    document.getElementById(prefix + '-ampm').value = 'AM';
+function resetearInputsHora(id) {
+    document.getElementById(id).value = '';
 }
 
 function agregarHorarioFormulario() {
@@ -627,7 +607,12 @@ function agregarHorarioFormulario() {
     const retardo = parseInt(document.getElementById('nuevo-horario-retardo').value) || 20;
     
     if (!inicio || !fin) {
-        mostrarToast('Ingresa hora (HH:MM) y selecciona AM/PM.', 'warning');
+        mostrarToast('Ingresa una hora válida en formato 24h (ej: 14:30).', 'warning');
+        return;
+    }
+    
+    if (inicio >= fin) {
+        mostrarToast('⚠️ La hora de inicio debe ser menor a la hora de fin. Ingresa un horario válido.', 'warning');
         return;
     }
     
