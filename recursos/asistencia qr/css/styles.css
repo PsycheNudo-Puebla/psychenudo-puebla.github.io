@@ -388,23 +388,13 @@ footer {
     overflow: hidden;
     position: relative;
     background: #000;
-    min-height: 240px;
-    /* La altura la define el video automáticamente según su resolución */
 }
 
 #qr-reader video {
     border-radius: 12px;
     width: 100%;
     height: auto;
-    object-fit: cover;
     display: block;
-}
-
-/* En portrait, evitar que ocupe toda la pantalla */
-@media (orientation: portrait) {
-    #qr-reader {
-        max-height: 80vh;
-    }
 }
 
 /* ====== ASISTENCIA (stats) ====== */

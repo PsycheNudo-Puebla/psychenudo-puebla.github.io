@@ -686,62 +686,22 @@ async function iniciarEscaneo() {
     try {
         html5QrCode = new Html5Qrcode("qr-reader");
         
-        // --- Configuración de cámara ---
-        // Pedimos a la cámara una resolución vertical (portrait) nativa.
-        // Muchas cámaras soportan 720×1280 en orientación vertical, y esto evita
-        // que el video salga rotado 90° (que pasa si la cámara usa landscape nativo).
-        // html5-qrcode mergea videoConstraints con el facingMode del primer parámetro.
-        const esPortrait = window.innerHeight > window.innerWidth;
-        const configCamara = {
-            fps: 10,
-            qrbox: { width: 250, height: 250 },
-            videoConstraints: esPortrait ? {
-                width: { ideal: 720 },
-                height: { ideal: 1280 }
-            } : undefined
-        };
-        
-        // Si falla por las constraints portrait, reintentamos sin ellas
-        try {
-            await html5QrCode.start(
-                { facingMode: "environment" },
-                configCamara,
-                async (decodedText) => {
-                    await html5QrCode.stop();
-                    lectorDiv.classList.add('hidden');
-                    btn.textContent = '📷 Escanear QR';
-                    escaneando = false;
-                    resultadoDiv.textContent = 'Procesando...';
-                    await procesarQR(decodedText, resultadoDiv);
-                },
-                () => { /* ignore */ }
-            );
-        } catch (camErr) {
-            // Si falló por las constraints de resolución, reintentar sin videoConstraints
-            const errMsg = camErr?.message || camErr?.toString() || '';
-            if (esPortrait && configCamara.videoConstraints && (
-                errMsg.includes('Overconstrained') ||
-                errMsg.includes('Constraint') ||
-                errMsg.includes('NotFoundError')
-            )) {
-                console.warn('⚠️ Resolución portrait no soportada, reintentando sin constraints');
-                await html5QrCode.start(
-                    { facingMode: "environment" },
-                    { fps: 10, qrbox: { width: 250, height: 250 } },
-                    async (decodedText) => {
-                        await html5QrCode.stop();
-                        lectorDiv.classList.add('hidden');
-                        btn.textContent = '📷 Escanear QR';
-                        escaneando = false;
-                        resultadoDiv.textContent = 'Procesando...';
-                        await procesarQR(decodedText, resultadoDiv);
-                    },
-                    () => { /* ignore */ }
-                );
-            } else {
-                throw camErr;
-            }
-        }
+        // --- Configuración simple de cámara trasera ---
+        // Sin aspectRatio ni videoConstraints extraños, solo facingMode: "environment"
+        // para que la cámara se comporte exactamente como en la app nativa del teléfono.
+        await html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            async (decodedText) => {
+                await html5QrCode.stop();
+                lectorDiv.classList.add('hidden');
+                btn.textContent = '📷 Escanear QR';
+                escaneando = false;
+                resultadoDiv.textContent = 'Procesando...';
+                await procesarQR(decodedText, resultadoDiv);
+            },
+            () => { /* ignore */ }
+        );
         
         escaneando = true;
     } catch (err) {
