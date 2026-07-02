@@ -421,7 +421,7 @@ function volverALista() {
         monitorProfChannel = null;
     }
     if (monitorPollInterval) {
-        clearInterval(monitorPollInterval);
+        clearTimeout(monitorPollInterval);
         monitorPollInterval = null;
     }
     monitorGrupoId = null;
@@ -1924,39 +1924,63 @@ async function iniciarMonitoreoProfesor(grupoId, sesionId, perdonesMax) {
         )
         .subscribe();
 
-    // Polling de respaldo: refresca cada 5s por si la suscripción en tiempo real falla
+    // Polling de respaldo: refresca cada 3s por si la suscripción en tiempo real falla
+    // Usamos setTimeout recursivo con await y try-catch para evitar que errores silenciosos maten el ciclo
     if (monitorPollInterval) {
-        clearInterval(monitorPollInterval);
+        clearTimeout(monitorPollInterval);
+        monitorPollInterval = null;
     }
-    monitorPollInterval = setInterval(() => {
-        if (monitorGrupoId) {
-            cargarAsistenciasActivas();
-        }
-    }, 5000);
+    (function programarPolling() {
+        if (!monitorGrupoId) return;
+        monitorPollInterval = setTimeout(async () => {
+            try {
+                if (monitorGrupoId) {
+                    await cargarAsistenciasActivas();
+                }
+            } catch (e) {
+                console.warn('⚠️ Error en polling de monitoreo:', e);
+            }
+            programarPolling();
+        }, 3000);
+    })();
 }
+
+// Refrescar monitoreo cuando el usuario vuelve a la pestaña (si estaba en segundo plano)
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && monitorGrupoId) {
+        cargarAsistenciasActivas();
+    }
+});
 
 async function cargarAsistenciasActivas() {
     if (!monitorGrupoId) return;
-    const hoy = new Date().toISOString().split('T')[0];
-    
-    const { data: asistencias } = await supabaseClient
-        .from('asistencia')
-        .select('*, alumnos!inner(nombre, email, matricula)')
-        .eq('grupo_id', monitorGrupoId)
-        .eq('fecha', hoy)
-        .order('creado_en', { ascending: true });
-    
-    const lista = document.getElementById('monitoreo-lista');
-    
-    if (!asistencias || asistencias.length === 0) {
-        lista.innerHTML = '<p class="empty-state">📱 Esperando que los alumnos escaneen el QR...</p>';
-        document.getElementById('monitoreo-alumnos-count').textContent = '0';
-        return;
-    }
-    
-    document.getElementById('monitoreo-alumnos-count').textContent = asistencias.length;
-    
-    lista.innerHTML = asistencias.map(a => {
+    try {
+        const hoy = new Date().toISOString().split('T')[0];
+        
+        const { data: asistencias, error } = await supabaseClient
+            .from('asistencia')
+            .select('*, alumnos!inner(nombre, email, matricula)')
+            .eq('grupo_id', monitorGrupoId)
+            .eq('fecha', hoy)
+            .order('creado_en', { ascending: true });
+        
+        if (error) {
+            console.warn('⚠️ Error al cargar asistencias:', error.message);
+            return;
+        }
+        
+        const lista = document.getElementById('monitoreo-lista');
+        if (!lista) return;
+        
+        if (!asistencias || asistencias.length === 0) {
+            lista.innerHTML = '<p class="empty-state">📱 Esperando que los alumnos escaneen el QR...</p>';
+            document.getElementById('monitoreo-alumnos-count').textContent = '0';
+            return;
+        }
+        
+        document.getElementById('monitoreo-alumnos-count').textContent = asistencias.length;
+        
+        lista.innerHTML = asistencias.map(a => {
         const nombre = a.alumnos?.nombre || 'Alumno';
         const cambios = a.cambios_pantalla || 0;
         const confirmada = a.confirmada;
@@ -2004,6 +2028,9 @@ async function cargarAsistenciasActivas() {
             </div>
         `;
     }).join('');
+    } catch (e) {
+        console.warn('⚠️ Error en cargarAsistenciasActivas:', e);
+    }
 }
 
 async function perdonarAlumno(asistenciaId) {
@@ -2044,7 +2071,7 @@ function cerrarMonitoreo() {
         monitorProfChannel = null;
     }
     if (monitorPollInterval) {
-        clearInterval(monitorPollInterval);
+        clearTimeout(monitorPollInterval);
         monitorPollInterval = null;
     }
     // NO desactivamos la sesión en BD — la clase sigue activa
