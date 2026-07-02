@@ -400,8 +400,9 @@ async function cargarGrupos() {
                 <strong>${grupo.nombre}</strong>
                 <br><small>${grupo.materia || 'Sin materia'}</small>
             </div>
-            <div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
                 <button onclick="verAsistencia('${grupo.id}', '${grupo.nombre}')" class="btn-secondary">Ver mi asistencia</button>
+                <button onclick="salirDeGrupo('${grupo.id}', '${grupo.nombre.replace(/'/g, "\\'")}')" class="btn-danger" style="padding:6px 10px; background:#fff0f0; color:#c62828; border:1px solid #ffcdd2; border-radius:8px; cursor:pointer; font-size:0.8em; font-weight:600;">Salir del grupo</button>
             </div>
         </div>
     `).join('');
@@ -462,6 +463,21 @@ async function unirseAGrupo(codigo) {
         .maybeSingle();
     
     if (existente) {
+        // Si el alumno había abandonado, permitir re-inscripción
+        if (existente.abandono_en) {
+            const { error: rejoinError } = await supabaseClient
+                .from('grupo_alumnos')
+                .update({ abandono_en: null })
+                .eq('id', existente.id);
+            if (rejoinError) {
+                errorDiv.textContent = 'Error al reactivar inscripción: ' + rejoinError.message;
+                return;
+            }
+            mostrarToast(`✅ Has vuelto al grupo: ${grupo.nombre}`, 'exito');
+            cerrarModal();
+            cargarGrupos();
+            return;
+        }
         errorDiv.textContent = 'Ya estás inscrito en este grupo.';
         return;
     }
@@ -482,6 +498,58 @@ async function unirseAGrupo(codigo) {
     mostrarToast(`✅ Te has unido al grupo: ${grupo.nombre}`, 'exito');
     cerrarModal();
     cargarGrupos();
+}
+
+// ====== SALIR DE UN GRUPO ======
+async function salirDeGrupo(grupoId, grupoNombre) {
+    const confirmacion = confirm(
+        `¿Salir del grupo "${grupoNombre}"?\n\n` +
+        `⚠️ Tus registros de asistencia anteriores se conservarán y el profesor podrá verlos.\n` +
+        `❌ No podrás escanear el QR de este grupo a menos que el profesor te reinscriba.\n\n` +
+        `¿Estás seguro de que deseas salir?`
+    );
+    if (!confirmacion) return;
+    
+    try {
+        const { data: inscripcion, error: buscaError } = await supabaseClient
+            .from('grupo_alumnos')
+            .select('id, abandono_en')
+            .eq('alumno_id', alumnoActual.id)
+            .eq('grupo_id', grupoId)
+            .maybeSingle();
+        
+        if (buscaError || !inscripcion) {
+            mostrarToast('Error al buscar tu inscripción.', 'error');
+            return;
+        }
+        
+        // Intentar actualizar con abandono_en (columna nueva)
+        const { error: updateError } = await supabaseClient
+            .from('grupo_alumnos')
+            .update({ abandono_en: new Date().toISOString() })
+            .eq('id', inscripcion.id);
+        
+        if (updateError) {
+            // Si la columna no existe (tabla antigua), hacer DELETE como fallback
+            console.warn('UPDATE falló, intentando DELETE fallback:', updateError.message);
+            const { error: delError } = await supabaseClient
+                .from('grupo_alumnos')
+                .delete()
+                .eq('id', inscripcion.id);
+            if (delError) {
+                throw new Error('DELETE también falló: ' + delError.message);
+            }
+        }
+        
+        mostrarToast(`✅ Has salido del grupo "${grupoNombre}". Tus registros se conservan.`, 'exito');
+        cargarGrupos();
+        
+        // Limpiar la vista de asistencia si estaba mostrando este grupo
+        document.getElementById('asistencia-lista').innerHTML = '<p class="empty-state">Selecciona un grupo para ver tu historial de asistencia.</p>';
+        
+    } catch (err) {
+        mostrarToast('Error al salir del grupo: ' + (err.message || 'desconocido'), 'error');
+    }
 }
 
 // ====== VER ASISTENCIA ======
@@ -726,17 +794,50 @@ async function procesarQR(qrData, resultadoDiv) {
             resultadoDiv.textContent = '❌ No estás inscrito en este grupo.';
             return;
         }
+        // Verificar que el alumno no haya abandonado el grupo
+        if (inscripcion.abandono_en) {
+            resultadoDiv.textContent = '❌ Ya no perteneces a este grupo. Contacta a tu profesor para reinscribirte.';
+            return;
+        }
         
-        // === VALIDACIÓN GPS (si el grupo tiene ubicación configurada) ===
+        // === VALIDACIÓN GPS (priorizar GPS por horario, fallback a grupo) ===
         const { data: grupo } = await supabaseClient
             .from('grupos')
             .select('latitud, longitud, radio_metros, nombre, limite_salidas')
             .eq('id', grupoId)
             .maybeSingle();
         
-        if (grupo && grupo.latitud && grupo.longitud) {
+        // Buscar el horario actual para usar su GPS específico (cada horario puede tener su propio salón)
+        const diaHoy = new Date().getDay();
+        const ahora = new Date();
+        const horaActualStr = `${ahora.getHours().toString().padStart(2,'0')}:${ahora.getMinutes().toString().padStart(2,'0')}`;
+        const { data: horariosHoy } = await supabaseClient
+            .from('horarios')
+            .select('hora_inicio, hora_fin, latitud, longitud, radio_metros')
+            .eq('grupo_id', grupoId)
+            .eq('dia_semana', diaHoy)
+            .eq('activo', true);
+
+        let horarioGps = null;
+        if (horariosHoy) {
+            for (const h of horariosHoy) {
+                const hInicio = h.hora_inicio?.substring(0,5);
+                const hFin = h.hora_fin?.substring(0,5);
+                if (hInicio && hFin && horaActualStr >= hInicio && horaActualStr <= hFin) {
+                    horarioGps = h;
+                    break;
+                }
+            }
+        }
+
+        // Usar GPS del horario si existe, sino el del grupo (backward compat)
+        const gpsLat = horarioGps?.latitud ?? grupo?.latitud;
+        const gpsLng = horarioGps?.longitud ?? grupo?.longitud;
+        const gpsRadio = horarioGps?.radio_metros ?? grupo?.radio_metros ?? 50;
+
+        if (gpsLat && gpsLng) {
             try {
-                const gpsOk = await verificarGPS(grupo.latitud, grupo.longitud, grupo.radio_metros || 50);
+                const gpsOk = await verificarGPS(gpsLat, gpsLng, gpsRadio);
                 if (!gpsOk) {
                     resultadoDiv.textContent = '❌ Debes estar en el salón de clase para escanear. GPS no coincide.';
                     return;

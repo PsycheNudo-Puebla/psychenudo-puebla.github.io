@@ -58,8 +58,12 @@ CREATE TABLE IF NOT EXISTS public.grupo_alumnos (
     alumno_id UUID NOT NULL REFERENCES public.alumnos(id) ON DELETE CASCADE,
     grupo_id UUID NOT NULL REFERENCES public.grupos(id) ON DELETE CASCADE,
     creado_en TIMESTAMPTZ DEFAULT NOW(),
+    abandono_en TIMESTAMPTZ,
     UNIQUE(alumno_id, grupo_id)
 );
+
+-- Migración para grupos existentes (ejecutar si la columna no existe):
+-- ALTER TABLE public.grupo_alumnos ADD COLUMN IF NOT EXISTS abandono_en TIMESTAMPTZ;
 
 -- 5. Sesiones de Clase
 CREATE TABLE IF NOT EXISTS public.sesiones_clase (
@@ -116,6 +120,9 @@ CREATE TABLE IF NOT EXISTS public.horarios (
     activo BOOLEAN DEFAULT TRUE,
     puntual_minutos INTEGER DEFAULT 10,
     retardo_minutos INTEGER DEFAULT 20,
+    latitud DOUBLE PRECISION,
+    longitud DOUBLE PRECISION,
+    radio_metros DOUBLE PRECISION DEFAULT 100,
     creado_en TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -245,3 +252,11 @@ FROM pg_policies
 WHERE schemaname = 'public'
 ORDER BY tablename, policyname;
 SELECT NOW() AS hora_actual;
+
+-- =============================================================
+-- 🔄 7. MIGRACIONES PARA TABLAS EXISTENTES
+-- =============================================================
+ALTER TABLE public.grupo_alumnos ADD COLUMN IF NOT EXISTS abandono_en TIMESTAMPTZ;
+ALTER TABLE public.horarios ADD COLUMN IF NOT EXISTS latitud DOUBLE PRECISION;
+ALTER TABLE public.horarios ADD COLUMN IF NOT EXISTS longitud DOUBLE PRECISION;
+ALTER TABLE public.horarios ADD COLUMN IF NOT EXISTS radio_metros DOUBLE PRECISION DEFAULT 100;

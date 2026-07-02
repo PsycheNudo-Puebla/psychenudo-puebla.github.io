@@ -523,21 +523,6 @@ function generarNuevoCodigo() {
     return codigo;
 }
 
-function obtenerUbicacionCrearGrupo() {
-    if (!navigator.geolocation) {
-        mostrarToast('Tu navegador no soporta geolocalización.', 'error');
-        return;
-    }
-    navigator.geolocation.getCurrentPosition(
-        (pos) => {
-            document.getElementById('crear-grupo-latitud').value = pos.coords.latitude.toFixed(6);
-            document.getElementById('crear-grupo-longitud').value = pos.coords.longitude.toFixed(6);
-        },
-        (err) => mostrarToast('No se pudo obtener ubicación: ' + err.message, 'error'),
-        { enableHighAccuracy: true, timeout: 10000 }
-    );
-}
-
 // Estado local para los horarios del formulario de crear/editar grupo
 let horariosFormularioCrear = [];
 
@@ -553,34 +538,72 @@ function renderHorariosCreados() {
     if (!container) return;
     
     let html = `
-        <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:end; margin-bottom:12px; padding:12px; background:#f8f9fc; border-radius:10px;">
-            <div>
-                <label style="font-size:0.8em; color:#555;">Día</label>
-                <select id="nuevo-horario-dia" style="padding:8px 10px; border:1px solid #ddd; border-radius:6px;">
-                    ${DIAS.map((d, i) => `<option value="${i}">${d}</option>`).join('')}
-                </select>
+        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:12px; padding:12px; background:#f8f9fc; border-radius:10px;">
+            <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:end;">
+                <div>
+                    <label style="font-size:0.8em; color:#555;">Día</label>
+                    <select id="nuevo-horario-dia" style="padding:8px 10px; border:1px solid #ddd; border-radius:6px;">
+                        ${DIAS.map((d, i) => `<option value="${i}">${d}</option>`).join('')}
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:0.8em; color:#555;">Inicio</label>
+                    <div style="display:flex; gap:4px; align-items:center;">
+                        <input type="number" id="nuevo-horario-inicio-h" min="1" max="12" placeholder="HH" style="padding:8px 6px; border:1px solid #ddd; border-radius:6px; width:50px;">
+                        <span style="font-weight:700;">:</span>
+                        <input type="number" id="nuevo-horario-inicio-m" min="0" max="59" placeholder="MM" style="padding:8px 6px; border:1px solid #ddd; border-radius:6px; width:50px;">
+                        <select id="nuevo-horario-inicio-ampm" style="padding:8px 6px; border:1px solid #ddd; border-radius:6px;">
+                            <option value="AM">AM</option>
+                            <option value="PM">PM</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label style="font-size:0.8em; color:#555;">Fin</label>
+                    <div style="display:flex; gap:4px; align-items:center;">
+                        <input type="number" id="nuevo-horario-fin-h" min="1" max="12" placeholder="HH" style="padding:8px 6px; border:1px solid #ddd; border-radius:6px; width:50px;">
+                        <span style="font-weight:700;">:</span>
+                        <input type="number" id="nuevo-horario-fin-m" min="0" max="59" placeholder="MM" style="padding:8px 6px; border:1px solid #ddd; border-radius:6px; width:50px;">
+                        <select id="nuevo-horario-fin-ampm" style="padding:8px 6px; border:1px solid #ddd; border-radius:6px;">
+                            <option value="AM">AM</option>
+                            <option value="PM">PM</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label style="font-size:0.8em; color:#555;">🟢 Puntual (min)</label>
+                    <input type="number" id="nuevo-horario-puntual" value="10" min="1" max="120" style="padding:8px 10px; border:1px solid #ddd; border-radius:6px; width:70px;">
+                </div>
+                <div>
+                    <label style="font-size:0.8em; color:#555;">🟡 Retardo (min)</label>
+                    <input type="number" id="nuevo-horario-retardo" value="20" min="1" max="999" style="padding:8px 10px; border:1px solid #ddd; border-radius:6px; width:70px;">
+                </div>
+                <div>
+                    <button type="button" onclick="agregarHorarioFormulario()" style="padding:8px 16px; background:#667eea; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;">
+                        ➕ Agregar horario
+                    </button>
+                </div>
             </div>
-            <div>
-                <label style="font-size:0.8em; color:#555;">Inicio</label>
-                <input type="time" id="nuevo-horario-inicio" style="padding:8px 10px; border:1px solid #ddd; border-radius:6px;">
-            </div>
-            <div>
-                <label style="font-size:0.8em; color:#555;">Fin</label>
-                <input type="time" id="nuevo-horario-fin" style="padding:8px 10px; border:1px solid #ddd; border-radius:6px;">
-            </div>
-            <div>
-                <label style="font-size:0.8em; color:#555;">🟢 Puntual (min)</label>
-                <input type="number" id="nuevo-horario-puntual" value="10" min="1" max="120" style="padding:8px 10px; border:1px solid #ddd; border-radius:6px; width:70px;">
-            </div>
-            <div>
-                <label style="font-size:0.8em; color:#555;">🟡 Retardo (min)</label>
-                <input type="number" id="nuevo-horario-retardo" value="20" min="1" max="999" style="padding:8px 10px; border:1px solid #ddd; border-radius:6px; width:70px;">
-            </div>
-            <div>
-                <button onclick="agregarHorarioFormulario()" style="padding:8px 16px; background:#667eea; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;">
-                    ➕ Agregar horario
-                </button>
-            </div>
+            <details style="font-size:0.85em;">
+                <summary style="cursor:pointer; color:#667eea; font-weight:500;">📍 GPS para este horario (opcional)</summary>
+                <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; align-items:end; padding:8px 0;">
+                    <div>
+                        <label style="font-size:0.75em; color:#555;">Latitud</label>
+                        <input type="text" id="nuevo-horario-lat" readonly placeholder="---" style="padding:6px 8px; border:1px solid #ddd; border-radius:6px; width:120px; background:#f5f5f5;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.75em; color:#555;">Longitud</label>
+                        <input type="text" id="nuevo-horario-lng" readonly placeholder="---" style="padding:6px 8px; border:1px solid #ddd; border-radius:6px; width:120px; background:#f5f5f5;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.75em; color:#555;">Radio (m)</label>
+                        <input type="number" id="nuevo-horario-radio" value="50" min="10" max="500" style="padding:6px 8px; border:1px solid #ddd; border-radius:6px; width:70px;">
+                    </div>
+                    <div>
+                        <button type="button" onclick="obtenerUbicacionParaHorario()" style="padding:6px 12px; background:white; border:1px solid #667eea; color:#667eea; border-radius:8px; cursor:pointer; font-size:0.85em;">📍 Obtener ubicación actual</button>
+                    </div>
+                </div>
+            </details>
         </div>
         <div id="lista-horarios-creados" style="display:flex; flex-direction:column; gap:6px;"></div>
     `;
@@ -588,24 +611,67 @@ function renderHorariosCreados() {
     actualizarListaHorariosCreados();
 }
 
+function obtenerUbicacionParaHorario() {
+    if (!navigator.geolocation) {
+        mostrarToast('Tu navegador no soporta geolocalización.', 'error');
+        return;
+    }
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            document.getElementById('nuevo-horario-lat').value = pos.coords.latitude.toFixed(6);
+            document.getElementById('nuevo-horario-lng').value = pos.coords.longitude.toFixed(6);
+            mostrarToast('📍 Ubicación obtenida para este horario.', 'exito');
+        },
+        (err) => mostrarToast('No se pudo obtener ubicación: ' + err.message, 'error'),
+        { enableHighAccuracy: true, timeout: 10000 }
+    );
+}
+
+function leerHoraInput(prefix) {
+    const h = parseInt(document.getElementById(prefix + '-h').value);
+    const m = document.getElementById(prefix + '-m').value.padStart(2, '0');
+    const ampm = document.getElementById(prefix + '-ampm').value;
+    if (!h || h < 1 || h > 12) return null;
+    if (!m || isNaN(parseInt(m)) || parseInt(m) < 0 || parseInt(m) > 59) return null;
+    let h24 = h;
+    if (ampm === 'PM' && h < 12) h24 = h + 12;
+    if (ampm === 'AM' && h === 12) h24 = 0;
+    return h24.toString().padStart(2, '0') + ':' + m;
+}
+
+function resetearInputsHora(prefix) {
+    document.getElementById(prefix + '-h').value = '';
+    document.getElementById(prefix + '-m').value = '';
+    document.getElementById(prefix + '-ampm').value = 'AM';
+}
+
 function agregarHorarioFormulario() {
     const dia = parseInt(document.getElementById('nuevo-horario-dia').value);
-    const inicio = document.getElementById('nuevo-horario-inicio').value;
-    const fin = document.getElementById('nuevo-horario-fin').value;
+    const inicio = leerHoraInput('nuevo-horario-inicio');
+    const fin = leerHoraInput('nuevo-horario-fin');
     const puntual = parseInt(document.getElementById('nuevo-horario-puntual').value) || 10;
     const retardo = parseInt(document.getElementById('nuevo-horario-retardo').value) || 20;
     
     if (!inicio || !fin) {
-        mostrarToast('Selecciona hora de inicio y fin del horario.', 'warning');
+        mostrarToast('Ingresa hora (HH:MM) y selecciona AM/PM.', 'warning');
         return;
     }
     
-    horariosFormularioCrear.push({ dia, inicio, fin, puntual, retardo });
+    // Leer GPS opcional del horario
+    const latTxt = document.getElementById('nuevo-horario-lat').value.trim();
+    const lngTxt = document.getElementById('nuevo-horario-lng').value.trim();
+    const radioVal = parseInt(document.getElementById('nuevo-horario-radio').value) || null;
+    const lat = latTxt ? parseFloat(latTxt) : null;
+    const lng = lngTxt ? parseFloat(lngTxt) : null;
+    
+    horariosFormularioCrear.push({ dia, inicio, fin, puntual, retardo, latitud: lat, longitud: lng, radio_metros: radioVal });
     actualizarListaHorariosCreados();
     
-    // Reset solo los inputs de tiempo para el siguiente horario
-    document.getElementById('nuevo-horario-inicio').value = '';
-    document.getElementById('nuevo-horario-fin').value = '';
+    // Reset inputs
+    resetearInputsHora('nuevo-horario-inicio');
+    resetearInputsHora('nuevo-horario-fin');
+    document.getElementById('nuevo-horario-lat').value = '';
+    document.getElementById('nuevo-horario-lng').value = '';
 }
 
 function eliminarHorarioFormulario(index) {
@@ -626,6 +692,7 @@ function actualizarListaHorariosCreados() {
             <span style="font-weight:600; min-width:50px;">${diasCorto[h.dia]}</span>
             <span>${h.inicio.substring(0,5)} → ${h.fin.substring(0,5)}</span>
             <span style="color:#666; font-size:0.85em;">🟢${h.puntual}min 🟡${h.retardo}min</span>
+            ${h.latitud && h.longitud ? '<span title="📍 GPS configurado" style="color:#667eea;">📍</span>' : ''}
             <button onclick="eliminarHorarioFormulario(${i})" style="margin-left:auto; background:none; border:none; color:#e74c3c; cursor:pointer; font-size:1.2em;">✕</button>
         </div>
     `).join('');
@@ -661,7 +728,7 @@ async function crearGrupo(nombre, materia, limite, perdones, codigoUnico) {
         return;
     }
     
-    // Guardar horarios usando el array del formulario (con soporte multi-sesión)
+    // Guardar horarios usando el array del formulario (con soporte multi-sesión y GPS por horario)
     let errores = 0;
     for (const h of horariosFormularioCrear) {
         const { error: err } = await supabaseClient
@@ -674,7 +741,10 @@ async function crearGrupo(nombre, materia, limite, perdones, codigoUnico) {
                 puntual_minutos: h.puntual,
                 retardo_minutos: h.retardo,
                 activo: true,
-                creado_en: new Date().toISOString()
+                creado_en: new Date().toISOString(),
+                latitud: h.latitud || null,
+                longitud: h.longitud || null,
+                radio_metros: h.radio_metros || 50
             });
         if (err) {
             console.error('Error creando horario:', err.message, err.details, err.code);
@@ -682,26 +752,13 @@ async function crearGrupo(nombre, materia, limite, perdones, codigoUnico) {
         }
     }
     
-    // Guardar GPS
-    const latitud = parseFloat(document.getElementById('crear-grupo-latitud').value) || null;
-    const longitud = parseFloat(document.getElementById('crear-grupo-longitud').value) || null;
-    const radio = parseInt(document.getElementById('crear-grupo-radio').value) || null;
-    
-    if (latitud && longitud) {
-        await supabaseClient
-            .from('grupos')
-            .update({ latitud, longitud, radio_metros: radio || 50 })
-            .eq('id', grupo.id);
-    }
-    
     if (errores > 0) {
         console.warn('Algunos horarios no se guardaron.');
     }
     
     setLoading('btn-guardar-grupo', false, '✅ Crear grupo');
+    mostrarToast('✅ Grupo "' + nombre + '" creado correctamente.', 'exito');
     cargarGrupos();
-    // Ir al detalle del grupo recién creado
-    seleccionarGrupo(grupo.id);
 }
 
 async function mostrarEditarGrupo(grupoId) {
@@ -725,20 +782,17 @@ async function mostrarEditarGrupo(grupoId) {
     document.getElementById('grupo-limite').value = grupo.limite_salidas || 3;
     document.getElementById('grupo-perdones').value = grupo.numero_perdones || 2;
     document.getElementById('grupo-codigo').value = grupo.codigo_unico || '';
-    if (grupo.latitud) {
-        document.getElementById('crear-grupo-latitud').value = grupo.latitud || '';
-        document.getElementById('crear-grupo-longitud').value = grupo.longitud || '';
-        document.getElementById('crear-grupo-radio').value = grupo.radio_metros || 50;
-    }
-    
-    // Cargar horarios existentes en el formulario
+    // Cargar horarios existentes en el formulario (con GPS por horario)
     renderCrearHorariosRows();
     horariosFormularioCrear = (horariosExistentes || []).map(h => ({
         dia: h.dia_semana,
         inicio: h.hora_inicio.substring(0,5),
         fin: h.hora_fin.substring(0,5),
         puntual: h.puntual_minutos || 10,
-        retardo: h.retardo_minutos || 20
+        retardo: h.retardo_minutos || 20,
+        latitud: h.latitud || null,
+        longitud: h.longitud || null,
+        radio_metros: h.radio_metros || 50
     }));
     actualizarListaHorariosCreados();
     
@@ -792,15 +846,7 @@ async function guardarEdicionGrupo(id, nombre, materia, limite, perdones, codigo
         .eq('id', id);
     if (error) { mostrarToast('Error al actualizar grupo: ' + error.message, 'error'); setLoading('btn-guardar-grupo', false, 'Guardar cambios'); return; }
     
-    // Guardar GPS si cambió
-    const latitud = parseFloat(document.getElementById('crear-grupo-latitud').value) || null;
-    const longitud = parseFloat(document.getElementById('crear-grupo-longitud').value) || null;
-    const radio = parseInt(document.getElementById('crear-grupo-radio').value) || null;
-    if (latitud && longitud) {
-        await supabaseClient.from('grupos').update({ latitud, longitud, radio_metros: radio || 50 }).eq('id', id);
-    }
-    
-    // Reemplazar horarios: borrar existentes y crear los nuevos
+    // Reemplazar horarios: borrar existentes y crear los nuevos (con GPS por horario)
     await supabaseClient.from('horarios').delete().eq('grupo_id', id);
     
     for (const h of horariosFormularioCrear) {
@@ -814,7 +860,10 @@ async function guardarEdicionGrupo(id, nombre, materia, limite, perdones, codigo
                 puntual_minutos: h.puntual,
                 retardo_minutos: h.retardo,
                 activo: true,
-                creado_en: new Date().toISOString()
+                creado_en: new Date().toISOString(),
+                latitud: h.latitud || null,
+                longitud: h.longitud || null,
+                radio_metros: h.radio_metros || 50
             });
         if (err) console.error('Error actualizando horario:', err.message);
     }
@@ -1260,7 +1309,7 @@ async function verGrupo(grupoId) {
     const [alumnosRes, asistenciasRes] = await Promise.all([
         supabaseClient
             .from('grupo_alumnos')
-            .select('alumno_id, alumnos!inner(id, nombre, email)')
+            .select('alumno_id, abandono_en, alumnos!inner(id, nombre, email)')
             .eq('grupo_id', grupoId),
         supabaseClient
             .from('asistencia')
@@ -1468,7 +1517,11 @@ function renderVerGrupo() {
                 const colorPct = pct >= 80 ? '#2e7d32' : pct >= 60 ? '#e65100' : '#c62828';
                 
                 html += `<tr style="border-bottom:1px solid #f0f0f0;">`;
-                html += `<td style="padding:6px 6px; font-weight:600; position:sticky; left:0; background:white; z-index:1;">${al.nombre || al.email || 'Sin nombre'}</td>`;
+                let nombreAlumno = al.nombre || al.email || 'Sin nombre';
+                if (item.abandono_en) {
+                    nombreAlumno += ' <span style="color:#999; font-size:0.75em; font-weight:400;">🚪 Abandonó</span>';
+                }
+                html += `<td style="padding:6px 6px; font-weight:600; position:sticky; left:0; background:white; z-index:1;">${nombreAlumno}</td>`;
                 
                 // Celdas de fechas con color
                 for (const fecha of fechas) {
@@ -1537,6 +1590,7 @@ function renderVerGrupo() {
                         <h4 style="margin:0; color:#1a1a2e;">👤 ${al.nombre || al.email || 'Sin nombre'}</h4>
                         <span style="font-size:1.2em; font-weight:700; color:${pct >= 80 ? '#2e7d32' : pct >= 60 ? '#e65100' : '#c62828'};">${pct}%</span>
                     </div>
+                    ${item.abandono_en ? '<div style="background:#fff0f0; border:1px solid #ffcdd2; border-radius:8px; padding:8px 12px; margin-bottom:10px; color:#c62828; font-size:0.85em; font-weight:500;">🚪 Este alumno abandonó el grupo.</div>' : ''}
                     <div class="stats-container" style="margin-bottom:10px;">
                         <div class="stat-box" style="background:#e8f5e9; flex:1;">
                             <strong style="color:#2e7d32;">${p}</strong>
