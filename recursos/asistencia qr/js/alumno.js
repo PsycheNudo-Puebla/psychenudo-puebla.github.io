@@ -686,57 +686,26 @@ async function iniciarEscaneo() {
     try {
         html5QrCode = new Html5Qrcode("qr-reader");
         
-        // Usar aspect ratio portrait para que la cámara se vea vertical en celular
-        const esPortrait = window.innerHeight > window.innerWidth;
-        const aspectRatio = esPortrait ? window.innerHeight / window.innerWidth : undefined;
-        
+        // NO forzamos aspectRatio — la cámara del celular tiene su propia orientación
+        // y forzarla causa rotación/distorsión en muchos dispositivos.
+        // El CSS con object-fit: cover se encarga de ajustar la vista correctamente.
         const configCamara = { fps: 10, qrbox: { width: 250, height: 250 } };
-        if (aspectRatio) configCamara.aspectRatio = aspectRatio;
         
-        try {
-            await html5QrCode.start(
-                { facingMode: "environment" },
-                configCamara,
-                async (decodedText) => {
-                    // QR detectado exitosamente
-                    await html5QrCode.stop();
-                    lectorDiv.classList.add('hidden');
-                    btn.textContent = '📷 Escanear QR';
-                    escaneando = false;
-                    
-                    resultadoDiv.textContent = 'Procesando...';
-                    await procesarQR(decodedText, resultadoDiv);
-                },
-                () => { /* ignore - no QR encontrado aún */ }
-            );
-        } catch (camErr) {
-            // Si falló por aspect ratio, reintentar sin él
-            const errMsg = camErr?.message || camErr?.toString() || '';
-            const esErrorAspectRatio = aspectRatio && (
-                errMsg.includes('aspectRatio') ||
-                errMsg.includes('aspectratio') ||
-                errMsg.includes('aspect ratio') ||
-                errMsg.includes('AspectRatio')
-            );
-            if (esErrorAspectRatio) {
-                console.warn('⚠️ aspectRatio no soportado, reintentando sin él');
-                await html5QrCode.start(
-                    { facingMode: "environment" },
-                    { fps: 10, qrbox: { width: 250, height: 250 } },
-                    async (decodedText) => {
-                        await html5QrCode.stop();
-                        lectorDiv.classList.add('hidden');
-                        btn.textContent = '📷 Escanear QR';
-                        escaneando = false;
-                        resultadoDiv.textContent = 'Procesando...';
-                        await procesarQR(decodedText, resultadoDiv);
-                    },
-                    () => { /* ignore */ }
-                );
-            } else {
-                throw camErr;
-            }
-        }
+        await html5QrCode.start(
+            { facingMode: "environment" },
+            configCamara,
+            async (decodedText) => {
+                // QR detectado exitosamente
+                await html5QrCode.stop();
+                lectorDiv.classList.add('hidden');
+                btn.textContent = '📷 Escanear QR';
+                escaneando = false;
+                
+                resultadoDiv.textContent = 'Procesando...';
+                await procesarQR(decodedText, resultadoDiv);
+            },
+            () => { /* ignore - no QR encontrado aún */ }
+        );
         
         escaneando = true;
     } catch (err) {

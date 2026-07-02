@@ -388,20 +388,26 @@ footer {
     overflow: hidden;
     position: relative;
     background: #000;
+    /* Asegurar que el contenedor respete el tamaño del video */
+    aspect-ratio: 3 / 4;
+    max-height: 70vh;
 }
 
 #qr-reader video {
     border-radius: 12px;
     width: 100%;
-    height: auto;
+    height: 100%;
     object-fit: cover;
     display: block;
+    /* Corregir espejeado horizontal si la cámara lo invierte */
+    transform: scaleX(1);
 }
 
-/* En portrait, asegurar que la cámara ocupe bien el espacio */
+/* En portrait, permitir que el QR reader se expanda un poco más */
 @media (orientation: portrait) {
-    #qr-reader video {
-        max-height: 70vh;
+    #qr-reader {
+        aspect-ratio: 2 / 3;
+        max-height: 75vh;
     }
 }
 
