@@ -686,17 +686,22 @@ async function iniciarEscaneo() {
     try {
         html5QrCode = new Html5Qrcode("qr-reader");
         
-        // --- Configuración de cámara en portrait ---
-        // El aspectRatio en MediaTrackConstraints es WIDTH/HEIGHT.
-        // En un celular vertical (375×812), el ratio portrait correcto es 375/812 ≈ 0.46.
-        // Esto le pide al navegador una resolución vertical nativa, evitando rotación.
+        // --- Configuración de cámara ---
+        // Pedimos a la cámara una resolución vertical (portrait) nativa.
+        // Muchas cámaras soportan 720×1280 en orientación vertical, y esto evita
+        // que el video salga rotado 90° (que pasa si la cámara usa landscape nativo).
+        // html5-qrcode mergea videoConstraints con el facingMode del primer parámetro.
         const esPortrait = window.innerHeight > window.innerWidth;
-        const aspectRatio = esPortrait ? window.innerWidth / window.innerHeight : undefined;
+        const configCamara = {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+            videoConstraints: esPortrait ? {
+                width: { ideal: 720 },
+                height: { ideal: 1280 }
+            } : undefined
+        };
         
-        const configCamara = { fps: 10, qrbox: { width: 250, height: 250 } };
-        if (aspectRatio) configCamara.aspectRatio = aspectRatio;
-        
-        // Intentar con aspectRatio portrait; si no es soportado, reintentar sin él
+        // Si falla por las constraints portrait, reintentamos sin ellas
         try {
             await html5QrCode.start(
                 { facingMode: "environment" },
@@ -712,17 +717,14 @@ async function iniciarEscaneo() {
                 () => { /* ignore */ }
             );
         } catch (camErr) {
-            // Si falló por aspectRatio (OverconstrainedError), reintentar sin él
+            // Si falló por las constraints de resolución, reintentar sin videoConstraints
             const errMsg = camErr?.message || camErr?.toString() || '';
-            if (aspectRatio && (
+            if (esPortrait && configCamara.videoConstraints && (
                 errMsg.includes('Overconstrained') ||
-                errMsg.includes('aspectRatio') ||
-                errMsg.includes('aspectratio') ||
-                errMsg.includes('aspect ratio') ||
-                errMsg.includes('AspectRatio') ||
-                errMsg.includes('Constraint')
+                errMsg.includes('Constraint') ||
+                errMsg.includes('NotFoundError')
             )) {
-                console.warn('⚠️ aspectRatio portrait no soportado, reintentando sin él');
+                console.warn('⚠️ Resolución portrait no soportada, reintentando sin constraints');
                 await html5QrCode.start(
                     { facingMode: "environment" },
                     { fps: 10, qrbox: { width: 250, height: 250 } },
