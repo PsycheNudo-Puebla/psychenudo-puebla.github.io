@@ -1,7 +1,5 @@
 let profesorActual = null;
 let deviceId = obtenerDeviceId();
-let sesionToken = null;
-let sesionCheckInterval = null;
 let estaIniciandoSesion = false;
 
 // ====== INICIALIZACIÓN ======
@@ -10,7 +8,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     if (session) {
         await cargarDatosProfesor(session.user);
-        iniciarChequeoSesion(session.user.id, 'profesores');
     }
 });
 
@@ -169,17 +166,6 @@ async function verificarYcargarProfesor(user) {
         console.warn('⚠️ No se pudo actualizar device_id:', e);
     }
     
-    // === TOKEN DE SESIÓN ACTIVA ===
-    // Evitar múltiples sesiones simultáneas del mismo usuario
-    sesionToken = generarSesionToken();
-    sessionStorage.setItem('asistencia_qr_sesion_token', sesionToken);
-    try {
-        await supabaseClient.from('profesores').update({ sesion_token: sesionToken }).eq('id', user.id);
-        iniciarChequeoSesion(user.id, 'profesores');
-    } catch (e) {
-        console.warn('⚠️ Control de sesión activa no disponible (columna sesion_token no existe en BD). El login continúa normalmente.');
-    }
-    
     profesorActual = data;
     document.getElementById('profesor-nombre').textContent = `Hola, ${data.nombre}`;
     document.getElementById('login-view').classList.add('hidden');
@@ -196,7 +182,6 @@ async function handleLogout() {
         console.warn('Error al cerrar sesión:', e);
     }
     detenerAutoScheduler();
-    detenerChequeoSesion();
     mostrarLogin();
 }
 
@@ -270,16 +255,6 @@ async function cargarDatosProfesor(user) {
         }
     } catch (e) {
         console.warn('⚠️ No se pudo actualizar device_id:', e);
-    }
-    
-    // === TOKEN DE SESIÓN ACTIVA ===
-    sesionToken = generarSesionToken();
-    sessionStorage.setItem('asistencia_qr_sesion_token', sesionToken);
-    try {
-        await supabaseClient.from('profesores').update({ sesion_token: sesionToken }).eq('id', user.id);
-        iniciarChequeoSesion(user.id, 'profesores');
-    } catch (e) {
-        console.warn('⚠️ Control de sesión activa no disponible (columna sesion_token no existe en BD). El login continúa normalmente.');
     }
     
     profesorActual = data;
@@ -709,56 +684,107 @@ function generarCodigoGrupo() {
     return codigo;
 }
 
-async function crearGrupo(nombre, materia, limite, perdones, codigoUnico) {
-    const { data: grupo, error } = await supabaseClient
-        .from('grupos')
+// Helper para insertar horario con fallback si las columnas GPS no existen aún en la BD
+async function insertarHorario(datos) {
+    const datosGps = {
+        latitud: datos.latitud ?? null,
+        longitud: datos.longitud ?? null,
+        radio_metros: datos.radio_metros ?? 50
+    };
+    const { error: err } = await supabaseClient
+        .from('horarios')
         .insert({
-            profesor_id: profesorActual.id,
-            nombre,
-            materia,
-            limite_salidas: limite || 3,
-            numero_perdones: perdones || 2,
-            codigo_unico: codigoUnico
-        })
-        .select()
-        .maybeSingle();
-    
-    if (error) {
-        mostrarToast('Error al crear grupo: ' + error.message, 'error');
-        return;
-    }
-    
-    // Guardar horarios usando el array del formulario (con soporte multi-sesión y GPS por horario)
-    let errores = 0;
-    for (const h of horariosFormularioCrear) {
-        const { error: err } = await supabaseClient
+            grupo_id: datos.grupo_id,
+            dia_semana: datos.dia_semana,
+            hora_inicio: datos.hora_inicio,
+            hora_fin: datos.hora_fin,
+            puntual_minutos: datos.puntual_minutos,
+            retardo_minutos: datos.retardo_minutos,
+            activo: true,
+            creado_en: new Date().toISOString(),
+            ...datosGps
+        });
+    // Si falla porque las columnas GPS no existen, reintentar sin ellas
+    if (err && (err.message && err.message.includes("Could not find the 'latitud' column"))) {
+        console.warn('⚠️ Columnas GPS no disponibles en BD, insertando horario sin GPS.');
+        const { error: err2 } = await supabaseClient
             .from('horarios')
             .insert({
+                grupo_id: datos.grupo_id,
+                dia_semana: datos.dia_semana,
+                hora_inicio: datos.hora_inicio,
+                hora_fin: datos.hora_fin,
+                puntual_minutos: datos.puntual_minutos,
+                retardo_minutos: datos.retardo_minutos,
+                activo: true,
+                creado_en: new Date().toISOString()
+            });
+        return err2;
+    }
+    return err;
+}
+
+async function crearGrupo(nombre, materia, limite, perdones, codigoUnico) {
+    // Verificar sesión activa antes de cualquier operación
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) {
+        mostrarToast('⚠️ Tu sesión expiró. Recarga la página y vuelve a iniciar sesión.', 'error');
+        setLoading('btn-guardar-grupo', false, '✅ Crear grupo');
+        return false;
+    }
+    try {
+        const { data: grupo, error } = await supabaseClient
+            .from('grupos')
+            .insert({
+                profesor_id: profesorActual.id,
+                nombre,
+                materia,
+                limite_salidas: limite || 3,
+                numero_perdones: perdones || 2,
+                codigo_unico: codigoUnico
+            })
+            .select()
+            .maybeSingle();
+        
+        if (error) {
+            if (error.code === '401' || (error.message && error.message.includes('row-level security'))) {
+                mostrarToast('⚠️ Tu sesión expiró. Recarga la página y vuelve a iniciar sesión.', 'error');
+            } else {
+                mostrarToast('Error al crear grupo: ' + error.message, 'error');
+            }
+            return false;
+        }
+        
+        // Guardar horarios usando el array del formulario (con soporte multi-sesión y GPS por horario)
+        let errores = 0;
+        for (const h of horariosFormularioCrear) {
+            const err = await insertarHorario({
                 grupo_id: grupo.id,
                 dia_semana: h.dia,
                 hora_inicio: h.inicio,
                 hora_fin: h.fin,
                 puntual_minutos: h.puntual,
                 retardo_minutos: h.retardo,
-                activo: true,
-                creado_en: new Date().toISOString(),
                 latitud: h.latitud || null,
                 longitud: h.longitud || null,
                 radio_metros: h.radio_metros || 50
             });
-        if (err) {
-            console.error('Error creando horario:', err.message, err.details, err.code);
-            errores++;
+            if (err) {
+                console.error('Error creando horario:', err.message, err.details, err.code);
+                errores++;
+            }
         }
+        
+        if (errores > 0) {
+            mostrarToast('⚠️ Grupo creado pero algunos horarios no se guardaron (revisa la consola).', 'warning');
+        }
+        
+        mostrarToast('✅ Grupo "' + nombre + '" creado correctamente.', 'exito');
+        cargarGrupos();
+        return true;
+    } finally {
+        setLoading('btn-guardar-grupo', false, '✅ Crear grupo');
     }
-    
-    if (errores > 0) {
-        console.warn('Algunos horarios no se guardaron.');
-    }
-    
-    setLoading('btn-guardar-grupo', false, '✅ Crear grupo');
-    mostrarToast('✅ Grupo "' + nombre + '" creado correctamente.', 'exito');
-    cargarGrupos();
 }
 
 async function mostrarEditarGrupo(grupoId) {
@@ -824,12 +850,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const codigoUnico = document.getElementById('grupo-codigo').value || generarCodigoGrupo();
             
             if (editandoId) {
-                await guardarEdicionGrupo(editandoId, nombre, materia, limite, perdones, codigoUnico);
+                const ok = await guardarEdicionGrupo(editandoId, nombre, materia, limite, perdones, codigoUnico);
+                if (ok) cerrarModal();
             } else {
                 setLoading('btn-guardar-grupo', true);
-                await crearGrupo(nombre, materia, limite, perdones, codigoUnico);
+                const ok = await crearGrupo(nombre, materia, limite, perdones, codigoUnico);
+                if (ok) cerrarModal();
             }
-            cerrarModal();
         };
         // Reemplazar el listener anterior
         form.removeEventListener('submit', submitHandler);
@@ -838,47 +865,68 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function guardarEdicionGrupo(id, nombre, materia, limite, perdones, codigoUnico) {
+    // Verificar sesión activa antes de cualquier operación
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) {
+        mostrarToast('⚠️ Tu sesión expiró. Recarga la página y vuelve a iniciar sesión.', 'error');
+        setLoading('btn-guardar-grupo', false, 'Guardar cambios');
+        return false;
+    }
     setLoading('btn-guardar-grupo', true);
-    // Actualizar datos del grupo
-    const { error } = await supabaseClient
-        .from('grupos')
-        .update({ nombre, materia, limite_salidas: limite, numero_perdones: perdones, codigo_unico: codigoUnico })
-        .eq('id', id);
-    if (error) { mostrarToast('Error al actualizar grupo: ' + error.message, 'error'); setLoading('btn-guardar-grupo', false, 'Guardar cambios'); return; }
-    
-    // Reemplazar horarios: borrar existentes y crear los nuevos (con GPS por horario)
-    await supabaseClient.from('horarios').delete().eq('grupo_id', id);
-    
-    for (const h of horariosFormularioCrear) {
-        const { error: err } = await supabaseClient
-            .from('horarios')
-            .insert({
+    try {
+        // Actualizar datos del grupo
+        const { error } = await supabaseClient
+            .from('grupos')
+            .update({ nombre, materia, limite_salidas: limite, numero_perdones: perdones, codigo_unico: codigoUnico })
+            .eq('id', id);
+        if (error) {
+            if (error.code === '401' || (error.message && error.message.includes('row-level security'))) {
+                mostrarToast('⚠️ Tu sesión expiró. Recarga la página y vuelve a iniciar sesión.', 'error');
+            } else {
+                mostrarToast('Error al actualizar grupo: ' + error.message, 'error');
+            }
+            return false;
+        }
+        
+        // Reemplazar horarios: borrar existentes y crear los nuevos (con GPS por horario)
+        await supabaseClient.from('horarios').delete().eq('grupo_id', id);
+        
+        let errores = 0;
+        for (const h of horariosFormularioCrear) {
+            const err = await insertarHorario({
                 grupo_id: id,
                 dia_semana: h.dia,
                 hora_inicio: h.inicio,
                 hora_fin: h.fin,
                 puntual_minutos: h.puntual,
                 retardo_minutos: h.retardo,
-                activo: true,
-                creado_en: new Date().toISOString(),
                 latitud: h.latitud || null,
                 longitud: h.longitud || null,
                 radio_metros: h.radio_metros || 50
             });
-        if (err) console.error('Error actualizando horario:', err.message);
-    }
-    
-    // Limpiar estado de edición
-    const form = document.getElementById('form-crear-grupo');
-    delete form.dataset.editando;
-    const titulo = document.getElementById('modal-crear-grupo-title') || document.querySelector('#modal-crear-grupo h2');
-    if (titulo) titulo.textContent = '📚 Crear nuevo grupo';
-    
-    setLoading('btn-guardar-grupo', false, 'Guardar cambios');
-    cargarGrupos();
-    // Si estamos en la vista detalle, refrescarla
-    if (grupoSeleccionadoId === id) {
-        renderDetalleGrupo(id);
+            if (err) {
+                console.error('Error actualizando horario:', err.message);
+                errores++;
+            }
+        }
+        if (errores > 0) {
+            mostrarToast('⚠️ Grupo actualizado pero algunos horarios no se guardaron.', 'warning');
+        }
+        
+        // Limpiar estado de edición
+        const form = document.getElementById('form-crear-grupo');
+        delete form.dataset.editando;
+        const titulo = document.getElementById('modal-crear-grupo-title') || document.querySelector('#modal-crear-grupo h2');
+        if (titulo) titulo.textContent = '📚 Crear nuevo grupo';
+        
+        setLoading('btn-guardar-grupo', false, 'Guardar cambios');
+        cargarGrupos();
+        if (grupoSeleccionadoId === id) {
+            renderDetalleGrupo(id);
+        }
+        return true;
+    } finally {
+        setLoading('btn-guardar-grupo', false, 'Guardar cambios');
     }
 }
 
@@ -2345,44 +2393,5 @@ async function verificarHorarios() {
         }
     } catch (e) {
         console.error('Error en verificarHorarios:', e);
-    }
-}
-
-// ====== CONTROL DE SESIÓN ACTIVA ======
-// Evita que un mismo usuario tenga sesión en varios navegadores/dispositivos
-
-function iniciarChequeoSesion(userId, tabla) {
-    detenerChequeoSesion();
-    sesionCheckInterval = setInterval(async () => {
-        const tokenGuardado = sessionStorage.getItem('asistencia_qr_sesion_token');
-        if (!tokenGuardado) return;
-        
-        try {
-            const { data } = await supabaseClient
-                .from(tabla)
-                .select('sesion_token')
-                .eq('id', userId)
-                .maybeSingle();
-            
-            if (data && data.sesion_token && data.sesion_token !== tokenGuardado) {
-                detenerChequeoSesion();
-                mostrarToast('⚠️ Tu sesión fue cerrada porque iniciaste sesión desde otro dispositivo.', 'warning');
-                try {
-                    await supabaseClient.auth.signOut();
-                } catch (e) {
-                    console.warn('Error al cerrar sesión (posiblemente ya expiró):', e);
-                }
-                mostrarLogin();
-            }
-        } catch (e) {
-            console.warn('Error al verificar sesión activa:', e);
-        }
-    }, 5000);
-}
-
-function detenerChequeoSesion() {
-    if (sesionCheckInterval) {
-        clearInterval(sesionCheckInterval);
-        sesionCheckInterval = null;
     }
 }

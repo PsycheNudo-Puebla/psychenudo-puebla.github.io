@@ -2,8 +2,7 @@ let alumnoActual = null;
 let html5QrCode = null;
 let escaneando = false;
 let deviceId = obtenerDeviceId();
-let sesionToken = null;
-let sesionCheckInterval = null;
+
 
 // ====== VARIABLES DE MONITOREO DE ASISTENCIA ======
 let monitoreoActivo = false;
@@ -152,7 +151,6 @@ async function handleLogout() {
     } catch (e) {
         console.warn('Error al cerrar sesión:', e);
     }
-    detenerChequeoSesion();
     mostrarLogin();
 }
 
@@ -203,16 +201,6 @@ async function verificarYcargarAlumno(user) {
         }
     } catch (e) {
         console.warn('⚠️ No se pudo actualizar device_id:', e);
-    }
-    
-    // === TOKEN DE SESIÓN ACTIVA ===
-    sesionToken = generarSesionToken();
-    sessionStorage.setItem('asistencia_qr_sesion_token', sesionToken);
-    try {
-        await supabaseClient.from('alumnos').update({ sesion_token: sesionToken }).eq('id', user.id);
-        iniciarChequeoSesion(user.id, 'alumnos');
-    } catch (e) {
-        console.warn('⚠️ Control de sesión activa no disponible (columna sesion_token no existe en BD). El login continúa normalmente.');
     }
     
     alumnoActual = data;
@@ -345,16 +333,6 @@ async function cargarDatosAlumno(user, intentos = 0) {
         }
     } catch (e) {
         console.warn('⚠️ No se pudo actualizar device_id:', e);
-    }
-    
-    // === TOKEN DE SESIÓN ACTIVA ===
-    sesionToken = generarSesionToken();
-    sessionStorage.setItem('asistencia_qr_sesion_token', sesionToken);
-    try {
-        await supabaseClient.from('alumnos').update({ sesion_token: sesionToken }).eq('id', user.id);
-        iniciarChequeoSesion(user.id, 'alumnos');
-    } catch (e) {
-        console.warn('⚠️ Control de sesión activa no disponible (columna sesion_token no existe en BD). El login continúa normalmente.');
     }
     
     alumnoActual = data;
@@ -1269,41 +1247,3 @@ function mostrarConfirmada() {
     }, 2000);
 }
 
-// ====== CONTROL DE SESIÓN ACTIVA ======
-// Evita que un mismo usuario tenga sesión en varios navegadores/dispositivos
-
-function iniciarChequeoSesion(userId, tabla) {
-    detenerChequeoSesion();
-    sesionCheckInterval = setInterval(async () => {
-        const tokenGuardado = sessionStorage.getItem('asistencia_qr_sesion_token');
-        if (!tokenGuardado) return;
-        
-        try {
-            const { data } = await supabaseClient
-                .from(tabla)
-                .select('sesion_token')
-                .eq('id', userId)
-                .maybeSingle();
-            
-            if (data && data.sesion_token && data.sesion_token !== tokenGuardado) {
-                detenerChequeoSesion();
-                mostrarToast('⚠️ Tu sesión fue cerrada porque iniciaste sesión desde otro dispositivo.', 'warning');
-                try {
-                    await supabaseClient.auth.signOut();
-                } catch (e) {
-                    console.warn('Error al cerrar sesión (posiblemente ya expiró):', e);
-                }
-                mostrarLogin();
-            }
-        } catch (e) {
-            console.warn('Error al verificar sesión activa:', e);
-        }
-    }, 5000);
-}
-
-function detenerChequeoSesion() {
-    if (sesionCheckInterval) {
-        clearInterval(sesionCheckInterval);
-        sesionCheckInterval = null;
-    }
-}
