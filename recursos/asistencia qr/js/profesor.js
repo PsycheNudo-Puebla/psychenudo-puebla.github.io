@@ -1710,6 +1710,7 @@ function renderVerGrupo() {
 
 // ====== EDICIÓN DE NOMBRE DE ALUMNO (por el profesor) ======
 function editarNombreAlumno(alumnoId, nombreActual, email, matricula) {
+    console.log('✏️ editarNombreAlumno llamado:', { alumnoId, nombreActual, email, matricula });
     document.getElementById('editar-alumno-id').value = alumnoId;
     document.getElementById('editar-alumno-nombre').value = nombreActual;
     document.getElementById('editar-alumno-email').textContent = email || '—';
@@ -1740,8 +1741,15 @@ async function guardarNombreAlumno(e) {
             .eq('id', alumnoId);
         
         if (error) {
-            if (error.message && error.message.includes('row-level security')) {
-                errorEl.textContent = '⚠️ No tienes permiso para editar este alumno. Asegúrate de ejecutar la nueva política RLS en Supabase (ver SQL).';
+            if (error.message && error.message.includes('infinite recursion')) {
+                errorEl.textContent = '⚠️ Error de recursión en política RLS. Debes ejecutar el SQL actualizado en Supabase (revisa la consola).';
+                console.error('❌ Recursión en RLS. Ejecuta este SQL en el Editor SQL de Supabase:\n\n' + obtenerSQLProfesorUpdate());
+            } else if (error.message && error.message.includes('row-level security')) {
+                errorEl.textContent = '⚠️ No tienes permiso para editar este alumno. Asegúrate de ejecutar el SQL actualizado en Supabase (ver consola).';
+                console.error('❌ RLS bloqueó. SQL necesario:\n\n' + obtenerSQLProfesorUpdate());
+            } else if (error.code === 'PGRST106') {
+                errorEl.textContent = '⚠️ No tienes permiso para editar este alumno. Ejecuta el SQL actualizado en Supabase (ver consola).';
+                console.error('❌ RLS bloqueó (PGRST106). SQL:\n\n' + obtenerSQLProfesorUpdate());
             } else {
                 errorEl.textContent = 'Error al guardar: ' + error.message;
             }
@@ -1749,23 +1757,49 @@ async function guardarNombreAlumno(e) {
             return;
         }
         
-        mostrarToast('✅ Nombre actualizado correctamente.', 'exito');
+        console.log('✅ Nombre actualizado en BD. Refrescando datos desde Supabase...');
+        console.log('  alumnoId:', alumnoId, 'nuevoNombre:', nuevoNombre);
+        
         cerrarModalEditarAlumno();
 
-        // 🔄 Actualizar la caché en memoria para que se refleje en la UI
-        const select = document.getElementById('ver-filtro-alumno');
-        const alumnos = select._alumnos || [];
-        for (const item of alumnos) {
-            if (item.alumno_id === alumnoId && item.alumnos) {
-                item.alumnos.nombre = nuevoNombre;
-                break;
+        // 🔄 Recargar datos frescos desde Supabase
+        if (verGrupoActualId) {
+            const { data: freshAlumnos } = await supabaseClient
+                .from('grupo_alumnos')
+                .select('alumno_id, abandono_en, alumnos!inner(id, nombre, email, matricula)')
+                .eq('grupo_id', verGrupoActualId);
+            
+            if (freshAlumnos) {
+                console.log('  Datos frescos recibidos:', freshAlumnos.length, 'alumnos');
+                freshAlumnos.sort((a, b) => {
+                    const na = (a.alumnos?.nombre || a.alumnos?.email || '').toLowerCase();
+                    const nb = (b.alumnos?.nombre || b.alumnos?.email || '').toLowerCase();
+                    return na.localeCompare(nb, 'es');
+                });
+                
+                const select = document.getElementById('ver-filtro-alumno');
+                // 🔑 Preservar la selección actual del filtro
+                const previousValue = select.value;
+                
+                select._alumnos = freshAlumnos;
+                
+                // Reconstruir dropdown SIN forzar selección del editado
+                select.innerHTML = '<option value="">— Todos los alumnos —</option>';
+                freshAlumnos.forEach(item => {
+                    const al = item.alumnos;
+                    select.innerHTML += `<option value="${item.alumno_id}">${al.nombre || al.email || 'Sin nombre'}</option>`;
+                });
+                
+                // Restaurar la selección que el usuario tenía antes del refresh
+                select.value = previousValue;
             }
         }
+        
         // También actualizar el nombre en el panel de monitoreo si está activo
         if (monitorGrupoId) {
             cargarAsistenciasActivas();
         }
-        renderVerGrupo(); // Recargar la vista con los datos actualizados
+        renderVerGrupo(); // Recargar la vista con datos frescos
     } catch (err) {
         errorEl.textContent = 'Error de conexión: ' + err.message;
         setLoading('btn-guardar-nombre-alumno', false, '💾 Guardar cambios');
@@ -1776,6 +1810,27 @@ function cerrarModalEditarAlumno() {
     document.getElementById('modal-editar-alumno').classList.add('hidden');
     document.getElementById('editar-alumno-error').textContent = '';
     setLoading('btn-guardar-nombre-alumno', false, '💾 Guardar cambios');
+}
+
+// ====== HELPER: SQL para política RLS de profesor editando alumnos ======
+function obtenerSQLProfesorUpdate() {
+    return `-- 1. Crear función SECURITY DEFINER (evita recursión)
+CREATE OR REPLACE FUNCTION public.profesor_puede_editar_alumno(p_alumno_id UUID)
+RETURNS BOOLEAN
+SECURITY DEFINER
+AS $$
+    SELECT EXISTS (
+        SELECT 1 FROM public.grupo_alumnos ga
+        JOIN public.grupos g ON g.id = ga.grupo_id
+        WHERE ga.alumno_id = p_alumno_id
+          AND g.profesor_id = auth.uid()
+    );
+$$ LANGUAGE sql;
+
+-- 2. Crear política usando la función
+DROP POLICY IF EXISTS "profesores_update_alumnos" ON public.alumnos;
+CREATE POLICY "profesores_update_alumnos" ON public.alumnos
+    FOR UPDATE USING (public.profesor_puede_editar_alumno(id));`;
 }
 
 function cerrarModalVer() {

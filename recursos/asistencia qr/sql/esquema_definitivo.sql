@@ -161,14 +161,22 @@ CREATE POLICY "profesores_select_alumnos" ON public.alumnos
         SELECT 1 FROM public.profesores WHERE profesores.id = auth.uid()
     ));
 
+-- Función SECURITY DEFINER para evitar recursión RLS
+CREATE OR REPLACE FUNCTION public.profesor_puede_editar_alumno(p_alumno_id UUID)
+RETURNS BOOLEAN
+SECURITY DEFINER
+AS $$
+    SELECT EXISTS (
+        SELECT 1 FROM public.grupo_alumnos ga
+        JOIN public.grupos g ON g.id = ga.grupo_id
+        WHERE ga.alumno_id = p_alumno_id
+          AND g.profesor_id = auth.uid()
+    );
+$$ LANGUAGE sql;
+
 DROP POLICY IF EXISTS "profesores_update_alumnos" ON public.alumnos;
 CREATE POLICY "profesores_update_alumnos" ON public.alumnos
-    FOR UPDATE USING (EXISTS (
-        SELECT 1 FROM public.grupos
-        JOIN public.grupo_alumnos ON grupo_alumnos.grupo_id = grupos.id
-        WHERE grupo_alumnos.alumno_id = alumnos.id
-          AND grupos.profesor_id = auth.uid()
-    ));
+    FOR UPDATE USING (public.profesor_puede_editar_alumno(id));
 
 -- ===== 3. GRUPOS =====
 DROP POLICY IF EXISTS "profesores_all_grupos" ON public.grupos;

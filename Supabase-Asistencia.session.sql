@@ -149,7 +149,22 @@ CREATE POLICY "profesores_select_own" ON public.profesores FOR SELECT USING (aut
 
 DROP POLICY IF EXISTS "profesores_update_own" ON public.profesores;
 CREATE POLICY "profesores_update_own" ON public.profesores FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+-- Función SECURITY DEFINER para evitar recursión RLS
+CREATE OR REPLACE FUNCTION public.profesor_puede_editar_alumno(p_alumno_id UUID)
+RETURNS BOOLEAN
+SECURITY DEFINER
+AS $$
+    SELECT EXISTS (
+        SELECT 1 FROM public.grupo_alumnos ga
+        JOIN public.grupos g ON g.id = ga.grupo_id
+        WHERE ga.alumno_id = p_alumno_id
+          AND g.profesor_id = auth.uid()
+    );
+$$ LANGUAGE sql;
 
+DROP POLICY IF EXISTS "profesores_update_alumnos" ON public.alumnos;
+CREATE POLICY "profesores_update_alumnos" ON public.alumnos
+    FOR UPDATE USING (public.profesor_puede_editar_alumno(id));
 -- ALUMNOS
 DROP POLICY IF EXISTS "alumnos_insert_own" ON public.alumnos;
 CREATE POLICY "alumnos_insert_own" ON public.alumnos FOR INSERT WITH CHECK (auth.uid() = id);
@@ -164,7 +179,7 @@ DROP POLICY IF EXISTS "profesores_select_alumnos" ON public.alumnos;
 CREATE POLICY "profesores_select_alumnos" ON public.alumnos FOR SELECT USING (EXISTS (SELECT 1 FROM public.profesores WHERE profesores.id = auth.uid()));
 
 DROP POLICY IF EXISTS "profesores_update_alumnos" ON public.alumnos;
-CREATE POLICY "profesores_update_alumnos" ON public.alumnos FOR UPDATE USING (EXISTS (SELECT 1 FROM public.grupos JOIN public.grupo_alumnos ON grupo_alumnos.grupo_id = grupos.id WHERE grupo_alumnos.alumno_id = alumnos.id AND grupos.profesor_id = auth.uid()));
+CREATE POLICY "profesores_update_alumnos" ON public.alumnos FOR UPDATE USING (public.profesor_puede_editar_alumno(id));
 
 -- GRUPOS
 DROP POLICY IF EXISTS "profesores_all_grupos" ON public.grupos;
