@@ -116,8 +116,9 @@
                 <div id="monitoreo-lista" class="list-container" style="max-height: 400px; overflow-y: auto;">
                     <p class="empty-state">Esperando que los alumnos escaneen el QR...</p>
                 </div>
-                <div style="text-align: center; margin-top: 12px;">
-                    <button onclick="cerrarMonitoreo()" class="btn-secondary" style="width: 100%;">Cerrar monitoreo</button>
+                <div style="text-align: center; margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
+                    <button onclick="resetearContadoresHoy()" class="btn-secondary" style="flex:1; min-width:120px; font-size:0.85em; background:#fff3e0; color:#e65100; border:1px solid #ffe0b2;">🔄 Resetear pantallas (hoy)</button>
+                    <button onclick="cerrarMonitoreo()" class="btn-secondary" style="flex:1; min-width:120px;">Cerrar monitoreo</button>
                 </div>
             </div>
         </div>
@@ -226,6 +227,6 @@
         </div>
     </div>
     
-    <script src="js/profesor.js?v=5"></script>
+    <script src="js/profesor.js?v=6"></script>
 </body>
 </html>

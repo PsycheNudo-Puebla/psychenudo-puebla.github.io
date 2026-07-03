@@ -2226,33 +2226,63 @@ async function reabrirMonitoreo(grupoId) {
         seleccionarGrupo(grupoId);
     }
     
-    const info = monitoreoActivoPorGrupo[grupoId];
+    let info = monitoreoActivoPorGrupo[grupoId];
+    let sesionId = info?.sesionId;
+    let perdonesMax = info?.perdonesMax ?? 2;
+    
+    // Si no hay info en memoria (recarga de página), buscar en BD
     if (!info) {
-        mostrarToast('No hay una sesión activa para este grupo. Abre el QR primero.', 'warning');
-        return;
+        const { data: sesion } = await supabaseClient
+            .from('sesiones_clase')
+            .select('id')
+            .eq('grupo_id', grupoId)
+            .eq('activa', true)
+            .order('creado_en', { ascending: false })
+            .maybeSingle();
+        
+        if (!sesion) {
+            mostrarToast('No hay una sesión activa para este grupo. Abre el QR primero.', 'warning');
+            return;
+        }
+        sesionId = sesion.id;
+        // Intentar obtener perdones del grupo
+        try {
+            const { data: g } = await supabaseClient.from('grupos').select('numero_perdones').eq('id', grupoId).single();
+            if (g && g.numero_perdones != null) perdonesMax = g.numero_perdones;
+        } catch (e) { /* usar default */ }
+        // Reconstruir cache en memoria
+        monitoreoActivoPorGrupo[grupoId] = { sesionId, perdonesMax };
+    } else {
+        // Verificar que la sesión siga activa en BD
+        const { data: sesion } = await supabaseClient
+            .from('sesiones_clase')
+            .select('id, activa')
+            .eq('id', sesionId)
+            .maybeSingle();
+        
+        if (!sesion || !sesion.activa) {
+            delete monitoreoActivoPorGrupo[grupoId];
+            mostrarToast('La sesión de esta clase ya finalizó. Genera un nuevo QR para comenzar.', 'warning');
+            return;
+        }
     }
-    // Verificar que la sesión siga activa en BD
-    const { data: sesion } = await supabaseClient
-        .from('sesiones_clase')
-        .select('id, activa')
-        .eq('id', info.sesionId)
-        .maybeSingle();
     
-    if (!sesion || !sesion.activa) {
-        delete monitoreoActivoPorGrupo[grupoId];
-        mostrarToast('La sesión de esta clase ya finalizó. Genera un nuevo QR para comenzar.', 'warning');
-        return;
-    }
-    
-    await iniciarMonitoreoProfesor(grupoId, info.sesionId, info.perdonesMax);
+    await iniciarMonitoreoProfesor(grupoId, sesionId, perdonesMax);
 }
 
 const DIAS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
 // ====== RESETEAR CONTADORES DE PANTALLA (HOY) ======
-async function resetearContadoresHoy() {
-    const store = document.getElementById('ver-filtro-alumno');
-    const grupoId = store._grupoId;
+async function resetearContadoresHoy(grupoId) {
+    if (!grupoId) {
+        // Intentar desde la vista 'Ver asistencias'
+        const store = document.getElementById('ver-filtro-alumno');
+        grupoId = store?._grupoId;
+    }
+    if (!grupoId) {
+        // Intentar desde monitoreo activo
+        grupoId = monitorGrupoId;
+    }
     if (!grupoId) {
         mostrarToast('No hay grupo seleccionado.', 'error');
         return;
