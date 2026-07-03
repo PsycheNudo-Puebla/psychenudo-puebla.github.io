@@ -1881,8 +1881,8 @@ function generarQRCode(container, grupoId, codigoSesion) {
     try {
         new QRCode(container, {
             text: datosQR,
-            width: 220,
-            height: 220,
+            width: 300,
+            height: 300,
             colorDark: '#333333',
             colorLight: '#ffffff',
             correctLevel: QRCode.CorrectLevel.H

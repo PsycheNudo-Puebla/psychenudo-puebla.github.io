@@ -818,11 +818,20 @@ async function iniciarEscaneo() {
     try {
         html5QrCode = new Html5Qrcode("qr-reader");
         
-        // --- Configuración de cámara trasera (25fps para escaneo más rápido) ---
-        const ancho = Math.min(window.innerWidth * 0.6, 320);
+        // --- Configuración de cámara trasera optimizada ---
+        // Claves para escaneo RÁPIDO:
+        // 1. formatsToSupport: [0] = solo QR_CODE (omite AZTEC, CODE_128, EAN, PDF_417...)
+        // 2. fps: 35 = procesa más cuadros por segundo
+        // 3. qrbox grande = el código se detecta aunque esté descentrado
+        const size = Math.min(window.innerWidth * 0.85, 380);
         await html5QrCode.start(
             { facingMode: "environment" },
-            { fps: 25, qrbox: { width: ancho, height: ancho } },
+            { 
+                fps: 35, 
+                qrbox: { width: size, height: size },
+                formatsToSupport: [0], // solo QR_CODE = 5-10x más rápido
+                disableFlip: true       // no buscar espejado = menos trabajo
+            },
             async (decodedText) => {
                 await html5QrCode.stop();
                 lectorDiv.classList.add('hidden');
@@ -835,9 +844,6 @@ async function iniciarEscaneo() {
         );
         
         // --- Corregir orientación si el video sale girado ---
-        // En algunos dispositivos Android, la cámara trasera entrega el video
-        // en landscape (horizontal) en lugar de portrait. Detectamos esto y
-        // aplicamos una rotación CSS para que se vea correctamente.
         setTimeout(() => corregirRotacionCamara(), 500);
         
         escaneando = true;
@@ -871,13 +877,16 @@ async function iniciarEscaneo() {
 // En algunos Android, la cámara trasera entrega el video en horizontal (landscape)
 // aun cuando el dispositivo está en vertical (portrait). Esto hace que el video
 // se vea girado 90°. Detectamos esto aplicamos estilos correctivos directamente.
+let _intentosRotacion = 0;
 function corregirRotacionCamara() {
     const video = document.querySelector('#qr-reader video');
     if (!video || !video.videoWidth || !video.videoHeight) {
-        // Reintentar hasta que el video tenga dimensiones
-        setTimeout(() => corregirRotacionCamara(), 300);
+        // Reintentar hasta 10 veces (3s total) para no acumular timers
+        _intentosRotacion++;
+        if (_intentosRotacion < 10) setTimeout(() => corregirRotacionCamara(), 300);
         return;
     }
+    _intentosRotacion = 0;
     
     // Solo corregir si el dispositivo está en vertical (portrait) 
     // y el video viene en horizontal (landscape)
