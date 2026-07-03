@@ -1259,6 +1259,11 @@ function iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite) {
     monitorChannel = supabaseClient
         .channel(canalId)
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'asistencia', filter: `id=eq.${asistenciaId}` }, (payload) => {
+            // Sincronizar cambios_pantalla si el profesor reseteó (valor en BD menor al local)
+            if (payload.new.cambios_pantalla !== undefined && payload.new.cambios_pantalla < cambiosContador) {
+                cambiosContador = payload.new.cambios_pantalla;
+                actualizarMonitorUI();
+            }
             if (payload.new.perdonada && !payload.new.confirmada) {
                 const st = document.getElementById('monitor-estado');
                 st.innerHTML = '🙏 <strong>¡Perdonado!</strong> Ya puedes confirmar.';
@@ -1283,6 +1288,11 @@ function iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite) {
                             if (monitorChannel) supabaseClient.removeChannel(monitorChannel);
                             monitorChannel = supabaseClient.channel(canalId)
                                 .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'asistencia', filter: `id=eq.${asistenciaActualId}` }, (payload) => {
+                                    // Sincronizar cambios_pantalla si el profesor reseteó
+                                    if (payload.new.cambios_pantalla !== undefined && payload.new.cambios_pantalla < cambiosContador) {
+                                        cambiosContador = payload.new.cambios_pantalla;
+                                        actualizarMonitorUI();
+                                    }
                                     if (payload.new.perdonada && !payload.new.confirmada) {
                                         document.getElementById('monitor-estado').innerHTML = '🙏 <strong>¡Perdonado!</strong> Ya puedes confirmar.';
                                         document.getElementById('monitor-estado').style.background = '#e8f5e9';
