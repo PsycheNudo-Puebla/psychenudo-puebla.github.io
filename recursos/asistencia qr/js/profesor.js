@@ -1757,41 +1757,44 @@ async function guardarNombreAlumno(e) {
             return;
         }
         
-        console.log('✅ Nombre actualizado en BD. Refrescando datos desde Supabase...');
+        console.log('✅ Nombre actualizado en BD. Aplicando cambio en la UI...');
         console.log('  alumnoId:', alumnoId, 'nuevoNombre:', nuevoNombre);
         
         cerrarModalEditarAlumno();
 
-        // 🔄 Recargar datos frescos desde Supabase
+        // 🔄 Actualizar datos en CACHÉ local y refrescar UI
+        //    (sin re-fetch a Supabase, para evitar inconsistencias de lectura)
         if (verGrupoActualId) {
-            const { data: freshAlumnos } = await supabaseClient
-                .from('grupo_alumnos')
-                .select('alumno_id, abandono_en, alumnos!inner(id, nombre, email, matricula)')
-                .eq('grupo_id', verGrupoActualId);
+            const select = document.getElementById('ver-filtro-alumno');
+            const alumnosCache = select._alumnos;
             
-            if (freshAlumnos) {
-                console.log('  Datos frescos recibidos:', freshAlumnos.length, 'alumnos');
-                freshAlumnos.sort((a, b) => {
+            if (alumnosCache) {
+                // 1. Parchear el nombre en el caché local
+                let patchCount = 0;
+                alumnosCache.forEach(item => {
+                    if (item.alumno_id === alumnoId && item.alumnos) {
+                        item.alumnos.nombre = nuevoNombre;
+                        patchCount++;
+                    }
+                });
+                console.log('  📦 Caché local parcheado:', patchCount, 'coincidencias');
+                
+                // 2. Reconstruir dropdown desde el caché parcheado
+                const previousValue = select.value;
+                select.innerHTML = '<option value="">— Todos los alumnos —</option>';
+                // Reordenar por nombre actualizado
+                alumnosCache.sort((a, b) => {
                     const na = (a.alumnos?.nombre || a.alumnos?.email || '').toLowerCase();
                     const nb = (b.alumnos?.nombre || b.alumnos?.email || '').toLowerCase();
                     return na.localeCompare(nb, 'es');
                 });
-                
-                const select = document.getElementById('ver-filtro-alumno');
-                // 🔑 Preservar la selección actual del filtro
-                const previousValue = select.value;
-                
-                select._alumnos = freshAlumnos;
-                
-                // Reconstruir dropdown SIN forzar selección del editado
-                select.innerHTML = '<option value="">— Todos los alumnos —</option>';
-                freshAlumnos.forEach(item => {
+                alumnosCache.forEach(item => {
                     const al = item.alumnos;
                     select.innerHTML += `<option value="${item.alumno_id}">${al.nombre || al.email || 'Sin nombre'}</option>`;
                 });
-                
-                // Restaurar la selección que el usuario tenía antes del refresh
                 select.value = previousValue;
+                
+                console.log('  ✅ Dropdown reconstruido con nombre actualizado');
             }
         }
         
@@ -1799,7 +1802,10 @@ async function guardarNombreAlumno(e) {
         if (monitorGrupoId) {
             cargarAsistenciasActivas();
         }
-        renderVerGrupo(); // Recargar la vista con datos frescos
+        
+        console.log('  🔄 Llamando a renderVerGrupo()...');
+        renderVerGrupo();
+        console.log('  ✅ renderVerGrupo() completado');
     } catch (err) {
         errorEl.textContent = 'Error de conexión: ' + err.message;
         setLoading('btn-guardar-nombre-alumno', false, '💾 Guardar cambios');
