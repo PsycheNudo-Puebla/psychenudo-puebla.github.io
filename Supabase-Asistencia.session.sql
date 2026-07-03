@@ -163,6 +163,9 @@ CREATE POLICY "alumnos_update_own" ON public.alumnos FOR UPDATE USING (auth.uid(
 DROP POLICY IF EXISTS "profesores_select_alumnos" ON public.alumnos;
 CREATE POLICY "profesores_select_alumnos" ON public.alumnos FOR SELECT USING (EXISTS (SELECT 1 FROM public.profesores WHERE profesores.id = auth.uid()));
 
+DROP POLICY IF EXISTS "profesores_update_alumnos" ON public.alumnos;
+CREATE POLICY "profesores_update_alumnos" ON public.alumnos FOR UPDATE USING (EXISTS (SELECT 1 FROM public.grupos JOIN public.grupo_alumnos ON grupo_alumnos.grupo_id = grupos.id WHERE grupo_alumnos.alumno_id = alumnos.id AND grupos.profesor_id = auth.uid()));
+
 -- GRUPOS
 DROP POLICY IF EXISTS "profesores_all_grupos" ON public.grupos;
 CREATE POLICY "profesores_all_grupos" ON public.grupos FOR ALL USING (auth.uid() = profesor_id) WITH CHECK (auth.uid() = profesor_id);

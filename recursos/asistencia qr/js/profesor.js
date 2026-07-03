@@ -1341,7 +1341,7 @@ async function verGrupo(grupoId) {
     const [alumnosRes, asistenciasRes] = await Promise.all([
         supabaseClient
             .from('grupo_alumnos')
-            .select('alumno_id, abandono_en, alumnos!inner(id, nombre, email)')
+            .select('alumno_id, abandono_en, alumnos!inner(id, nombre, email, matricula)')
             .eq('grupo_id', grupoId),
         supabaseClient
             .from('asistencia')
@@ -1565,7 +1565,8 @@ function renderVerGrupo() {
                 if (item.abandono_en) {
                     nombreAlumno += ' <span style="color:#999; font-size:0.75em; font-weight:400;">🚪 Abandonó</span>';
                 }
-                html += `<td style="padding:6px 6px; font-weight:600; position:sticky; left:0; background:white; z-index:1;">${nombreAlumno}</td>`;
+                const editBtn = `<button onclick="event.stopPropagation(); editarNombreAlumno('${item.alumno_id}', '${(al.nombre || '').replace(/'/g, "\\'")}', '${(al.email || '').replace(/'/g, "\\'")}', '${(al.matricula || '').replace(/'/g, "\\'")}')" style="background:none; border:none; cursor:pointer; font-size:0.85em; padding:2px 6px; border-radius:4px; color:#667eea; hover:background:#f0f4ff;" title="Editar nombre">✏️</button>`;
+                html += `<td style="padding:6px 6px; font-weight:600; position:sticky; left:0; background:white; z-index:1;">${nombreAlumno} ${editBtn}</td>`;
                 
                 // Celdas de fechas con color
                 for (const fecha of fechas) {
@@ -1631,7 +1632,9 @@ function renderVerGrupo() {
                 html += `
                 <div style="background:white; border-radius:12px; padding:16px; margin-bottom:12px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                        <h4 style="margin:0; color:#1a1a2e;">👤 ${al.nombre || al.email || 'Sin nombre'}</h4>
+                        <h4 style="margin:0; color:#1a1a2e;">👤 ${al.nombre || al.email || 'Sin nombre'}
+                            <button onclick="editarNombreAlumno('${item.alumno_id}', '${(al.nombre || '').replace(/'/g, "\\'")}', '${(al.email || '').replace(/'/g, "\\'")}', '${(al.matricula || '').replace(/'/g, "\\'")}')" style="background:none; border:none; cursor:pointer; font-size:0.75em; padding:2px 6px; border-radius:4px; color:#667eea; vertical-align:middle;" title="Editar nombre">✏️</button>
+                        </h4>
                         <span style="font-size:1.2em; font-weight:700; color:${pct >= 80 ? '#2e7d32' : pct >= 60 ? '#e65100' : '#c62828'};">${pct}%</span>
                     </div>
                     ${item.abandono_en ? '<div style="background:#fff0f0; border:1px solid #ffcdd2; border-radius:8px; padding:8px 12px; margin-bottom:10px; color:#c62828; font-size:0.85em; font-weight:500;">🚪 Este alumno abandonó el grupo.</div>' : ''}
@@ -1703,6 +1706,62 @@ function renderVerGrupo() {
     }
     
     container.innerHTML = html;
+}
+
+// ====== EDICIÓN DE NOMBRE DE ALUMNO (por el profesor) ======
+function editarNombreAlumno(alumnoId, nombreActual, email, matricula) {
+    document.getElementById('editar-alumno-id').value = alumnoId;
+    document.getElementById('editar-alumno-nombre').value = nombreActual;
+    document.getElementById('editar-alumno-email').textContent = email || '—';
+    document.getElementById('editar-alumno-matricula').textContent = matricula || '—';
+    document.getElementById('editar-alumno-error').textContent = '';
+    document.getElementById('modal-editar-alumno').classList.remove('hidden');
+    document.getElementById('editar-alumno-nombre').focus();
+}
+
+async function guardarNombreAlumno(e) {
+    e.preventDefault();
+    const alumnoId = document.getElementById('editar-alumno-id').value;
+    const nuevoNombre = document.getElementById('editar-alumno-nombre').value.trim();
+    const errorEl = document.getElementById('editar-alumno-error');
+    const btn = document.getElementById('btn-guardar-nombre-alumno');
+    
+    if (!nuevoNombre) {
+        errorEl.textContent = 'El nombre no puede estar vacío.';
+        return;
+    }
+    
+    setLoading('btn-guardar-nombre-alumno', true);
+    
+    try {
+        const { error } = await supabaseClient
+            .from('alumnos')
+            .update({ nombre: nuevoNombre })
+            .eq('id', alumnoId);
+        
+        if (error) {
+            if (error.message && error.message.includes('row-level security')) {
+                errorEl.textContent = '⚠️ No tienes permiso para editar este alumno. Asegúrate de ejecutar la nueva política RLS en Supabase (ver SQL).';
+            } else {
+                errorEl.textContent = 'Error al guardar: ' + error.message;
+            }
+            setLoading('btn-guardar-nombre-alumno', false, '💾 Guardar cambios');
+            return;
+        }
+        
+        mostrarToast('✅ Nombre actualizado correctamente.', 'exito');
+        cerrarModalEditarAlumno();
+        renderVerGrupo(); // Recargar la vista actual
+    } catch (err) {
+        errorEl.textContent = 'Error de conexión: ' + err.message;
+        setLoading('btn-guardar-nombre-alumno', false, '💾 Guardar cambios');
+    }
+}
+
+function cerrarModalEditarAlumno() {
+    document.getElementById('modal-editar-alumno').classList.add('hidden');
+    document.getElementById('editar-alumno-error').textContent = '';
+    setLoading('btn-guardar-nombre-alumno', false, '💾 Guardar cambios');
 }
 
 function cerrarModalVer() {

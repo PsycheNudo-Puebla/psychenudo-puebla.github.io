@@ -227,6 +227,31 @@
         </div>
     </div>
     
-    <script src="js/profesor.js?v=8"></script>
+    <!-- MODAL: Editar nombre de alumno -->
+    <div id="modal-editar-alumno" class="modal-overlay hidden" onclick="if(event.target===this) cerrarModalEditarAlumno()">
+        <div class="modal" style="max-width: 450px;">
+            <h3>✏️ Corregir nombre del alumno</h3>
+            <p style="color: #666; font-size: 0.9em; margin-bottom: 12px;">
+                Si el alumno registró su nombre incorrectamente, puedes corregirlo aquí.
+                El cambio se aplicará en todos los registros de asistencia.
+            </p>
+            <div id="editar-alumno-info" style="background: #f5f7ff; border-radius: 8px; padding: 12px; margin-bottom: 12px; font-size: 0.85em;">
+                <div><strong>Email:</strong> <span id="editar-alumno-email"></span></div>
+                <div><strong>Matrícula:</strong> <span id="editar-alumno-matricula"></span></div>
+            </div>
+            <form id="form-editar-alumno" onsubmit="guardarNombreAlumno(event)">
+                <input type="hidden" id="editar-alumno-id">
+                <label for="editar-alumno-nombre">Nombre completo</label>
+                <input type="text" id="editar-alumno-nombre" placeholder="Nombre completo del alumno" required>
+                <div class="modal-buttons" style="margin-top: 16px;">
+                    <button type="button" onclick="cerrarModalEditarAlumno()" class="btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn-primary" id="btn-guardar-nombre-alumno">💾 Guardar cambios</button>
+                </div>
+                <div id="editar-alumno-error" class="error-msg"></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/profesor.js?v=9"></script>
 </body>
 </html>
