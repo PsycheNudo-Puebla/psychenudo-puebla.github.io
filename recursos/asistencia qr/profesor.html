@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Panel del Profesor</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="js/supabase-config.js?v=12"></script>
-    <script src="js/toaster.js?v=12"></script>
-    <link rel="stylesheet" href="css/styles.css?v=12">
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- QRCode library (carga global, no ESM) -->
+    <script src="js/qrcode.min.js"></script>
 </head>
 <body>
     <!-- VISTA DE LOGIN -->
@@ -252,6 +250,7 @@
         </div>
     </div>
 
-    <script src="js/profesor.js?v=13"></script>
+    <!-- Vite: modo desarrollo -> src/main-profesor.ts, build -> dist/assets/*.js -->
+    <script type="module" src="/src/main-profesor.ts"></script>
 </body>
 </html>

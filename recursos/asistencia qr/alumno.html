@@ -4,11 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Asistencia QR - Alumno</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-    <script src="js/supabase-config.js?v=12"></script>
-    <script src="js/toaster.js?v=12"></script>
-    <link rel="stylesheet" href="css/styles.css?v=12">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <!-- VISTA DE LOGIN -->
@@ -150,6 +146,7 @@
         </div>
     </div>
     
-    <script src="js/alumno.js?v=16"></script>
+    <!-- Vite: modo desarrollo -> src/main-alumno.ts, build -> dist/assets/*.js -->
+    <script type="module" src="/src/main-alumno.ts"></script>
 </body>
 </html>
