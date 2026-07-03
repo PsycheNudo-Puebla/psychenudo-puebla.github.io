@@ -24,8 +24,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Escuchar cambios de autenticación
 supabaseClient.auth.onAuthStateChange((event, session) => {
+    // Si el alumno está en monitoreo, NO interrumpir — el SIGNED_IN se dispara
+    // cada que Supabase renueva el token (~1h) y cargarDatosAlumno pisaría la
+    // pantalla de espera.
+    if (monitoreoActivo) return;
+    
     if (event === 'SIGNED_IN' && session) {
-        // Al recuperar sesión automáticamente (recarga de página), cargar datos
         cargarDatosAlumno(session.user);
     } else if (event === 'SIGNED_OUT') {
         mostrarLogin();
@@ -225,6 +229,8 @@ async function verificarYcargarAlumno(user) {
     document.getElementById('login-view').classList.add('hidden');
     document.getElementById('dashboard-view').classList.remove('hidden');
     
+    // No recargar grupos si el alumno está en monitoreo activo
+    if (monitoreoActivo) return;
     cargarGrupos();
 }
 
@@ -254,6 +260,8 @@ function showTab(tab, eventElement) {
 }
 
 function mostrarLogin() {
+    // No interrumpir monitoreo activo
+    if (monitoreoActivo) return;
     document.getElementById('login-view').classList.remove('hidden');
     document.getElementById('dashboard-view').classList.add('hidden');
     document.getElementById('login-form').classList.remove('hidden');
@@ -317,6 +325,8 @@ async function cargarDatosAlumno(user, intentos = 0) {
     document.getElementById('login-view').classList.add('hidden');
     document.getElementById('dashboard-view').classList.remove('hidden');
     
+    // No recargar grupos si el alumno está en monitoreo activo
+    if (monitoreoActivo) return;
     cargarGrupos();
 }
 
@@ -361,6 +371,85 @@ async function cargarGrupos() {
             </div>
         </div>
     `).join('');
+    
+    // Revisar si hay una asistencia pendiente (no confirmada) y mostrar banner
+    revisarAsistenciaPendiente();
+}
+
+// ====== REANUDAR MONITOREO (si se salió de la pantalla de espera) ======
+async function revisarAsistenciaPendiente() {
+    const banner = document.getElementById('reanudar-banner');
+    if (!banner) return;
+    banner.classList.add('hidden');
+    banner.innerHTML = '';
+    
+    // Si ya está en monitoreo, no mostrar banner
+    if (monitoreoActivo) return;
+    
+    try {
+        const hoy = new Date().toISOString().split('T')[0];
+        const { data: asistenciaPendiente, error } = await supabaseClient
+            .from('asistencia')
+            .select('id, grupo_id, cambios_pantalla, sesion_codigo')
+            .eq('alumno_id', alumnoActual.id)
+            .eq('fecha', hoy)
+            .eq('confirmada', false)
+            .maybeSingle();
+        
+        if (error || !asistenciaPendiente) return;
+        
+        // Obtener nombre del grupo
+        const { data: grupo } = await supabaseClient
+            .from('grupos')
+            .select('nombre, limite_salidas')
+            .eq('id', asistenciaPendiente.grupo_id)
+            .maybeSingle();
+        
+        if (!grupo) return;
+        
+        const limite = grupo.limite_salidas ?? 3;
+        const cambiosActuales = asistenciaPendiente.cambios_pantalla || 0;
+        
+        // Asignar variables globales para que reanudarMonitoreo() pueda usarlas
+        window._pendienteAsistenciaId = asistenciaPendiente.id;
+        window._pendienteGrupoId = asistenciaPendiente.grupo_id;
+        window._pendienteGrupoNombre = grupo.nombre;
+        window._pendienteLimite = limite;
+        window._pendienteCambios = cambiosActuales;
+        
+        banner.innerHTML = `
+            <div style="background: #fff8e1; border: 1px solid #ffe082; border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <div style="font-size: 1.5em;">⏳</div>
+                <div style="flex: 1; min-width: 150px;">
+                    <strong style="color: #e65100;">Tienes una asistencia en curso</strong>
+                    <br><small style="color: #666;">${grupo.nombre} — Cambios: ${cambiosActuales}/${limite}</small>
+                </div>
+                <button onclick="reanudarMonitoreo()" class="btn-primary" style="background: #e65100; white-space: nowrap; font-size: 0.9em;">🔁 Reanudar monitoreo</button>
+            </div>
+        `;
+        banner.classList.remove('hidden');
+    } catch (e) {
+        console.warn('Error al revisar asistencia pendiente:', e);
+    }
+}
+
+function reanudarMonitoreo() {
+    if (window._pendienteAsistenciaId) {
+        iniciarMonitoreo(
+            window._pendienteAsistenciaId,
+            window._pendienteGrupoId,
+            window._pendienteGrupoNombre,
+            window._pendienteLimite
+        );
+        // Sincronizar contador actual desde DB
+        if (window._pendienteCambios > 0) {
+            cambiosContador = window._pendienteCambios;
+            document.getElementById('monitor-contador').textContent = cambiosContador;
+            const pct = Math.min((cambiosContador / cambiosLimite) * 100, 100);
+            document.getElementById('monitor-barra').style.width = pct + '%';
+            if (pct >= 80) document.getElementById('monitor-barra').style.background = '#ff5722';
+        }
+    }
 }
 
 // ====== UNIRSE A GRUPO POR CÓDIGO ======

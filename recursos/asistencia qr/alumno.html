@@ -6,9 +6,9 @@
     <title>Asistencia QR - Alumno</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-    <script src="js/supabase-config.js?v=10"></script>
-    <script src="js/toaster.js?v=10"></script>
-    <link rel="stylesheet" href="css/styles.css?v=10">
+    <script src="js/supabase-config.js?v=11"></script>
+    <script src="js/toaster.js?v=11"></script>
+    <link rel="stylesheet" href="css/styles.css?v=11">
 </head>
 <body>
     <!-- VISTA DE LOGIN -->
@@ -73,6 +73,7 @@
         <div class="card">
             <h2>Mis Grupos</h2>
             <button onclick="showUnirseGrupoModal()" class="btn-primary">➕ Unirse a un grupo</button>
+            <div id="reanudar-banner" class="hidden" style="margin-bottom: 12px;"></div>
             <div id="grupos-lista" class="list-container">
                 <p class="empty-state">No estás inscrito en ningún grupo. Usa el código de invitación de tu profesor para unirte.</p>
             </div>
@@ -146,6 +147,6 @@
         </div>
     </div>
     
-    <script src="js/alumno.js?v=10"></script>
+    <script src="js/alumno.js?v=11"></script>
 </body>
 </html>
