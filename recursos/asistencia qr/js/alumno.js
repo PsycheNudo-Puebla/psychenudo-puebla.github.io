@@ -757,31 +757,24 @@ function corregirRotacionCamara() {
     const container = document.getElementById('qr-reader');
     if (!container) return;
     
-    // Ajustar contenedor a formato portrait
-    container.style.aspectRatio = '3 / 4';
-    container.style.maxHeight = '75vh';
+    // Ajustar contenedor a formato cuadrado — así el canvas overlay (qrbox)
+    // se renderiza en un espacio cuadrado y las esquinas de 250×250 se ven como cuadrado.
+    container.style.aspectRatio = '1 / 1';
+    container.style.maxHeight = '70vh';
     container.style.overflow = 'hidden';
     
-    // Calcular escala: después de rotar 90°, el alto del video pasa a ser
-    // el ancho en pantalla. Queremos que el video rotado llene el contenedor.
-    // El video se renderiza con width=100% del contenedor, height=auto.
-    // Su alto en pantalla = contAncho * (videoHeight / videoWidth).
-    // Tras rotar 90°, ese alto se convierte en el ancho visual.
-    // Escala necesaria = contAncho / altoPantalla = contAncho / (contAncho * vH / vW) = vW / vH
-    const escala = video.videoWidth / video.videoHeight;
-    
-    // Aplicar estilos inline directo al video
+    // Rotar el video 90° y escalar para que llene el contenedor cuadrado
     video.style.position = 'absolute';
     video.style.top = '50%';
     video.style.left = '50%';
     video.style.width = '100%';
-    video.style.height = 'auto';
+    video.style.height = '100%';
     video.style.minWidth = 'auto';
     video.style.minHeight = 'auto';
     video.style.maxWidth = 'none';
     video.style.maxHeight = 'none';
     video.style.objectFit = 'cover';
-    video.style.transform = `translate(-50%, -50%) rotate(90deg) scale(${escala})`;
+    video.style.transform = `translate(-50%, -50%) rotate(90deg)`;
     video.style.transformOrigin = 'center center';
 }
 
