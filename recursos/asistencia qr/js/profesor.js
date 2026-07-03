@@ -1751,7 +1751,21 @@ async function guardarNombreAlumno(e) {
         
         mostrarToast('✅ Nombre actualizado correctamente.', 'exito');
         cerrarModalEditarAlumno();
-        renderVerGrupo(); // Recargar la vista actual
+
+        // 🔄 Actualizar la caché en memoria para que se refleje en la UI
+        const select = document.getElementById('ver-filtro-alumno');
+        const alumnos = select._alumnos || [];
+        for (const item of alumnos) {
+            if (item.alumno_id === alumnoId && item.alumnos) {
+                item.alumnos.nombre = nuevoNombre;
+                break;
+            }
+        }
+        // También actualizar el nombre en el panel de monitoreo si está activo
+        if (monitorGrupoId) {
+            cargarAsistenciasActivas();
+        }
+        renderVerGrupo(); // Recargar la vista con los datos actualizados
     } catch (err) {
         errorEl.textContent = 'Error de conexión: ' + err.message;
         setLoading('btn-guardar-nombre-alumno', false, '💾 Guardar cambios');
