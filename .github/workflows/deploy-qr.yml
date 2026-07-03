@@ -55,6 +55,9 @@ jobs:
           cp -r dist/assets assets/
           cp dist/js/qrcode.min.js js/qrcode.min.js
 
+      - name: Forzar agregar assets (ignorados en .gitignore)
+        run: git add -f recursos/asistencia\ qr/assets/ recursos/asistencia\ qr/js/qrcode.min.js
+
       - name: Commit automático con [skip ci]
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
