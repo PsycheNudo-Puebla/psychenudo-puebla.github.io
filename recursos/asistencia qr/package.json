@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "deploy": "powershell -ExecutionPolicy Bypass -File deploy.ps1",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },
