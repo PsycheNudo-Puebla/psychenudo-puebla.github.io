@@ -764,10 +764,11 @@ function corregirRotacionCamara() {
     
     // Calcular escala: después de rotar 90°, el alto del video pasa a ser
     // el ancho en pantalla. Queremos que el video rotado llene el contenedor.
-    // video.videoHeight es el alto nativo del video sin rotar.
-    // Tras rotar, ese alto se convierte en el ancho visual.
-    const contAncho = container.offsetWidth;
-    const escala = contAncho / video.videoHeight;
+    // El video se renderiza con width=100% del contenedor, height=auto.
+    // Su alto en pantalla = contAncho * (videoHeight / videoWidth).
+    // Tras rotar 90°, ese alto se convierte en el ancho visual.
+    // Escala necesaria = contAncho / altoPantalla = contAncho / (contAncho * vH / vW) = vW / vH
+    const escala = video.videoWidth / video.videoHeight;
     
     // Aplicar estilos inline directo al video
     video.style.position = 'absolute';
