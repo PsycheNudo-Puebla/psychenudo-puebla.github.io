@@ -687,8 +687,6 @@ async function iniciarEscaneo() {
         html5QrCode = new Html5Qrcode("qr-reader");
         
         // --- Configuración simple de cámara trasera ---
-        // Sin aspectRatio ni videoConstraints extraños, solo facingMode: "environment"
-        // para que la cámara se comporte exactamente como en la app nativa del teléfono.
         await html5QrCode.start(
             { facingMode: "environment" },
             { fps: 10, qrbox: { width: 250, height: 250 } },
@@ -702,6 +700,12 @@ async function iniciarEscaneo() {
             },
             () => { /* ignore */ }
         );
+        
+        // --- Corregir orientación si el video sale girado ---
+        // En algunos dispositivos Android, la cámara trasera entrega el video
+        // en landscape (horizontal) en lugar de portrait. Detectamos esto y
+        // aplicamos una rotación CSS para que se vea correctamente.
+        setTimeout(() => corregirRotacionCamara(), 500);
         
         escaneando = true;
     } catch (err) {
@@ -728,6 +732,56 @@ async function iniciarEscaneo() {
         btn.textContent = '📷 Escanear QR';
         escaneando = false;
     }
+}
+
+// ====== CORREGIR ROTACIÓN DE CÁMARA ======
+// En algunos Android, la cámara trasera entrega el video en horizontal (landscape)
+// aun cuando el dispositivo está en vertical (portrait). Esto hace que el video
+// se vea girado 90°. Detectamos esto aplicamos estilos correctivos directamente.
+function corregirRotacionCamara() {
+    const video = document.querySelector('#qr-reader video');
+    if (!video || !video.videoWidth || !video.videoHeight) {
+        // Reintentar hasta que el video tenga dimensiones
+        setTimeout(() => corregirRotacionCamara(), 300);
+        return;
+    }
+    
+    // Solo corregir si el dispositivo está en vertical (portrait) 
+    // y el video viene en horizontal (landscape)
+    const esPortrait = window.innerHeight > window.innerWidth;
+    if (!esPortrait) return;
+    if (video.videoWidth <= video.videoHeight) return;
+    
+    console.log('📷 Corrigiendo rotación — video ' + video.videoWidth + 'x' + video.videoHeight);
+    
+    const container = document.getElementById('qr-reader');
+    if (!container) return;
+    
+    // Ajustar contenedor a formato portrait
+    container.style.aspectRatio = '3 / 4';
+    container.style.maxHeight = '75vh';
+    container.style.overflow = 'hidden';
+    
+    // Calcular escala: después de rotar 90°, el alto del video pasa a ser
+    // el ancho en pantalla. Queremos que el video rotado llene el contenedor.
+    // video.videoHeight es el alto nativo del video sin rotar.
+    // Tras rotar, ese alto se convierte en el ancho visual.
+    const contAncho = container.offsetWidth;
+    const escala = contAncho / video.videoHeight;
+    
+    // Aplicar estilos inline directo al video
+    video.style.position = 'absolute';
+    video.style.top = '50%';
+    video.style.left = '50%';
+    video.style.width = '100%';
+    video.style.height = 'auto';
+    video.style.minWidth = 'auto';
+    video.style.minHeight = 'auto';
+    video.style.maxWidth = 'none';
+    video.style.maxHeight = 'none';
+    video.style.objectFit = 'cover';
+    video.style.transform = `translate(-50%, -50%) rotate(90deg) scale(${escala})`;
+    video.style.transformOrigin = 'center center';
 }
 
 async function procesarQR(qrData, resultadoDiv) {
