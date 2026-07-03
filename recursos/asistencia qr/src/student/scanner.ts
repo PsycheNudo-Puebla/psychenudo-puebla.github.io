@@ -379,3 +379,4 @@ async function calcularVentanaAlumno(grupoId: string): Promise<string> {
 
 // Exponer globalmente para onclick HTML
 (window as any).iniciarEscaneo = iniciarEscaneo;
+

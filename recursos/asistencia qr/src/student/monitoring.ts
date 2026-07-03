@@ -25,13 +25,14 @@ let _btnConfirmarMostrado = false;
 let _tipoAsistenciaActual: string | null = null;
 
 // ====== AUTO-REENTRADA ======
+
 export async function autoReanudarMonitoreo(userId: string): Promise<boolean> {
   if (monitoreoActivo) return true;
   try {
     const hoy = new Date().toISOString().split('T')[0];
     const { data: pendiente } = await supabase
       .from('asistencia')
-      .select('id, grupo_id')
+      .select('id, grupo_id, tipo_asistencia')
       .eq('alumno_id', userId)
       .eq('fecha', hoy)
       .eq('confirmada', false)
@@ -46,8 +47,33 @@ export async function autoReanudarMonitoreo(userId: string): Promise<boolean> {
       .maybeSingle();
     if (!grupo) return false;
 
+    // Verificar si la sesión de clase sigue activa
+    const { data: sesion } = await supabase
+      .from('sesiones_clase')
+      .select('activa')
+      .eq('grupo_id', pendiente.grupo_id)
+      .eq('activa', true)
+      .maybeSingle();
+
+    if (!sesion) {
+      // Clase terminada — si es sin_derecho, auto-confirmar y salir
+      if (pendiente.tipo_asistencia === 'sin_derecho') {
+        await supabase
+          .from('asistencia')
+          .update({ confirmada: true })
+          .eq('id', pendiente.id);
+        return false;
+      }
+      // Para otros casos, no auto-reanudar: el banner en dashboard
+      // le permitirá confirmar manualmente
+      return false;
+    }
+
     document.getElementById('login-view')!.classList.add('hidden');
     document.getElementById('dashboard-view')!.classList.add('hidden');
+
+    // Recuperar el tipo de asistencia desde la BD
+    _tipoAsistenciaActual = pendiente.tipo_asistencia;
 
     iniciarMonitoreo(pendiente.id, pendiente.grupo_id, grupo.nombre, grupo.limite_salidas ?? 3);
     return true;
@@ -96,15 +122,37 @@ export async function revisarAsistenciaPendiente(): Promise<void> {
     (window as any)._pendienteLimite = limite;
     (window as any)._pendienteCambios = cambiosActuales;
 
-    banner.innerHTML = `
-      <div style="background:#fff8e1; border:1px solid #ffe082; border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-        <div style="font-size:1.5em;">⏳</div>
-        <div style="flex:1; min-width:150px;">
-          <strong style="color:#e65100;">Tienes una asistencia en curso</strong>
-          <br><small style="color:#666;">${escHTML(grupo.nombre)} — Cambios: ${cambiosActuales}/${limite}</small>
-        </div>
-        <button onclick="window.reanudarMonitoreo()" class="btn-primary" style="background:#e65100; white-space:nowrap; font-size:0.9em;">🔁 Reanudar monitoreo</button>
-      </div>`;
+    // Verificar si la sesión sigue activa
+    const { data: sesion } = await supabase
+      .from('sesiones_clase')
+      .select('activa')
+      .eq('grupo_id', asistenciaPendiente.grupo_id)
+      .eq('activa', true)
+      .maybeSingle();
+
+    if (sesion) {
+      // Sesión activa → ofrecer reanudar monitoreo
+      banner.innerHTML = `
+        <div style="background:#fff8e1; border:1px solid #ffe082; border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <div style="font-size:1.5em;">⏳</div>
+          <div style="flex:1; min-width:150px;">
+            <strong style="color:#e65100;">Tienes una asistencia en curso</strong>
+            <br><small style="color:#666;">${escHTML(grupo.nombre)} — Cambios: ${cambiosActuales}/${limite}</small>
+          </div>
+          <button onclick="window.reanudarMonitoreo()" class="btn-primary" style="background:#e65100; white-space:nowrap; font-size:0.9em;">🔁 Reanudar monitoreo</button>
+        </div>`;
+    } else {
+      // Clase terminada → ofrecer confirmar directamente
+      banner.innerHTML = `
+        <div style="background:#e3f2fd; border:1px solid #90caf9; border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <div style="font-size:1.5em;">⏰</div>
+          <div style="flex:1; min-width:150px;">
+            <strong style="color:#1565c0;">Clase terminada</strong>
+            <br><small style="color:#666;">${escHTML(grupo.nombre)} — Confirma tu asistencia pendiente</small>
+          </div>
+          <button onclick="window.confirmarAsistenciaPendiente('${asistenciaPendiente.id}')" class="btn-primary" style="background:#1565c0; white-space:nowrap; font-size:0.9em;">✅ Confirmar asistencia</button>
+        </div>`;
+    }
     banner.classList.remove('hidden');
   } catch (e) {
     console.warn('Error al revisar asistencia pendiente:', e);
@@ -114,6 +162,16 @@ export async function revisarAsistenciaPendiente(): Promise<void> {
 export function reanudarMonitoreo(): void {
   const w = window as any;
   if (w._pendienteAsistenciaId) {
+    // Recuperar tipo_asistencia desde la BD al reanudar desde el banner
+    supabase
+      .from('asistencia')
+      .select('tipo_asistencia')
+      .eq('id', w._pendienteAsistenciaId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) _tipoAsistenciaActual = data.tipo_asistencia;
+      });
+
     iniciarMonitoreo(
       w._pendienteAsistenciaId,
       w._pendienteGrupoId,
@@ -159,6 +217,7 @@ export function iniciarMonitoreo(
   const btnConfirmar = document.getElementById('btn-confirmar-asistencia') as HTMLButtonElement;
   btnConfirmar.style.display = 'none';
   document.getElementById('espera-confirmar')!.style.display = '';
+  document.getElementById('btn-salir-monitoreo')!.style.display = '';  // ← Siempre visible
   (window as any)._btnConfirmarMostrado = false;
 
   // Obtener horario de hoy
@@ -286,23 +345,34 @@ export function iniciarMonitoreo(
       clearInterval(monitorInterval!);
       monitorInterval = null;
       const mins = (new Date().getTime() - _inicioMonitoreo) / 60000;
-      if (!_btnConfirmarMostrado && mins >= 1 && _tipoAsistenciaActual !== 'sin_derecho') {
-        _btnConfirmarMostrado = true;
-        document.getElementById('btn-confirmar-asistencia')!.style.display = '';
-        document.getElementById('espera-confirmar')!.style.display = 'none';
-      } else if (_tipoAsistenciaActual === 'sin_derecho') {
-        document.getElementById('espera-confirmar')!.style.display = 'none';
-      }
-      const st = document.getElementById('monitor-estado')!;
+
       if (_tipoAsistenciaActual === 'sin_derecho') {
-        st.innerHTML = '⏰ <strong>Clase terminada.</strong> No registraste asistencia por llegar tarde.';
+        document.getElementById('espera-confirmar')!.style.display = 'none';
+        // Auto-confirmar asistencia sin derecho porque la clase terminó
+        if (asistenciaActualId) {
+          await supabase
+            .from('asistencia')
+            .update({ confirmada: true })
+            .eq('id', asistenciaActualId);
+        }
+        const st = document.getElementById('monitor-estado')!;
+        st.innerHTML = '⏰ <strong>Clase terminada.</strong> Asistencia registrada como ausencia.';
         st.style.background = '#ffebee';
         st.style.color = '#c62828';
       } else {
+        if (!_btnConfirmarMostrado && mins >= 1) {
+          _btnConfirmarMostrado = true;
+          document.getElementById('btn-confirmar-asistencia')!.style.display = '';
+          document.getElementById('espera-confirmar')!.style.display = 'none';
+        }
+        const st = document.getElementById('monitor-estado')!;
         st.innerHTML = '⏰ <strong>Clase terminada.</strong> Confirma tu asistencia.';
+        st.style.background = '#e3f2fd';
+        st.style.color = '#1565c0';
       }
-      st.style.background = '#e3f2fd';
-      st.style.color = '#1565c0';
+
+      // Mostrar botón de salir cuando la clase termina
+      document.getElementById('btn-salir-monitoreo')!.style.display = '';
     }
 
     // 3. Sincronizar cambios_pantalla desde BD
@@ -506,6 +576,40 @@ function mostrarConfirmada(): void {
   }, 2000);
 }
 
+// ====== SALIR DEL MONITOREO ======
+export function salirMonitoreo(): void {
+  detenerMonitoreo();
+  document.getElementById('monitor-view')!.classList.add('hidden');
+  document.getElementById('dashboard-view')!.classList.remove('hidden');
+  cargarGrupos();
+}
+
+// ====== CONFIRMAR DESDE BANNER (CLASE TERMINADA) ======
+export async function confirmarAsistenciaPendiente(asistenciaId: string): Promise<void> {
+  const { data: a } = await supabase
+    .from('asistencia')
+    .select('id')
+    .eq('id', asistenciaId)
+    .eq('confirmada', false)
+    .maybeSingle();
+  if (!a) return;
+
+  await supabase
+    .from('asistencia')
+    .update({ confirmada: true })
+    .eq('id', asistenciaId);
+
+  const banner = document.getElementById('reanudar-banner');
+  if (banner) {
+    banner.innerHTML = `
+      <div style="background:#e8f5e9; border:1px solid #a5d6a7; border-radius:12px; padding:14px 16px; text-align:center;">
+        ✅ <strong style="color:#2e7d32;">Asistencia confirmada</strong>
+      </div>`;
+  }
+  mostrarToast('✅ Asistencia confirmada correctamente', 'exito');
+  cargarGrupos();
+}
+
 // ====== HELPERS ======
 function escHTML(s: string): string {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -515,3 +619,5 @@ function escHTML(s: string): string {
 (window as any).reanudarMonitoreo = reanudarMonitoreo;
 (window as any).confirmarAsistencia = confirmarAsistencia;
 (window as any).sincronizarContador = sincronizarContador;
+(window as any).salirMonitoreo = salirMonitoreo;
+(window as any).confirmarAsistenciaPendiente = confirmarAsistenciaPendiente;
