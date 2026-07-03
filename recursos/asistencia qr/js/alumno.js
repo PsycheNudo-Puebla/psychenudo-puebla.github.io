@@ -226,11 +226,13 @@ async function verificarYcargarAlumno(user) {
     
     alumnoActual = data;
     document.getElementById('alumno-nombre').textContent = `Hola, ${data.nombre}`;
+    
+    // AUTO-REENTRADA: si hay asistencia sin confirmar hoy, va directo a monitoreo
+    if (await autoReanudarMonitoreo(alumnoActual.id)) return;
+    
     document.getElementById('login-view').classList.add('hidden');
     document.getElementById('dashboard-view').classList.remove('hidden');
     
-    // No recargar grupos si el alumno está en monitoreo activo
-    if (monitoreoActivo) return;
     cargarGrupos();
 }
 
@@ -322,16 +324,21 @@ async function cargarDatosAlumno(user, intentos = 0) {
     
     alumnoActual = data;
     document.getElementById('alumno-nombre').textContent = `Hola, ${data.nombre}`;
+    
+    // AUTO-REENTRADA: si hay asistencia sin confirmar hoy, va directo a monitoreo
+    if (await autoReanudarMonitoreo(alumnoActual.id)) return;
+    
     document.getElementById('login-view').classList.add('hidden');
     document.getElementById('dashboard-view').classList.remove('hidden');
     
-    // No recargar grupos si el alumno está en monitoreo activo
-    if (monitoreoActivo) return;
     cargarGrupos();
 }
 
 // ====== GESTIÓN DE GRUPOS INSCRITOS ======
 async function cargarGrupos() {
+    // Verificar si hay asistencia pendiente para mostrar banner de reanudar
+    revisarAsistenciaPendiente();
+    
     // Obtener los grupos a los que el alumno está inscrito
     const { data: inscripciones, error: inscError } = await supabaseClient
         .from('grupo_alumnos')
@@ -371,12 +378,48 @@ async function cargarGrupos() {
             </div>
         </div>
     `).join('');
-    
-    // Revisar si hay una asistencia pendiente (no confirmada) y mostrar banner
-    revisarAsistenciaPendiente();
 }
 
-// ====== REANUDAR MONITOREO (si se salió de la pantalla de espera) ======
+// ====== AUTO-REENTRADA A MONITOREO ======
+// Revisa si hay una asistencia SIN CONFIRMAR hoy y reanuda el monitoreo automáticamente
+async function autoReanudarMonitoreo(userId) {
+    if (monitoreoActivo) return true;
+    
+    try {
+        const hoy = new Date().toISOString().split('T')[0];
+        const { data: pendiente, error } = await supabaseClient
+            .from('asistencia')
+            .select('id, grupo_id')
+            .eq('alumno_id', userId)
+            .eq('fecha', hoy)
+            .eq('confirmada', false)
+            .maybeSingle();
+        
+        if (error || !pendiente) return false;
+        
+        const { data: grupo } = await supabaseClient
+            .from('grupos')
+            .select('nombre, limite_salidas')
+            .eq('id', pendiente.grupo_id)
+            .maybeSingle();
+        
+        if (!grupo) return false;
+        
+        // Ir directo a monitoreo SIN mostrar dashboard
+        document.getElementById('login-view').classList.add('hidden');
+        document.getElementById('dashboard-view').classList.add('hidden');
+        
+        iniciarMonitoreo(pendiente.id, pendiente.grupo_id, grupo.nombre, grupo.limite_salidas ?? 3);
+        // NOTA: cargarContadorExistente() dentro de iniciarMonitoreo() restaura cambios_pantalla desde la DB
+        
+        return true;
+    } catch (e) {
+        console.warn('Error en autoReanudarMonitoreo:', e);
+        return false;
+    }
+}
+
+// ====== REANUDAR MONITOREO (banner manual en dashboard) ======
 async function revisarAsistenciaPendiente() {
     const banner = document.getElementById('reanudar-banner');
     if (!banner) return;
