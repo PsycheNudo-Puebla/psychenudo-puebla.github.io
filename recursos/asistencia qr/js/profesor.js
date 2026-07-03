@@ -2047,7 +2047,8 @@ async function iniciarMonitoreoProfesor(grupoId, sesionId, perdonesMax) {
         supabaseClient.removeChannel(monitorProfChannel);
     }
     
-    monitorProfChannel = supabaseClient.channel('monitor-prof-' + grupoId)
+    const canalProfId = 'monitor-prof-' + grupoId + '-' + Date.now();
+    monitorProfChannel = supabaseClient.channel(canalProfId)
         .on('postgres_changes',
             { event: '*', schema: 'public', table: 'asistencia', filter: `grupo_id=eq.${grupoId}` },
             async (payload) => {
@@ -2057,7 +2058,34 @@ async function iniciarMonitoreoProfesor(grupoId, sesionId, perdonesMax) {
                 await cargarAsistenciasActivas();
             }
         )
-        .subscribe();
+        .subscribe((status, err) => {
+            if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+                console.warn('⚠️ Canal profesor se desconectó, reconectando en 3s...', status, err);
+                setTimeout(() => {
+                    if (monitorGrupoId) {
+                        try {
+                            if (monitorProfChannel) supabaseClient.removeChannel(monitorProfChannel);
+                            const nuevoCanalId = 'monitor-prof-' + monitorGrupoId + '-' + Date.now();
+                            monitorProfChannel = supabaseClient.channel(nuevoCanalId)
+                                .on('postgres_changes',
+                                    { event: '*', schema: 'public', table: 'asistencia', filter: `grupo_id=eq.${monitorGrupoId}` },
+                                    async (payload) => {
+                                        const fechaHoy = new Date().toISOString().split('T')[0];
+                                        const fecha2 = payload.new?.fecha || payload.old?.fecha;
+                                        if (fecha2 !== fechaHoy) return;
+                                        await cargarAsistenciasActivas();
+                                    }
+                                )
+                                .subscribe();
+                        } catch(e) {
+                            console.warn('⚠️ Error al reconectar canal profesor:', e);
+                        }
+                    }
+                }, 3000);
+            } else if (status === 'SUBSCRIBED') {
+                console.log('✅ Canal profesor conectado:', canalProfId);
+            }
+        });
 
     // Polling de respaldo: refresca cada 3s por si la suscripción en tiempo real falla
     // Usamos setTimeout recursivo con await y try-catch para evitar que errores silenciosos maten el ciclo
@@ -2112,6 +2140,9 @@ async function cargarAsistenciasActivas() {
             document.getElementById('monitoreo-alumnos-count').textContent = '0';
             return;
         }
+        
+        // Ordenar alfabéticamente por nombre del alumno
+        asistencias.sort((a, b) => (a.alumnos?.nombre || '').localeCompare(b.alumnos?.nombre || '', 'es'));
         
         document.getElementById('monitoreo-alumnos-count').textContent = asistencias.length;
         

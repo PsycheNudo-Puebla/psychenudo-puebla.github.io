@@ -818,10 +818,11 @@ async function iniciarEscaneo() {
     try {
         html5QrCode = new Html5Qrcode("qr-reader");
         
-        // --- Configuración simple de cámara trasera ---
+        // --- Configuración de cámara trasera (25fps para escaneo más rápido) ---
+        const ancho = Math.min(window.innerWidth * 0.6, 320);
         await html5QrCode.start(
             { facingMode: "environment" },
-            { fps: 10, qrbox: { width: 250, height: 250 } },
+            { fps: 25, qrbox: { width: ancho, height: ancho } },
             async (decodedText) => {
                 await html5QrCode.stop();
                 lectorDiv.classList.add('hidden');
@@ -1185,6 +1186,7 @@ async function calcularVentanaAlumno(grupoId) {
 
 // ====== MONITOREO DE ASISTENCIA ======
 let cambioEnProgreso = false;
+let ultimoCambioTimestamp = 0; // para debounce de blur+visibilitychange
 let monitorInterval = null;
 
 function iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite) {
@@ -1251,8 +1253,11 @@ function iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite) {
         });
     
     // Canal en tiempo real para detectar perdón
+    // Usamos un nombre único por alumno para evitar conflictos entre dispositivos
+    const canalId = 'monitor-alumno-' + asistenciaId;
+    if (monitorChannel) supabaseClient.removeChannel(monitorChannel);
     monitorChannel = supabaseClient
-        .channel('monitor-asistencia')
+        .channel(canalId)
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'asistencia', filter: `id=eq.${asistenciaId}` }, (payload) => {
             if (payload.new.perdonada && !payload.new.confirmada) {
                 const st = document.getElementById('monitor-estado');
@@ -1271,6 +1276,30 @@ function iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite) {
                 console.log('✅ Canal de monitoreo conectado');
             } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
                 console.warn('⚠️ Canal de monitoreo:', status, err);
+                // Reintentar suscripción tras 5s si hay error
+                setTimeout(() => {
+                    if (monitoreoActivo && asistenciaActualId) {
+                        try {
+                            if (monitorChannel) supabaseClient.removeChannel(monitorChannel);
+                            monitorChannel = supabaseClient.channel(canalId)
+                                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'asistencia', filter: `id=eq.${asistenciaActualId}` }, (payload) => {
+                                    if (payload.new.perdonada && !payload.new.confirmada) {
+                                        document.getElementById('monitor-estado').innerHTML = '🙏 <strong>¡Perdonado!</strong> Ya puedes confirmar.';
+                                        document.getElementById('monitor-estado').style.background = '#e8f5e9';
+                                        document.getElementById('monitor-estado').style.color = '#2e7d32';
+                                        if (!window._btnConfirmarMostrado) {
+                                            window._btnConfirmarMostrado = true;
+                                            document.getElementById('btn-confirmar-asistencia').style.display = '';
+                                            document.getElementById('espera-confirmar').style.display = 'none';
+                                        }
+                                    }
+                                })
+                                .subscribe();
+                        } catch(e) {
+                            console.warn('⚠️ Error al reintentar canal:', e);
+                        }
+                    }
+                }, 5000);
             }
         });
     
@@ -1349,15 +1378,24 @@ async function cargarContadorExistente() {
 
 function manejarVisibilidad() {
     if (document.visibilityState === 'hidden' && monitoreoActivo && !cambioEnProgreso) {
+        const ahora = Date.now();
+        if (ahora - ultimoCambioTimestamp < 2000) return; // debounce 2s: evitar duplicado con blur
         incrementarCambio();
     }
 }
 function manejarBlur() {
-    if (monitoreoActivo && !cambioEnProgreso) incrementarCambio();
+    if (monitoreoActivo && !cambioEnProgreso) {
+        const ahora = Date.now();
+        if (ahora - ultimoCambioTimestamp < 2000) return; // debounce 2s: evitar duplicado con visibilitychange
+        incrementarCambio();
+    }
 }
 
 async function incrementarCambio() {
     if (!asistenciaActualId || cambiosContador >= cambiosLimite) return;
+    const ahora = Date.now();
+    if (ahora - ultimoCambioTimestamp < 2000) return; // doble guardia por si acaso
+    ultimoCambioTimestamp = ahora;
     cambioEnProgreso = true;
     cambiosContador++;
     await supabaseClient.from('asistencia').update({ cambios_pantalla: cambiosContador, ultimo_cambio: new Date().toISOString() }).eq('id', asistenciaActualId);
