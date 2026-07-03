@@ -95,7 +95,7 @@ export async function handleResetPassword(e: Event): Promise<void> {
   }
   try {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + '/recursos/asistencia%20qr/alumno.html',
+      redirectTo: window.location.origin + '/recursos/asistencia-qr/alumno.html',
     });
     if (error) {
       mostrarToast('Error: ' + error.message, 'error');
