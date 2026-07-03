@@ -20,6 +20,12 @@ Env/
 node_modules/
 dist/
 *.tsbuildinfo
+
+# ==========================================
+# QR App - producción compilada (autogenerado)
+# ==========================================
+recursos/asistencia qr/assets/
+recursos/asistencia qr/deploy/
 ENV/
 
 # ==========================================

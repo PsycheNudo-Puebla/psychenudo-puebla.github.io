@@ -1,0 +1,67 @@
+# ============================================================
+# GitHub Action: Build & Deploy Asistencia QR
+# Se activa al hacer push a main cuando cambian archivos de la app
+# 1. Compila TypeScript con Vite
+# 2. Actualiza HTMLs + assets para producción
+# 3. Hace commit automático [skip ci]
+# ============================================================
+name: Deploy QR App
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'recursos/asistencia qr/src/**'
+      - 'recursos/asistencia qr/*.html'
+      - 'recursos/asistencia qr/package.json'
+      - 'recursos/asistencia qr/package-lock.json'
+      - 'recursos/asistencia qr/vite.config.ts'
+      - 'recursos/asistencia qr/tsconfig.json'
+      - 'recursos/asistencia qr/public/**'
+      - '.github/workflows/deploy-qr.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: recursos/asistencia qr
+
+    steps:
+      - name: Checkout repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'recursos/asistencia qr/package-lock.json'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Compilar TypeScript con Vite
+        run: npm run build
+
+      - name: Copiar archivos de producción a la raíz
+        run: |
+          cp dist/index.html index.html
+          cp dist/profesor.html profesor.html
+          cp dist/alumno.html alumno.html
+          rm -rf assets
+          cp -r dist/assets assets/
+          cp dist/js/qrcode.min.js js/qrcode.min.js
+
+      - name: Commit automático con [skip ci]
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "deploy: build assets [skip ci]"
+          file_pattern: |
+            recursos/asistencia qr/index.html
+            recursos/asistencia qr/profesor.html
+            recursos/asistencia qr/alumno.html
+            recursos/asistencia qr/assets/
+            recursos/asistencia qr/js/qrcode.min.js
