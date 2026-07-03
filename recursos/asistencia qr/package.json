@@ -1,6 +1,6 @@
 {
   "name": "asistencia-qr",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Sistema de Asistencia QR — Profesores y Alumnos",
   "type": "module",
   "scripts": {
