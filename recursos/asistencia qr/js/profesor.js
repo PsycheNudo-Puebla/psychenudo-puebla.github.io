@@ -1350,7 +1350,11 @@ async function verGrupo(grupoId) {
             .order('fecha', { ascending: false })
     ]);
     
-    const alumnos = alumnosRes.data || [];
+    const alumnos = (alumnosRes.data || []).sort((a, b) => {
+        const na = (a.alumnos?.nombre || a.alumnos?.email || '').toLowerCase();
+        const nb = (b.alumnos?.nombre || b.alumnos?.email || '').toLowerCase();
+        return na.localeCompare(nb, 'es');
+    });
     const asistencias = asistenciasRes.data || [];
     
     // Indexar asistencias por alumno_id
@@ -1389,6 +1393,7 @@ async function verGrupo(grupoId) {
     store._asistenciasPorAlumno = asistenciasPorAlumno;
     store._todasAsistencias = asistencias;
     store._todasFechas = todasFechas;
+    store._grupoId = grupoId;
     
     // Vincular búsqueda al filtro
     document.getElementById('ver-buscar-alumno').oninput = function() {
@@ -1494,6 +1499,13 @@ function renderVerGrupo() {
                 <strong style="color:#7b1fa2;">${totalPantalla}</strong>
                 <small>📱 Pantalla</small>
             </div>
+        </div>
+        
+        <!-- Botón para resetear contadores de pantalla de HOY -->
+        <div style="text-align:right; margin-bottom:12px;">
+            <button onclick="resetearContadoresHoy()" class="btn-secondary" style="font-size:0.8em; padding:6px 14px; background:#fff3e0; color:#e65100; border:1px solid #ffe0b2;">
+                🔄 Resetear contadores de pantalla (hoy)
+            </button>
         </div>`;
     
     if (fechas.length === 0) {
@@ -2236,6 +2248,47 @@ async function reabrirMonitoreo(grupoId) {
 }
 
 const DIAS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
+// ====== RESETEAR CONTADORES DE PANTALLA (HOY) ======
+async function resetearContadoresHoy() {
+    const store = document.getElementById('ver-filtro-alumno');
+    const grupoId = store._grupoId;
+    if (!grupoId) {
+        mostrarToast('No hay grupo seleccionado.', 'error');
+        return;
+    }
+    
+    if (!confirm('¿Resetear contadores de pantalla a 0 para TODOS los alumnos de hoy?\n\nEsto no afecta asistencias previas, solo los cambios de pantalla del día de hoy.')) return;
+    
+    try {
+        const hoy = new Date().toISOString().split('T')[0];
+        const { data: asistenciasHoy, error: buscaError } = await supabaseClient
+            .from('asistencia')
+            .select('id, cambios_pantalla')
+            .eq('grupo_id', grupoId)
+            .eq('fecha', hoy);
+        
+        if (buscaError) throw buscaError;
+        if (!asistenciasHoy || asistenciasHoy.length === 0) {
+            mostrarToast('No hay asistencias registradas hoy.', 'info');
+            return;
+        }
+        
+        const ids = asistenciasHoy.map(a => a.id);
+        const { error: updateError } = await supabaseClient
+            .from('asistencia')
+            .update({ cambios_pantalla: 0 })
+            .in('id', ids);
+        
+        if (updateError) throw updateError;
+        
+        mostrarToast(`✅ Contadores reseteados para ${ids.length} alumno${ids.length > 1 ? 's' : ''}`, 'exito');
+        renderVerGrupo(); // Recargar vista
+    } catch (e) {
+        mostrarToast('Error al resetear contadores: ' + e.message, 'error');
+        console.error('resetearContadoresHoy error:', e);
+    }
+}
 
 // ====== GPS ======
 function obtenerUbicacionActual() {
