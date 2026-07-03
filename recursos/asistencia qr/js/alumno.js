@@ -1364,6 +1364,23 @@ function iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite) {
             }
             st.style.background = '#e3f2fd'; st.style.color = '#1565c0';
         }
+        
+        // 3. Sincronizar cambios_pantalla desde BD (por si el profesor reseteó y el canal Realtime no llegó)
+        if (asistenciaActualId) {
+            try {
+                const { data: s } = await supabaseClient
+                    .from('asistencia')
+                    .select('cambios_pantalla')
+                    .eq('id', asistenciaActualId)
+                    .maybeSingle();
+                if (s && s.cambios_pantalla !== null && s.cambios_pantalla !== cambiosContador) {
+                    cambiosContador = s.cambios_pantalla;
+                    actualizarMonitorUI();
+                }
+            } catch (e) {
+                // fallo de red, ignorar
+            }
+        }
     }, 5000);
     
     // Event listeners para detectar cambios de pantalla
@@ -1372,6 +1389,33 @@ function iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite) {
     
     // Cargar contador existente (por si se reanuda monitoreo)
     cargarContadorExistente();
+}
+
+async function sincronizarContador() {
+    if (!asistenciaActualId) return;
+    try {
+        const { data: s } = await supabaseClient
+            .from('asistencia')
+            .select('cambios_pantalla,perdonada,confirmada')
+            .eq('id', asistenciaActualId)
+            .maybeSingle();
+        if (!s) return;
+        if (s.cambios_pantalla !== null && s.cambios_pantalla !== cambiosContador) {
+            cambiosContador = s.cambios_pantalla;
+            actualizarMonitorUI();
+        }
+        if (s.perdonada && !s.confirmada && !window._btnConfirmarMostrado) {
+            window._btnConfirmarMostrado = true;
+            document.getElementById('monitor-estado').innerHTML = '🙏 <strong>¡Perdonado!</strong> Ya puedes confirmar.';
+            document.getElementById('monitor-estado').style.background = '#e8f5e9';
+            document.getElementById('monitor-estado').style.color = '#2e7d32';
+            document.getElementById('btn-confirmar-asistencia').style.display = '';
+            document.getElementById('espera-confirmar').style.display = 'none';
+        }
+        mostrarToast('✅ Contador sincronizado: ' + cambiosContador + ' cambios', 'exito');
+    } catch (e) {
+        mostrarToast('Error al sincronizar: ' + e.message, 'error');
+    }
 }
 
 function detenerMonitoreo() {
