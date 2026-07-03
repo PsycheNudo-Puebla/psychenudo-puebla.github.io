@@ -9,10 +9,13 @@
     <script src="js/qrcode.min.js"></script>
 
 
-  <link rel="modulepreload" crossorigin href="./assets/utils.D3xCoHTO.BI9e4HiX.BI9e4HiX.js">
-  <link rel="modulepreload" crossorigin href="./assets/utils.D3xCoHTO.Sk7nNYoo.D0F1tr99.js">
-  <script type="module" crossorigin src="./assets/profesor.CecMvEka.js"></script>
-  <link rel="modulepreload" crossorigin href="./assets/utils.D3xCoHTO.Sk7nNYoo.-VcRJST0.js">
+  <link rel="modulepreload" crossorigin href="./assets/utils.D3xCoHTO.BI9e4HiX.BI9e4HiX.BI9e4HiX.js">
+
+  <link rel="modulepreload" crossorigin href="./assets/utils.D3xCoHTO.Sk7nNYoo.D0F1tr99.D0F1tr99.js">
+
+  <link rel="modulepreload" crossorigin href="./assets/utils.D3xCoHTO.Sk7nNYoo.-VcRJST0.CxNNobPN.js">
+  <script type="module" crossorigin src="./assets/profesor.CL4AK4az.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/utils.D3xCoHTO.Sk7nNYoo.-VcRJST0.DVhPM3Bv.js">
   <link rel="stylesheet" crossorigin href="./assets/styles.BwuFExzP.css">
 </head>
 <body>
@@ -164,8 +167,57 @@
                 <hr style="margin: 12px 0; border: none; border-top: 2px solid #f0f0f0;">
                 <label style="font-weight: 600; color:#333; font-size:0.95em; margin-bottom: 4px; display: block;">📅 Horarios de clase</label>
                 <p style="font-size:0.8em; color:#999; margin:0 0 8px;">Agrega uno o más horarios por día. 🟢 puntual → 🟡 retardo → ❌ cerrado.</p>
-                <div id="crear-horarios-dias-container">
-                    <!-- Generado por JS -->
+
+                <!-- Lista de horarios agregados -->
+                <div id="lista-horarios-creados" style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px;">
+                    <span style="color:#999; font-size:0.9em; padding:8px;">No hay horarios agregados.</span>
+                </div>
+
+                <!-- Formulario para agregar nuevo horario -->
+                <div id="crear-horarios-dias-container" style="background:#f8f9ff; border-radius:12px; padding:12px; margin-bottom:8px;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                        <div>
+                            <label style="font-size:0.8em; color:#888;">Día</label>
+                            <select id="nuevo-horario-dia" style="width:100%; padding:9px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;">
+                                <option value="1">Lunes</option>
+                                <option value="2">Martes</option>
+                                <option value="3">Miércoles</option>
+                                <option value="4">Jueves</option>
+                                <option value="5">Viernes</option>
+                                <option value="6">Sábado</option>
+                                <option value="0">Domingo</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:0.8em; color:#888;">Inicio</label>
+                            <input type="time" id="nuevo-horario-inicio" style="width:100%; padding:9px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8em; color:#888;">Fin</label>
+                            <input type="time" id="nuevo-horario-fin" style="width:100%; padding:9px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8em; color:#888;">🟢 Puntual (min)</label>
+                            <input type="number" id="nuevo-horario-puntual" value="10" min="1" max="60" style="width:100%; padding:9px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8em; color:#888;">🟡 Retardo (min)</label>
+                            <input type="number" id="nuevo-horario-retardo" value="20" min="1" max="120" style="width:100%; padding:9px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8em; color:#888;">📍 Radio GPS (m)</label>
+                            <input type="number" id="nuevo-horario-radio" value="50" min="10" max="500" style="width:100%; padding:9px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8em; color:#888;">Latitud</label>
+                            <input type="number" step="any" id="nuevo-horario-lat" placeholder="Opcional" style="width:100%; padding:9px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8em; color:#888;">Longitud</label>
+                            <input type="number" step="any" id="nuevo-horario-lng" placeholder="Opcional" style="width:100%; padding:9px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;">
+                        </div>
+                    </div>
+                    <button type="button" onclick="agregarHorarioFormulario()" style="margin-top:8px; width:100%; padding:10px; background:#e8edf5; border:2px dashed #c0c8e0; border-radius:10px; cursor:pointer; font-size:14px; color:#555;">+ Agregar horario</button>
                 </div>
 
                 <!-- GPS (cada horario puede tener su propia ubicación) -->

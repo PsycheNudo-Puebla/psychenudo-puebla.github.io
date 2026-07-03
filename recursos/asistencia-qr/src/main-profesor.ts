@@ -16,6 +16,7 @@ import {
   cargarGrupos, seleccionarGrupo, volverALista, showCreateGroupModal, cerrarModal,
   crearGrupo, guardarEdicionGrupo, eliminarGrupo, renderCrearHorariosRows,
   agregarHorarioFormulario, eliminarHorarioFormulario, generarNuevoCodigo,
+  mostrarEditarGrupo, actualizarListaHorariosCreados,
 } from '@/professor/groups';
 import { insertarHorario } from '@/professor/groups-horarios';
 import { generarQR, cerrarQR } from '@/professor/qr';
@@ -49,6 +50,8 @@ import {
 
 // Horarios
 (window as any).insertarHorario = insertarHorario;
+(window as any).mostrarEditarGrupo = mostrarEditarGrupo;
+(window as any).actualizarListaHorariosCreados = actualizarListaHorariosCreados;
 
 // QR
 (window as any).generarQR = generarQR;
