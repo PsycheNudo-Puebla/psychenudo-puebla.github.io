@@ -12,6 +12,8 @@ import { cargarGrupos } from './dashboard';
 // ---- Estado global del alumno ----
 export let alumnoActual: Alumno | null = null;
 export let monitoreoActivo = false;
+// Bandera que evita que SIGNED_OUT durante la inicialización cierre la sesión
+let authReady = false;
 
 // ---- Inicialización ----
 export async function initAlumnoAuth(): Promise<void> {
@@ -19,6 +21,7 @@ export async function initAlumnoAuth(): Promise<void> {
   if (session) {
     await cargarDatosAlumno(session.user);
   }
+  authReady = true;
 }
 
 // Escuchar cambios de autenticación
@@ -27,6 +30,10 @@ supabase.auth.onAuthStateChange((event, session) => {
   if (event === 'SIGNED_IN' && session) {
     cargarDatosAlumno(session.user);
   } else if (event === 'SIGNED_OUT') {
+    // Al recargar la página, Supabase puede emitir SIGNED_OUT durante la
+    // inicialización aunque la sesión siga activa. Ignoramos SIGNED_OUT
+    // hasta que authReady = true (initAlumnoAuth ya terminó).
+    if (!authReady) return;
     mostrarLogin();
   }
 });

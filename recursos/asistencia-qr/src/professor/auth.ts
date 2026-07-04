@@ -9,6 +9,8 @@ import { detenerAutoScheduler, iniciarAutoQrChecker } from './qr';
 
 // ---- Estado ----
 export let estaIniciandoSesion = false;
+// Bandera que evita que SIGNED_OUT durante la inicialización cierre la sesión
+let authReady = false;
 
 // ---- INICIALIZACIÓN AL CARGAR PÁGINA ----
 export async function initProfesorAuth(): Promise<void> {
@@ -21,13 +23,22 @@ export async function initProfesorAuth(): Promise<void> {
       document.getElementById('dashboard-view')!.classList.remove('hidden');
       cargarGrupos();
       iniciarAutoQrChecker();
+      authReady = true;
+      return;
     }
   }
+  // Sin sesión: aseguramos que se vea la pantalla de login
+  authReady = true;
+  mostrarLogin();
 }
 
 // Escuchar cambios de autenticación (cierre de sesión en otra pestaña, etc.)
 supabase.auth.onAuthStateChange((event, session) => {
   if (event === 'SIGNED_OUT') {
+    // Al recargar la página, Supabase puede emitir SIGNED_OUT durante la
+    // inicialización aunque la sesión siga activa. Ignoramos SIGNED_OUT
+    // hasta que authReady = true (initProfesorAuth ya terminó).
+    if (!authReady) return;
     mostrarLogin();
   } else if (event === 'SIGNED_IN' && session?.user) {
     // Si ya estamos en dashboard, no re-inicializar
@@ -40,6 +51,7 @@ supabase.auth.onAuthStateChange((event, session) => {
         cargarGrupos();
         iniciarAutoQrChecker();
       }
+      authReady = true;
     });
   }
 });
