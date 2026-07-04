@@ -143,6 +143,32 @@ export async function restablecerPassword(email: string): Promise<{ success: boo
   return { success: true };
 }
 
+// ---- RESTAURAR SESIÓN PROFESOR (al recargar página) ----  
+export async function restaurarSesionProfesor(userId: string): Promise<boolean> {
+  const { data: perfil } = await supabase
+    .from('profesores')
+    .select('*')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (!perfil) return false;
+  profesorActual = perfil;
+  return true;
+}
+
+// ---- RESTAURAR SESIÓN ALUMNO (al recargar página) ----
+export async function restaurarSesionAlumno(userId: string): Promise<boolean> {
+  const { data: perfil } = await supabase
+    .from('alumnos')
+    .select('*')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (!perfil) return false;
+  alumnoActual = perfil;
+  return true;
+}
+
 // ---- VERIFICAR SESIÓN ACTIVA (para operaciones críticas) ----
 export async function verificarSesion(): Promise<boolean> {
   const { data: { session } } = await supabase.auth.getSession();

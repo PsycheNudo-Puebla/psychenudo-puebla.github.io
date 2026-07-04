@@ -3,12 +3,46 @@
 // ============================================================
 import { supabase } from '@/config/supabase';
 import { mostrarToast, setLoading } from '@/config/toaster';
-import { iniciarSesion, cerrarSesion, profesorActual } from '@/shared/auth';
+import { iniciarSesion, cerrarSesion, profesorActual, restaurarSesionProfesor } from '@/shared/auth';
 import { cargarGrupos } from './groups';
 import { detenerAutoScheduler, iniciarAutoQrChecker } from './qr';
 
 // ---- Estado ----
 export let estaIniciandoSesion = false;
+
+// ---- INICIALIZACIÓN AL CARGAR PÁGINA ----
+export async function initProfesorAuth(): Promise<void> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.user) {
+    const ok = await restaurarSesionProfesor(session.user.id);
+    if (ok && profesorActual) {
+      (document.getElementById('profesor-nombre') as HTMLElement).textContent = `Hola, ${profesorActual.nombre}`;
+      document.getElementById('login-view')!.classList.add('hidden');
+      document.getElementById('dashboard-view')!.classList.remove('hidden');
+      cargarGrupos();
+      iniciarAutoQrChecker();
+    }
+  }
+}
+
+// Escuchar cambios de autenticación (cierre de sesión en otra pestaña, etc.)
+supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_OUT') {
+    mostrarLogin();
+  } else if (event === 'SIGNED_IN' && session?.user) {
+    // Si ya estamos en dashboard, no re-inicializar
+    if (profesorActual) return;
+    restaurarSesionProfesor(session.user.id).then(ok => {
+      if (ok && profesorActual) {
+        (document.getElementById('profesor-nombre') as HTMLElement).textContent = `Hola, ${profesorActual.nombre}`;
+        document.getElementById('login-view')!.classList.add('hidden');
+        document.getElementById('dashboard-view')!.classList.remove('hidden');
+        cargarGrupos();
+        iniciarAutoQrChecker();
+      }
+    });
+  }
+});
 
 // ---- HANDLERS DE LOGIN / REGISTRO ----
 export async function handleLogin(e: Event): Promise<void> {

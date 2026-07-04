@@ -27,6 +27,11 @@ w['handleResetPassword'] = auth.handleResetPassword;
 w['handleLogout'] = auth.handleLogout;
 w['showTab'] = auth.showTab;
 
+// Inicializar sesión persistente al cargar
+document.addEventListener('DOMContentLoaded', () => {
+  auth.initProfesorAuth();
+});
+
 // Grupos
 w['cargarGrupos'] = groups.cargarGrupos;
 w['seleccionarGrupo'] = groups.seleccionarGrupo;
