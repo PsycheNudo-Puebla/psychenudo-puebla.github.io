@@ -5,7 +5,7 @@ import { supabase } from '@/config/supabase';
 import { mostrarToast, setLoading } from '@/config/toaster';
 import { iniciarSesion, cerrarSesion, profesorActual } from '@/shared/auth';
 import { cargarGrupos } from './groups';
-import { detenerAutoScheduler } from './qr';
+import { detenerAutoScheduler, iniciarAutoQrChecker } from './qr';
 
 // ---- Estado ----
 export let estaIniciandoSesion = false;
@@ -33,6 +33,7 @@ export async function handleLogin(e: Event): Promise<void> {
       document.getElementById('login-view')!.classList.add('hidden');
       document.getElementById('dashboard-view')!.classList.remove('hidden');
       cargarGrupos();
+      iniciarAutoQrChecker();
     }
   } catch (err: any) {
     console.error('Error en login:', err);

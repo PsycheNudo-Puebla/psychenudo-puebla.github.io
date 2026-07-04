@@ -58,6 +58,17 @@ export async function generarQR(grupoId: string, grupoNombre: string): Promise<v
     }
   } catch { /* sin horarios */ }
 
+  // Si no hay horario hoy, mostrar mensaje y no crear sesión
+  if (!tiempos) {
+    (document.getElementById('qr-timer') as HTMLElement).textContent = '📭 Sin clase hoy';
+    const estadoEl = document.getElementById('qr-estado') as HTMLElement;
+    estadoEl.innerHTML = '<span style="color:#999; font-weight:700;">📭 No hay clase programada para hoy</span>';
+    const msgEl = document.getElementById('qr-mensaje-alumno') as HTMLElement;
+    msgEl.innerHTML = '<small style="color:#999;">Selecciona un día con horario para generar el código QR.</small>';
+    container.innerHTML = '<div style="padding:40px; text-align:center; color:#bbb; font-size:1.2em;">📅<br><small>Sin horario hoy</small></div>';
+    return;
+  }
+
   // Crear sesión
   const codigoSesion = generarCodigo(8);
   const { data: sesion, error } = await supabase
@@ -131,9 +142,7 @@ export async function generarQR(grupoId: string, grupoNombre: string): Promise<v
 
     // Estado
     const estadoEl = document.getElementById('qr-estado') as HTMLElement;
-    if (!tiempos) {
-      estadoEl.textContent = '';
-    } else if (puntualHasta && ahoraMs < puntualHasta.getTime()) {
+    if (puntualHasta && ahoraMs < puntualHasta.getTime()) {
       estadoEl.innerHTML = '<span style="color:#2e7d32; font-weight:700;">🟢 A TIEMPO</span>';
     } else if (retardoHasta && ahoraMs < retardoHasta.getTime()) {
       estadoEl.innerHTML = '<span style="color:#e65100; font-weight:700;">🟡 RETARDO</span>';
@@ -150,6 +159,8 @@ export async function generarQR(grupoId: string, grupoNombre: string): Promise<v
         Sesión: ${codigoSesion} · Horario: ${tiempos.inicio.substring(0, 5)}–${tiempos.fin.substring(0, 5)}
         · Puntual: ${tiempos.puntual}min · Retardo: ${tiempos.retardo}min
       </small>`;
+    } else {
+      msgEl.innerHTML = '';
     }
   }
 
@@ -173,4 +184,72 @@ export function detenerAutoScheduler(): void {
   if (qrInterval) { clearInterval(qrInterval); qrInterval = null; }
   qrSesionId = null;
   qrGrupoId = null;
+}
+
+// ---- AUTO-ABRIR QR cuando es hora de clase ----
+let autoQrInterval: ReturnType<typeof setInterval> | null = null;
+
+export async function autoAbrirQRIfClaseActiva(): Promise<void> {
+  // Limpiar intervalo anterior si existe
+  if (autoQrInterval) { clearInterval(autoQrInterval); autoQrInterval = null; }
+
+  // Si ya hay un QR abierto, no hacer nada
+  if (qrSesionId || !document.getElementById('modal-qr')?.classList.contains('hidden')) return;
+
+  const dashboardVisible = document.getElementById('dashboard-view')?.classList.contains('hidden') === false;
+  if (!dashboardVisible) return;
+
+  try {
+    const { data: grupos } = await supabase
+      .from('grupos')
+      .select('id, nombre')
+      .eq('profesor_id', profesorActual!.id);
+
+    if (!grupos || grupos.length === 0) return;
+
+    const ahora = new Date();
+    const diaHoy = ahora.getDay();
+    const horaStr = ahora.toTimeString().substring(0, 5);
+
+    for (const grupo of grupos) {
+      const { data: horarios } = await supabase
+        .from('horarios')
+        .select('hora_inicio, hora_fin')
+        .eq('grupo_id', grupo.id)
+        .eq('dia_semana', diaHoy);
+
+      if (!horarios || horarios.length === 0) continue;
+
+      for (const h of horarios) {
+        const inicio = h.hora_inicio.substring(0, 5);
+        const fin = h.hora_fin.substring(0, 5);
+        // Si la hora actual está entre el inicio y 5 min después, auto-abrir
+        if (horaStr >= inicio && horaStr <= fin && horaStr < sumarMinutos(inicio, 5)) {
+          await generarQR(grupo.id, grupo.nombre);
+          return;
+        }
+      }
+    }
+  } catch { /* silencioso */ }
+}
+
+function sumarMinutos(hora: string, minutos: number): string {
+  const [h, m] = hora.split(':').map(Number);
+  const total = h * 60 + m + minutos;
+  const nh = Math.floor(total / 60) % 24;
+  const nm = total % 60;
+  return `${nh.toString().padStart(2, '0')}:${nm.toString().padStart(2, '0')}`;
+}
+
+/** Inicia el timer que revisa cada 30s si es hora de clase */
+export function iniciarAutoQrChecker(): void {
+  detenerAutoQrChecker();
+  autoQrInterval = setInterval(() => { autoAbrirQRIfClaseActiva(); }, 30000);
+  // También ejecutar inmediatamente
+  autoAbrirQRIfClaseActiva();
+}
+
+/** Detiene el timer de auto-check */
+export function detenerAutoQrChecker(): void {
+  if (autoQrInterval) { clearInterval(autoQrInterval); autoQrInterval = null; }
 }

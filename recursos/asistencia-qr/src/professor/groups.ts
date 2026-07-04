@@ -8,6 +8,7 @@ import { Grupo, Horario, HorarioFormulario, DIAS_SEMANA } from '@/types';
 import { generarCodigo } from '@/shared/utils';
 import { insertarHorario } from './groups-horarios';
 import { exportarAsistencia, verGrupo } from './reports';
+import { autoAbrirQRIfClaseActiva, iniciarAutoQrChecker } from './qr';
 
 // ---- Variable global de grupos ----
 export let grupoSeleccionadoId: string | null = null;
@@ -63,6 +64,8 @@ export async function cargarGrupos(): Promise<void> {
   `).join('');
 
   data.forEach(g => cargarResumenHorarios(g.id));
+  // Auto-abrir QR si es hora de clase
+  autoAbrirQRIfClaseActiva();
 }
 
 async function cargarResumenHorarios(grupoId: string): Promise<void> {
