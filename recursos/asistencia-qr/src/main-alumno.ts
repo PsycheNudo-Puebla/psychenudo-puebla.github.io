@@ -3,6 +3,7 @@
 // ============================================================
 import '@/config/supabase';
 import '@/config/toaster';
+import '../css/styles.css';
 import { initAlumnoAuth, handleLogin, handleRegister, handleResetPassword, handleLogout, showTab } from '@/student/auth';
 import { setupUnirseGrupoForm, showUnirseGrupoModal, cerrarModalUnirse } from '@/student/dashboard';
 import { confirmarAsistencia, sincronizarContador, salirMonitoreo, confirmarAsistenciaPendiente } from '@/student/monitoring';

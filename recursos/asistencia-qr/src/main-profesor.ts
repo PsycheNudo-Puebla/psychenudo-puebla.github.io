@@ -3,73 +3,78 @@
 // ============================================================
 import '@/config/supabase';
 import '@/config/toaster';
+import '../css/styles.css';
 // QRCode se carga globalmente desde public/js/qrcode.min.js (script tag en HTML)
-import '@/professor/groups';
-import '@/professor/groups-horarios';
-import '@/professor/qr';
-import '@/professor/monitoring';
-import '@/professor/reports';
-import {
-  handleLogin, handleRegister, handleResetPassword, handleLogout, showTab,
-} from '@/professor/auth';
-import {
-  cargarGrupos, seleccionarGrupo, volverALista, showCreateGroupModal, cerrarModal,
-  crearGrupo, guardarEdicionGrupo, eliminarGrupo, renderCrearHorariosRows,
-  agregarHorarioFormulario, eliminarHorarioFormulario, generarNuevoCodigo,
-  mostrarEditarGrupo, actualizarListaHorariosCreados,
-} from '@/professor/groups';
-import { insertarHorario } from '@/professor/groups-horarios';
-import { generarQR, cerrarQR } from '@/professor/qr';
-import { reabrirMonitoreo, detenerMonitoreo, cerrarMonitoreo } from '@/professor/monitoring';
-import {
-  verGrupo, renderVerGrupo, editarNombreAlumno, guardarNombreAlumno,
-  cerrarModalEditarAlumno, cerrarModalVer, exportarAsistencia, resetearContadoresHoy,
-} from '@/professor/reports';
+
+// Usamos import * as namespace para evitar tree-shaking de Vite
+import * as auth from '@/professor/auth';
+import * as groups from '@/professor/groups';
+import * as groupsHorarios from '@/professor/groups-horarios';
+import * as qr from '@/professor/qr';
+import * as monitoring from '@/professor/monitoring';
+import * as reports from '@/professor/reports';
 
 // ---- Exponer funciones globales para onclick/onsubmit en HTML ----
+// NOTA: Usamos (window as any)['name'] en lugar de (window as any).name
+// para evitar que Vite/Rollup tree-shake las asignaciones.
+
+const w = (window as any);
+
 // Auth
-(window as any).handleLogin = handleLogin;
-(window as any).handleRegister = handleRegister;
-(window as any).handleResetPassword = handleResetPassword;
-(window as any).handleLogout = handleLogout;
-(window as any).showTab = showTab;
+w['handleLogin'] = auth.handleLogin;
+w['handleRegister'] = auth.handleRegister;
+w['handleResetPassword'] = auth.handleResetPassword;
+w['handleLogout'] = auth.handleLogout;
+w['showTab'] = auth.showTab;
 
 // Grupos
-(window as any).cargarGrupos = cargarGrupos;
-(window as any).seleccionarGrupo = seleccionarGrupo;
-(window as any).volverALista = volverALista;
-(window as any).showCreateGroupModal = showCreateGroupModal;
-(window as any).cerrarModal = cerrarModal;
-(window as any).crearGrupo = crearGrupo;
-(window as any).guardarEdicionGrupo = guardarEdicionGrupo;
-(window as any).eliminarGrupo = eliminarGrupo;
-(window as any).generarNuevoCodigo = generarNuevoCodigo;
-(window as any).renderCrearHorariosRows = renderCrearHorariosRows;
-(window as any).agregarHorarioFormulario = agregarHorarioFormulario;
-(window as any).eliminarHorarioFormulario = eliminarHorarioFormulario;
+w['cargarGrupos'] = groups.cargarGrupos;
+w['seleccionarGrupo'] = groups.seleccionarGrupo;
+w['volverALista'] = groups.volverALista;
+w['showCreateGroupModal'] = groups.showCreateGroupModal;
+w['cerrarModal'] = groups.cerrarModal;
+w['crearGrupo'] = groups.crearGrupo;
+w['guardarEdicionGrupo'] = groups.guardarEdicionGrupo;
+w['eliminarGrupo'] = groups.eliminarGrupo;
+w['generarNuevoCodigo'] = groups.generarNuevoCodigo;
+w['renderCrearHorariosRows'] = groups.renderCrearHorariosRows;
+w['agregarHorarioFormulario'] = groups.agregarHorarioFormulario;
+w['eliminarHorarioFormulario'] = groups.eliminarHorarioFormulario;
 
-// Horarios
-(window as any).insertarHorario = insertarHorario;
-(window as any).mostrarEditarGrupo = mostrarEditarGrupo;
-(window as any).actualizarListaHorariosCreados = actualizarListaHorariosCreados;
+// Horarios (desde groups-horarios)
+w['insertarHorario'] = groupsHorarios.insertarHorario;
+w['mostrarEditarGrupo'] = groups.mostrarEditarGrupo;
+w['actualizarListaHorariosCreados'] = groups.actualizarListaHorariosCreados;
 
 // QR
-(window as any).generarQR = generarQR;
-(window as any).cerrarQR = cerrarQR;
+w['generarQR'] = qr.generarQR;
+w['cerrarQR'] = qr.cerrarQR;
 
 // Monitoreo
-(window as any).reabrirMonitoreo = reabrirMonitoreo;
-(window as any).detenerMonitoreo = detenerMonitoreo;
-(window as any).cerrarMonitoreo = cerrarMonitoreo;
+w['reabrirMonitoreo'] = monitoring.reabrirMonitoreo;
+w['detenerMonitoreo'] = monitoring.detenerMonitoreo;
+w['cerrarMonitoreo'] = monitoring.cerrarMonitoreo;
 
 // Reportes
-(window as any).verGrupo = verGrupo;
-(window as any).renderVerGrupo = renderVerGrupo;
-(window as any).editarNombreAlumno = editarNombreAlumno;
-(window as any).guardarNombreAlumno = guardarNombreAlumno;
-(window as any).cerrarModalEditarAlumno = cerrarModalEditarAlumno;
-(window as any).cerrarModalVer = cerrarModalVer;
-(window as any).exportarAsistencia = exportarAsistencia;
-(window as any).resetearContadoresHoy = resetearContadoresHoy;
+w['verGrupo'] = reports.verGrupo;
+w['renderVerGrupo'] = reports.renderVerGrupo;
+w['editarNombreAlumno'] = reports.editarNombreAlumno;
+w['guardarNombreAlumno'] = reports.guardarNombreAlumno;
+w['cerrarModalEditarAlumno'] = reports.cerrarModalEditarAlumno;
+w['cerrarModalVer'] = reports.cerrarModalVer;
+w['exportarAsistencia'] = reports.exportarAsistencia;
+w['resetearContadoresHoy'] = reports.resetearContadoresHoy;
+
+// Forzar que Vite NO tree-shake mostrarEditarGrupo y actualizarListaHorariosCreados
+// usando referencias directas + void
+void function asegurarExports(): void {
+  const _mostrarEditarGrupo = groups.mostrarEditarGrupo;
+  const _actualizarListaHorariosCreados = groups.actualizarListaHorariosCreados;
+  Object.defineProperty(window, '__asegurados', {
+    value: { mostrarEditarGrupo: _mostrarEditarGrupo, actualizarListaHorariosCreados: _actualizarListaHorariosCreados },
+    writable: false,
+    configurable: true,
+  });
+}();
 
 console.log('📚 Módulos del profesor cargados');

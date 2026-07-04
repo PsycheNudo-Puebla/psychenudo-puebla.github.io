@@ -7,8 +7,9 @@
 
     <!-- QRCode library (carga global, no ESM) -->
     <script src="js/qrcode.min.js"></script>
-    <link rel="stylesheet" href="css/styles.css">
-    <script type="module" src="./src/main-profesor.ts"></script>
+
+
+  <script type="module" crossorigin src="./src/main-profesor.ts"></script>
 </head>
 <body>
     <!-- VISTA DE LOGIN -->
@@ -127,7 +128,7 @@
     <!-- MODAL: Crear grupo -->
     <div id="modal-crear-grupo" class="modal-overlay hidden" onclick="if(event.target===this) cerrarModal()">
         <div class="modal" style="max-width: 580px;">
-            <h3 id="modal-crear-grupo-title">📚 Crear nuevo grupo</h3>
+            <h2 id="modal-crear-grupo-title">📚 Crear nuevo grupo</h2>
             <form id="form-crear-grupo">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px;">
                     <div style="grid-column: span 2;">
@@ -159,8 +160,57 @@
                 <hr style="margin: 12px 0; border: none; border-top: 2px solid #f0f0f0;">
                 <label style="font-weight: 600; color:#333; font-size:0.95em; margin-bottom: 4px; display: block;">📅 Horarios de clase</label>
                 <p style="font-size:0.8em; color:#999; margin:0 0 8px;">Agrega uno o más horarios por día. 🟢 puntual → 🟡 retardo → ❌ cerrado.</p>
-                <div id="crear-horarios-dias-container">
-                    <!-- Generado por JS -->
+
+                <!-- Lista de horarios agregados -->
+                <div id="lista-horarios-creados" style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px;">
+                    <span style="color:#999; font-size:0.9em; padding:8px;">No hay horarios agregados.</span>
+                </div>
+
+                <!-- Formulario para agregar nuevo horario -->
+                <div id="crear-horarios-dias-container" style="background:#f8f9ff; border-radius:12px; padding:12px; margin-bottom:8px;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                        <div>
+                            <label style="font-size:0.8em; color:#888;">Día</label>
+                            <select id="nuevo-horario-dia" style="width:100%; padding:9px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;">
+                                <option value="1">Lunes</option>
+                                <option value="2">Martes</option>
+                                <option value="3">Miércoles</option>
+                                <option value="4">Jueves</option>
+                                <option value="5">Viernes</option>
+                                <option value="6">Sábado</option>
+                                <option value="0">Domingo</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:0.8em; color:#888;">Inicio</label>
+                            <input type="time" id="nuevo-horario-inicio" style="width:100%; padding:9px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8em; color:#888;">Fin</label>
+                            <input type="time" id="nuevo-horario-fin" style="width:100%; padding:9px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8em; color:#888;">🟢 Puntual (min)</label>
+                            <input type="number" id="nuevo-horario-puntual" value="10" min="1" max="60" style="width:100%; padding:9px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8em; color:#888;">🟡 Retardo (min)</label>
+                            <input type="number" id="nuevo-horario-retardo" value="20" min="1" max="120" style="width:100%; padding:9px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8em; color:#888;">📍 Radio GPS (m)</label>
+                            <input type="number" id="nuevo-horario-radio" value="50" min="10" max="500" style="width:100%; padding:9px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8em; color:#888;">Latitud</label>
+                            <input type="number" step="any" id="nuevo-horario-lat" placeholder="Opcional" style="width:100%; padding:9px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8em; color:#888;">Longitud</label>
+                            <input type="number" step="any" id="nuevo-horario-lng" placeholder="Opcional" style="width:100%; padding:9px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;">
+                        </div>
+                    </div>
+                    <button type="button" onclick="agregarHorarioFormulario()" style="margin-top:8px; width:100%; padding:10px; background:#e8edf5; border:2px dashed #c0c8e0; border-radius:10px; cursor:pointer; font-size:14px; color:#555;">+ Agregar horario</button>
                 </div>
 
                 <!-- GPS (cada horario puede tener su propia ubicación) -->
@@ -178,18 +228,17 @@
     </div>
 
     <!-- MODAL: QR de asistencia -->
-    <div id="modal-qr-asistencia" class="modal-overlay hidden" onclick="if(event.target===this) cerrarQR()">
+    <div id="modal-qr" class="modal-overlay hidden" onclick="if(event.target===this) cerrarQR()">
         <div class="modal modal-qr">
-            <h3 id="qr-modal-titulo">📷 Código QR de Asistencia</h3>
+            <h3>📷 Código QR de Asistencia</h3>
             <p style="color: #666; text-align: center; font-size: 0.9em; margin-bottom: 5px;">
-                Los alumnos deben escanear este código con su celular
+                <strong id="qr-grupo-nombre"></strong> · <span id="qr-timer">⏳ Generando...</span>
             </p>
-            <div id="qr-ventana" class="qr-ventana"></div>
-            <div id="qr-countdown" class="qr-countdown"></div>
+            <p id="qr-estado" style="color: #2e7d32; font-weight:700; text-align: center; font-size: 0.9em; margin-bottom: 10px;"></p>
             <div id="qr-code-container" class="qr-code-container">
                 <div id="qrcode"></div>
             </div>
-            <p id="qr-sesion-info" style="color: #666; text-align: center; font-size: 0.85em;"></p>
+            <p id="qr-mensaje-alumno" style="color: #666; text-align: center; font-size: 0.85em;"></p>
             <div class="modal-buttons" style="flex-direction: column; gap: 8px;">
                 <button onclick="cerrarQR()" class="btn-secondary" style="width: 100%;">Cerrar</button>
             </div>
