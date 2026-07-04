@@ -413,12 +413,12 @@ export function actualizarListaHorariosCreados(): void {
   }
   const diasCorto = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
   lista.innerHTML = horariosFormularioCrear.map((h, i) => `
-    <div style="display:flex; align-items:center; gap:8px; padding:8px 12px; background:white; border:1px solid #e0e4f0; border-radius:8px;">
-      <span style="font-weight:600; min-width:50px;">${diasCorto[h.dia]}</span>
-      <span>${h.inicio.substring(0, 5)} → ${h.fin.substring(0, 5)}</span>
-      <span style="color:#666; font-size:0.85em;">🟢${h.puntual}min 🟡${h.retardo}min</span>
-      ${h.latitud && h.longitud ? '<span title="📍 GPS configurado" style="color:#667eea;">📍</span>' : ''}
-      <button onclick="eliminarHorarioFormulario(${i})" style="margin-left:auto; background:none; border:none; color:#e74c3c; cursor:pointer; font-size:1.2em;">✕</button>
+    <div class="horario-chip">
+      <span class="chip-dia">${diasCorto[h.dia]}</span>
+      <span class="chip-rango">${h.inicio.substring(0, 5)} → ${h.fin.substring(0, 5)}</span>
+      <span class="chip-tolerancias">🟢${h.puntual}min 🟡${h.retardo}min</span>
+      ${h.latitud && h.longitud ? '<span class="chip-gps" title="📍 GPS configurado">📍</span>' : ''}
+      <button onclick="eliminarHorarioFormulario(${i})" class="chip-eliminar">✕</button>
     </div>
   `).join('');
 }

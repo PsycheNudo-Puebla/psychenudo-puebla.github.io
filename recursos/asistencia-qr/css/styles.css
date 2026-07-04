@@ -676,3 +676,125 @@ button:active {
 a, button, input[type="submit"] {
     -webkit-tap-highlight-color: transparent;
 }
+
+/* ====== FORM GRID (3 columnas para horarios) ====== */
+.form-grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px 12px;
+    align-items: start;
+}
+
+.form-grid-3 .field-label {
+    font-size: 0.8em;
+    color: #555;
+    font-weight: 600;
+    margin: 0 0 3px;
+    display: block;
+}
+
+.form-grid-3 input,
+.form-grid-3 select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 14px;
+    box-sizing: border-box;
+    background: white;
+}
+
+.form-grid-3 input:focus,
+.form-grid-3 select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.form-grid-3 .full-width {
+    grid-column: 1 / -1;
+}
+
+.form-grid-3 .gps-btn {
+    width: 100%;
+    padding: 10px;
+    background: #e8f5e9;
+    border: 2px solid #a5d6a7;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #2e7d32;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+.form-grid-3 .gps-btn:hover {
+    background: #c8e6c9;
+}
+
+.form-grid-3 .add-btn {
+    margin-top: 0;
+    width: 100%;
+    padding: 10px;
+    background: #e8edf5;
+    border: 2px dashed #c0c8e0;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #555;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+.form-grid-3 .add-btn:hover {
+    background: #dde3f0;
+}
+
+@media (max-width: 520px) {
+    .form-grid-3 {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* ====== HORARIO CHIP (items de lista) ====== */
+#lista-horarios-creados .horario-chip {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px !important;
+    background: white !important;
+    border: 1px solid #e0e4f0 !important;
+    border-radius: 8px;
+    transition: all 0.15s;
+}
+#lista-horarios-creados .horario-chip:hover {
+    background: #fafbff !important;
+    border-color: #c8d0e8 !important;
+}
+.horario-chip .chip-dia {
+    font-weight: 600;
+    min-width: 50px;
+}
+.horario-chip .chip-rango {
+    font-family: monospace;
+    font-size: 0.9em;
+    color: #333;
+}
+.horario-chip .chip-tolerancias {
+    color: #666 !important;
+    font-size: 0.85em;
+}
+.horario-chip .chip-gps {
+    color: #667eea !important;
+}
+.horario-chip .chip-eliminar {
+    margin-left: auto;
+    background: none;
+    border: none !important;
+    color: #e74c3c !important;
+    cursor: pointer;
+    font-size: 1.2em;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.15s;
+}
+.horario-chip .chip-eliminar:hover {
+    background: #fff0f0;
+}

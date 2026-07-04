@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # Script de despliegue para GitHub Pages
 # Uso: .\deploy.ps1
 # 1. Compila TypeScript con Vite
