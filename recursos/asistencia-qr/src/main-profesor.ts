@@ -35,11 +35,13 @@ w['showCreateGroupModal'] = groups.showCreateGroupModal;
 w['cerrarModal'] = groups.cerrarModal;
 w['crearGrupo'] = groups.crearGrupo;
 w['guardarEdicionGrupo'] = groups.guardarEdicionGrupo;
+w['handleGuardarGrupo'] = groups.handleGuardarGrupo;
 w['eliminarGrupo'] = groups.eliminarGrupo;
 w['generarNuevoCodigo'] = groups.generarNuevoCodigo;
 w['renderCrearHorariosRows'] = groups.renderCrearHorariosRows;
 w['agregarHorarioFormulario'] = groups.agregarHorarioFormulario;
 w['eliminarHorarioFormulario'] = groups.eliminarHorarioFormulario;
+w['obtenerUbicacion'] = groups.obtenerUbicacion;
 
 // Horarios (desde groups-horarios)
 w['insertarHorario'] = groupsHorarios.insertarHorario;
@@ -65,13 +67,20 @@ w['cerrarModalVer'] = reports.cerrarModalVer;
 w['exportarAsistencia'] = reports.exportarAsistencia;
 w['resetearContadoresHoy'] = reports.resetearContadoresHoy;
 
-// Forzar que Vite NO tree-shake mostrarEditarGrupo y actualizarListaHorariosCreados
+// Forzar que Vite NO tree-shake funciones críticas
 // usando referencias directas + void
 void function asegurarExports(): void {
   const _mostrarEditarGrupo = groups.mostrarEditarGrupo;
   const _actualizarListaHorariosCreados = groups.actualizarListaHorariosCreados;
+  const _handleGuardarGrupo = groups.handleGuardarGrupo;
+  const _obtenerUbicacion = groups.obtenerUbicacion;
   Object.defineProperty(window, '__asegurados', {
-    value: { mostrarEditarGrupo: _mostrarEditarGrupo, actualizarListaHorariosCreados: _actualizarListaHorariosCreados },
+    value: {
+      mostrarEditarGrupo: _mostrarEditarGrupo,
+      actualizarListaHorariosCreados: _actualizarListaHorariosCreados,
+      handleGuardarGrupo: _handleGuardarGrupo,
+      obtenerUbicacion: _obtenerUbicacion,
+    },
     writable: false,
     configurable: true,
   });

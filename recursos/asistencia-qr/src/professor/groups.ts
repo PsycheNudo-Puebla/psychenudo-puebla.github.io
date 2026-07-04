@@ -140,14 +140,14 @@ export async function renderDetalleGrupo(grupoId: string): Promise<void> {
   (document.getElementById('detalle-grupo-codigo') as HTMLElement).textContent = grupo.codigo_unico || '---';
 
   cargarDetalleHorarios(grupoId);
-  // Vincular botones
+  // Vincular botones (usar funciones globales expuestas en window para evitar tree-shaking)
   document.getElementById('detalle-btn-qr')!.onclick = () => {
-    const qrModule = (window as any).qrModule;
-    if (qrModule) qrModule.generarQR(grupoId, grupo.nombre);
+    const fn = (window as any)['generarQR'];
+    if (fn) fn(grupoId, grupo.nombre);
   };
   document.getElementById('detalle-btn-monitoreo')!.onclick = () => {
-    const mon = (window as any).monitoreoModule;
-    if (mon) mon.reabrirMonitoreo(grupoId);
+    const fn = (window as any)['reabrirMonitoreo'];
+    if (fn) fn(grupoId);
   };
   document.getElementById('detalle-btn-exportar')!.onclick = () => exportarAsistencia(grupoId, grupo.nombre);
   document.getElementById('detalle-btn-ver')!.onclick = () => verGrupo(grupoId);
@@ -365,6 +365,33 @@ export function cerrarModal(): void {
   (document.getElementById('btn-guardar-grupo')!).textContent = '✅ Crear grupo';
 }
 
+// ---- MANEJAR SUBMIT del formulario de grupo (crear o editar) ----
+export async function handleGuardarGrupo(e: Event): Promise<boolean> {
+  e.preventDefault();
+  const form = document.getElementById('form-crear-grupo') as HTMLFormElement;
+  const editando = form.dataset.editando;
+  const nombre = (document.getElementById('grupo-nombre') as HTMLInputElement).value.trim();
+  const materia = (document.getElementById('grupo-materia') as HTMLInputElement).value.trim();
+  const limite = parseInt((document.getElementById('grupo-limite') as HTMLInputElement).value) || 3;
+  const perdones = parseInt((document.getElementById('grupo-perdones') as HTMLInputElement).value) || 2;
+  const codigo = (document.getElementById('grupo-codigo') as HTMLInputElement).value.trim();
+
+  if (!nombre) {
+    mostrarToast('⚠️ El nombre del grupo es obligatorio.', 'warning');
+    return false;
+  }
+
+  let exito: boolean;
+  if (editando) {
+    exito = await guardarEdicionGrupo(editando, nombre, materia, limite, perdones, codigo);
+  } else {
+    exito = await crearGrupo(nombre, materia, limite, perdones, codigo);
+  }
+
+  if (exito) cerrarModal();
+  return false;
+}
+
 export function generarNuevoCodigo(): void {
   (document.getElementById('grupo-codigo') as HTMLInputElement).value = generarCodigo(6);
 }
@@ -425,4 +452,42 @@ function leerHoraInput(id: string): string | null {
   if (partes.length !== 2 || isNaN(partes[0]) || isNaN(partes[1])) return null;
   if (partes[0] < 0 || partes[0] > 23 || partes[1] < 0 || partes[1] > 59) return null;
   return val;
+}
+
+// ---- OBTENER UBICACIÓN GPS (Geolocation API) ----
+export function obtenerUbicacion(): void {
+  if (!navigator.geolocation) {
+    mostrarToast('⚠️ Tu navegador no soporta geolocalización.', 'error');
+    return;
+  }
+  const btn = document.querySelector('button[onclick*="obtenerUbicacion"]') as HTMLButtonElement;
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Obteniendo ubicación...'; }
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const latInput = document.getElementById('nuevo-horario-lat') as HTMLInputElement;
+      const lngInput = document.getElementById('nuevo-horario-lng') as HTMLInputElement;
+      latInput.value = pos.coords.latitude.toFixed(6);
+      lngInput.value = pos.coords.longitude.toFixed(6);
+      if (btn) { btn.disabled = false; btn.innerHTML = '📍 Obtener mi ubicación actual'; }
+      mostrarToast('✅ Ubicación obtenida correctamente.', 'exito');
+    },
+    (err) => {
+      if (btn) { btn.disabled = false; btn.innerHTML = '📍 Obtener mi ubicación actual'; }
+      switch (err.code) {
+        case err.PERMISSION_DENIED:
+          mostrarToast('⚠️ Permiso denegado. Activa la ubicación en tu navegador.', 'error');
+          break;
+        case err.POSITION_UNAVAILABLE:
+          mostrarToast('⚠️ No se pudo obtener la ubicación. Intenta de nuevo.', 'error');
+          break;
+        case err.TIMEOUT:
+          mostrarToast('⚠️ La solicitud de ubicación tardó demasiado. Intenta de nuevo.', 'error');
+          break;
+        default:
+          mostrarToast('⚠️ Error al obtener ubicación: ' + err.message, 'error');
+      }
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+  );
 }

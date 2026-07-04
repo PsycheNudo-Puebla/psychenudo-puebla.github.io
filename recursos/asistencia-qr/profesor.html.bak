@@ -129,7 +129,7 @@
     <div id="modal-crear-grupo" class="modal-overlay hidden" onclick="if(event.target===this) cerrarModal()">
         <div class="modal" style="max-width: 580px;">
             <h2 id="modal-crear-grupo-title">📚 Crear nuevo grupo</h2>
-            <form id="form-crear-grupo">
+            <form id="form-crear-grupo" onsubmit="return handleGuardarGrupo(event)">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px;">
                     <div style="grid-column: span 2;">
                         <label>Nombre del grupo</label>
@@ -208,6 +208,11 @@
                         <div>
                             <label style="font-size:0.8em; color:#888;">Longitud</label>
                             <input type="number" step="any" id="nuevo-horario-lng" placeholder="Opcional" style="width:100%; padding:9px; border:2px solid #e0e0e0; border-radius:10px; font-size:14px;">
+                        </div>
+                        <div style="grid-column: span 2;">
+                            <button type="button" onclick="obtenerUbicacion()" style="width:100%; padding:10px; background:#e8f5e9; border:2px solid #a5d6a7; border-radius:10px; cursor:pointer; font-size:14px; color:#2e7d32;">
+                                📍 Obtener mi ubicación actual
+                            </button>
                         </div>
                     </div>
                     <button type="button" onclick="agregarHorarioFormulario()" style="margin-top:8px; width:100%; padding:10px; background:#e8edf5; border:2px dashed #c0c8e0; border-radius:10px; cursor:pointer; font-size:14px; color:#555;">+ Agregar horario</button>
