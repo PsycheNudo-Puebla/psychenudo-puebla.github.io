@@ -40,9 +40,9 @@ async function exportToPdf(filename) {
         margin: [0, 0, 0, 12],
         stack: [
           { text: `${i + 1}. ${tarea.nombre}`, bold: true, fontSize: 12, color: '#0f172a', margin: [0, 0, 0, 4] },
-          ...(tarea.fecha_entrega ? [{ text: `📅 Fecha de entrega: ${tarea.fecha_entrega}`, fontSize: 10, color: '#64748b', margin: [0, 0, 0, 4] }] : []),
+          ...(tarea.fecha_entrega ? [{ text: `Fecha de entrega: ${tarea.fecha_entrega}`, fontSize: 10, color: '#64748b', margin: [0, 0, 0, 4] }] : []),
           { text: tarea.descripcion || "Sin descripción", fontSize: 11, color: '#334155', margin: [0, 0, 0, 4] },
-          ...(tarea.instrucciones ? [{ text: `📝 ${tarea.instrucciones}`, fontSize: 10, color: '#475569', italics: true }] : [])
+          ...(tarea.instrucciones ? [{ text: `Instrucciones: ${tarea.instrucciones}`, fontSize: 10, color: '#475569', italics: true }] : [])
         ]
       }))
     ];
@@ -142,28 +142,67 @@ async function exportToPdf(filename) {
               padding: [10, 8],
               stack: (function(){
                 const out = [];
-                if (Array.isArray(q.studentAnswer)) {
-                  (q.studentAnswer || []).forEach(detail => {
-                    out.push({
-                      columns: [
-                        { text: detail.key, width: 'auto', color: '#64748b', fontSize: 10 },
-                        {
-                          text: [
-                            { text: detail.studentValue || "Sin respuesta", bold: true, color: '#000000', fontSize: 11 },
-                            detail.isSubCorrect ?
-                              { text: ' [ACIERTO]', color: '#16a34a', bold: true, fontSize: 10 } :
-                              { text: ` (Correcta: ${detail.correctValue})`, color: '#2563eb', bold: true, fontSize: 10 }
-                          ],
-                          width: '*', alignment: 'right'
-                        }
-                      ],
-                      margin: [0, 2, 0, 2]
-                    });
+                // Usar datos estructurados si están disponibles
+                const details = q.studentAnswerDetails;
+                if (Array.isArray(details) && details.length > 0) {
+                  // Tabla: Concepto | Respuesta | Resultado
+                  out.push({
+                    table: {
+                      widths: ['auto', '*', 'auto'],
+                      headerRows: 1,
+                      body: [
+                        [
+                          { text: 'Concepto', bold: true, fontSize: 9, color: '#64748b', fillColor: '#f1f5f9', margin: [4, 4] },
+                          { text: 'Tu respuesta', bold: true, fontSize: 9, color: '#64748b', fillColor: '#f1f5f9', margin: [4, 4] },
+                          { text: 'Resultado', bold: true, fontSize: 9, color: '#64748b', fillColor: '#f1f5f9', margin: [4, 4] }
+                        ],
+                        ...details.map(detail => [
+                          { text: detail.key, fontSize: 10, color: '#1e293b', bold: true, margin: [4, 4] },
+                          {
+                            text: detail.studentValue || "Sin respuesta",
+                            fontSize: 10,
+                            color: detail.isSubCorrect ? '#166534' : '#991b1b',
+                            bold: true,
+                            margin: [4, 4]
+                          },
+                          {
+                            stack: detail.isSubCorrect
+                              ? [
+                                  { text: 'CORRECTO', fontSize: 9, color: '#16a34a', bold: true, margin: [4, 4] }
+                                ]
+                              : [
+                                  { text: 'INCORRECTO', fontSize: 9, color: '#991b1b', bold: true, margin: [4, 4] },
+                                  { text: `Corr: ${detail.correctValue}`, fontSize: 8, color: '#2563eb', italics: true, margin: [4, 0, 4, 4] }
+                                ],
+                            margin: [4, 4]
+                          }
+                        ])
+                      ]
+                    },
+                    layout: {
+                      hLineWidth: (i) => (i === 0 || i === 1) ? 1 : 0.5,
+                      vLineWidth: () => 0.5,
+                      hLineColor: () => '#e2e8f0',
+                      vLineColor: () => '#e2e8f0',
+                      paddingLeft: () => 4,
+                      paddingRight: () => 4,
+                      paddingTop: () => 4,
+                      paddingBottom: () => 4
+                    },
+                    margin: [0, 0, 0, 8]
                   });
-                  if (q.studentAnswer.length === 0) {
-                    out.push({ columns: [{ text: "Sin respuesta", width: '*', color: '#64748b', fontSize: 10 }], margin: [0, 2, 0, 2] });
-                  }
+                  // Resumen de aciertos
+                  const aciertos = details.filter(d => d.isSubCorrect).length;
+                  const total = details.length;
+                  out.push({
+                    text: `Aciertos: ${aciertos}/${total}`,
+                    fontSize: 10,
+                    bold: true,
+                    color: aciertos === total ? '#16a34a' : (aciertos > 0 ? '#ca8a04' : '#991b1b'),
+                    margin: [0, 4, 0, 0]
+                  });
                 } else {
+                  // Fallback: mostrar HTML limpio
                   out.push({ text: cleanHtmlForPdf(q.studentAnswer), fontSize: 11, color: '#1e293b' });
                 }
                 return out;
@@ -228,17 +267,17 @@ function buildPrintableReport(resultPayload) {
   if (tareas_asignadas && tareas_asignadas.length > 0) {
     tareasHtml = `
       <div class="tareas-asignadas-pdf" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #f59e0b;">
-        <h3 style="color: #f59e0b; font-size: 16px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px;">📋 Tareas Asignadas</h3>
+        <h3 style="color: #f59e0b; font-size: 16px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px;">Tareas Asignadas</h3>
         ${tareas_asignadas.map((t, i) => `
           <div class="tarea-pdf-item" style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 10px; background: #fcfdff; page-break-inside: avoid;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
               <div class="tarea-nombre" style="font-weight: bold; font-size: 13px; color: #0f172a;">${escapeHtml(t.nombre)}</div>
-              ${t.fecha_entrega ? `<span style="font-size: 11px; color: #64748b; white-space: nowrap;">📅 ${escapeHtml(t.fecha_entrega)}</span>` : ''}
+              ${t.fecha_entrega ? `<span style="font-size: 11px; color: #64748b; white-space: nowrap;">Entrega: ${escapeHtml(t.fecha_entrega)}</span>` : ''}
             </div>
             <div class="tarea-desc" style="font-size: 12px; color: #334155; margin-top: 6px; padding: 8px; background: #f8fafc; border-radius: 6px;">
               ${escapeHtml(t.descripcion || "Sin descripción")}
             </div>
-            ${t.instrucciones ? `<div style="font-size: 11px; color: #475569; margin-top: 6px; font-style: italic;">📝 ${escapeHtml(t.instrucciones)}</div>` : ''}
+            ${t.instrucciones ? `<div style="font-size: 11px; color: #475569; margin-top: 6px; font-style: italic;">Instrucciones: ${escapeHtml(t.instrucciones)}</div>` : ''}
             ${t.regla_que_asigno ? `<div style="font-size: 10px; color: #94a3b8; margin-top: 4px;">Asignada por: ${escapeHtml(t.regla_que_asigno)}</div>` : ''}
           </div>
         `).join('')}
@@ -298,21 +337,44 @@ function buildPrintableReport(resultPayload) {
         ${questions.map((q, index) => {
             let studentAnswerContent;
             if (q.type === "relacionar") {
-                if (Array.isArray(q.studentAnswer)) {
-                    studentAnswerContent = `<ul style="margin: 0; padding-left: 20px; list-style-type: disc;">`;
-                    (q.studentAnswer || []).forEach(detail => {
-                        studentAnswerContent += `<li style="margin-bottom: 6px;">` +
-                            `<span style="color: #64748b; font-weight: 700;">${escapeHtml(detail.key)}</span> &rarr; ` +
-                            `<span style="color: #000000; font-weight: 800;">${escapeHtml(detail.studentValue || "Sin respuesta")}</span> ` +
-                            `${detail.isSubCorrect ? '<span style="color: #16a34a; font-weight: 800;">✅</span>' : `<span style="color: #2563eb; font-weight: 700;">(Correcta: ${escapeHtml(detail.correctValue)})</span>`}` +
-                            `</li>`;
-                    });
-                    studentAnswerContent += `</ul>`;
-                } else {
+                const details = q.studentAnswerDetails;
+                if (Array.isArray(details) && details.length > 0) {
+                    const aciertos = details.filter(d => d.isSubCorrect).length;
+                    const total = details.length;
+                    studentAnswerContent = `
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 12px;">
+                            <thead>
+                                <tr style="background-color: #f1f5f9;">
+                                    <th style="padding: 6px 8px; border: 1px solid #e2e8f0; text-align: left; font-size: 10px; color: #64748b; text-transform: uppercase;">Concepto</th>
+                                    <th style="padding: 6px 8px; border: 1px solid #e2e8f0; text-align: left; font-size: 10px; color: #64748b; text-transform: uppercase;">Tu respuesta</th>
+                                    <th style="padding: 6px 8px; border: 1px solid #e2e8f0; text-align: center; font-size: 10px; color: #64748b; text-transform: uppercase; width: 100px;">Resultado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${details.map(d => `
+                                    <tr>
+                                        <td style="padding: 6px 8px; border: 1px solid #e2e8f0; font-weight: 700; color: #1e293b;">${escapeHtml(d.key)}</td>
+                                        <td style="padding: 6px 8px; border: 1px solid #e2e8f0; font-weight: 600; color: ${d.isSubCorrect ? '#166534' : '#991b1b'};">${escapeHtml(d.studentValue || 'Sin respuesta')}</td>
+                                        <td style="padding: 6px 8px; border: 1px solid #e2e8f0; text-align: center;">
+                                            ${d.isSubCorrect
+                                                ? '<span style="color: #16a34a; font-weight: 800;">✅ Correcto</span>'
+                                                : `<span style="color: #991b1b; font-weight: 800;">❌ Incorrecto</span><br><span style="color: #2563eb; font-size: 11px; font-style: italic;">→ ${escapeHtml(d.correctValue)}</span>`
+                                            }
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <div style="font-weight: bold; font-size: 12px; color: ${aciertos === total ? '#16a34a' : (aciertos > 0 ? '#ca8a04' : '#991b1b')}; margin-top: 4px;">
+                            Aciertos: ${aciertos}/${total}
+                        </div>`;
+                } else if (typeof q.studentAnswer === 'string') {
                     studentAnswerContent = q.studentAnswer;
+                } else {
+                    studentAnswerContent = 'Sin respuesta';
                 }
             } else {
-                studentAnswerContent = q.studentAnswer;
+                studentAnswerContent = (typeof q.studentAnswer === 'string') ? q.studentAnswer : 'Sin respuesta';
             }
 
             return `
@@ -326,9 +388,25 @@ function buildPrintableReport(resultPayload) {
                         <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; margin-bottom: 4px; font-weight: bold;">Tu respuesta:</div>
                         <div style="color: #1e293b;">${studentAnswerContent}</div>
                     </div>
-                    <div style="margin-bottom: 12px; padding: 10px 10px 15px 10px; background-color: #f0f7ff; border-radius: 6px; font-size: ${q.type === "abierta" ? '12px' : '13px'}; border-left: 3px solid #4f46e5; page-break-inside: avoid; break-inside: avoid; overflow-wrap: anywhere; word-break: break-word; line-height: 1.5; min-height: 40px; ${q.type === 'relacionar' ? 'display: none;' : ''}">
-                        <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #4f46e5; margin-bottom: 4px; font-weight: bold;">${q.type === "abierta" ? "Guía de respuesta / Respuesta esperada" : "Respuesta correcta"}:</div>
-                        <div style="color: #1e40af; overflow-wrap: anywhere; word-break: break-word; padding-bottom: 5px;">${escapeHtml(String(q.correctAnswer || "")).replace(/\n/g, "<br>")}</div>
+                    <div style="margin-bottom: 12px; padding: 10px 10px 15px 10px; background-color: #f0f7ff; border-radius: 6px; font-size: ${q.type === "abierta" ? '12px' : '13px'}; border-left: 3px solid #4f46e5; page-break-inside: avoid; break-inside: avoid; overflow-wrap: anywhere; word-break: break-word; line-height: 1.5; min-height: 40px;">
+                        <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #4f46e5; margin-bottom: 4px; font-weight: bold;">
+                            ${q.type === "abierta" ? "Guía de respuesta / Respuesta esperada" : (q.type === 'relacionar' ? 'Relación correcta de conceptos:' : 'Respuesta correcta:')}
+                        </div>
+                        <div style="color: #1e40af; overflow-wrap: anywhere; word-break: break-word; padding-bottom: 5px;">
+                            ${q.type === 'relacionar' && Array.isArray(q.studentAnswerDetails) && q.studentAnswerDetails.length > 0
+                                ? `<table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px;">
+                                    <tbody>
+                                        ${q.studentAnswerDetails.map(d => `
+                                            <tr>
+                                                <td style="padding: 4px 8px; border-bottom: 1px solid #e2e8f0; font-weight: 700; color: #1e293b; width: 120px;">${escapeHtml(d.key)}</td>
+                                                <td style="padding: 4px 8px; border-bottom: 1px solid #e2e8f0; color: #4f46e5;">→ ${escapeHtml(d.correctValue)}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>`
+                                : (escapeHtml(String(q.correctAnswer || "")).replace(/\n/g, "<br>"))
+                            }
+                        </div>
                     </div>
                     <div style="text-align: right; margin-top: 5px; page-break-inside: avoid; break-inside: avoid;">
                         <span style="font-size: 12px; font-weight: bold; padding: 4px 12px; border-radius: 20px; display: inline-block; ${q.isCorrect === true ? 'background-color: #dcfce7; color: #166534;' : (q.isCorrect === false ? 'background-color: #fee2e2; color: #991b1b;' : 'background-color: #fef9c3; color: #854d0e;')}">

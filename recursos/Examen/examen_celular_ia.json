@@ -1,13 +1,13 @@
 {
   "titulo": "Uso del celular en clase: IA y desarrollo de apps",
-  "tiempo_limite_minutos": 20,
+  "tiempo_limite_minutos": 30,
   "maximo_salidas": 3,
   "distribucion": {
-    "opcion_multiple": 2,
+    "opcion_multiple": 3,
     "vf": 2,
     "relacionar": 1,
     "abierta": 1,
-    "matematica": 0
+    "matematica": 1
   },
   "puntos_distribucion": {
     "opcion_multiple": 1,
@@ -24,12 +24,60 @@
       "tipo": "practica",
       "fecha_entrega": "2026-07-13",
       "instrucciones": "La app debe ser un solo archivo .html funcional. Incluye un comentario al inicio indicando qué IA usaste y qué prompts utilizaste. Sube el archivo a la plataforma."
+    },
+    {
+      "id": 1720000000002,
+      "nombre": "Ejercicio extra de opcion multiple",
+      "descripcion": "Resuelve 5 preguntas de opcion multiple sobre herramientas de IA y desarrollo de apps.",
+      "tipo": "ejercicio",
+      "fecha_entrega": "2026-07-13",
+      "instrucciones": "Consulta los apuntes de la clase sobre Qwen, DeepSeek, OpenCode y ChatGPT. Escribe las respuestas y justifica cada una."
+    },
+    {
+      "id": 1720000000003,
+      "nombre": "Practica adicional de V/F",
+      "descripcion": "Repasa los conceptos de IA y desarrollo movil con 5 afirmaciones de verdadero/falso.",
+      "tipo": "ejercicio",
+      "fecha_entrega": "2026-07-13",
+      "instrucciones": "Crea tus propias 5 afirmaciones sobre el tema y responde si son verdaderas o falsas. Explica por que."
+    },
+    {
+      "id": 1720000000004,
+      "nombre": "Ejercicio de relacionar conceptos",
+      "descripcion": "Practica la relacion entre conceptos de HTML, IA y desarrollo de apps.",
+      "tipo": "tarea",
+      "fecha_entrega": "2026-07-13",
+      "instrucciones": "Dibuja un mapa mental o tabla que relacione: cada IA con su proposito, cada etiqueta HTML con su funcion, y cada concepto con su definicion."
+    },
+    {
+      "id": 1720000000005,
+      "nombre": "Investigacion complementaria",
+      "descripcion": "Investiga a fondo un tema que se te dificulto en la seccion de preguntas abiertas.",
+      "tipo": "investigacion",
+      "fecha_entrega": "2026-07-15",
+      "instrucciones": "Escribe un documento de 1 cuartilla sobre el tema, incluyendo ejemplos practicos y referencias a herramientas IA que podrian ayudar."
+    },
+    {
+      "id": 1720000000006,
+      "nombre": "Ejercicio extra de matematicas",
+      "descripcion": "Resuelve problemas de porcentajes, razones y estadistica aplicados al contexto de tecnologia y educacion.",
+      "tipo": "ejercicio",
+      "fecha_entrega": "2026-07-13",
+      "instrucciones": "Inventa 3 problemas matematicos relacionados con el uso de tecnologia en el salon de clases y resuelvelos paso a paso."
+    },
+    {
+      "id": 1720000000007,
+      "nombre": "Recuperacion integral",
+      "descripcion": "Realiza un repaso completo de todos los temas del examen y entrega un resumen ejecutivo.",
+      "tipo": "tarea",
+      "fecha_entrega": "2026-07-17",
+      "instrucciones": "Incluye: (1) definicion y proposito de Qwen, DeepSeek, OpenCode, ChatGPT; (2) etiquetas HTML basicas; (3) como crear una app HTML con IA desde el celular; (4) consideraciones eticas del uso de IA. Extension: 2 cuartillas."
     }
   ],
   "reglas_asignacion": [
     {
       "id": 1721000000001,
-      "nombre": "Aprobado (6+)",
+      "nombre": "Aprobado: tarea principal",
       "condiciones": [
         {
           "tipo": "porcentaje_global",
@@ -43,7 +91,112 @@
     },
     {
       "id": 1721000000002,
-      "nombre": "Reprobado (<6)",
+      "nombre": "Refuerzo: opcion multiple",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": ">=",
+          "valor": 6,
+          "unidad": "porcentaje"
+        },
+        {
+          "tipo": "seccion",
+          "seccion": "opcion_multiple",
+          "operador": "<",
+          "valor": 6,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": [1720000000002]
+    },
+    {
+      "id": 1721000000003,
+      "nombre": "Refuerzo: V/F",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": ">=",
+          "valor": 6,
+          "unidad": "porcentaje"
+        },
+        {
+          "tipo": "seccion",
+          "seccion": "vf",
+          "operador": "<",
+          "valor": 6,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": [1720000000003]
+    },
+    {
+      "id": 1721000000004,
+      "nombre": "Refuerzo: relacionar",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": ">=",
+          "valor": 6,
+          "unidad": "porcentaje"
+        },
+        {
+          "tipo": "seccion",
+          "seccion": "relacionar",
+          "operador": "<",
+          "valor": 6,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": [1720000000004]
+    },
+    {
+      "id": 1721000000005,
+      "nombre": "Refuerzo: abierta",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": ">=",
+          "valor": 6,
+          "unidad": "porcentaje"
+        },
+        {
+          "tipo": "seccion",
+          "seccion": "abierta",
+          "operador": "<",
+          "valor": 6,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": [1720000000005]
+    },
+    {
+      "id": 1721000000006,
+      "nombre": "Refuerzo: matematica",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": ">=",
+          "valor": 6,
+          "unidad": "porcentaje"
+        },
+        {
+          "tipo": "seccion",
+          "seccion": "matematica",
+          "operador": "<",
+          "valor": 6,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": [1720000000006]
+    },
+    {
+      "id": 1721000000007,
+      "nombre": "Recuperacion global",
       "condiciones": [
         {
           "tipo": "porcentaje_global",
@@ -53,26 +206,26 @@
           "unidad": "porcentaje"
         }
       ],
-      "tareas_asignadas": [1720000000001]
+      "tareas_asignadas": [1720000000007]
     }
   ],
   "preguntas": [
     {
       "id": "c1",
       "tipo": "opcion_multiple",
-      "pregunta": "¿Qué es Qwen?",
+      "pregunta": "Que es Qwen?",
       "opciones": [
         "Un asistente de inteligencia artificial creado por Alibaba Cloud",
-        "Un editor de código para Python",
+        "Un editor de codigo para Python",
         "Un navegador web para celular",
-        "Un sistema operativo móvil"
+        "Un sistema operativo movil"
       ],
       "respuesta_correcta": "Un asistente de inteligencia artificial creado por Alibaba Cloud"
     },
     {
       "id": "c2",
       "tipo": "opcion_multiple",
-      "pregunta": "¿Cuál de estas herramientas NO es una IA generativa?",
+      "pregunta": "Cual de estas herramientas NO es una IA generativa?",
       "opciones": [
         "DeepSeek",
         "OpenCode",
@@ -82,32 +235,181 @@
       "respuesta_correcta": "Microsoft Word"
     },
     {
+      "id": "c7",
+      "tipo": "opcion_multiple",
+      "pregunta": "Que es DeepSeek?",
+      "opciones": [
+        "Un modelo de IA especializado en razonamiento logico y programacion",
+        "Un asistente virtual para videollamadas",
+        "Un sistema operativo para servidores",
+        "Un editor de imagenes con IA"
+      ],
+      "respuesta_correcta": "Un modelo de IA especializado en razonamiento logico y programacion"
+    },
+    {
+      "id": "c8",
+      "tipo": "opcion_multiple",
+      "pregunta": "Que significa HTML?",
+      "opciones": [
+        "HyperText Markup Language",
+        "Home Tool Multimedia Language",
+        "HyperTransfer Machine Language",
+        "How To Make Links"
+      ],
+      "respuesta_correcta": "HyperText Markup Language"
+    },
+    {
+      "id": "c9",
+      "tipo": "opcion_multiple",
+      "pregunta": "Cual de las siguientes NO es una inteligencia artificial?",
+      "opciones": [
+        "Qwen",
+        "Microsoft Paint",
+        "ChatGPT",
+        "DeepSeek"
+      ],
+      "respuesta_correcta": "Microsoft Paint"
+    },
+    {
+      "id": "c10",
+      "tipo": "opcion_multiple",
+      "pregunta": "En el contexto de la IA, que es un 'prompt'?",
+      "opciones": [
+        "Una instruccion o pregunta que se le da a una IA para generar una respuesta",
+        "Un tipo de archivo de imagen",
+        "Un lenguaje de programacion para celulares",
+        "Un componente fisico del telefono"
+      ],
+      "respuesta_correcta": "Una instruccion o pregunta que se le da a una IA para generar una respuesta"
+    },
+    {
+      "id": "c11",
+      "tipo": "opcion_multiple",
+      "pregunta": "Cual es una ventaja importante de usar IA desde el celular?",
+      "opciones": [
+        "Acceder a asistencia inteligente en cualquier momento y lugar",
+        "Reemplazar completamente al profesor en el aula",
+        "No necesitar aprender nada nuevo",
+        "Tener siempre la respuesta correcta sin esfuerzo"
+      ],
+      "respuesta_correcta": "Acceder a asistencia inteligente en cualquier momento y lugar"
+    },
+    {
+      "id": "c12",
+      "tipo": "opcion_multiple",
+      "pregunta": "Que es OpenCode?",
+      "opciones": [
+        "Un asistente de IA de codigo abierto para generacion y revision de codigo",
+        "Un sistema operativo para celulares",
+        "Una red social para programadores",
+        "Un lenguaje de programacion nuevo"
+      ],
+      "respuesta_correcta": "Un asistente de IA de codigo abierto para generacion y revision de codigo"
+    },
+    {
       "id": "c3",
       "tipo": "vf",
-      "pregunta": "Se puede usar DeepSeek desde el celular para generar código HTML funcional.",
+      "pregunta": "Se puede usar DeepSeek desde el navegador del celular sin necesidad de instalar nada adicional.",
       "respuesta_correcta": "Verdadero"
     },
     {
       "id": "c4",
       "tipo": "vf",
-      "pregunta": "Las IAs como OpenCode solo funcionan si tienes conexión a Internet permanente.",
+      "pregunta": "Las IAs generativas como ChatGPT solo funcionan en computadoras de escritorio con tarjetas graficas especiales.",
       "respuesta_correcta": "Falso"
+    },
+    {
+      "id": "c13",
+      "tipo": "vf",
+      "pregunta": "Una IA como Qwen puede generar el codigo completo de una pagina web funcional.",
+      "respuesta_correcta": "Verdadero"
+    },
+    {
+      "id": "c14",
+      "tipo": "vf",
+      "pregunta": "Qwen puede ayudar a explicar conceptos de programacion y resolver dudas en espanol.",
+      "respuesta_correcta": "Verdadero"
+    },
+    {
+      "id": "c15",
+      "tipo": "vf",
+      "pregunta": "Para crear una aplicacion HTML desde el celular necesitas instalar un IDE complejo con multiples herramientas.",
+      "respuesta_correcta": "Falso"
+    },
+    {
+      "id": "c16",
+      "tipo": "vf",
+      "pregunta": "OpenCode es una herramienta de inteligencia artificial de codigo abierto.",
+      "respuesta_correcta": "Verdadero"
     },
     {
       "id": "c5",
       "tipo": "relacionar",
-      "pregunta": "Relaciona cada IA con su propósito principal.",
+      "pregunta": "Relaciona cada IA con su proposito principal.",
       "opciones": {
-        "Qwen": "Asistente multiusos con capacidad de razonamiento y código",
-        "DeepSeek": "Modelo de IA especializado en razonamiento lógico y programación",
-        "OpenCode": "Asistente de código abierto para generación y revisión de código",
+        "Qwen": "Asistente multiusos con capacidad de razonamiento y codigo",
+        "DeepSeek": "Modelo de IA especializado en razonamiento logico y programacion",
+        "OpenCode": "Asistente de codigo abierto para generacion y revision de codigo",
         "ChatGPT": "Asistente conversacional para tareas generales"
+      }
+    },
+    {
+      "id": "c17",
+      "tipo": "relacionar",
+      "pregunta": "Relaciona cada etiqueta HTML con su funcion principal.",
+      "opciones": {
+        "<h1>": "Titulo principal de la pagina",
+        "<p>": "Parrafo de texto",
+        "<a>": "Enlace o hipervinculo",
+        "<img>": "Imagen en la pagina"
+      }
+    },
+    {
+      "id": "c18",
+      "tipo": "relacionar",
+      "pregunta": "Relaciona cada concepto de desarrollo con su definicion.",
+      "opciones": {
+        "Frontend": "Parte visual con la que interactua el usuario",
+        "Backend": "Logica del lado del servidor",
+        "API": "Interfaz que permite la comunicacion entre sistemas",
+        "Responsive": "Diseno que se adapta a diferentes tamanos de pantalla"
       }
     },
     {
       "id": "c6",
       "tipo": "abierta",
-      "pregunta": "Describe paso a paso cómo harías una aplicación HTML de una calculadora de promedio escolar usando una IA como Qwen o DeepSeek desde tu celular. Menciona qué le pedirías a la IA y cómo probarías el resultado."
+      "pregunta": "Describe paso a paso como harías una aplicacion HTML de una calculadora de promedio escolar usando una IA como Qwen o DeepSeek desde tu celular. Menciona que le pedirias a la IA y como probarias el resultado.",
+      "respuesta_correcta": "Para crear una calculadora de promedio escolar con IA desde el celular: 1) Abriria el navegador y accedería a Qwen Web o DeepSeek. 2) Le pediría a la IA: 'Genera una pagina HTML que calcule el promedio de calificaciones escolares, con campos para ingresar materias y notas, y que muestre el resultado al hacer clic en un boton.' 3) La IA generaria el codigo HTML, CSS y JavaScript. 4) Copiaria el codigo en un editor online como CodePen o en la app 'Acode' desde el celular. 5) Guardaria el archivo como .html y lo abriria en el navegador para probarlo. 6) Si hay errores, le mostraria el mensaje de error a la IA para que lo corrija."
+    },
+    {
+      "id": "c19",
+      "tipo": "abierta",
+      "pregunta": "Explica tres ventajas y dos desventajas de usar inteligencia artificial para aprender a programar desde el celular.",
+      "respuesta_correcta": "Ventajas: 1) Accesibilidad: puedes aprender desde cualquier lugar sin necesidad de computadora. 2) Retroalimentacion inmediata: la IA te explica errores y sugiere mejoras al instante. 3) Personalizacion: puedes pedir ejemplos adaptados a tu nivel de conocimiento. Desventajas: 1) Dependencia: riesgo de confiar demasiado en la IA sin desarrollar pensamiento critico. 2) Limitaciones tecnicas: la pantalla pequena y la falta de un teclado fisico pueden dificultar la escritura de codigo complejo."
+    },
+    {
+      "id": "c20",
+      "tipo": "abierta",
+      "pregunta": "Si un companero te dice que 'la IA hace todo por uno y ya no necesitas pensar', como le responderias? Fundamenta tu respuesta con argumentos sobre el aprendizaje y el uso responsable de la IA.",
+      "respuesta_correcta": "Le diria que la IA es una herramienta de apoyo, no un sustituto del pensamiento critico. Al igual que una calculadora no te exime de entender matematicas, la IA requiere que sepas formular buenas preguntas, evaluar la calidad de las respuestas y adaptar las soluciones a tu contexto. Para usarla responsablemente: 1) Siempre debes entender el codigo que la IA genera. 2) Debes verificar la informacion porque la IA puede cometer errores. 3) La practica personal sigue siendo necesaria para desarrollar habilidades reales. La IA acelera el aprendizaje, pero no reemplaza la practica ni la comprension profunda."
+    },
+    {
+      "id": "c21",
+      "tipo": "matematica",
+      "pregunta": "Si una aplicacion web tarda 3 segundos en cargar y un alumno la usa 20 veces al dia, cuantos segundos en total pasa esperando a que cargue?",
+      "respuesta_correcta": 60
+    },
+    {
+      "id": "c22",
+      "tipo": "matematica",
+      "pregunta": "En un grupo de 30 alumnos, 18 usan IA para estudiar. Que porcentaje del grupo usa IA?",
+      "respuesta_correcta": 60
+    },
+    {
+      "id": "c23",
+      "tipo": "matematica",
+      "pregunta": "Si una IA contesta correctamente 15 de 20 preguntas de practica, que porcentaje de aciertos tiene?",
+      "respuesta_correcta": 75
     }
   ]
 }

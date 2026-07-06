@@ -113,6 +113,12 @@ function normalizeResultPayload(payload) {
         q.correctCount = newArray.filter(item => item.isSubCorrect).length;
       }
     }
+    // Asegurar studentAnswerDetails para relacionar (formato nuevo o convertido)
+    if (q.type === 'relacionar' && !q.studentAnswerDetails) {
+      if (Array.isArray(q.studentAnswer) && q.studentAnswer.length > 0) {
+        q.studentAnswerDetails = q.studentAnswer;
+      }
+    }
     return q;
   });
   let tE = 0, tP = 0;

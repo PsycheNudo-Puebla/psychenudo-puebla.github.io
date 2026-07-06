@@ -84,7 +84,8 @@ function buildRandomQuestions() {
     opcion_multiple: shuffleArray(currentExam.preguntas.filter((q) => q.tipo === "opcion_multiple")),
     vf: shuffleArray(currentExam.preguntas.filter((q) => q.tipo === "vf")),
     relacionar: shuffleArray(currentExam.preguntas.filter((q) => q.tipo === "relacionar")),
-    abierta: shuffleArray(currentExam.preguntas.filter((q) => q.tipo === "abierta"))
+    abierta: shuffleArray(currentExam.preguntas.filter((q) => q.tipo === "abierta")),
+    matematica: shuffleArray(currentExam.preguntas.filter((q) => q.tipo === "matematica"))
   };
   const selected = [];
   Object.entries(currentExam.distribucion).forEach(([type, count]) => {
@@ -311,7 +312,7 @@ async function submitExam(isAuto) {
 
   currentQuestions.forEach((question, index) => {
     let studentAnswer = "Sin respuesta"; let isCorrect = false; let correctAnswerText = "";
-    let correctCount = 0; let totalPairs = 0; let subdetails = [];
+    let correctCount = 0; let totalPairs = 0; let subdetails = []; let answerDetails = [];
     const questionValue = currentExam.puntos_distribucion[question.tipo] || 0;
     totalPossiblePoints += questionValue;
 
@@ -335,6 +336,12 @@ async function submitExam(isAuto) {
         const subCorrect = selectedValue === correctValue;
         if (subCorrect) correctCount += 1;
         else wrongAnswers.push({ key, correctValue });
+        answerDetails.push({
+          key,
+          studentValue: selectedValue || "Sin respuesta",
+          correctValue,
+          isSubCorrect: subCorrect
+        });
         subdetails.push(`<li style="margin-bottom: 6px; page-break-inside: avoid;">` +
           `<span style="color: #64748b; font-weight: 700;">${escapeHtml(key)}</span> &rarr; ` +
           `<span style="color: #000000; font-weight: 800;">${escapeHtml(selectedValue || "Sin respuesta")}</span> ` +
@@ -389,7 +396,8 @@ async function submitExam(isAuto) {
       isCorrect: isCorrect === true ? true : (isCorrect === false ? false : null),
       partial: isPartialRelation,
       correctCount: typeof correctCount === "number" ? correctCount : null,
-      totalPairs: typeof totalPairs === "number" ? totalPairs : null
+      totalPairs: typeof totalPairs === "number" ? totalPairs : null,
+      studentAnswerDetails: question.tipo === "relacionar" ? answerDetails : undefined
     });
   });
 
