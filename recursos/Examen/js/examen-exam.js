@@ -226,11 +226,34 @@ function handleVisibilityChange() {
   }
 }
 
+function handleFocusIn(e) {
+  const tag = e.target.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+    focusTrackingElement = e.target;
+    if (focusTrackingTimeout) {
+      clearTimeout(focusTrackingTimeout);
+      focusTrackingTimeout = null;
+    }
+  } else {
+    focusTrackingElement = null;
+  }
+}
+
+function handleFocusOut() {
+  focusTrackingTimeout = setTimeout(() => {
+    focusTrackingElement = null;
+    focusTrackingTimeout = null;
+  }, 200);
+}
+
 function handleWindowBlur() {
   if (!isExamActive) return;
-  const activeElement = document.activeElement;
-  const isInputFocused = activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA');
-  if (isInputFocused) {
+  // Use focusTrackingElement (set via focusin/focusout, reliable on iOS)
+  // as fallback for document.activeElement which can be null on iOS
+  // when the virtual keyboard opens
+  const target = focusTrackingElement || document.activeElement;
+  const isTyping = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT');
+  if (isTyping) {
     if (blurTimeout) {
       clearTimeout(blurTimeout);
       blurTimeout = null;

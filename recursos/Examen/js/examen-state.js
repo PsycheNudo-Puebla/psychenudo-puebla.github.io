@@ -69,6 +69,8 @@ let currentDirectoryHandle = null;
 let antiCheatBlocked = false;
 let latestResultPayload = null;
 let returnTimeout = null;
+let focusTrackingElement = null;
+let focusTrackingTimeout = null;
 
 // --- Referencias a elementos del DOM ---
 const elements = {

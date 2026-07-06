@@ -83,6 +83,8 @@ function init() {
   document.addEventListener("visibilitychange", handleVisibilityChange);
   window.addEventListener("blur", handleWindowBlur);
   window.addEventListener("focus", handleWindowFocus);
+  document.addEventListener("focusin", handleFocusIn);
+  document.addEventListener("focusout", handleFocusOut);
   window.addEventListener("beforeunload", (event) => {
     if (isExamActive) {
       event.preventDefault();
