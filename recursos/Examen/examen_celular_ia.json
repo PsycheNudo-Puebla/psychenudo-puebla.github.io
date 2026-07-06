@@ -1,0 +1,113 @@
+{
+  "titulo": "Uso del celular en clase: IA y desarrollo de apps",
+  "tiempo_limite_minutos": 20,
+  "maximo_salidas": 3,
+  "distribucion": {
+    "opcion_multiple": 2,
+    "vf": 2,
+    "relacionar": 1,
+    "abierta": 1,
+    "matematica": 0
+  },
+  "puntos_distribucion": {
+    "opcion_multiple": 1,
+    "vf": 1,
+    "relacionar": 2,
+    "abierta": 2,
+    "matematica": 1
+  },
+  "tareas": [
+    {
+      "id": 1720000000001,
+      "nombre": "Crear una mini-app HTML con IA",
+      "descripcion": "Usa Qwen, DeepSeek o cualquier IA para crear una pequeña aplicación HTML que resuelva un problema real del aula (asistencia, tareas, quiz, etc.).",
+      "tipo": "practica",
+      "fecha_entrega": "2026-07-13",
+      "instrucciones": "La app debe ser un solo archivo .html funcional. Incluye un comentario al inicio indicando qué IA usaste y qué prompts utilizaste. Sube el archivo a la plataforma."
+    }
+  ],
+  "reglas_asignacion": [
+    {
+      "id": 1721000000001,
+      "nombre": "Aprobado (6+)",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": ">=",
+          "valor": 6,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": [1720000000001]
+    },
+    {
+      "id": 1721000000002,
+      "nombre": "Reprobado (<6)",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": "<",
+          "valor": 6,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": [1720000000001]
+    }
+  ],
+  "preguntas": [
+    {
+      "id": "c1",
+      "tipo": "opcion_multiple",
+      "pregunta": "¿Qué es Qwen?",
+      "opciones": [
+        "Un asistente de inteligencia artificial creado por Alibaba Cloud",
+        "Un editor de código para Python",
+        "Un navegador web para celular",
+        "Un sistema operativo móvil"
+      ],
+      "respuesta_correcta": "Un asistente de inteligencia artificial creado por Alibaba Cloud"
+    },
+    {
+      "id": "c2",
+      "tipo": "opcion_multiple",
+      "pregunta": "¿Cuál de estas herramientas NO es una IA generativa?",
+      "opciones": [
+        "DeepSeek",
+        "OpenCode",
+        "Microsoft Word",
+        "ChatGPT"
+      ],
+      "respuesta_correcta": "Microsoft Word"
+    },
+    {
+      "id": "c3",
+      "tipo": "vf",
+      "pregunta": "Se puede usar DeepSeek desde el celular para generar código HTML funcional.",
+      "respuesta_correcta": "Verdadero"
+    },
+    {
+      "id": "c4",
+      "tipo": "vf",
+      "pregunta": "Las IAs como OpenCode solo funcionan si tienes conexión a Internet permanente.",
+      "respuesta_correcta": "Falso"
+    },
+    {
+      "id": "c5",
+      "tipo": "relacionar",
+      "pregunta": "Relaciona cada IA con su propósito principal.",
+      "opciones": {
+        "Qwen": "Asistente multiusos con capacidad de razonamiento y código",
+        "DeepSeek": "Modelo de IA especializado en razonamiento lógico y programación",
+        "OpenCode": "Asistente de código abierto para generación y revisión de código",
+        "ChatGPT": "Asistente conversacional para tareas generales"
+      }
+    },
+    {
+      "id": "c6",
+      "tipo": "abierta",
+      "pregunta": "Describe paso a paso cómo harías una aplicación HTML de una calculadora de promedio escolar usando una IA como Qwen o DeepSeek desde tu celular. Menciona qué le pedirías a la IA y cómo probarías el resultado."
+    }
+  ]
+}

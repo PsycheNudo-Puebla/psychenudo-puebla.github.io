@@ -9,6 +9,83 @@
     "abierta": 1,
     "matematica": 1
   },
+  "tareas": [
+    {
+      "id": 1710000000001,
+      "nombre": "Investigar sobre España",
+      "descripcion": "Realiza una investigación sobre la geografía y cultura de España.",
+      "tipo": "investigacion",
+      "fecha_entrega": "2025-06-01",
+      "instrucciones": "Extensión mínima de 2 cuartillas, incluir referencias."
+    },
+    {
+      "id": 1710000000002,
+      "nombre": "Ejercicio de física orbital",
+      "descripcion": "Resuelve los ejercicios de física sobre órbitas planetarias.",
+      "tipo": "ejercicio",
+      "fecha_entrega": "2025-06-05",
+      "instrucciones": "Incluir procedimiento paso a paso."
+    },
+    {
+      "id": 1710000000003,
+      "nombre": "Reflexión sobre trabajo en equipo",
+      "descripcion": "Escribe una reflexión personal sobre la importancia del trabajo en equipo.",
+      "tipo": "tarea",
+      "fecha_entrega": "2025-05-28",
+      "instrucciones": "Mínimo 1 cuartilla."
+    }
+  ],
+  "reglas_asignacion": [
+    {
+      "id": 1711000000001,
+      "nombre": "Calificación alta (8+)",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": ">=",
+          "valor": 8,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": [1710000000001]
+    },
+    {
+      "id": 1711000000002,
+      "nombre": "Calificación media (6-7.9)",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": ">=",
+          "valor": 6,
+          "unidad": "porcentaje"
+        },
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": "<",
+          "valor": 8,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": [1710000000002]
+    },
+    {
+      "id": 1711000000003,
+      "nombre": "Calificación baja (<6)",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": "<",
+          "valor": 6,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": [1710000000002, 1710000000003]
+    }
+  ],
   "preguntas": [
     {
       "id": "e1",
