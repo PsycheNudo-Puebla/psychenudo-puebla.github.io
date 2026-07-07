@@ -47,7 +47,7 @@ function prepareExam() {
   const name = elements.welcomeName.value.trim();
   const id = elements.welcomeId.value.trim();
   if (!name || !id) { 
-    alert("⚠️ Datos incompletos: Por favor ingresa tu Nombre y Matrícula para poder iniciar el examen.");
+    showModalAlert("Por favor ingresa tu Nombre y Matrícula para poder iniciar el examen.", "Datos incompletos", "⚠️");
     updateStatus("Ingresa nombre y matrícula o grupo para iniciar.", true); 
     return; 
   }
@@ -366,8 +366,8 @@ async function submitExam(isAuto) {
           isSubCorrect: subCorrect
         });
         subdetails.push(`<li style="margin-bottom: 6px; page-break-inside: avoid;">` +
-          `<span style="color: #64748b; font-weight: 700;">${escapeHtml(key)}</span> &rarr; ` +
-          `<span style="color: #000000; font-weight: 800;">${escapeHtml(selectedValue || "Sin respuesta")}</span> ` +
+          `<span style="color: var(--muted); font-weight: 700;">${escapeHtml(key)}</span> &rarr; ` +
+          `<span style="color: inherit; font-weight: 800;">${escapeHtml(selectedValue || "Sin respuesta")}</span> ` +
           `${subCorrect ? '<span style="color: #16a34a; font-weight: 800;">✅</span>' : `<span style="color: #2563eb; font-weight: 700;">(Correcta: ${escapeHtml(correctValue)})</span>`}` +
         `</li>`);
       });
@@ -441,6 +441,9 @@ async function submitExam(isAuto) {
 
   // --- Evaluar reglas de tareas ---
   resultPayload.tareas_asignadas = evaluarReglasTareas(currentExam, resultPayload);
+  // Incluir datos del examen para permitir re-evaluación de reglas al recargar resultados
+  resultPayload.examTareas = currentExam.tareas || [];
+  resultPayload.examReglasAsignacion = currentExam.reglas_asignacion || [];
 
   latestResultPayload = resultPayload;
 

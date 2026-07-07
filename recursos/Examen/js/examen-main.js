@@ -4,6 +4,7 @@
 
 function init() {
   loadDefaultExamFiles();
+  loadThemePreference();
 
   // === Navegación principal ===
   document.getElementById("go-apply-btn").addEventListener("click", () => showView("apply"));
@@ -55,8 +56,9 @@ function init() {
   // === Flujo de aplicación de examen ===
   document.getElementById("continue-to-exam-btn").addEventListener("click", prepareExam);
   document.getElementById("confirm-start-btn").addEventListener("click", startExam);
-  document.getElementById("submit-exam-btn").addEventListener("click", () => {
-    if (confirm("¿Estás seguro de que deseas finalizar el examen?")) submitExam(false);
+  document.getElementById("submit-exam-btn").addEventListener("click", async () => {
+    const confirmed = await showModalConfirm("¿Estás seguro de que deseas finalizar el examen?");
+    if (confirmed) submitExam(false);
   });
   document.getElementById("reset-exam-btn").addEventListener("click", resetExam);
   document.getElementById("download-results-json-btn").addEventListener("click", downloadLatestResultJson);
@@ -79,6 +81,9 @@ function init() {
   elements.questionsEditor.addEventListener("input", handleQuestionEditorInput);
   elements.questionsEditor.addEventListener("change", handleQuestionEditorInput);
   elements.questionsEditor.addEventListener("click", handleQuestionEditorClick);
+
+  // === Toggle de tema ===
+  document.getElementById("theme-toggle-btn").addEventListener("click", toggleTheme);
 
   // === Anti-trampas ===
   document.addEventListener("visibilitychange", handleVisibilityChange);

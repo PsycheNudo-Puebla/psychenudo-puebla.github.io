@@ -89,9 +89,10 @@ function addTask() {
   setEditStatus("Tarea agregada. Personaliza los campos.");
 }
 
-function removeTask(index) {
+async function removeTask(index) {
   if (!currentExam.tareas || !currentExam.tareas[index]) return;
-  if (!confirm(`¿Eliminar la tarea "${currentExam.tareas[index].nombre || 'Sin nombre'}"?`)) return;
+  const confirmed = await showModalConfirm(`¿Eliminar la tarea "${currentExam.tareas[index].nombre || 'Sin nombre'}"?`, "Eliminar tarea");
+  if (!confirmed) return;
   currentExam.tareas.splice(index, 1);
   // Limpiar referencias en reglas
   if (currentExam.reglas_asignacion) {
@@ -291,9 +292,10 @@ function addRule() {
   setEditStatus("Regla agregada. Configura las condiciones y tareas.");
 }
 
-function removeRule(index) {
+async function removeRule(index) {
   if (!currentExam.reglas_asignacion || !currentExam.reglas_asignacion[index]) return;
-  if (!confirm(`¿Eliminar la regla "${currentExam.reglas_asignacion[index].nombre || 'Sin nombre'}"?`)) return;
+  const confirmed = await showModalConfirm(`¿Eliminar la regla "${currentExam.reglas_asignacion[index].nombre || 'Sin nombre'}"?`, "Eliminar regla");
+  if (!confirmed) return;
   currentExam.reglas_asignacion.splice(index, 1);
   renderRulesEditor();
   setEditStatus("Regla eliminada.");

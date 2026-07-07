@@ -84,8 +84,11 @@ function renderImportedResults(resultPayload) {
     </div>`;
 
   container.innerHTML = html;
+  // Ocultar las demás vistas y mostrar solo resultados
+  elements.homeView.classList.add("hidden");
+  elements.applyView.classList.add("hidden");
+  elements.editView.classList.add("hidden");
   elements.resultsView.classList.remove("hidden");
-  elements.restApp.classList.add("hidden");
 }
 
 function updateQuestionGrade(index, newPoints) {
@@ -103,7 +106,7 @@ function updateQuestionGrade(index, newPoints) {
   }
 }
 
-function saveManualGrades() {
+async function saveManualGrades() {
   const inputs = document.querySelectorAll(".grade-input");
   inputs.forEach(input => {
     const index = parseInt(input.dataset.index);
@@ -119,8 +122,29 @@ function saveManualGrades() {
   if (latestResultPayload.totalPoints > 0) {
     latestResultPayload.score = ((total / latestResultPayload.totalPoints) * 10).toFixed(1);
   }
-  alert("✅ Calificaciones guardadas. El total se ha recalculado.");
+
+  // Re-evaluar reglas de tareas si los datos del examen están disponibles en el payload
+  const examData = construirExamDesdePayload(latestResultPayload);
+  if (examData) {
+    latestResultPayload.tareas_asignadas = evaluarReglasTareas(examData, latestResultPayload);
+  }
+
+  // Esperar a que el usuario cierre el modal antes de re-renderizar
+  await showModalAlert("El total y las tareas asignadas se han recalculado.", "Calificaciones guardadas", "✅");
   renderImportedResults(latestResultPayload);
+}
+
+/**
+ * Reconstruye un objeto exam (con tareas y reglas) a partir del payload de resultados.
+ * Esto permite re-evaluar las reglas de asignación cuando se modifican las calificaciones.
+ */
+function construirExamDesdePayload(payload) {
+  if (!payload) return null;
+  const tareas = payload.examTareas;
+  const reglas = payload.examReglasAsignacion;
+  if (!Array.isArray(tareas) || !Array.isArray(reglas)) return null;
+  if (tareas.length === 0 && reglas.length === 0) return null;
+  return { tareas, reglas_asignacion: reglas };
 }
 
 function exportUpdatedPdf() {

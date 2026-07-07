@@ -219,13 +219,14 @@ function handleQuestionEditorInput(event) {
   setEditStatus("Pregunta actualizada.");
 }
 
-function handleQuestionEditorClick(event) {
+async function handleQuestionEditorClick(event) {
   const action = event.target.dataset.action;
   const index = Number(event.target.dataset.index);
   if (Number.isNaN(index)) return;
   
   if (action === "remove-question") {
-    if (!confirm("¿Estás seguro de que deseas eliminar esta pregunta?")) return;
+    const confirmed = await showModalConfirm("¿Estás seguro de que deseas eliminar esta pregunta?", "Eliminar pregunta");
+    if (!confirmed) return;
     currentExam.preguntas.splice(index, 1);
     if (currentEditorPage >= currentExam.preguntas.length && currentEditorPage > 0) {
       currentEditorPage--;

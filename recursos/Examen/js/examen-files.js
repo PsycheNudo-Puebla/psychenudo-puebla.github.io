@@ -2,19 +2,37 @@
 // examen-files.js — Carga y gestión de archivos
 // ============================================================
 
+function createEmptyExam() {
+  return normalizeExam({
+    titulo: "Nuevo examen",
+    tiempo_limite_minutos: 15,
+    maximo_salidas: 3,
+    puntos_distribucion: {
+      opcion_multiple: 1,
+      vf: 1,
+      relacionar: 1,
+      abierta: 1,
+      matematica: 1
+    },
+    distribucion: {
+      opcion_multiple: 0,
+      vf: 0,
+      relacionar: 0,
+      abierta: 0,
+      matematica: 0
+    },
+    preguntas: [],
+    tareas: [],
+    reglas_asignacion: []
+  });
+}
+
 async function loadDefaultExamFiles() {
   try {
-    const timestamp = Date.now();
-    const response = await fetch(`examen_ejemplo.json?t=${timestamp}`);
-    if (response.ok) {
-      const data = await response.json();
-      currentExam = normalizeExam(data);
-    } else {
-      currentExam = normalizeExam(defaultTemplate);
-    }
+    currentExam = createEmptyExam();
     populateEditor();
-    updateStatus(`Examen cargado: ${currentExam.titulo}.`);
-    setEditStatus(`Listo para editar: ${currentExam.titulo}.`);
+    updateStatus("Nuevo examen creado. Comienza a agregar preguntas.");
+    setEditStatus("Nuevo examen vacío — usa los botones para agregar preguntas, tareas y reglas.");
   } catch (error) {
     setEditStatus("Puedes crear uno nuevo o cargar un JSON.");
     updateStatus("Listo para cargar un examen.", false);
