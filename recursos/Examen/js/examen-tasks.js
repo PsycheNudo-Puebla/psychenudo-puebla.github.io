@@ -120,8 +120,8 @@ function renderRulesEditor() {
       <button onclick="addRule()" class="btn-primary" style="padding: 6px 16px; font-size: 13px;">+ Agregar Regla</button>
     </div>
     <p style="font-size: 13px; color: #64748b; margin-bottom: 15px;">
-      Las reglas determinan qué tareas se asignan según el resultado del examen.
-      Puedes combinar condiciones por puntuación global y por sección.
+      Las reglas determinan qué tareas se asignan según la calificación del alumno.
+      Puedes crear frases como <em>"Si la calificación global es mayor o igual a 6, asignar Tarea A"</em>.
     </p>`;
   
   if (reglas.length === 0) {
@@ -134,30 +134,52 @@ function renderRulesEditor() {
         <div class="rule-card" data-rule-index="${rIndex}">
           <div class="rule-card-header">
             <input type="text" class="rule-input-name" value="${escapeAttribute(regla.nombre || '')}" 
-                   placeholder="Nombre de la regla (ej. 'Si pasa con 8+')"
+                   placeholder="Nombre de la regla (ej. 'Aprobado')"
                    onchange="handleRuleInput(${rIndex}, 'nombre', this.value)" />
             <button class="btn-danger-small" onclick="removeRule(${rIndex})" title="Eliminar regla">✕</button>
           </div>
           
-          <div class="rule-conditions">
-            <label style="font-weight: 600; font-size: 13px; color: #334155; margin-bottom: 8px; display: block;">
-              Condiciones (se evalúan con AND):
-            </label>`;
-      
+          <div class="rule-conditions-sentences">`;
+
+      // Renderizar condiciones como oraciones en lenguaje natural
       if (condiciones.length === 0) {
-        html += `<p class="muted" style="font-size: 12px;">Sin condiciones — la regla siempre se aplica.</p>`;
+        html += `<p class="muted" style="font-size: 12px; font-style: italic; margin: 8px 0;">Sin condiciones — la regla siempre se aplica.</p>`;
       } else {
         condiciones.forEach((cond, cIndex) => {
+          const conjuncion = cIndex === 0 ? "SI" : "Y además";
+          const tipoLabel = cond.tipo === 'seccion' 
+            ? `la sección de <strong>${seccionLabel(cond.seccion)}</strong>`
+            : "la calificación global";
+          const operLabel = operadorLabel(cond.operador);
+          const unidadLabel = cond.unidad === 'puntos' ? `puntos (máx. ${cond.valor})` : "10";
+          
           html += `
-            <div class="condition-row" data-cond-index="${cIndex}">
-              <select class="cond-tipo" onchange="handleRuleConditionInput(${rIndex}, ${cIndex}, 'tipo', this.value)">
-                <option value="porcentaje_global" ${cond.tipo === 'porcentaje_global' ? 'selected' : ''}>% Global</option>
-                <option value="seccion" ${cond.tipo === 'seccion' ? 'selected' : ''}>Por sección</option>
-              </select>
-              
-              <div class="cond-seccion-group" style="display: ${cond.tipo === 'seccion' ? 'inline-flex' : 'none'};">
+            <div class="condition-sentence" data-cond-index="${cIndex}">
+              <span class="cond-conjunction ${cIndex === 0 ? 'cond-si' : 'cond-y'}">${conjuncion}</span>
+              <div class="cond-controls">
+                <select class="cond-tipo" onchange="handleRuleConditionInput(${rIndex}, ${cIndex}, 'tipo', this.value)" title="Tipo de condición">
+                  <option value="porcentaje_global" ${cond.tipo === 'porcentaje_global' ? 'selected' : ''}>calificación global</option>
+                  <option value="seccion" ${cond.tipo === 'seccion' ? 'selected' : ''}>sección específica</option>
+                </select>
+                <span class="cond-es">es</span>
+                <select class="cond-operador" onchange="handleRuleConditionInput(${rIndex}, ${cIndex}, 'operador', this.value)">
+                  <option value=">=" ${cond.operador === '>=' ? 'selected' : ''}>mayor o igual a</option>
+                  <option value=">" ${cond.operador === '>' ? 'selected' : ''}>mayor que</option>
+                  <option value="<=" ${cond.operador === '<=' ? 'selected' : ''}>menor o igual a</option>
+                  <option value="<" ${cond.operador === '<' ? 'selected' : ''}>menor que</option>
+                  <option value="==" ${cond.operador === '==' ? 'selected' : ''}>igual a</option>
+                </select>
+                <input type="number" class="cond-valor" value="${cond.valor || 0}" min="0" max="100" step="0.5"
+                       placeholder="Valor" style="width: 60px;"
+                       onchange="handleRuleConditionInput(${rIndex}, ${cIndex}, 'valor', parseFloat(this.value) || 0)" />
+                <select class="cond-unidad" onchange="handleRuleConditionInput(${rIndex}, ${cIndex}, 'unidad', this.value)">
+                  <option value="porcentaje" ${cond.unidad === 'porcentaje' ? 'selected' : ''}>de 10</option>
+                  <option value="puntos" ${cond.unidad === 'puntos' ? 'selected' : ''}>puntos</option>
+                </select>
+                <button class="btn-danger-small cond-remove" onclick="removeRuleCondition(${rIndex}, ${cIndex})" title="Quitar condición" style="font-size: 11px; padding: 2px 6px;">✕</button>
+              </div>
+              <div class="cond-seccion-group" style="display: ${cond.tipo === 'seccion' ? 'inline-flex' : 'none'}; margin-left: 32px; margin-top: 4px;">
                 <select class="cond-seccion" onchange="handleRuleConditionInput(${rIndex}, ${cIndex}, 'seccion', this.value)">
-                  <option value="">Sección...</option>
                   <option value="opcion_multiple" ${cond.seccion === 'opcion_multiple' ? 'selected' : ''}>Opción Múltiple</option>
                   <option value="vf" ${cond.seccion === 'vf' ? 'selected' : ''}>Verdadero/Falso</option>
                   <option value="relacionar" ${cond.seccion === 'relacionar' ? 'selected' : ''}>Relacionar</option>
@@ -165,38 +187,19 @@ function renderRulesEditor() {
                   <option value="matematica" ${cond.seccion === 'matematica' ? 'selected' : ''}>Matemática</option>
                 </select>
               </div>
-              
-              <select class="cond-operador" onchange="handleRuleConditionInput(${rIndex}, ${cIndex}, 'operador', this.value)">
-                <option value=">=" ${cond.operador === '>=' ? 'selected' : ''}>≥ (mayor o igual)</option>
-                <option value=">" ${cond.operador === '>' ? 'selected' : ''}>> (mayor que)</option>
-                <option value="<=" ${cond.operador === '<=' ? 'selected' : ''}>≤ (menor o igual)</option>
-                <option value="<" ${cond.operador === '<' ? 'selected' : ''}>⟨ (menor que)</option>
-                <option value="==" ${cond.operador === '==' ? 'selected' : ''}>= (igual a)</option>
-              </select>
-              
-              <input type="number" class="cond-valor" value="${cond.valor || 0}" min="0" max="100" step="0.1"
-                     placeholder="Valor" 
-                     onchange="handleRuleConditionInput(${rIndex}, ${cIndex}, 'valor', parseFloat(this.value) || 0)" />
-              
-              <select class="cond-unidad" onchange="handleRuleConditionInput(${rIndex}, ${cIndex}, 'unidad', this.value)">
-                <option value="puntos" ${cond.unidad === 'puntos' ? 'selected' : ''}>puntos</option>
-                <option value="porcentaje" ${cond.unidad === 'porcentaje' ? 'selected' : ''}>%</option>
-              </select>
-              
-              <button class="btn-danger-small cond-remove" onclick="removeRuleCondition(${rIndex}, ${cIndex})" title="Quitar condición">✕</button>
             </div>`;
         });
       }
       
       html += `
-            <button class="btn-secondary-small" onclick="addRuleCondition(${rIndex})" style="margin-top: 6px; font-size: 12px;">
-              + Agregar condición
+            <button class="btn-secondary-small" onclick="addRuleCondition(${rIndex})" style="margin-top: 6px; margin-left: 32px; font-size: 12px;">
+              + Agregar condición (Y además)
             </button>
           </div>
           
           <div class="rule-tareas">
-            <label style="font-weight: 600; font-size: 13px; color: #334155; margin-bottom: 8px; display: block;">
-              Tareas a asignar cuando se cumpla la regla:
+            <label style="font-weight: 700; font-size: 14px; color: #059669; margin-bottom: 8px; display: block; margin-top: 12px;">
+              ➜ ENTONCES asignar estas tareas:
             </label>
             <div class="task-checkbox-list">`;
       
@@ -220,6 +223,18 @@ function renderRulesEditor() {
   
   html += `</div>`;
   container.innerHTML = html;
+}
+
+// Helper: etiqueta legible para operador
+function operadorLabel(op) {
+  const map = { '>=': 'mayor o igual a', '>': 'mayor que', '<=': 'menor o igual a', '<': 'menor que', '==': 'igual a' };
+  return map[op] || op;
+}
+
+// Helper: etiqueta legible para sección
+function seccionLabel(sec) {
+  const map = { opcion_multiple: 'Opción Múltiple', vf: 'Verdadero/Falso', relacionar: 'Relacionar', abierta: 'Abierta', matematica: 'Matemática' };
+  return map[sec] || sec;
 }
 
 function handleRuleInput(rIndex, field, value) {

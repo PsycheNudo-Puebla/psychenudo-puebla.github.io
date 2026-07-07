@@ -50,6 +50,7 @@ function init() {
   // === Descargas ===
   document.getElementById("download-template-btn").addEventListener("click", downloadTemplate);
   document.getElementById("download-current-btn").addEventListener("click", downloadCurrentExam);
+  document.getElementById("preview-exam-btn").addEventListener("click", previewExam);
 
   // === Flujo de aplicación de examen ===
   document.getElementById("continue-to-exam-btn").addEventListener("click", prepareExam);
