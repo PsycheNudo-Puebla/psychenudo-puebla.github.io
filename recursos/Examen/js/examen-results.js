@@ -84,6 +84,46 @@ function renderImportedResults(resultPayload) {
       <button onclick="exportUpdatedPdf()" class="btn-secondary">📥 Exportar PDF actualizado</button>
     </div>`;
 
+  // Bitácora de eventos (colapsable, solo para el docente)
+  const eventLog = resultPayload.eventLog;
+  if (Array.isArray(eventLog) && eventLog.length > 0) {
+    html += `
+      <div class="results-section" style="margin-top: 20px;">
+        <details style="cursor: pointer;">
+          <summary style="font-weight: 700; font-size: 0.95rem; color: var(--muted); padding: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;">
+            📋 Bitácora del intento (${eventLog.length} eventos)
+          </summary>
+          <div style="margin-top: 8px; padding: 0; max-height: 300px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
+              <thead>
+                <tr style="background: var(--surface); border-bottom: 1px solid var(--border);">
+                  <th style="padding: 6px 8px; text-align: left; color: var(--muted);">Hora</th>
+                  <th style="padding: 6px 8px; text-align: left; color: var(--muted);">Evento</th>
+                  <th style="padding: 6px 8px; text-align: left; color: var(--muted);">Detalle</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${eventLog.map(e => `
+                  <tr style="border-bottom: 1px solid var(--border);">
+                    <td style="padding: 4px 8px; white-space: nowrap; font-family: monospace;">${escapeHtml(e.time)}</td>
+                    <td style="padding: 4px 8px;">
+                      ${e.type === "start" ? '<span style="color:#16a34a;font-weight:700;">▶ Inicio</span>' :
+                        e.type === "page" ? '<span style="color:#2563eb;">📄 Pag.</span>' :
+                        e.type === "cheat" ? '<span style="color:#dc2626;font-weight:700;">⚠ Salida</span>' :
+                        e.type === "resume" ? '<span style="color:#ca8a04;font-weight:700;">🔑 Recuperación</span>' :
+                        e.type === "submit" ? '<span style="color:#4f46e5;font-weight:700;">■ Fin</span>' :
+                        escapeHtml(e.type)}
+                    </td>
+                    <td style="padding: 4px 8px; color: var(--muted);">${escapeHtml(e.detail)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      </div>`;
+  }
+
   container.innerHTML = html;
   // Ocultar las demás vistas y mostrar solo resultados
   elements.homeView.classList.add("hidden");

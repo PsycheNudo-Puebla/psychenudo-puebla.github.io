@@ -37,7 +37,8 @@ function normalizeExam(data) {
     },
     preguntas: preguntas.map((question, index) => normalizeQuestion(question, index)),
     tareas: tareasInput.map(t => normalizeTarea(t)),
-    reglas_asignacion: reglasInput.map(r => normalizeRegla(r))
+    reglas_asignacion: reglasInput.map(r => normalizeRegla(r)),
+    clave_recuperacion: source.clave_recuperacion || ""
   };
 }
 
@@ -138,6 +139,7 @@ function serializeCurrentExam() {
     distribucion: currentExam.distribucion,
     preguntas: currentExam.preguntas,
     tareas: currentExam.tareas || [],
-    reglas_asignacion: currentExam.reglas_asignacion || []
+    reglas_asignacion: currentExam.reglas_asignacion || [],
+    clave_recuperacion: currentExam.clave_recuperacion || ""
   };
 }

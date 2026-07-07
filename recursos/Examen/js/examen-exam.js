@@ -1,7 +1,17 @@
 // ============================================================
 // examen-exam.js — Aplicación del examen (timer, anti-trampas,
-//                   navegación, entrega)
+//                   navegación, entrega, recuperación)
 // ============================================================
+
+function addEvent(type, detail) {
+  const now = new Date();
+  eventLog.push({
+    type,
+    time: now.toLocaleTimeString("es-MX", { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    ts: now.toISOString(),
+    detail
+  });
+}
 
 function showHome() {
   elements.homeView.classList.remove("hidden");
@@ -64,8 +74,10 @@ function startExam() {
   currentPage = 0;
   antiCheatBlocked = false;
   cheatCount = 0;
+  eventLog = [];
 
   examStartTime = new Date();
+  addEvent("start", `Inicio del examen — ${currentExam.titulo}`);
 
   currentQuestions = buildRandomQuestions();
   renderExamQuestions();
@@ -154,6 +166,9 @@ function renderQuestionMap() {
 
 function goToPage(index) {
   if (index >= 0 && index < currentQuestions.length) {
+    if (index !== currentPage) {
+      addEvent("page", `Pregunta ${index + 1}`);
+    }
     currentPage = index;
     syncUIPage();
   }
@@ -306,21 +321,92 @@ function registerCheat() {
   lastCheatTime = now;
   cheatCount += 1;
   elements.cheatCounter.textContent = `${cheatCount} / ${currentExam.maximo_salidas}`;
+  addEvent("cheat", `Salida de pantalla ${cheatCount}/${currentExam.maximo_salidas}`);
+  
   if (cheatCount >= currentExam.maximo_salidas) {
-    updateStatus("Se alcanzó el límite de salidas de pantalla. El examen se está enviando.", true);
-    submitExam(true);
+    updateStatus("Se alcanzó el límite de salidas de pantalla.", true);
+    clearInterval(timerInterval);
+    const recoveryKey = currentExam.clave_recuperacion && currentExam.clave_recuperacion.trim();
+    if (recoveryKey) {
+      isExamActive = false;
+      showRecoveryScreen();
+    } else {
+      submitExam(true);
+    }
   } else {
     updateStatus(`Advertencia: se detectó una salida de pantalla (${cheatCount} / ${currentExam.maximo_salidas}).`, true);
   }
 }
 
+function showRecoveryScreen() {
+  elements.examControls.classList.add("hidden");
+  elements.recoverySection.classList.remove("hidden");
+  elements.blockedSection.classList.remove("hidden");
+  elements.blockedMessage.innerHTML = `<p>Se alcanzó el límite de salidas de pantalla. Si fue un error, ingresa la clave de recuperación proporcionada por tu docente para retomar el examen.</p>`;
+  if (elements.recoveryKeyInput) elements.recoveryKeyInput.value = "";
+  if (elements.recoveryKeyInput) elements.recoveryKeyInput.focus();
+  const errEl = document.getElementById("recovery-error");
+  if (errEl) errEl.style.display = "none";
+  
+  // Vincular botón de recuperación
+  const submitBtn = elements.recoverySubmitBtn;
+  if (submitBtn) {
+    const newBtn = submitBtn.cloneNode(true);
+    submitBtn.parentNode.replaceChild(newBtn, submitBtn);
+    elements.recoverySubmitBtn = newBtn;
+    elements.recoverySubmitBtn.addEventListener("click", attemptRecovery);
+  }
+  // Vincular Enter en el input
+  const input = elements.recoveryKeyInput;
+  if (input) {
+    const newInput = input.cloneNode(true);
+    input.parentNode.replaceChild(newInput, input);
+    elements.recoveryKeyInput = newInput;
+    elements.recoveryKeyInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") attemptRecovery();
+    });
+    elements.recoveryKeyInput.focus();
+  }
+}
+
+function attemptRecovery() {
+  const input = elements.recoveryKeyInput;
+  if (!input) return;
+  const enteredKey = input.value.trim();
+  const errEl = document.getElementById("recovery-error");
+  
+  if (enteredKey === (currentExam.clave_recuperacion || "").trim()) {
+    // Clave correcta — retomar examen
+    addEvent("resume", "Examen retomado con clave de recuperación");
+    cheatCount = 0;
+    elements.cheatCounter.textContent = `0 / ${currentExam.maximo_salidas}`;
+    antiCheatBlocked = false;
+    isExamActive = true;
+    elements.recoverySection.classList.add("hidden");
+    elements.blockedSection.classList.add("hidden");
+    elements.examControls.classList.remove("hidden");
+    startTimer();
+    updateStatus("Examen retomado. La clave de recuperación se registró en la bitácora.");
+    if (errEl) errEl.style.display = "none";
+  } else {
+    // Clave incorrecta
+    if (errEl) errEl.style.display = "block";
+    setTimeout(() => {
+      if (errEl) errEl.style.display = "none";
+      submitExam(true);
+    }, 3000);
+  }
+}
+
 // --- Entrega del examen ---
 async function submitExam(isAuto) {
-  if (!isExamActive) return;
+  // Si se llama con isAuto=true (por tiempo o cheat), permitir incluso si isExamActive ya es false
+  if (!isExamActive && !isAuto) return;
   isExamActive = false;
   clearInterval(timerInterval);
 
   elements.applyView.classList.add("hidden");
+  elements.recoverySection.classList.add("hidden");
 
   let earnedPoints = 0; let totalPossiblePoints = 0;
   const resultPayload = {
@@ -453,6 +539,9 @@ async function submitExam(isAuto) {
   // Incluir datos del examen para permitir re-evaluación de reglas al recargar resultados
   resultPayload.examTareas = currentExam.tareas || [];
   resultPayload.examReglasAsignacion = currentExam.reglas_asignacion || [];
+  resultPayload.eventLog = eventLog || [];
+
+  addEvent("submit", `Examen finalizado. Calificación: ${finalGrade}/10`);
 
   latestResultPayload = resultPayload;
 
@@ -505,6 +594,7 @@ function resetExam() {
   elements.welcomeName.value = "";
   elements.welcomeId.value = "";
   elements.blockedSection.classList.add("hidden");
+  elements.recoverySection.classList.add("hidden");
   elements.questionsPreview.innerHTML = "";
   showHome();
   updateStatus("Listo para un nuevo intento.");
@@ -513,4 +603,5 @@ function resetExam() {
   cheatCount = 0;
   antiCheatBlocked = false;
   examStartTime = null;
+  eventLog = [];
 }

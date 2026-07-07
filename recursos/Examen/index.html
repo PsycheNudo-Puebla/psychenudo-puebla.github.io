@@ -167,6 +167,11 @@
           <span>Máximo de salidas de pantalla</span>
           <input id="exam-exits" type="number" min="1" value="3" />
         </label>
+        <label class="field">
+          <span>Clave de recuperación <em style="font-weight:400;color:var(--muted);font-size:0.8rem;">(opcional)</em></span>
+          <input id="exam-recovery-key" type="text" placeholder="Dejar vacío = sin recuperación" />
+          <small style="color:var(--muted);font-size:0.75rem;">Si se agotan las salidas, el alumno puede ingresar esta clave para retomar el examen (falsos positivos).</small>
+        </label>
       </div>
       <div class="section-heading" style="margin-top: 16px;">
         <div>
@@ -259,6 +264,15 @@
     <section id="blocked-section" class="card hidden">
       <h2>Examen finalizado</h2>
       <p id="blocked-message" class="muted"></p>
+      <div id="recovery-section" class="hidden" style="margin-top: 16px; padding: 16px; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 12px;">
+        <p style="font-weight: 700; color: #92400e; margin-bottom: 8px;">🔑 ¿Falso positivo?</p>
+        <p style="font-size: 0.85rem; color: #92400e; margin-bottom: 12px;">Si el cierre fue por una notificación o llamada accidental, ingresa la clave proporcionada por tu docente para retomar el examen.</p>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <input id="recovery-key-input" type="text" placeholder="Clave de recuperación" style="flex: 1; padding: 10px; border: 1px solid #d97706; border-radius: 8px;" />
+          <button id="recovery-submit-btn" style="background: #d97706; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">Retomar</button>
+        </div>
+        <p id="recovery-error" style="color: #dc2626; font-size: 0.8rem; margin-top: 6px; display: none;">Clave incorrecta. El examen se finalizará.</p>
+      </div>
       <div class="inline-actions" style="margin-top: 12px;">
         <button id="reset-exam-btn" class="secondary">Preparar un nuevo intento</button>
         <button id="download-results-json-btn" class="secondary">Descargar resultados JSON</button>

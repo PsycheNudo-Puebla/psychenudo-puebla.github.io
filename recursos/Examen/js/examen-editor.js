@@ -6,6 +6,7 @@ function populateEditor() {
   elements.examTitle.value = currentExam.titulo || "";
   elements.examTime.value = currentExam.tiempo_limite_minutos || 15;
   elements.examExits.value = currentExam.maximo_salidas || 3;
+  if (elements.examRecoveryKey) elements.examRecoveryKey.value = currentExam.clave_recuperacion || "";
   elements.distOM.value = currentExam.distribucion.opcion_multiple || 0;
   elements.distVF.value = currentExam.distribucion.vf || 0;
   elements.distRel.value = currentExam.distribucion.relacionar || 0;
@@ -167,6 +168,7 @@ function syncMetadata() {
   currentExam.titulo = elements.examTitle.value.trim() || "Examen sin título";
   currentExam.tiempo_limite_minutos = Number(elements.examTime.value || 15);
   currentExam.maximo_salidas = Number(elements.examExits.value || 3);
+  currentExam.clave_recuperacion = elements.examRecoveryKey ? elements.examRecoveryKey.value.trim() : "";
   currentExam.puntos_distribucion = {
     opcion_multiple: Number(elements.ptsOM.value || 0),
     vf: Number(elements.ptsVF.value || 0),

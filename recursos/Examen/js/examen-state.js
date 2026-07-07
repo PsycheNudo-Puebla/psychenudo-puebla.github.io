@@ -72,6 +72,7 @@ let returnTimeout = null;
 let examStartTime = null;
 let focusTrackingElement = null;
 let focusTrackingTimeout = null;
+let eventLog = [];
 
 // --- Referencias a elementos del DOM ---
 const elements = {
@@ -102,6 +103,10 @@ const elements = {
   examTimer: document.getElementById("exam-timer"),
   examStartDisplay: document.getElementById("exam-start-time"),
   cheatCounter: document.getElementById("cheat-counter"),
+  examRecoveryKey: document.getElementById("exam-recovery-key"),
+  recoveryKeyInput: document.getElementById("recovery-key-input"),
+  recoverySubmitBtn: document.getElementById("recovery-submit-btn"),
+  recoverySection: document.getElementById("recovery-section"),
   questionsPreview: document.getElementById("questions-preview"),
   blockedSection: document.getElementById("blocked-section"),
   blockedMessage: document.getElementById("blocked-message"),
