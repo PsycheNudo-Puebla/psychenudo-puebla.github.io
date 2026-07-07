@@ -2,7 +2,7 @@
   "titulo": "Examen Diagnóstico Integral: Habilidades y Conocimientos",
   "tiempo_limite_minutos": 30,
   "maximo_salidas": 3,
-  "clave_recuperacion": "",
+  "clave_recuperacion": "1275",
   "distribucion": {
     "opcion_multiple": 3,
     "vf": 2,

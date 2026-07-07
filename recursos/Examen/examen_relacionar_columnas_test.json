@@ -2,6 +2,7 @@
   "titulo": "Prueba de Relacionar Columnas",
   "tiempo_limite_minutos": 10,
   "maximo_salidas": 2,
+  "clave_recuperacion": "1275",
   "puntos_distribucion": {
     "opcion_multiple": 1,
     "vf": 1,

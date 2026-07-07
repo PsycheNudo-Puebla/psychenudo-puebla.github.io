@@ -2,6 +2,7 @@
   "titulo": "Instrumentos de Evaluación Psicológica: Machover, 16PF y MMPI-2",
   "tiempo_limite_minutos": 120,
   "maximo_salidas": 3,
+  "clave_recuperacion": "1275",
   "puntos_distribucion": {
     "opcion_multiple": 1,
     "vf": 2,

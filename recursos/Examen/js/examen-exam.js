@@ -367,6 +367,16 @@ function showRecoveryScreen() {
     });
     elements.recoveryKeyInput.focus();
   }
+  // Vincular botón Finalizar examen
+  const finishBtn = document.getElementById("recovery-finish-btn");
+  if (finishBtn) {
+    const newFinishBtn = finishBtn.cloneNode(true);
+    finishBtn.parentNode.replaceChild(newFinishBtn, finishBtn);
+    newFinishBtn.addEventListener("click", () => {
+      elements.recoverySection.classList.add("hidden");
+      submitExam(true);
+    });
+  }
 }
 
 function attemptRecovery() {

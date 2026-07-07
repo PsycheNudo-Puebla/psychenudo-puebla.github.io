@@ -2,6 +2,7 @@
   "titulo": "Uso del celular en clase: IA y desarrollo de apps",
   "tiempo_limite_minutos": 30,
   "maximo_salidas": 3,
+  "clave_recuperacion": "1275",
   "distribucion": {
     "opcion_multiple": 3,
     "vf": 2,
