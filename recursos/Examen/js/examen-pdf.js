@@ -80,6 +80,10 @@ async function exportToPdf(filename) {
             [
               { text: 'Fecha:', style: 'label' }, { text: data.date, style: 'value' },
               { text: 'Intento:', style: 'label' }, { text: `#${data.attemptNumber}`, style: 'value' }
+            ],
+            [
+              { text: 'Iniciado:', style: 'label' }, { text: data.startTimeFormatted || 'No registrada', style: 'value' },
+              { text: '', style: 'label' }, { text: '', style: 'value' }
             ]
           ]
         },
@@ -259,7 +263,7 @@ async function exportToPdf(filename) {
 }
 
 function buildPrintableReport(resultPayload) {
-  const { examTitle: title, studentName: name, studentId: id, date, attemptNumber, score, earnedPoints, totalPoints, cheatCount, questions, tareas_asignadas } = resultPayload;
+      const { examTitle: title, studentName: name, studentId: id, date, startTimeFormatted, attemptNumber, score, earnedPoints, totalPoints, cheatCount, questions, tareas_asignadas } = resultPayload;
   const displayScore = score || (totalPoints > 0 ? ((earnedPoints / totalPoints) * 10).toFixed(1) : "0.0");
 
   // Generar HTML de tareas asignadas
@@ -311,6 +315,12 @@ function buildPrintableReport(resultPayload) {
             <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-weight: 600;">${escapeHtml(date)}</td>
             <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #64748b; text-align: right;">Intento:</td>
             <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-weight: 600; text-align: right;">#${attemptNumber}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #64748b;">Iniciado:</td>
+            <td style="padding: 8px 0; font-weight: 600;">${escapeHtml(startTimeFormatted || 'No registrada')}</td>
+            <td style="padding: 8px 0; color: #64748b;"></td>
+            <td style="padding: 8px 0;"></td>
           </tr>
         </table>
       </div>

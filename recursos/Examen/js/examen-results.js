@@ -15,6 +15,7 @@ function renderImportedResults(resultPayload) {
       <h2>${escapeHtml(examTitle)} — Resultados</h2>
       <p><strong>Estudiante:</strong> ${escapeHtml(studentName)} | <strong>ID:</strong> ${escapeHtml(studentId)}</p>
       <p><strong>Fecha:</strong> ${date} | <strong>Intento:</strong> #${attemptNumber}</p>
+      <p><strong>Iniciado:</strong> ${resultPayload.startTimeFormatted || 'No registrada'}</p>
       <p><strong>Salidas de pantalla:</strong> ${cheatCount}</p>
       <div class="results-summary">
         <div class="result-stat primary">

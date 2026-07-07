@@ -69,6 +69,7 @@ let currentDirectoryHandle = null;
 let antiCheatBlocked = false;
 let latestResultPayload = null;
 let returnTimeout = null;
+let examStartTime = null;
 let focusTrackingElement = null;
 let focusTrackingTimeout = null;
 
@@ -99,6 +100,7 @@ const elements = {
   examControls: document.getElementById("exam-controls"),
   examTitleDisplay: document.getElementById("exam-title-display"),
   examTimer: document.getElementById("exam-timer"),
+  examStartDisplay: document.getElementById("exam-start-time"),
   cheatCounter: document.getElementById("cheat-counter"),
   questionsPreview: document.getElementById("questions-preview"),
   blockedSection: document.getElementById("blocked-section"),

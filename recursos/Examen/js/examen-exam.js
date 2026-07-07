@@ -65,6 +65,8 @@ function startExam() {
   antiCheatBlocked = false;
   cheatCount = 0;
 
+  examStartTime = new Date();
+
   currentQuestions = buildRandomQuestions();
   renderExamQuestions();
   showExamStage("exam");
@@ -72,6 +74,9 @@ function startExam() {
   if (elements.examTitleDisplay) elements.examTitleDisplay.textContent = currentExam.titulo;
   elements.examTimer.textContent = `Tiempo restante: ${formatTime(currentExam.tiempo_limite_minutos * 60)}`;
   elements.cheatCounter.textContent = `0 / ${currentExam.maximo_salidas}`;
+  if (elements.examStartDisplay) {
+    elements.examStartDisplay.textContent = `Iniciado: ${examStartTime.toLocaleTimeString("es-MX", { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+  }
   
   updateNavigation();
   startTimer();
@@ -436,6 +441,10 @@ async function submitExam(isAuto) {
   const dateString = now.toLocaleDateString("es-MX") + " " + now.toLocaleTimeString("es-MX");
   resultPayload.date = dateString;
   resultPayload.attemptNumber = attemptNumber;
+  resultPayload.startTime = examStartTime ? examStartTime.toISOString() : "";
+  resultPayload.startTimeFormatted = examStartTime
+    ? examStartTime.toLocaleDateString("es-MX") + " " + examStartTime.toLocaleTimeString("es-MX")
+    : "No registrada";
   attempts.push({ date: dateString, score: finalGrade });
   localStorage.setItem(`exam_attempts_${currentExam.titulo}`, JSON.stringify(attempts));
 
@@ -503,4 +512,5 @@ function resetExam() {
   isExamActive = false;
   cheatCount = 0;
   antiCheatBlocked = false;
+  examStartTime = null;
 }
