@@ -1,44 +1,67 @@
 {
-  "titulo": "Examen de prueba local",
-  "tiempo_limite_minutos": 10,
-  "maximo_salidas": 2,
+  "titulo": "Examen Diagnóstico Integral: Habilidades y Conocimientos",
+  "tiempo_limite_minutos": 30,
+  "maximo_salidas": 3,
   "distribucion": {
-    "opcion_multiple": 2,
-    "vf": 1,
+    "opcion_multiple": 3,
+    "vf": 2,
     "relacionar": 1,
     "abierta": 1,
     "matematica": 1
   },
+  "puntos_distribucion": {
+    "opcion_multiple": 1,
+    "vf": 1,
+    "relacionar": 2,
+    "abierta": 2,
+    "matematica": 2
+  },
   "tareas": [
     {
-      "id": 1710000000001,
-      "nombre": "Investigar sobre España",
-      "descripcion": "Realiza una investigación sobre la geografía y cultura de España.",
-      "tipo": "investigacion",
-      "fecha_entrega": "2025-06-01",
-      "instrucciones": "Extensión mínima de 2 cuartillas, incluir referencias."
-    },
-    {
-      "id": 1710000000002,
-      "nombre": "Ejercicio de física orbital",
-      "descripcion": "Resuelve los ejercicios de física sobre órbitas planetarias.",
-      "tipo": "ejercicio",
-      "fecha_entrega": "2025-06-05",
-      "instrucciones": "Incluir procedimiento paso a paso."
-    },
-    {
-      "id": 1710000000003,
-      "nombre": "Reflexión sobre trabajo en equipo",
-      "descripcion": "Escribe una reflexión personal sobre la importancia del trabajo en equipo.",
+      "id": "tarea_reporte_fortalezas",
+      "nombre": "Reporte de Fortalezas Académicas",
+      "descripcion": "Redacta un informe personal identificando tus fortalezas académicas y áreas de mejora con base en tus resultados.",
       "tipo": "tarea",
-      "fecha_entrega": "2025-05-28",
-      "instrucciones": "Mínimo 1 cuartilla."
+      "fecha_entrega": "",
+      "instrucciones": "Extensión mínima de 1 cuartilla. Incluye un plan de acción con 3 metas concretas."
+    },
+    {
+      "id": "tarea_lectura_estudio",
+      "nombre": "Lectura Complementaria: Hábitos de Estudio",
+      "descripcion": "Lee el artículo proporcionado sobre técnicas de estudio efectivas y responde el cuestionario adjunto.",
+      "tipo": "lectura",
+      "fecha_entrega": "",
+      "instrucciones": "Lectura: 'Técnicas de Estudio Basadas en Evidencia' (15 min). Cuestionario de 5 preguntas."
+    },
+    {
+      "id": "tarea_ejercicio_om",
+      "nombre": "Ejercicio de Refuerzo: Opción Múltiple",
+      "descripcion": "Resuelve 10 ejercicios adicionales de opción múltiple sobre los temas donde tuviste menor puntuación.",
+      "tipo": "ejercicio",
+      "fecha_entrega": "",
+      "instrucciones": "Los ejercicios se encuentran en la plataforma. Debes obtener al menos 7/10 para aprobar."
+    },
+    {
+      "id": "tarea_practica_vf",
+      "nombre": "Práctica de Razonamiento: Verdadero/Falso",
+      "descripcion": "Completa una serie de ejercicios de verdadero/falso diseñados para fortalecer tu pensamiento crítico.",
+      "tipo": "practica",
+      "fecha_entrega": "",
+      "instrucciones": "20 enunciados para evaluar. Justifica con una breve explicación cada respuesta falsa."
+    },
+    {
+      "id": "tarea_investigacion_mate",
+      "nombre": "Investigación: Aplicaciones de Razonamiento Matemático",
+      "descripcion": "Investiga cómo se aplican los conceptos de razonamiento matemático en situaciones reales de tu carrera.",
+      "tipo": "investigacion",
+      "fecha_entrega": "",
+      "instrucciones": "Presentación de 5-7 diapositivas con ejemplos concretos. Incluye referencias bibliográficas."
     }
   ],
   "reglas_asignacion": [
     {
-      "id": 1711000000001,
-      "nombre": "Calificación alta (8+)",
+      "id": "regla_alto_rendimiento",
+      "nombre": "Alto rendimiento (global ≥ 8)",
       "condiciones": [
         {
           "tipo": "porcentaje_global",
@@ -48,11 +71,11 @@
           "unidad": "porcentaje"
         }
       ],
-      "tareas_asignadas": [1710000000001]
+      "tareas_asignadas": ["tarea_reporte_fortalezas"]
     },
     {
-      "id": 1711000000002,
-      "nombre": "Calificación media (6-7.9)",
+      "id": "regla_rendimiento_medio",
+      "nombre": "Rendimiento medio (global 6-7.9)",
       "condiciones": [
         {
           "tipo": "porcentaje_global",
@@ -69,11 +92,11 @@
           "unidad": "porcentaje"
         }
       ],
-      "tareas_asignadas": [1710000000002]
+      "tareas_asignadas": ["tarea_lectura_estudio"]
     },
     {
-      "id": 1711000000003,
-      "nombre": "Calificación baja (<6)",
+      "id": "regla_bajo_rendimiento",
+      "nombre": "Bajo rendimiento global (< 6)",
       "condiciones": [
         {
           "tipo": "porcentaje_global",
@@ -83,43 +106,122 @@
           "unidad": "porcentaje"
         }
       ],
-      "tareas_asignadas": [1710000000002, 1710000000003]
+      "tareas_asignadas": ["tarea_ejercicio_om", "tarea_practica_vf"]
+    },
+    {
+      "id": "regla_refuerzo_om",
+      "nombre": "Refuerzo en opción múltiple (< 6)",
+      "condiciones": [
+        {
+          "tipo": "seccion",
+          "seccion": "opcion_multiple",
+          "operador": "<",
+          "valor": 6,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": ["tarea_ejercicio_om"]
+    },
+    {
+      "id": "regla_refuerzo_vf",
+      "nombre": "Refuerzo en V/F (< 6)",
+      "condiciones": [
+        {
+          "tipo": "seccion",
+          "seccion": "vf",
+          "operador": "<",
+          "valor": 6,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": ["tarea_practica_vf"]
+    },
+    {
+      "id": "regla_investigacion_mate",
+      "nombre": "Profundizar en matemáticas (≥ 8)",
+      "condiciones": [
+        {
+          "tipo": "seccion",
+          "seccion": "matematica",
+          "operador": ">=",
+          "valor": 8,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": ["tarea_investigacion_mate"]
     }
   ],
   "preguntas": [
     {
-      "id": "e1",
+      "id": "om_01",
       "tipo": "opcion_multiple",
-      "pregunta": "¿Cuál es la capital de España?",
-      "opciones": ["Madrid", "Barcelona", "Valencia", "Sevilla"],
-      "respuesta_correcta": "Madrid"
+      "pregunta": "¿Cuál de los siguientes es un ejemplo de pensamiento crítico?",
+      "opciones": [
+        "Aceptar toda la información que se recibe sin cuestionarla",
+        "Analizar evidencias antes de formar una conclusión",
+        "Repetir opiniones de otras personas sin verificarlas",
+        "Evitar tomar decisiones complejas"
+      ],
+      "respuesta_correcta": "Analizar evidencias antes de formar una conclusión"
     },
     {
-      "id": "e2",
+      "id": "om_02",
+      "tipo": "opcion_multiple",
+      "pregunta": "¿Qué función principal cumple la memoria de trabajo en el aprendizaje?",
+      "opciones": [
+        "Almacenar recuerdos de la infancia",
+        "Mantener y manipular información temporalmente mientras realizamos una tarea",
+        "Regular los latidos del corazón",
+        "Controlar los movimientos involuntarios del cuerpo"
+      ],
+      "respuesta_correcta": "Mantener y manipular información temporalmente mientras realizamos una tarea"
+    },
+    {
+      "id": "om_03",
+      "tipo": "opcion_multiple",
+      "pregunta": "En metodología de la investigación, ¿qué es una variable independiente?",
+      "opciones": [
+        "La que se mide para ver los efectos del experimento",
+        "La que el investigador manipula para observar sus efectos",
+        "La que no cambia durante todo el estudio",
+        "La que depende del azar"
+      ],
+      "respuesta_correcta": "La que el investigador manipula para observar sus efectos"
+    },
+    {
+      "id": "vf_01",
       "tipo": "vf",
-      "pregunta": "La Tierra gira alrededor del Sol.",
+      "pregunta": "El aprendizaje significativo ocurre cuando el nuevo conocimiento se relaciona con conocimientos previos del estudiante.",
       "respuesta_correcta": "Verdadero"
     },
     {
-      "id": "e3",
+      "id": "vf_02",
+      "tipo": "vf",
+      "pregunta": "En estadística, la media aritmética siempre representa el valor central de un conjunto de datos, incluso cuando existen valores atípicos extremos.",
+      "respuesta_correcta": "Falso"
+    },
+    {
+      "id": "rel_01",
       "tipo": "relacionar",
-      "pregunta": "Relaciona cada palabra con su definición.",
+      "pregunta": "Relaciona cada método de estudio con su descripción principal.",
       "opciones": {
-        "Hidrógeno": "Elemento químico",
-        "Órbita": "Trayectoria de un cuerpo alrededor de otro"
+        "Mapa mental": "Representación gráfica de ideas organizadas alrededor de un concepto central",
+        "Técnica Pomodoro": "Intervalos de trabajo de 25 minutos con descansos breves",
+        "Método Cornell": "Sistema de toma de apuntes dividido en secciones para facilitar el repaso",
+        "Feynman": "Explicar un concepto en términos simples como si se lo enseñaras a un niño"
       }
     },
     {
-      "id": "e4",
+      "id": "ab_01",
       "tipo": "abierta",
-      "pregunta": "Describe una ventaja del trabajo en equipo.",
-      "respuesta_correcta": "Permite combinar diferentes habilidades y perspectivas, aumentando la creatividad y la eficiencia en la resolución de problemas complejos."
+      "pregunta": "Explica brevemente cómo aplicas el método científico en tu vida cotidiana para resolver un problema. Menciona al menos tres pasos del método.",
+      "respuesta_correcta": "El alumno debe mencionar al menos 3 pasos del método científico (observación, pregunta, hipótesis, experimentación, análisis, conclusión) y dar un ejemplo concreto de su vida cotidiana."
     },
     {
-      "id": "e5",
+      "id": "mat_01",
       "tipo": "matematica",
-      "pregunta": "¿Cuánto es 15% de 200?",
-      "respuesta_correcta": 30
+      "pregunta": "Un estudiante obtuvo las siguientes calificaciones en 5 exámenes: 8, 7, 9, 6 y 10. Calcula la media aritmética.",
+      "respuesta_correcta": 8
     }
   ]
 }
