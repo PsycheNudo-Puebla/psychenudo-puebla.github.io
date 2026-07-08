@@ -6,7 +6,7 @@
     <title>Asistencia QR - Alumno</title>
 
 
-  <script type="module" crossorigin src="./assets/alumno.DF_a66Rs.js"></script>
+  <script type="module" crossorigin src="./assets/alumno.DEqhqzft.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/styles.B-ourPx0.js">
   <link rel="modulepreload" crossorigin href="./assets/utils.D0z6l3IY.js">
   <link rel="stylesheet" crossorigin href="./assets/styles.Cvg8s2tI.css">
@@ -114,6 +114,12 @@
             <!-- Historial de cambios -->
             <div id="monitor-historial" style="max-height: 120px; overflow-y: auto; margin-bottom: 20px; font-size: 0.85em; color: #666; text-align: left;"></div>
             
+            <!-- Temporizador de clase -->
+            <div id="monitor-timer-container" style="display: none; background: #e8f5e9; border-radius: 16px; padding: 16px; margin-bottom: 16px; text-align: center;">
+                <div style="font-size: 0.8em; color: #2e7d32; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Tiempo restante</div>
+                <div id="monitor-timer" style="font-size: 2.8em; font-weight: 800; color: #1b5e20; font-family: monospace; margin: 4px 0;">--:--</div>
+            </div>
+
             <!-- Indicador de espera (visible mientras no se pueda confirmar) -->
             <div id="espera-confirmar" style="display: none; padding: 18px; margin-bottom: 4px; text-align: center;">
                 <div style="font-size: 2.5em; margin-bottom: 8px;">🕐</div>
@@ -127,9 +133,6 @@
             </button>
             <button onclick="sincronizarContador()" class="btn-secondary" style="width: 100%; margin-top: 8px; font-size: 0.85em; background: #f0f4ff; color: #667eea; border: 1px solid #d0d8ff;">
                 🔄 Sincronizar contador
-            </button>
-            <button id="btn-salir-monitoreo" onclick="salirMonitoreo()" class="btn-secondary" style="width: 100%; margin-top: 6px; font-size: 0.85em; background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2;">
-                ← Salir del monitoreo
             </button>
             <p style="font-size: 0.75em; color: #999; margin-top: 10px;">
                 Al confirmar aceptas que has estado presente durante la clase
