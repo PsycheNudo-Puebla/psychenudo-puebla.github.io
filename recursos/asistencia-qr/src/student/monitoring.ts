@@ -270,15 +270,14 @@ export function iniciarMonitoreo(
           actualizarMonitorUI();
         }
         if (payload.new.perdonada && !payload.new.confirmada) {
+          // Resetear contador al ser perdonado
+          cambiosContador = 0;
+          actualizarMonitorUI();
           const st = document.getElementById('monitor-estado')!;
-          st.innerHTML = '🙏 <strong>¡Perdonado!</strong> Ya puedes confirmar.';
+          st.innerHTML = '🙏 <strong>Perdonado por el profesor.</strong> Continúa en clase.';
           st.style.background = '#e8f5e9';
           st.style.color = '#2e7d32';
-          if (!_btnConfirmarMostrado) {
-            _btnConfirmarMostrado = true;
-            document.getElementById('btn-confirmar-asistencia')!.style.display = '';
-            document.getElementById('espera-confirmar')!.style.display = 'none';
-          }
+          // NO mostrar botón de confirmar — se mostrará cuando la clase termine
         }
       })
     .subscribe((status: string, err?: any) => {
@@ -296,13 +295,12 @@ export function iniciarMonitoreo(
                       cambiosContador = payload.new.cambios_pantalla;
                       actualizarMonitorUI();
                     }
-                    if (payload.new.perdonada && !payload.new.confirmada && !_btnConfirmarMostrado) {
-                      _btnConfirmarMostrado = true;
-                      document.getElementById('monitor-estado')!.innerHTML = '🙏 <strong>¡Perdonado!</strong> Ya puedes confirmar.';
+                    if (payload.new.perdonada && !payload.new.confirmada) {
+                      cambiosContador = 0;
+                      actualizarMonitorUI();
+                      document.getElementById('monitor-estado')!.innerHTML = '🙏 <strong>Perdonado por el profesor.</strong> Continúa en clase.';
                       document.getElementById('monitor-estado')!.style.background = '#e8f5e9';
                       document.getElementById('monitor-estado')!.style.color = '#2e7d32';
-                      document.getElementById('btn-confirmar-asistencia')!.style.display = '';
-                      document.getElementById('espera-confirmar')!.style.display = 'none';
                     }
                   }).subscribe();
             } catch (e) {
@@ -430,13 +428,12 @@ export async function sincronizarContador(): Promise<void> {
       cambiosContador = s.cambios_pantalla;
       actualizarMonitorUI();
     }
-    if (s.perdonada && !s.confirmada && !_btnConfirmarMostrado) {
-      _btnConfirmarMostrado = true;
-      document.getElementById('monitor-estado')!.innerHTML = '🙏 <strong>¡Perdonado!</strong> Ya puedes confirmar.';
+    if (s.perdonada && !s.confirmada) {
+      cambiosContador = s.cambios_pantalla || 0;
+      actualizarMonitorUI();
+      document.getElementById('monitor-estado')!.innerHTML = '🙏 <strong>Perdonado por el profesor.</strong> Continúa en clase.';
       document.getElementById('monitor-estado')!.style.background = '#e8f5e9';
       document.getElementById('monitor-estado')!.style.color = '#2e7d32';
-      document.getElementById('btn-confirmar-asistencia')!.style.display = '';
-      document.getElementById('espera-confirmar')!.style.display = 'none';
     }
     mostrarToast('✅ Contador sincronizado: ' + cambiosContador + ' cambios', 'exito');
   } catch (e: any) {
@@ -497,7 +494,7 @@ async function incrementarCambio(): Promise<void> {
   cambioEnProgreso = false;
   if (cambiosContador >= cambiosLimite) {
     const st = document.getElementById('monitor-estado')!;
-    st.innerHTML = '⚠️ Límite alcanzado. <strong>Espera que el profesor te perdone</strong> para confirmar.';
+    st.innerHTML = '⚠️ Límite alcanzado. El profesor puede perdonarte para reiniciar tu contador.';
     st.style.background = '#fff3e0';
     st.style.color = '#e65100';
   }

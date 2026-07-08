@@ -93,7 +93,7 @@ export async function perdonarAlumno(asistenciaId: string, btn: HTMLButtonElemen
 
   const { error } = await supabase
     .from('asistencia')
-    .update({ perdonada: true, estado: 'justificado' })
+    .update({ perdonada: true, estado: 'justificado', cambios_pantalla: 0 })
     .eq('id', asistenciaId);
 
   if (error) {
