@@ -497,6 +497,21 @@ async function incrementarCambio(): Promise<void> {
     st.innerHTML = '⚠️ Límite alcanzado. El profesor puede perdonarte para reiniciar tu contador.';
     st.style.background = '#fff3e0';
     st.style.color = '#e65100';
+
+    // Si ya estaba perdonado y re-excede, revocar el perdón
+    // para que necesite uno nuevo (evita confirmar sin permiso)
+    const { data: asis } = await supabase
+      .from('asistencia')
+      .select('perdonada')
+      .eq('id', asistenciaActualId)
+      .maybeSingle();
+    if (asis?.perdonada) {
+      await supabase
+        .from('asistencia')
+        .update({ perdonada: false, estado: 'presente' })
+        .eq('id', asistenciaActualId);
+      st.innerHTML = '⚠️ Límite alcanzado de nuevo. El profesor debe perdonarte otra vez.';
+    }
   }
 }
 
@@ -535,17 +550,24 @@ function actualizarMonitorUI(): void {
 // ====== CONFIRMAR ASISTENCIA ======
 export async function confirmarAsistencia(): Promise<void> {
   if (!asistenciaActualId) return;
-  if (cambiosContador >= cambiosLimite) {
-    const { data: a } = await supabase
-      .from('asistencia')
-      .select('perdonada')
-      .eq('id', asistenciaActualId)
-      .maybeSingle();
-    if (!a?.perdonada) {
-      mostrarToast('⚠️ Has excedido el límite. El profesor debe perdonarte primero.', 'warning');
-      return;
-    }
+
+  // Verificar estado actual desde BD
+  const { data: a } = await supabase
+    .from('asistencia')
+    .select('perdonada, cambios_pantalla')
+    .eq('id', asistenciaActualId)
+    .maybeSingle();
+
+  if (!a) return;
+
+  const cambiosBD = a.cambios_pantalla ?? cambiosContador;
+  const limiteActual = Math.max(cambiosContador, cambiosBD);
+
+  if (limiteActual >= cambiosLimite && !a.perdonada) {
+    mostrarToast('⚠️ Has excedido el límite de cambios. El profesor debe perdonarte primero.', 'warning');
+    return;
   }
+
   await supabase
     .from('asistencia')
     .update({ confirmada: true })
@@ -585,11 +607,17 @@ export function salirMonitoreo(): void {
 export async function confirmarAsistenciaPendiente(asistenciaId: string): Promise<void> {
   const { data: a } = await supabase
     .from('asistencia')
-    .select('id')
+    .select('id, cambios_pantalla, perdonada')
     .eq('id', asistenciaId)
     .eq('confirmada', false)
     .maybeSingle();
   if (!a) return;
+
+  const cambiosBD = a.cambios_pantalla || 0;
+  if (cambiosBD >= 3 && !a.perdonada) {
+    mostrarToast('⚠️ No puedes confirmar: excediste el límite de cambios sin perdón.', 'warning', 5000);
+    return;
+  }
 
   await supabase
     .from('asistencia')
