@@ -47,16 +47,27 @@ async function cargarAsistenciasActivas(): Promise<void> {
   const elLimite = document.getElementById('monitoreo-perdones-limite');
   if (elLimite) elLimite.textContent = String(maxPerdones);
 
+  // Contar alumnos con reingreso solicitado para el badge
+  const solicitantes = asistencias.filter((a: any) => a.reingreso_solicitado && !a.confirmada);
+  const elSolicitantes = document.getElementById('monitoreo-reingresos-count');
+  if (elSolicitantes) {
+    elSolicitantes.textContent = String(solicitantes.length);
+    (elSolicitantes.parentElement as HTMLElement).style.display = solicitantes.length > 0 ? '' : 'none';
+  }
+
   container.innerHTML = asistencias.map((a: any) => {
     const nombre = a.alumnos?.nombre || a.alumnos?.email || 'Sin nombre';
     const cambios = a.cambios_pantalla || 0;
     const excedido = cambios >= 3;
     const confirmada = a.confirmada;
     const perdonada = a.perdonada;
+    const reingreso = a.reingreso_solicitado;
 
     let estadoHTML: string;
     if (confirmada) {
       estadoHTML = '<span style="color:#2e7d32; font-weight:700;">✅ Confirmada</span>';
+    } else if (reingreso) {
+      estadoHTML = '<span style="color:#6a1b9a; font-weight:700;">🔄 Solicita reingreso</span>';
     } else if (perdonada) {
       estadoHTML = '<span style="color:#f57f17; font-weight:700;">🙏 Perdonado</span>';
     } else if (excedido) {
@@ -69,12 +80,16 @@ async function cargarAsistenciasActivas(): Promise<void> {
     const ancho = Math.min((cambios / 3) * 100, 100);
     const barraColor = excedido ? '#c62828' : perdonada ? '#f57f17' : '#ff9800';
 
-    const btnPerdonar = !perdonada && !confirmada
+    const btnPerdonar = !perdonada && !confirmada && !reingreso
       ? `<button onclick="perdonarAlumno('${a.id}', this)" class="btn-secondary" style="font-size:0.75em; padding:4px 10px; background:#fff8e1; color:#f57f17;">🙏 Perdonar</button>`
       : '';
 
+    const btnReingreso = reingreso
+      ? `<button onclick="aprobarReingreso('${a.id}', this)" class="btn-primary" style="font-size:0.75em; padding:4px 10px; background:#6a1b9a; color:white; border:none; border-radius:8px; cursor:pointer;">✅ Aprobar reingreso</button>`
+      : '';
+
     return `
-    <div style="background:white; border-radius:10px; padding:12px; margin-bottom:8px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+    <div style="background:white; border-radius:10px; padding:12px; margin-bottom:8px; box-shadow:0 1px 4px rgba(0,0,0,0.06);${reingreso ? 'border-left:4px solid #6a1b9a;' : ''}">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
         <strong>👤 ${nombre}</strong>
         ${estadoHTML}
@@ -85,7 +100,7 @@ async function cargarAsistenciasActivas(): Promise<void> {
           <div style="height:100%; width:${ancho}%; background:${barraColor}; border-radius:3px; transition:width 0.3s;"></div>
         </div>
       </div>
-      ${btnPerdonar ? `<div style="margin-top:8px; text-align:right;">${btnPerdonar}</div>` : ''}
+      ${btnPerdonar || btnReingreso ? `<div style="margin-top:8px; text-align:right;">${btnPerdonar}${btnReingreso ? ' ' + btnReingreso : ''}</div>` : ''}
     </div>`;
   }).join('');
 }
@@ -172,6 +187,30 @@ function iniciarRealtime(grupoId: string): void {
       () => { cargarAsistenciasActivas(); }
     )
     .subscribe();
+}
+
+// ====== APROBAR REINGRESO ======
+export async function aprobarReingreso(asistenciaId: string, btn: HTMLButtonElement): Promise<void> {
+  btn.disabled = true;
+  btn.textContent = '⏳...';
+
+  const { error } = await supabase
+    .from('asistencia')
+    .update({
+      reingreso_solicitado: false,
+      ultimo_latido: new Date().toISOString(),
+    })
+    .eq('id', asistenciaId);
+
+  if (error) {
+    mostrarToast('Error al aprobar reingreso: ' + error.message, 'error');
+    btn.disabled = false;
+    btn.textContent = '✅ Aprobar reingreso';
+    return;
+  }
+
+  mostrarToast('✅ Reingreso aprobado — el alumno volverá al monitoreo.', 'exito', 4000);
+  await cargarAsistenciasActivas();
 }
 
 export function detenerMonitoreo(): void {

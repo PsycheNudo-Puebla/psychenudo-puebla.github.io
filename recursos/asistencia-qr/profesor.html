@@ -9,7 +9,7 @@
     <script src="js/qrcode.min.js"></script>
 
 
-  <script type="module" crossorigin src="./assets/profesor.DHXM5V6-.js"></script>
+  <script type="module" crossorigin src="./assets/profesor.CzI_aNNJ.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/styles.B-ourPx0.js">
   <link rel="modulepreload" crossorigin href="./assets/utils.D0z6l3IY.js">
   <link rel="stylesheet" crossorigin href="./assets/styles.Cvg8s2tI.css">
@@ -116,6 +116,9 @@
                     Grupo: <strong id="monitoreo-grupo-nombre"></strong> 
                     · Perdones: <span id="monitoreo-perdones-usados">0</span>/<span id="monitoreo-perdones-max">2</span>
                     · <span id="monitoreo-alumnos-count">0</span> alumnos
+                    <span id="monitoreo-reingresos-container" style="display:none;">
+                        · 🟣 <span id="monitoreo-reingresos-count">0</span> reingresos pendientes
+                    </span>
                 </p>
                 <div id="monitoreo-lista" class="list-container" style="max-height: 400px; overflow-y: auto;">
                     <p class="empty-state">Esperando que los alumnos escaneen el QR...</p>
@@ -156,6 +159,11 @@
                     <div>
                         <label style="font-weight:600; color:#333; font-size:0.95em; margin:0 0 4px; display:block;">Número de perdones</label>
                         <input type="number" id="grupo-perdones" value="2" min="0" max="10" required>
+                    </div>
+                    <div>
+                        <label style="font-weight:600; color:#333; font-size:0.95em; margin:0 0 4px; display:block;">⏱️ Ventana de reingreso (min)</label>
+                        <input type="number" id="grupo-ventana-reingreso" value="2" min="0" max="30" required>
+                        <small style="color:#999; font-size:0.75em;">Tiempo máximo para auto-reingreso sin autorización</small>
                     </div>
                 </div>
 

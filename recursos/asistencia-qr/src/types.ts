@@ -33,6 +33,7 @@ export interface Grupo {
   latitud?: number;
   longitud?: number;
   radio_metros?: number;
+  ventana_reingreso_min: number;
   creado_en?: string;
 }
 
@@ -79,6 +80,8 @@ export interface Asistencia {
   cambios_pantalla: number;
   confirmada: boolean;
   perdonada: boolean;
+  ultimo_latido?: string;
+  reingreso_solicitado?: boolean;
   creado_en?: string;
 }
 

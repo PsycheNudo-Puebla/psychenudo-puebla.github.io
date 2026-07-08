@@ -298,6 +298,7 @@ async function procesarQR(qrData: string, resultadoDiv: HTMLElement): Promise<vo
         cambios_pantalla: 0,
         confirmada: false,
         perdonada: false,
+        ultimo_latido: new Date().toISOString(),
       })
       .select()
       .maybeSingle();

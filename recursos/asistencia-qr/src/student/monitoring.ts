@@ -16,6 +16,8 @@ let cambiosContador = 0;
 let cambiosLimite = 3;
 let monitorChannel: any = null;
 let monitorInterval: number | null = null;
+let heartbeatInterval: number | null = null;
+let reingresoChannel: any = null;
 let cambioEnProgreso = false;
 let ultimoCambioTimestamp = 0;
 let _inicioMonitoreo = 0;
@@ -23,6 +25,44 @@ let _confirmarDesde: Date | null = null;
 let _horaFinStr = '';
 let _btnConfirmarMostrado = false;
 let _tipoAsistenciaActual: string | null = null;
+
+// ====== VERIFICAR SI LA CLASE ESTÁ EN CURSO ======
+/** Devuelve true si hay sesión activa o el horario indica clase en curso */
+async function verificarClaseEnCurso(grupoId: string): Promise<boolean> {
+  try {
+    // 1. Sesión activa del profesor
+    const { data: sesion } = await supabase
+      .from('sesiones_clase')
+      .select('id')
+      .eq('grupo_id', grupoId)
+      .eq('activa', true)
+      .maybeSingle();
+    if (sesion) return true;
+
+    // 2. Horario programado hoy
+    const diaHoy = new Date().getDay();
+    const ahora = new Date();
+    const hh = ahora.getHours().toString().padStart(2,'0');
+    const mm = ahora.getMinutes().toString().padStart(2,'0');
+    const horaActualStr = `${hh}:${mm}`;
+
+    const { data: horarios } = await supabase
+      .from('horarios')
+      .select('hora_inicio, hora_fin')
+      .eq('grupo_id', grupoId)
+      .eq('dia_semana', diaHoy)
+      .eq('activo', true);
+
+    if (horarios) {
+      for (const h of horarios) {
+        const inicio = h.hora_inicio.substring(0, 5);
+        const fin = h.hora_fin.substring(0, 5);
+        if (horaActualStr >= inicio && horaActualStr <= fin) return true;
+      }
+    }
+    return false;
+  } catch { return false; }
+}
 
 // ====== AUTO-REENTRADA ======
 
@@ -32,7 +72,7 @@ export async function autoReanudarMonitoreo(userId: string): Promise<boolean> {
     const hoy = new Date().toISOString().split('T')[0];
     const { data: pendiente } = await supabase
       .from('asistencia')
-      .select('id, grupo_id, tipo_asistencia')
+      .select('id, grupo_id, tipo_asistencia, ultimo_latido')
       .eq('alumno_id', userId)
       .eq('fecha', hoy)
       .eq('confirmada', false)
@@ -42,20 +82,14 @@ export async function autoReanudarMonitoreo(userId: string): Promise<boolean> {
 
     const { data: grupo } = await supabase
       .from('grupos')
-      .select('nombre, limite_salidas')
+      .select('nombre, limite_salidas, ventana_reingreso_min')
       .eq('id', pendiente.grupo_id)
       .maybeSingle();
     if (!grupo) return false;
 
-    // Verificar si la sesión de clase sigue activa
-    const { data: sesion } = await supabase
-      .from('sesiones_clase')
-      .select('activa')
-      .eq('grupo_id', pendiente.grupo_id)
-      .eq('activa', true)
-      .maybeSingle();
+    const claseEnCurso = await verificarClaseEnCurso(pendiente.grupo_id);
 
-    if (!sesion) {
+    if (!claseEnCurso) {
       // Clase terminada — si es sin_derecho, auto-confirmar y salir
       if (pendiente.tipo_asistencia === 'sin_derecho') {
         await supabase
@@ -64,19 +98,43 @@ export async function autoReanudarMonitoreo(userId: string): Promise<boolean> {
           .eq('id', pendiente.id);
         return false;
       }
-      // Para otros casos, no auto-reanudar: el banner en dashboard
-      // le permitirá confirmar manualmente
+      // Guardamos vars para que revisarAsistenciaPendiente muestre banner
+      (window as any)._pendienteAsistenciaId = pendiente.id;
+      (window as any)._pendienteGrupoId = pendiente.grupo_id;
+      (window as any)._pendienteGrupoNombre = grupo.nombre;
+      (window as any)._pendienteLimite = grupo.limite_salidas ?? 3;
+      (window as any)._pendienteUltimoLatido = pendiente.ultimo_latido;
       return false;
     }
 
-    document.getElementById('login-view')!.classList.add('hidden');
-    document.getElementById('dashboard-view')!.classList.add('hidden');
+    // Clase en curso. Verificar si el alumno estuvo ausente poco tiempo
+    const ventanaMin = grupo.ventana_reingreso_min ?? 2;
+    const ventanaMs = ventanaMin * 60 * 1000;
+    const ahora = Date.now();
+    const ultimoLatido = pendiente.ultimo_latido
+      ? new Date(pendiente.ultimo_latido).getTime()
+      : 0;
+    const tiempoAusente = ultimoLatido > 0 ? ahora - ultimoLatido : Infinity;
 
-    // Recuperar el tipo de asistencia desde la BD
-    _tipoAsistenciaActual = pendiente.tipo_asistencia;
+    if (tiempoAusente <= ventanaMs) {
+      // Reciente → auto-reanudar
+      document.getElementById('login-view')!.classList.add('hidden');
+      document.getElementById('dashboard-view')!.classList.add('hidden');
+      _tipoAsistenciaActual = pendiente.tipo_asistencia;
+      iniciarMonitoreo(pendiente.id, pendiente.grupo_id, grupo.nombre, grupo.limite_salidas ?? 3);
+      return true;
+    }
 
-    iniciarMonitoreo(pendiente.id, pendiente.grupo_id, grupo.nombre, grupo.limite_salidas ?? 3);
-    return true;
+    // Ausente más tiempo del permitido → guardamos para que el banner
+    // ofrezca "Solicitar reingreso"
+    (window as any)._pendienteAsistenciaId = pendiente.id;
+    (window as any)._pendienteGrupoId = pendiente.grupo_id;
+    (window as any)._pendienteGrupoNombre = grupo.nombre;
+    (window as any)._pendienteLimite = grupo.limite_salidas ?? 3;
+    (window as any)._pendienteUltimoLatido = pendiente.ultimo_latido;
+    (window as any)._pendienteVentanaMin = ventanaMin;
+    (window as any)._pendienteClaseEnCurso = true;
+    return false;
   } catch (e) {
     console.warn('Error en autoReanudarMonitoreo:', e);
     return false;
@@ -97,7 +155,7 @@ export async function revisarAsistenciaPendiente(): Promise<void> {
     const hoy = new Date().toISOString().split('T')[0];
     const { data: asistenciaPendiente } = await supabase
       .from('asistencia')
-      .select('id, grupo_id, cambios_pantalla, sesion_codigo')
+      .select('id, grupo_id, cambios_pantalla, sesion_codigo, ultimo_latido')
       .eq('alumno_id', alumno.id)
       .eq('fecha', hoy)
       .eq('confirmada', false)
@@ -107,50 +165,73 @@ export async function revisarAsistenciaPendiente(): Promise<void> {
 
     const { data: grupo } = await supabase
       .from('grupos')
-      .select('nombre, limite_salidas')
+      .select('nombre, limite_salidas, ventana_reingreso_min')
       .eq('id', asistenciaPendiente.grupo_id)
       .maybeSingle();
     if (!grupo) return;
 
     const limite = grupo.limite_salidas ?? 3;
     const cambiosActuales = asistenciaPendiente.cambios_pantalla || 0;
+    const ventanaMin = grupo.ventana_reingreso_min ?? 2;
 
-    // Guardar en closure para reanudarMonitoreo
     (window as any)._pendienteAsistenciaId = asistenciaPendiente.id;
     (window as any)._pendienteGrupoId = asistenciaPendiente.grupo_id;
     (window as any)._pendienteGrupoNombre = grupo.nombre;
     (window as any)._pendienteLimite = limite;
+    (window as any)._pendienteUltimoLatido = asistenciaPendiente.ultimo_latido;
+    (window as any)._pendienteVentanaMin = ventanaMin;
     (window as any)._pendienteCambios = cambiosActuales;
 
-    // Verificar si la sesión sigue activa
-    const { data: sesion } = await supabase
-      .from('sesiones_clase')
-      .select('activa')
-      .eq('grupo_id', asistenciaPendiente.grupo_id)
-      .eq('activa', true)
-      .maybeSingle();
+    const claseEnCurso = await verificarClaseEnCurso(asistenciaPendiente.grupo_id);
+    const w = window as any;
+    w._pendienteClaseEnCurso = claseEnCurso;
 
-    if (sesion) {
-      // Sesión activa → ofrecer reanudar monitoreo
+    if (!claseEnCurso) {
+      // ── CLASE TERMINADA ──
+      // Solo mostrar confirmar si hubo latido reciente (presencia comprobable)
+      const ultimoLatido = asistenciaPendiente.ultimo_latido
+        ? new Date(asistenciaPendiente.ultimo_latido).getTime()
+        : 0;
+      const tienePresencia = ultimoLatido > 0;
+
+      if (tienePresencia) {
+        banner.innerHTML = `
+          <div style="background:#e3f2fd; border:1px solid #90caf9; border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <div style="font-size:1.5em;">⏰</div>
+            <div style="flex:1; min-width:150px;">
+              <strong style="color:#1565c0;">Clase terminada</strong>
+              <br><small style="color:#666;">${escHTML(grupo.nombre)} — Confirma tu asistencia pendiente</small>
+            </div>
+            <button onclick="window.confirmarAsistenciaPendiente('${asistenciaPendiente.id}')" class="btn-primary" style="background:#1565c0; white-space:nowrap; font-size:0.9em;">✅ Confirmar asistencia</button>
+          </div>`;
+      } else {
+        banner.innerHTML = `
+          <div style="background:#ffebee; border:1px solid #ef9a9a; border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <div style="font-size:1.5em;">🚫</div>
+            <div style="flex:1; min-width:150px;">
+              <strong style="color:#c62828;">No se detectó tu presencia</strong>
+              <br><small style="color:#666;">No tienes actividad registrada. Contacta a tu profesor.</small>
+            </div>
+          </div>`;
+      }
+    } else if (asistenciaPendiente.ultimo_latido &&
+        Date.now() - new Date(asistenciaPendiente.ultimo_latido).getTime() <= ventanaMin * 60 * 1000) {
+      // ── CLASE EN CURSO Y LATIDO RECIENTE → auto-reanudar directo
+      // Esto no debería ocurrir porque autoReanudarMonitoreo ya lo maneja,
+      // pero si llegó aquí igual, lo resolvemos
+      try {
+        reanudarMonitoreo();
+      } catch { /* ignore */ }
+    } else {
+      // ── CLASE EN CURSO PERO AUSENTE → solicitar reingreso
       banner.innerHTML = `
         <div style="background:#fff8e1; border:1px solid #ffe082; border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
           <div style="font-size:1.5em;">⏳</div>
           <div style="flex:1; min-width:150px;">
-            <strong style="color:#e65100;">Tienes una asistencia en curso</strong>
-            <br><small style="color:#666;">${escHTML(grupo.nombre)} — Cambios: ${cambiosActuales}/${limite}</small>
+            <strong style="color:#e65100;">Ausente del monitoreo</strong>
+            <br><small style="color:#666;">${escHTML(grupo.nombre)} — Estuviste ausente más de ${ventanaMin} min. Solicita reingreso al profesor.</small>
           </div>
-          <button onclick="window.reanudarMonitoreo()" class="btn-primary" style="background:#e65100; white-space:nowrap; font-size:0.9em;">🔁 Reanudar monitoreo</button>
-        </div>`;
-    } else {
-      // Clase terminada → ofrecer confirmar directamente
-      banner.innerHTML = `
-        <div style="background:#e3f2fd; border:1px solid #90caf9; border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-          <div style="font-size:1.5em;">⏰</div>
-          <div style="flex:1; min-width:150px;">
-            <strong style="color:#1565c0;">Clase terminada</strong>
-            <br><small style="color:#666;">${escHTML(grupo.nombre)} — Confirma tu asistencia pendiente</small>
-          </div>
-          <button onclick="window.confirmarAsistenciaPendiente('${asistenciaPendiente.id}')" class="btn-primary" style="background:#1565c0; white-space:nowrap; font-size:0.9em;">✅ Confirmar asistencia</button>
+          <button onclick="window.solicitarReingreso()" class="btn-primary" style="background:#e65100; white-space:nowrap; font-size:0.9em;">🔁 Solicitar reingreso</button>
         </div>`;
     }
     banner.classList.remove('hidden');
@@ -159,17 +240,85 @@ export async function revisarAsistenciaPendiente(): Promise<void> {
   }
 }
 
+// ====== SOLICITAR REINGRESO AL PROFESOR ======
+export async function solicitarReingreso(): Promise<void> {
+  const w = window as any;
+  const asistenciaId = w._pendienteAsistenciaId;
+  if (!asistenciaId) return;
+
+  try {
+    await supabase
+      .from('asistencia')
+      .update({ reingreso_solicitado: true })
+      .eq('id', asistenciaId);
+
+    // Mostrar pantalla de espera
+    const banner = document.getElementById('reanudar-banner');
+    if (banner) {
+      banner.innerHTML = `
+        <div style="background:#e8f5e9; border:1px solid #a5d6a7; border-radius:12px; padding:14px 16px; text-align:center;">
+          <div style="font-size:2em; margin-bottom:8px;">⏳</div>
+          <strong style="color:#2e7d32;">Solicitud enviada</strong>
+          <br><small style="color:#666;">Espera a que el profesor autorice tu reingreso...</small>
+          <div style="margin-top:8px; font-size:0.8em; color:#999;" id="reingreso-espera-msg">
+            La pantalla se reanudará automáticamente.
+          </div>
+          <button onclick="window.cancelarReingreso()" class="btn-secondary" style="margin-top:10px; font-size:0.8em;">Cancelar</button>
+        </div>`;
+    }
+
+    // Escuchar en tiempo real la aprobación del profesor
+    if (reingresoChannel) supabase.removeChannel(reingresoChannel);
+    reingresoChannel = supabase
+      .channel('reingreso-' + asistenciaId)
+      .on('postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'asistencia', filter: `id=eq.${asistenciaId}` },
+        (payload: any) => {
+          // Profesor aprobó: reingreso_solicitado=false y ultimo_latido actualizado
+          if (!payload.new.reingreso_solicitado && payload.new.ultimo_latido) {
+            if (reingresoChannel) supabase.removeChannel(reingresoChannel);
+            reingresoChannel = null;
+            // Reanudar monitoreo
+            const grupoId = w._pendienteGrupoId;
+            const grupoNombre = w._pendienteGrupoNombre;
+            const limite = w._pendienteLimite ?? 3;
+            if (grupoId && grupoNombre) {
+              document.getElementById('login-view')!.classList.add('hidden');
+              document.getElementById('dashboard-view')!.classList.add('hidden');
+              iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite);
+            }
+          }
+        }
+      )
+      .subscribe();
+  } catch (e) {
+    console.warn('Error al solicitar reingreso:', e);
+    mostrarToast('Error al solicitar reingreso', 'error');
+  }
+}
+
+export function cancelarReingreso(): void {
+  if (reingresoChannel) {
+    supabase.removeChannel(reingresoChannel);
+    reingresoChannel = null;
+  }
+  // Volver al banner anterior recargando
+  revisarAsistenciaPendiente();
+}
+
 export function reanudarMonitoreo(): void {
   const w = window as any;
   if (w._pendienteAsistenciaId) {
-    // Recuperar tipo_asistencia desde la BD al reanudar desde el banner
     supabase
       .from('asistencia')
-      .select('tipo_asistencia')
+      .select('tipo_asistencia, cambios_pantalla')
       .eq('id', w._pendienteAsistenciaId)
       .maybeSingle()
       .then(({ data }) => {
-        if (data) _tipoAsistenciaActual = data.tipo_asistencia;
+        if (data) {
+          _tipoAsistenciaActual = data.tipo_asistencia;
+          w._pendienteCambios = data.cambios_pantalla || 0;
+        }
       });
 
     iniciarMonitoreo(
@@ -178,8 +327,9 @@ export function reanudarMonitoreo(): void {
       w._pendienteGrupoNombre,
       w._pendienteLimite
     );
-    if (w._pendienteCambios > 0) {
-      cambiosContador = w._pendienteCambios;
+    const cambiosPrevios = w._pendienteCambios || 0;
+    if (cambiosPrevios > 0) {
+      cambiosContador = cambiosPrevios;
       document.getElementById('monitor-contador')!.textContent = String(cambiosContador);
       const pct = Math.min((cambiosContador / cambiosLimite) * 100, 100);
       const barra = document.getElementById('monitor-barra')!;
@@ -389,6 +539,18 @@ export function iniciarMonitoreo(
     }
   }, 5000);
 
+  // Heartbeat: probar presencia activa cada 30s
+  if (heartbeatInterval) clearInterval(heartbeatInterval);
+  heartbeatInterval = window.setInterval(async () => {
+    if (!asistenciaActualId) return;
+    try {
+      await supabase
+        .from('asistencia')
+        .update({ ultimo_latido: new Date().toISOString() })
+        .eq('id', asistenciaActualId);
+    } catch { /* ignore errores de heartbeat */ }
+  }, 30000);
+
   // Event listeners para cambios de pantalla
   document.addEventListener('visibilitychange', manejarVisibilidad);
   window.addEventListener('blur', manejarBlur);
@@ -409,6 +571,14 @@ function detenerMonitoreo(): void {
   if (monitorInterval) {
     clearInterval(monitorInterval);
     monitorInterval = null;
+  }
+  if (heartbeatInterval) {
+    clearInterval(heartbeatInterval);
+    heartbeatInterval = null;
+  }
+  if (reingresoChannel) {
+    supabase.removeChannel(reingresoChannel);
+    reingresoChannel = null;
   }
   asistenciaActualId = null;
   grupoActualId = null;
@@ -554,11 +724,19 @@ export async function confirmarAsistencia(): Promise<void> {
   // Verificar estado actual desde BD
   const { data: a } = await supabase
     .from('asistencia')
-    .select('perdonada, cambios_pantalla')
+    .select('perdonada, cambios_pantalla, ultimo_latido')
     .eq('id', asistenciaActualId)
     .maybeSingle();
 
   if (!a) return;
+
+  // Verificar presencia activa (ultimo_latido reciente)
+  const latido = a.ultimo_latido ? new Date(a.ultimo_latido).getTime() : 0;
+  const MIN_LATIDO_MS = 10 * 60 * 1000; // 10 min de tolerancia
+  if (!latido || Date.now() - latido > MIN_LATIDO_MS) {
+    mostrarToast('🚫 No se detectó tu presencia continua en clase. Contacta a tu profesor.', 'warning', 6000);
+    return;
+  }
 
   const cambiosBD = a.cambios_pantalla ?? cambiosContador;
   const limiteActual = Math.max(cambiosContador, cambiosBD);
@@ -607,11 +785,18 @@ export function salirMonitoreo(): void {
 export async function confirmarAsistenciaPendiente(asistenciaId: string): Promise<void> {
   const { data: a } = await supabase
     .from('asistencia')
-    .select('id, cambios_pantalla, perdonada')
+    .select('id, cambios_pantalla, perdonada, ultimo_latido')
     .eq('id', asistenciaId)
     .eq('confirmada', false)
     .maybeSingle();
   if (!a) return;
+
+  // Verificar presencia activa
+  const latido = a.ultimo_latido ? new Date(a.ultimo_latido).getTime() : 0;
+  if (!latido) {
+    mostrarToast('🚫 No se detectó tu presencia en clase. Contacta a tu profesor.', 'warning', 6000);
+    return;
+  }
 
   const cambiosBD = a.cambios_pantalla || 0;
   if (cambiosBD >= 3 && !a.perdonada) {
@@ -646,3 +831,5 @@ function escHTML(s: string): string {
 (window as any).sincronizarContador = sincronizarContador;
 (window as any).salirMonitoreo = salirMonitoreo;
 (window as any).confirmarAsistenciaPendiente = confirmarAsistenciaPendiente;
+(window as any).solicitarReingreso = solicitarReingreso;
+(window as any).cancelarReingreso = cancelarReingreso;

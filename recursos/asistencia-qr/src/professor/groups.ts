@@ -44,7 +44,7 @@ export async function cargarGrupos(): Promise<void> {
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <div style="flex:1;">
           <strong style="font-size:1.15em; color:#333;">${g.nombre}</strong>
-          <br><small style="color:#888;">${g.materia || 'Sin materia'} · Límite: ${g.limite_salidas} salidas · ${g.numero_perdones} perdones/alumno</small>
+          <br><small style="color:#888;">${g.materia || 'Sin materia'} · Límite: ${g.limite_salidas} salidas · ${g.numero_perdones} perdones/alumno · 🟣 Reingreso: ${g.ventana_reingreso_min || 2}min</small>
         </div>
         <div class="list-item-actions" style="flex-shrink:0; gap:4px;" onclick="event.stopPropagation();">
           <button onclick="mostrarEditarGrupo('${g.id}')" class="btn-secondary" title="Editar grupo y horarios">✏️</button>
@@ -195,7 +195,7 @@ async function cargarDetalleHorarios(grupoId: string): Promise<void> {
 
 // ---- CREAR GRUPO ----
 export async function crearGrupo(
-  nombre: string, materia: string, limite: number, perdones: number, codigoUnico: string
+  nombre: string, materia: string, limite: number, perdones: number, codigoUnico: string, ventanaReingreso: number
 ): Promise<boolean> {
   if (!(await verificarSesion())) return false;
   try {
@@ -206,6 +206,7 @@ export async function crearGrupo(
         nombre, materia,
         limite_salidas: limite || 3,
         numero_perdones: perdones || 2,
+        ventana_reingreso_min: ventanaReingreso || 2,
         codigo_unico: codigoUnico,
       })
       .select()
@@ -257,6 +258,7 @@ export async function mostrarEditarGrupo(grupoId: string): Promise<void> {
   (document.getElementById('grupo-materia') as HTMLInputElement).value = grupo.materia || '';
   (document.getElementById('grupo-limite') as HTMLInputElement).value = String(grupo.limite_salidas || 3);
   (document.getElementById('grupo-perdones') as HTMLInputElement).value = String(grupo.numero_perdones || 2);
+  (document.getElementById('grupo-ventana-reingreso') as HTMLInputElement).value = String(grupo.ventana_reingreso_min ?? 2);
   (document.getElementById('grupo-codigo') as HTMLInputElement).value = grupo.codigo_unico || '';
 
   // Reset horarios
@@ -282,13 +284,13 @@ export async function mostrarEditarGrupo(grupoId: string): Promise<void> {
 }
 
 export async function guardarEdicionGrupo(
-  id: string, nombre: string, materia: string, limite: number, perdones: number, codigoUnico: string
+  id: string, nombre: string, materia: string, limite: number, perdones: number, codigoUnico: string, ventanaReingreso: number
 ): Promise<boolean> {
   if (!(await verificarSesion())) return false;
   try {
     await supabase
       .from('grupos')
-      .update({ nombre, materia, limite_salidas: limite, numero_perdones: perdones, codigo_unico: codigoUnico })
+      .update({ nombre, materia, limite_salidas: limite, numero_perdones: perdones, codigo_unico: codigoUnico, ventana_reingreso_min: ventanaReingreso })
       .eq('id', id);
 
     // Reemplazar horarios
@@ -377,6 +379,7 @@ export async function handleGuardarGrupo(e: Event): Promise<boolean> {
   const materia = (document.getElementById('grupo-materia') as HTMLInputElement).value.trim();
   const limite = parseInt((document.getElementById('grupo-limite') as HTMLInputElement).value) || 3;
   const perdones = parseInt((document.getElementById('grupo-perdones') as HTMLInputElement).value) || 2;
+  const ventanaReingreso = parseInt((document.getElementById('grupo-ventana-reingreso') as HTMLInputElement).value) || 2;
   const codigo = (document.getElementById('grupo-codigo') as HTMLInputElement).value.trim();
 
   if (!nombre) {
@@ -386,9 +389,9 @@ export async function handleGuardarGrupo(e: Event): Promise<boolean> {
 
   let exito: boolean;
   if (editando) {
-    exito = await guardarEdicionGrupo(editando, nombre, materia, limite, perdones, codigo);
+    exito = await guardarEdicionGrupo(editando, nombre, materia, limite, perdones, codigo, ventanaReingreso);
   } else {
-    exito = await crearGrupo(nombre, materia, limite, perdones, codigo);
+    exito = await crearGrupo(nombre, materia, limite, perdones, codigo, ventanaReingreso);
   }
 
   if (exito) cerrarModal();
