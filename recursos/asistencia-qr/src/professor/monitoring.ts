@@ -43,6 +43,27 @@ async function cargarAsistenciasActivas(): Promise<void> {
     .maybeSingle();
   const maxPerdones = grupo?.numero_perdones ?? 2;
 
+  // Contar perdones usados hoy
+  const hoy = new Date().toISOString().split('T')[0];
+  const { count: perdonesUsados } = await supabase
+    .from('asistencia')
+    .select('*', { count: 'exact', head: true })
+    .eq('grupo_id', monitorGrupoId)
+    .eq('fecha', hoy)
+    .eq('perdonada', true);
+  const usados = perdonesUsados ?? 0;
+
+  // Actualizar contador de perdones en el encabezado
+  const elUsados = document.getElementById('monitoreo-perdones-usados');
+  const elMax = document.getElementById('monitoreo-perdones-max');
+  if (elUsados) elUsados.textContent = String(usados);
+  if (elMax) elMax.textContent = String(maxPerdones);
+  // Colorear el contador si se alcanzó el límite
+  if (elUsados) {
+    elUsados.style.color = usados >= maxPerdones ? '#c62828' : '#f57f17';
+    elUsados.style.fontWeight = 'bold';
+  }
+
   container.innerHTML = asistencias.map((a: any) => {
     const nombre = a.alumnos?.nombre || a.alumnos?.email || 'Sin nombre';
     const cambios = a.cambios_pantalla || 0;
@@ -91,6 +112,31 @@ export async function perdonarAlumno(asistenciaId: string, btn: HTMLButtonElemen
   btn.disabled = true;
   btn.textContent = '⏳...';
 
+  // Obtener el límite de perdones del grupo
+  const { data: grupo } = await supabase
+    .from('grupos')
+    .select('numero_perdones')
+    .eq('id', monitorGrupoId)
+    .maybeSingle();
+  const maxPerdones = grupo?.numero_perdones ?? 2;
+
+  // Contar cuántos perdones se han usado hoy en este grupo
+  const hoy = new Date().toISOString().split('T')[0];
+  const { count: perdonesUsados } = await supabase
+    .from('asistencia')
+    .select('*', { count: 'exact', head: true })
+    .eq('grupo_id', monitorGrupoId)
+    .eq('fecha', hoy)
+    .eq('perdonada', true);
+
+  const usados = perdonesUsados ?? 0;
+  if (usados >= maxPerdones) {
+    mostrarToast(`❌ Límite de perdones alcanzado (${maxPerdones}/${maxPerdones}). Ajusta el límite en la configuración del grupo.`, 'error', 5000);
+    btn.disabled = false;
+    btn.textContent = '🙏 Perdonar';
+    return;
+  }
+
   const { error } = await supabase
     .from('asistencia')
     .update({ perdonada: true, estado: 'justificado', cambios_pantalla: 0 })
@@ -103,7 +149,8 @@ export async function perdonarAlumno(asistenciaId: string, btn: HTMLButtonElemen
     return;
   }
 
-  mostrarToast('✅ Alumno perdonado', 'exito');
+  const restantes = maxPerdones - (usados + 1);
+  mostrarToast(`✅ Alumno perdonado (${usados + 1}/${maxPerdones} — quedan ${restantes})`, 'exito', 4000);
   await cargarAsistenciasActivas();
 }
 
