@@ -278,3 +278,12 @@ ALTER TABLE public.grupo_alumnos ADD COLUMN IF NOT EXISTS abandono_en TIMESTAMPT
 ALTER TABLE public.horarios ADD COLUMN IF NOT EXISTS latitud DOUBLE PRECISION;
 ALTER TABLE public.horarios ADD COLUMN IF NOT EXISTS longitud DOUBLE PRECISION;
 ALTER TABLE public.horarios ADD COLUMN IF NOT EXISTS radio_metros DOUBLE PRECISION DEFAULT 100;
+
+-- =============================================================
+-- 🔄 8. MIGRACIÓN: Heartbeat + Reingreso Controlado (2026-07-08)
+-- =============================================================
+ALTER TABLE public.grupos ADD COLUMN IF NOT EXISTS ventana_reingreso_min INTEGER DEFAULT 2;
+ALTER TABLE public.asistencia ADD COLUMN IF NOT EXISTS ultimo_latido TIMESTAMPTZ;
+ALTER TABLE public.asistencia ADD COLUMN IF NOT EXISTS reingreso_solicitado BOOLEAN DEFAULT FALSE;
+UPDATE public.grupos SET ventana_reingreso_min = 2 WHERE ventana_reingreso_min IS NULL;
+UPDATE public.asistencia SET ultimo_latido = creado_en WHERE ultimo_latido IS NULL AND confirmada = true;

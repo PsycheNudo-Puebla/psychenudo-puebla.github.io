@@ -6,7 +6,7 @@ import '@/config/toaster';
 import '../css/styles.css';
 import { initAlumnoAuth, handleLogin, handleRegister, handleResetPassword, handleLogout, showTab } from '@/student/auth';
 import { setupUnirseGrupoForm, showUnirseGrupoModal, cerrarModalUnirse } from '@/student/dashboard';
-import { confirmarAsistencia, sincronizarContador, salirMonitoreo, confirmarAsistenciaPendiente } from '@/student/monitoring';
+import { confirmarAsistencia, sincronizarContador, salirMonitoreo, confirmarAsistenciaPendiente, solicitarReingreso, cancelarReingreso } from '@/student/monitoring';
 import { iniciarEscaneo, detenerEscaneo } from '@/student/scanner';
 
 // Inicialización
@@ -29,3 +29,5 @@ document.addEventListener('DOMContentLoaded', () => {
 (window as any).sincronizarContador = sincronizarContador;
 (window as any).salirMonitoreo = salirMonitoreo;
 (window as any).confirmarAsistenciaPendiente = confirmarAsistenciaPendiente;
+(window as any).solicitarReingreso = solicitarReingreso;
+(window as any).cancelarReingreso = cancelarReingreso;

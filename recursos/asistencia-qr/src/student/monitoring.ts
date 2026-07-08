@@ -367,7 +367,7 @@ export function iniciarMonitoreo(
   const btnConfirmar = document.getElementById('btn-confirmar-asistencia') as HTMLButtonElement;
   btnConfirmar.style.display = 'none';
   document.getElementById('espera-confirmar')!.style.display = '';
-  document.getElementById('btn-salir-monitoreo')!.style.display = '';  // ← Siempre visible
+  // El botón salir-monitoreo fue eliminado — el estudiante no debe poder salir
   (window as any)._btnConfirmarMostrado = false;
 
   // Obtener horario de hoy
@@ -386,6 +386,10 @@ export function iniciarMonitoreo(
         finDate.setHours(hf, mf, 0, 0);
         _confirmarDesde = new Date(finDate.getTime() - 5 * 60 * 1000);
         _horaFinStr = horaFin;
+
+        // Mostrar temporizador
+        const timerContainer = document.getElementById('monitor-timer-container');
+        if (timerContainer) timerContainer.style.display = '';
 
         if (_tipoAsistenciaActual === 'sin_derecho') {
           const st = document.getElementById('monitor-estado')!;
@@ -482,14 +486,31 @@ export function iniciarMonitoreo(
       st.style.color = '#2e7d32';
     }
 
-    // 2. Verificar si la sesión sigue activa
-    const { data: sesion } = await supabase
-      .from('sesiones_clase')
-      .select('activa')
-      .eq('grupo_id', grupoActualId)
-      .eq('activa', true)
-      .maybeSingle();
-    if (!sesion) {
+    // 2. Verificar si la clase terminó (por horario o por sesión)
+    let claseTerminada = false;
+    if (_horaFinStr) {
+      // Tenemos horario → comparar con hora de fin
+      const [hf, mf] = _horaFinStr.split(':').map(Number);
+      const finDate = new Date();
+      finDate.setHours(hf, mf, 0, 0);
+      claseTerminada = new Date() >= finDate;
+    } else {
+      // Sin horario → verificar si hay sesión activa del profesor
+      const { data: sesion } = await supabase
+        .from('sesiones_clase')
+        .select('activa')
+        .eq('grupo_id', grupoActualId)
+        .eq('activa', true)
+        .maybeSingle();
+      claseTerminada = !sesion;
+    }
+
+    // 2b. Actualizar timer si hay hora de fin
+    if (_horaFinStr && !claseTerminada) {
+      actualizarTimer(_horaFinStr);
+    }
+
+    if (claseTerminada) {
       clearInterval(monitorInterval!);
       monitorInterval = null;
       const mins = (new Date().getTime() - _inicioMonitoreo) / 60000;
@@ -518,9 +539,6 @@ export function iniciarMonitoreo(
         st.style.background = '#e3f2fd';
         st.style.color = '#1565c0';
       }
-
-      // Mostrar botón de salir cuando la clase termina
-      document.getElementById('btn-salir-monitoreo')!.style.display = '';
     }
 
     // 3. Sincronizar cambios_pantalla desde BD
@@ -820,6 +838,23 @@ export async function confirmarAsistenciaPendiente(asistenciaId: string): Promis
   cargarGrupos();
 }
 
+// ====== ACTUALIZAR TEMPORIZADOR ======
+function actualizarTimer(horaFin: string): void {
+  const el = document.getElementById('monitor-timer');
+  if (!el) return;
+  const [hf, mf] = horaFin.split(':').map(Number);
+  const fin = new Date();
+  fin.setHours(hf, mf, 0, 0);
+  const diffMs = fin.getTime() - Date.now();
+  if (diffMs <= 0) {
+    el.textContent = '00:00';
+    return;
+  }
+  const mins = Math.floor(diffMs / 60000);
+  const segs = Math.floor((diffMs % 60000) / 1000);
+  el.textContent = `${String(mins).padStart(2,'0')}:${String(segs).padStart(2,'0')}`;
+}
+
 // ====== HELPERS ======
 function escHTML(s: string): string {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -829,7 +864,6 @@ function escHTML(s: string): string {
 (window as any).reanudarMonitoreo = reanudarMonitoreo;
 (window as any).confirmarAsistencia = confirmarAsistencia;
 (window as any).sincronizarContador = sincronizarContador;
-(window as any).salirMonitoreo = salirMonitoreo;
 (window as any).confirmarAsistenciaPendiente = confirmarAsistenciaPendiente;
 (window as any).solicitarReingreso = solicitarReingreso;
 (window as any).cancelarReingreso = cancelarReingreso;
