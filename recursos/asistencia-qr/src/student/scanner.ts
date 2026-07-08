@@ -259,9 +259,8 @@ async function procesarQR(qrData: string, resultadoDiv: HTMLElement): Promise<vo
 
     if (asistenciaHoy) {
       if (!asistenciaHoy.confirmada) {
-        resultadoDiv.textContent = '⚠️ Reanudando monitoreo...';
         const nomG = grupo?.nombre || 'Grupo';
-        setTimeout(() => iniciarMonitoreo(asistenciaHoy.id, grupoId, nomG, limiteCambios), 500);
+        iniciarMonitoreo(asistenciaHoy.id, grupoId, nomG, limiteCambios);
         return;
       }
       resultadoDiv.textContent = '⚠️ Ya registraste asistencia para esta sesión.';
@@ -309,17 +308,15 @@ async function procesarQR(qrData: string, resultadoDiv: HTMLElement): Promise<vo
     }
 
     if (tipoAsistencia === 'sin_derecho') {
-      resultadoDiv.textContent = '⚠️ Llegaste muy tarde. Registrado como AUSENCIA sin derecho.';
-      resultadoDiv.style.color = '#c62828';
+      mostrarToast('⚠️ Llegaste muy tarde. Registrado como AUSENCIA sin derecho.', 'warning', 5000);
     } else if (tipoAsistencia === 'retardo') {
-      resultadoDiv.textContent = '⚠️ ¡Asistencia registrada como RETARDO!';
-      resultadoDiv.style.color = '#e65100';
+      mostrarToast('⚠️ Asistencia registrada como RETARDO', 'warning', 4000);
     } else {
-      resultadoDiv.textContent = '✅ ¡Asistencia registrada!';
-      resultadoDiv.style.color = '#2e7d32';
+      mostrarToast('✅ ¡Asistencia registrada!', 'exito', 3000);
     }
 
-    setTimeout(() => iniciarMonitoreo(nueva.id, grupoId, nomGrupo, limiteCambios), 500);
+    // Transición directa a monitoreo (sin esperar)
+    iniciarMonitoreo(nueva.id, grupoId, nomGrupo, limiteCambios);
   } catch (err: any) {
     resultadoDiv.textContent = '❌ Error: ' + err.message;
   }

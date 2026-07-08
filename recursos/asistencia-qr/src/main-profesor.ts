@@ -63,6 +63,7 @@ w['detenerMonitoreo'] = monitoring.detenerMonitoreo;
 w['cerrarMonitoreo'] = monitoring.cerrarMonitoreo;
 w['perdonarAlumno'] = monitoring.perdonarAlumno;
 w['aprobarReingreso'] = monitoring.aprobarReingreso;
+w['monitoreoModule'] = monitoring;
 
 // Reportes
 w['verGrupo'] = reports.verGrupo;

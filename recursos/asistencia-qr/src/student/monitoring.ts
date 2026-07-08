@@ -16,6 +16,7 @@ let cambiosContador = 0;
 let cambiosLimite = 3;
 let monitorChannel: any = null;
 let monitorInterval: number | null = null;
+let timerInterval: number | null = null;
 let heartbeatInterval: number | null = null;
 let reingresoChannel: any = null;
 let cambioEnProgreso = false;
@@ -116,7 +117,8 @@ export async function autoReanudarMonitoreo(userId: string): Promise<boolean> {
       : 0;
     const tiempoAusente = ultimoLatido > 0 ? ahora - ultimoLatido : Infinity;
 
-    if (tiempoAusente <= ventanaMs) {
+    // Si ventanaMin es 0, nunca se permite auto-reingreso (siempre pedir permiso)
+    if (ventanaMin > 0 && tiempoAusente <= ventanaMs) {
       // Reciente → auto-reanudar
       document.getElementById('login-view')!.classList.add('hidden');
       document.getElementById('dashboard-view')!.classList.add('hidden');
@@ -214,7 +216,7 @@ export async function revisarAsistenciaPendiente(): Promise<void> {
             </div>
           </div>`;
       }
-    } else if (asistenciaPendiente.ultimo_latido &&
+    } else if (ventanaMin > 0 && asistenciaPendiente.ultimo_latido &&
         Date.now() - new Date(asistenciaPendiente.ultimo_latido).getTime() <= ventanaMin * 60 * 1000) {
       // ── CLASE EN CURSO Y LATIDO RECIENTE → auto-reanudar directo
       // Esto no debería ocurrir porque autoReanudarMonitoreo ya lo maneja,
@@ -560,6 +562,22 @@ export function iniciarMonitoreo(
     }
   }, 5000);
 
+  // Timer en tiempo real: actualizar cada 1s
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = window.setInterval(() => {
+    if (!monitoreoActivo || !_horaFinStr) return;
+    const ahora = new Date();
+    const [hf, mf] = _horaFinStr.split(':').map(Number);
+    const fin = new Date();
+    fin.setHours(hf, mf, 0, 0);
+    if (ahora >= fin) {
+      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+      actualizarTimer(_horaFinStr);
+      return;
+    }
+    actualizarTimer(_horaFinStr);
+  }, 1000);
+
   // Heartbeat: probar presencia activa cada 30s
   if (heartbeatInterval) clearInterval(heartbeatInterval);
   heartbeatInterval = window.setInterval(async () => {
@@ -596,6 +614,10 @@ function detenerMonitoreo(): void {
   if (heartbeatInterval) {
     clearInterval(heartbeatInterval);
     heartbeatInterval = null;
+  }
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
   }
   if (reingresoChannel) {
     supabase.removeChannel(reingresoChannel);

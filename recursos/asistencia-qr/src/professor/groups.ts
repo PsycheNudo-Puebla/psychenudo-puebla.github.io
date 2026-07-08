@@ -206,7 +206,7 @@ export async function crearGrupo(
         nombre, materia,
         limite_salidas: limite || 3,
         numero_perdones: perdones || 2,
-        ventana_reingreso_min: ventanaReingreso || 2,
+        ventana_reingreso_min: isNaN(ventanaReingreso) ? 2 : ventanaReingreso,
         codigo_unico: codigoUnico,
       })
       .select()
@@ -379,7 +379,8 @@ export async function handleGuardarGrupo(e: Event): Promise<boolean> {
   const materia = (document.getElementById('grupo-materia') as HTMLInputElement).value.trim();
   const limite = parseInt((document.getElementById('grupo-limite') as HTMLInputElement).value) || 3;
   const perdones = parseInt((document.getElementById('grupo-perdones') as HTMLInputElement).value) || 2;
-  const ventanaReingreso = parseInt((document.getElementById('grupo-ventana-reingreso') as HTMLInputElement).value) || 2;
+  const rawVentana = parseInt((document.getElementById('grupo-ventana-reingreso') as HTMLInputElement).value);
+  const ventanaReingreso = isNaN(rawVentana) ? 2 : rawVentana;
   const codigo = (document.getElementById('grupo-codigo') as HTMLInputElement).value.trim();
 
   if (!nombre) {

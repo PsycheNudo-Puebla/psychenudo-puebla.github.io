@@ -31,11 +31,7 @@ async function cargarAsistenciasActivas(): Promise<void> {
     .eq('fecha', new Date().toISOString().split('T')[0])
     .order('creado_en', { ascending: true });
 
-  if (!asistencias || asistencias.length === 0) {
-    container.innerHTML = '<p class="empty-state">📭 No hay alumnos registrados hoy.</p>';
-    return;
-  }
-
+  // Actualizar encabezado del monitoreo
   const { data: grupo } = await supabase
     .from('grupos')
     .select('numero_perdones, nombre')
@@ -43,9 +39,29 @@ async function cargarAsistenciasActivas(): Promise<void> {
     .maybeSingle();
   const maxPerdones = grupo?.numero_perdones ?? 2;
 
-  // Actualizar el límite de perdones por alumno en el encabezado
-  const elLimite = document.getElementById('monitoreo-perdones-limite');
+  const elNombreGrupo = document.getElementById('monitoreo-grupo-nombre');
+  if (elNombreGrupo) elNombreGrupo.textContent = grupo?.nombre || '';
+
+  const elLimite = document.getElementById('monitoreo-perdones-max');
   if (elLimite) elLimite.textContent = String(maxPerdones);
+
+  const elUsados = document.getElementById('monitoreo-perdones-usados');
+  if (elUsados) elUsados.textContent = String(0);
+
+  if (!asistencias || asistencias.length === 0) {
+    container.innerHTML = '<p class="empty-state">📭 No hay alumnos registrados hoy.</p>';
+    const elCount = document.getElementById('monitoreo-alumnos-count');
+    if (elCount) elCount.textContent = '0';
+    return;
+  }
+
+  const elCount = document.getElementById('monitoreo-alumnos-count');
+  if (elCount) elCount.textContent = String(asistencias.length);
+
+  // Contar perdones usados hoy (sumar perdonadas)
+  const perdonesUsados = asistencias.filter((a: any) => a.perdonada).length;
+  const elUsados2 = document.getElementById('monitoreo-perdones-usados');
+  if (elUsados2) elUsados2.textContent = String(perdonesUsados);
 
   // Contar alumnos con reingreso solicitado para el badge
   const solicitantes = asistencias.filter((a: any) => a.reingreso_solicitado && !a.confirmada);
