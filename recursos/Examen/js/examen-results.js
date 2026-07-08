@@ -8,7 +8,7 @@ function renderImportedResults(resultPayload) {
   container.innerHTML = "";
 
   const { examTitle, studentName, studentId, date, attemptNumber, score, earnedPoints, totalPoints, cheatCount, questions, tareas_asignadas } = resultPayload;
-  const displayScore = score || (totalPoints > 0 ? ((earnedPoints / totalPoints) * 10).toFixed(1) : "0.0");
+  const displayScore = (score && !isNaN(parseFloat(score))) ? score : (totalPoints > 0 ? ((earnedPoints / totalPoints) * 10).toFixed(1) : "0.0");
 
   let html = `
     <div class="results-header">

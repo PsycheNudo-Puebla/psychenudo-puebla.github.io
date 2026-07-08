@@ -264,7 +264,7 @@ async function exportToPdf(filename) {
 
 function buildPrintableReport(resultPayload) {
       const { examTitle: title, studentName: name, studentId: id, date, startTimeFormatted, attemptNumber, score, earnedPoints, totalPoints, cheatCount, questions, tareas_asignadas } = resultPayload;
-  const displayScore = score || (totalPoints > 0 ? ((earnedPoints / totalPoints) * 10).toFixed(1) : "0.0");
+  const displayScore = (score && !isNaN(parseFloat(score))) ? score : (totalPoints > 0 ? ((earnedPoints / totalPoints) * 10).toFixed(1) : "0.0");
 
   // Generar HTML de tareas asignadas
   let tareasHtml = "";
