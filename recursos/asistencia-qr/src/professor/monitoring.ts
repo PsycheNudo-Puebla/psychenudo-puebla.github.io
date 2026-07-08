@@ -86,7 +86,7 @@ async function cargarAsistenciasActivas(): Promise<void> {
   }).join('');
 }
 
-async function perdonarAlumno(asistenciaId: string, btn: HTMLButtonElement): Promise<void> {
+export async function perdonarAlumno(asistenciaId: string, btn: HTMLButtonElement): Promise<void> {
   if (!monitorGrupoId) return;
   btn.disabled = true;
   btn.textContent = '⏳...';

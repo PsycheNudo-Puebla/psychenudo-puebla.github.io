@@ -61,6 +61,7 @@ w['cerrarQR'] = qr.cerrarQR;
 w['reabrirMonitoreo'] = monitoring.reabrirMonitoreo;
 w['detenerMonitoreo'] = monitoring.detenerMonitoreo;
 w['cerrarMonitoreo'] = monitoring.cerrarMonitoreo;
+w['perdonarAlumno'] = monitoring.perdonarAlumno;
 
 // Reportes
 w['verGrupo'] = reports.verGrupo;
