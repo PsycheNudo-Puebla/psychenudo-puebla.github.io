@@ -43,26 +43,9 @@ async function cargarAsistenciasActivas(): Promise<void> {
     .maybeSingle();
   const maxPerdones = grupo?.numero_perdones ?? 2;
 
-  // Contar perdones usados hoy
-  const hoy = new Date().toISOString().split('T')[0];
-  const { count: perdonesUsados } = await supabase
-    .from('asistencia')
-    .select('*', { count: 'exact', head: true })
-    .eq('grupo_id', monitorGrupoId)
-    .eq('fecha', hoy)
-    .eq('perdonada', true);
-  const usados = perdonesUsados ?? 0;
-
-  // Actualizar contador de perdones en el encabezado
-  const elUsados = document.getElementById('monitoreo-perdones-usados');
-  const elMax = document.getElementById('monitoreo-perdones-max');
-  if (elUsados) elUsados.textContent = String(usados);
-  if (elMax) elMax.textContent = String(maxPerdones);
-  // Colorear el contador si se alcanzó el límite
-  if (elUsados) {
-    elUsados.style.color = usados >= maxPerdones ? '#c62828' : '#f57f17';
-    elUsados.style.fontWeight = 'bold';
-  }
+  // Actualizar el límite de perdones por alumno en el encabezado
+  const elLimite = document.getElementById('monitoreo-perdones-limite');
+  if (elLimite) elLimite.textContent = String(maxPerdones);
 
   container.innerHTML = asistencias.map((a: any) => {
     const nombre = a.alumnos?.nombre || a.alumnos?.email || 'Sin nombre';
@@ -112,7 +95,7 @@ export async function perdonarAlumno(asistenciaId: string, btn: HTMLButtonElemen
   btn.disabled = true;
   btn.textContent = '⏳...';
 
-  // Obtener el límite de perdones del grupo
+  // Obtener el límite de perdones POR ALUMNO del grupo
   const { data: grupo } = await supabase
     .from('grupos')
     .select('numero_perdones')
@@ -120,18 +103,31 @@ export async function perdonarAlumno(asistenciaId: string, btn: HTMLButtonElemen
     .maybeSingle();
   const maxPerdones = grupo?.numero_perdones ?? 2;
 
-  // Contar cuántos perdones se han usado hoy en este grupo
+  // Obtener el alumno_id de esta asistencia
+  const { data: asis } = await supabase
+    .from('asistencia')
+    .select('alumno_id')
+    .eq('id', asistenciaId)
+    .maybeSingle();
+  if (!asis) {
+    mostrarToast('❌ No se encontró la asistencia.', 'error');
+    btn.disabled = false;
+    btn.textContent = '🙏 Perdonar';
+    return;
+  }
+
+  // Contar cuántos perdones tiene YA este alumno hoy
   const hoy = new Date().toISOString().split('T')[0];
-  const { count: perdonesUsados } = await supabase
+  const { count: perdonesAlumno } = await supabase
     .from('asistencia')
     .select('*', { count: 'exact', head: true })
-    .eq('grupo_id', monitorGrupoId)
+    .eq('alumno_id', asis.alumno_id)
     .eq('fecha', hoy)
     .eq('perdonada', true);
 
-  const usados = perdonesUsados ?? 0;
+  const usados = perdonesAlumno ?? 0;
   if (usados >= maxPerdones) {
-    mostrarToast(`❌ Límite de perdones alcanzado (${maxPerdones}/${maxPerdones}). Ajusta el límite en la configuración del grupo.`, 'error', 5000);
+    mostrarToast(`❌ Este alumno ya usó sus ${maxPerdones} perdones hoy.`, 'error', 5000);
     btn.disabled = false;
     btn.textContent = '🙏 Perdonar';
     return;
@@ -150,7 +146,7 @@ export async function perdonarAlumno(asistenciaId: string, btn: HTMLButtonElemen
   }
 
   const restantes = maxPerdones - (usados + 1);
-  mostrarToast(`✅ Alumno perdonado (${usados + 1}/${maxPerdones} — quedan ${restantes})`, 'exito', 4000);
+  mostrarToast(`✅ Perdonado (${usados + 1}/${maxPerdones} de este alumno — quedan ${restantes})`, 'exito', 4000);
   await cargarAsistenciasActivas();
 }
 
