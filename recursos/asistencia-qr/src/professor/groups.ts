@@ -44,7 +44,7 @@ export async function cargarGrupos(): Promise<void> {
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <div style="flex:1;">
           <strong style="font-size:1.15em; color:#333;">${g.nombre}</strong>
-          <br><small style="color:#888;">${g.materia || 'Sin materia'} · Límite: ${g.limite_salidas} salidas · ${g.numero_perdones} perdones/alumno · 🟣 Reingreso: ${g.ventana_reingreso_min || 2}min</small>
+          <br><small style="color:#888;">${g.materia || 'Sin materia'} · Límite: ${g.limite_salidas} salidas · ${g.numero_perdones} perdones/alumno · 🟣 Reingreso: ${g.ventana_reingreso_min === 0 ? '0 (siempre pedir permiso)' : (g.ventana_reingreso_min ?? 2) + 'min'}</small>
         </div>
         <div class="list-item-actions" style="flex-shrink:0; gap:4px;" onclick="event.stopPropagation();">
           <button onclick="mostrarEditarGrupo('${g.id}')" class="btn-secondary" title="Editar grupo y horarios">✏️</button>

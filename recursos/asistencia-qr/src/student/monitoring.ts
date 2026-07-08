@@ -224,12 +224,15 @@ export async function revisarAsistenciaPendiente(): Promise<void> {
       } catch { /* ignore */ }
     } else {
       // ── CLASE EN CURSO PERO AUSENTE → solicitar reingreso
+      const msgAusente = ventanaMin > 0
+        ? `Estuviste ausente más de ${ventanaMin} min. Solicita reingreso al profesor.`
+        : `Debes solicitar reingreso al profesor para volver a clase.`;
       banner.innerHTML = `
         <div style="background:#fff8e1; border:1px solid #ffe082; border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
           <div style="font-size:1.5em;">⏳</div>
           <div style="flex:1; min-width:150px;">
             <strong style="color:#e65100;">Ausente del monitoreo</strong>
-            <br><small style="color:#666;">${escHTML(grupo.nombre)} — Estuviste ausente más de ${ventanaMin} min. Solicita reingreso al profesor.</small>
+            <br><small style="color:#666;">${escHTML(grupo.nombre)} — ${msgAusente}</small>
           </div>
           <button onclick="window.solicitarReingreso()" class="btn-primary" style="background:#e65100; white-space:nowrap; font-size:0.9em;">🔁 Solicitar reingreso</button>
         </div>`;
