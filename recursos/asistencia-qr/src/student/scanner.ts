@@ -133,19 +133,30 @@ async function procesarQR(qrData: string, resultadoDiv: HTMLElement): Promise<vo
 
   try {
     let datos: any;
-    try { datos = JSON.parse(qrData); } catch {
+    try {
+      // El formato del QR es: ASISTENCIA_QR:<base64>
+      // donde base64 decodifica a {"g":"<grupo_id>","s":"<codigo_sesion>","t":<timestamp>}
+      let rawData = qrData;
+      if (rawData.startsWith('ASISTENCIA_QR:')) {
+        const base64 = rawData.substring('ASISTENCIA_QR:'.length);
+        rawData = atob(base64);
+      }
+      datos = JSON.parse(rawData);
+    } catch {
       resultadoDiv.textContent = '❌ Código QR inválido.';
       return;
     }
 
-    if (!datos.grupo_id && !datos.codigo_sesion) {
+    // Compatibilidad: el QR usado usa claves cortas (g, s, t),
+    // pero también soporta claves largas por si hay otro formato
+    const grupoId: string = datos.grupo_id || datos.g || '';
+    const codigoSesion: string = datos.codigo_sesion || datos.s || '';
+    const ts: number = datos.ts || datos.t || 0;
+
+    if (!grupoId && !codigoSesion) {
       resultadoDiv.textContent = '❌ QR no reconocido.';
       return;
     }
-
-    const grupoId: string = datos.grupo_id;
-    const codigoSesion: string = datos.codigo_sesion || '';
-    const ts: number = datos.ts || 0;
 
     // Validación de timestamp (anti-screenshot)
     const ahora = Date.now();

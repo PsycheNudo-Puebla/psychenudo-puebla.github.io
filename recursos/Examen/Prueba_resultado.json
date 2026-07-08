@@ -1,0 +1,260 @@
+{
+  "type": "testlab_result",
+  "version": 1,
+  "examTitle": "Uso del celular en clase: IA y desarrollo de apps",
+  "studentName": "Prueba",
+  "studentId": "1",
+  "date": "6/7/2026 7:18:44 p.m.",
+  "attemptNumber": 1,
+  "score": "3.0",
+  "earnedPoints": 3,
+  "totalPoints": 10,
+  "cheatCount": 0,
+  "questions": [
+    {
+      "index": 1,
+      "question": "¿Cuál es una ventaja importante de usar IA desde el celular?",
+      "type": "opcion_multiple",
+      "points": 1,
+      "earnedPoints": 0,
+      "studentAnswer": "Tener siempre la respuesta correcta sin esfuerzo",
+      "correctAnswer": "Acceder a asistencia inteligente en cualquier momento y lugar",
+      "status": "❌ Incorrecto",
+      "isCorrect": false,
+      "partial": false,
+      "correctCount": 0,
+      "totalPairs": 0
+    },
+    {
+      "index": 2,
+      "question": "¿Cuál de las siguientes NO es una inteligencia artificial?",
+      "type": "opcion_multiple",
+      "points": 1,
+      "earnedPoints": 1,
+      "studentAnswer": "Microsoft Paint",
+      "correctAnswer": "Microsoft Paint",
+      "status": "✅ Correcto",
+      "isCorrect": true,
+      "partial": false,
+      "correctCount": 0,
+      "totalPairs": 0
+    },
+    {
+      "index": 3,
+      "question": "¿Qué significa HTML?",
+      "type": "opcion_multiple",
+      "points": 1,
+      "earnedPoints": 0,
+      "studentAnswer": "HyperTransfer Machine Language",
+      "correctAnswer": "HyperText Markup Language",
+      "status": "❌ Incorrecto",
+      "isCorrect": false,
+      "partial": false,
+      "correctCount": 0,
+      "totalPairs": 0
+    },
+    {
+      "index": 4,
+      "question": "Las IAs generativas como ChatGPT solo funcionan en computadoras de escritorio con tarjetas gráficas especiales.",
+      "type": "vf",
+      "points": 1,
+      "earnedPoints": 0,
+      "studentAnswer": "Verdadero",
+      "correctAnswer": "Falso",
+      "status": "❌ Incorrecto",
+      "isCorrect": false,
+      "partial": false,
+      "correctCount": 0,
+      "totalPairs": 0
+    },
+    {
+      "index": 5,
+      "question": "OpenCode es una herramienta de inteligencia artificial de código abierto.",
+      "type": "vf",
+      "points": 1,
+      "earnedPoints": 1,
+      "studentAnswer": "Verdadero",
+      "correctAnswer": "Verdadero",
+      "status": "✅ Correcto",
+      "isCorrect": true,
+      "partial": false,
+      "correctCount": 0,
+      "totalPairs": 0
+    },
+    {
+      "index": 6,
+      "question": "Relaciona cada IA con su propósito principal.",
+      "type": "relacionar",
+      "points": 2,
+      "earnedPoints": 0,
+      "studentAnswer": "<div style=\"page-break-inside: avoid;\"><div style=\"font-size: 12px; color: #64748b; margin-bottom: 6px;\">Aciertos: 0/4</div><ul style=\"margin: 0; padding-left: 20px; list-style-type: disc; page-break-inside: avoid;\"><li style=\"margin-bottom: 6px; page-break-inside: avoid;\"><span style=\"color: #64748b; font-weight: 700;\">Claude</span> &rarr; <span style=\"color: #000000; font-weight: 800;\">Asistente de código abierto para generación y revisión de código</span> <span style=\"color: #2563eb; font-weight: 700;\">(Correcta: Asistente multiusos con capacidad de razonamiento y código)</span></li><li style=\"margin-bottom: 6px; page-break-inside: avoid;\"><span style=\"color: #64748b; font-weight: 700;\">DeepSeek</span> &rarr; <span style=\"color: #000000; font-weight: 800;\">Asistente conversacional para tareas generales</span> <span style=\"color: #2563eb; font-weight: 700;\">(Correcta: Modelo de IA especializado en razonamiento lógico y programación)</span></li><li style=\"margin-bottom: 6px; page-break-inside: avoid;\"><span style=\"color: #64748b; font-weight: 700;\">OpenCode</span> &rarr; <span style=\"color: #000000; font-weight: 800;\">Modelo de IA especializado en razonamiento lógico y programación</span> <span style=\"color: #2563eb; font-weight: 700;\">(Correcta: Asistente de código abierto para generación y revisión de código)</span></li><li style=\"margin-bottom: 6px; page-break-inside: avoid;\"><span style=\"color: #64748b; font-weight: 700;\">ChatGPT</span> &rarr; <span style=\"color: #000000; font-weight: 800;\">Asistente multiusos con capacidad de razonamiento y código</span> <span style=\"color: #2563eb; font-weight: 700;\">(Correcta: Asistente conversacional para tareas generales)</span></li></ul></div>",
+      "correctAnswer": "Claude → Asistente multiusos con capacidad de razonamiento y código\nDeepSeek → Modelo de IA especializado en razonamiento lógico y programación\nOpenCode → Asistente de código abierto para generación y revisión de código\nChatGPT → Asistente conversacional para tareas generales",
+      "status": "❌ Incorrecto",
+      "isCorrect": false,
+      "partial": false,
+      "correctCount": 0,
+      "totalPairs": 4,
+      "studentAnswerDetails": [
+        {
+          "key": "Claude",
+          "studentValue": "Asistente de código abierto para generación y revisión de código",
+          "correctValue": "Asistente multiusos con capacidad de razonamiento y código",
+          "isSubCorrect": false
+        },
+        {
+          "key": "DeepSeek",
+          "studentValue": "Asistente conversacional para tareas generales",
+          "correctValue": "Modelo de IA especializado en razonamiento lógico y programación",
+          "isSubCorrect": false
+        },
+        {
+          "key": "OpenCode",
+          "studentValue": "Modelo de IA especializado en razonamiento lógico y programación",
+          "correctValue": "Asistente de código abierto para generación y revisión de código",
+          "isSubCorrect": false
+        },
+        {
+          "key": "ChatGPT",
+          "studentValue": "Asistente multiusos con capacidad de razonamiento y código",
+          "correctValue": "Asistente conversacional para tareas generales",
+          "isSubCorrect": false
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "question": "Describe paso a paso cómo harías una aplicación HTML de una calculadora de promedio escolar usando una IA como Qwen o DeepSeek desde tu celular. Menciona qué le pedirías a la IA y cómo probarías el resultado.",
+      "type": "abierta",
+      "points": 2,
+      "earnedPoints": 0,
+      "studentAnswer": "Hola",
+      "correctAnswer": "Para crear una calculadora de promedio escolar con IA desde el celular: 1) Abriría el navegador y accedería a Qwen Web o DeepSeek. 2) Le pediría a la IA: 'Genera una página HTML que calcule el promedio de calificaciones escolares, con campos para ingresar materias y notas, y que muestre el resultado al hacer clic en un botón.' 3) La IA generaría el código HTML, CSS y JavaScript. 4) Copiaría el código en un editor online como CodePen o en la app 'Acode' desde el celular. 5) Guardaría el archivo como .html y lo abriría en el navegador para probarlo. 6) Si hay errores, le mostraría el mensaje de error a la IA para que lo corrija.",
+      "status": "⏳ Pendiente",
+      "isCorrect": null,
+      "partial": false,
+      "correctCount": 0,
+      "totalPairs": 0
+    },
+    {
+      "index": 8,
+      "question": "En un grupo de 30 alumnos, 18 usan IA para estudiar. ¿Qué porcentaje del grupo usa IA?",
+      "type": "matematica",
+      "points": 1,
+      "earnedPoints": 1,
+      "studentAnswer": "<div style=\"page-break-inside: avoid;\"><b>Resultado:</b> 60<br><b>Procedimiento:</b><br><i style=\"font-size: 12px; color: #475569;\">Sin procedimiento</i></div>",
+      "correctAnswer": 60,
+      "status": "✅ Correcto",
+      "isCorrect": true,
+      "partial": false,
+      "correctCount": 0,
+      "totalPairs": 0
+    }
+  ],
+  "tareas_asignadas": [
+    {
+      "id": 1720000000007,
+      "nombre": "Recuperación integral",
+      "descripcion": "Realiza un repaso completo de todos los temas del examen y entrega un resumen ejecutivo.",
+      "tipo": "tarea",
+      "fecha_entrega": "2026-07-17",
+      "instrucciones": "Incluye: (1) definición y propósito de Qwen, DeepSeek, OpenCode, ChatGPT; (2) etiquetas HTML básicas; (3) cómo crear una app HTML con IA desde el celular; (4) consideraciones éticas del uso de IA. Extensión: 2 cuartillas.",
+      "regla_que_asigno": "Recuperación global"
+    }
+  ],
+  "examTareas": [
+    {
+      "id": 1720000000001,
+      "nombre": "Crear una mini-app HTML con IA",
+      "descripcion": "Usa Qwen, DeepSeek o cualquier IA para crear una pequeña aplicación HTML que resuelva un problema real del aula (asistencia, tareas, quiz, etc.).",
+      "tipo": "practica",
+      "fecha_entrega": "2026-07-13",
+      "instrucciones": "La app debe ser un solo archivo .html funcional. Incluye un comentario al inicio indicando qué IA usaste y qué prompts utilizaste."
+    },
+    {
+      "id": 1720000000002,
+      "nombre": "Ejercicio extra de opción múltiple",
+      "descripcion": "Resuelve 5 preguntas de opción múltiple sobre herramientas de IA y desarrollo de apps.",
+      "tipo": "ejercicio",
+      "fecha_entrega": "2026-07-13",
+      "instrucciones": "Consulta los apuntes de la clase sobre Qwen, DeepSeek, OpenCode y ChatGPT."
+    },
+    {
+      "id": 1720000000003,
+      "nombre": "Práctica adicional de V/F",
+      "descripcion": "Repasa los conceptos de IA y desarrollo móvil con 5 afirmaciones de verdadero/falso.",
+      "tipo": "ejercicio",
+      "fecha_entrega": "2026-07-13",
+      "instrucciones": "Crea tus propias 5 afirmaciones sobre el tema y responde si son verdaderas o falsas."
+    },
+    {
+      "id": 1720000000004,
+      "nombre": "Ejercicio de relacionar conceptos",
+      "descripcion": "Practica la relación entre conceptos de HTML, IA y desarrollo de apps.",
+      "tipo": "tarea",
+      "fecha_entrega": "2026-07-13",
+      "instrucciones": "Dibuja un mapa mental o tabla que relacione cada IA con su propósito."
+    },
+    {
+      "id": 1720000000005,
+      "nombre": "Investigación complementaria",
+      "descripcion": "Investiga a fondo un tema que se te dificultó en la sección de preguntas abiertas.",
+      "tipo": "investigacion",
+      "fecha_entrega": "2026-07-15",
+      "instrucciones": "Escribe un documento de 1 cuartilla sobre el tema, incluyendo ejemplos prácticos."
+    },
+    {
+      "id": 1720000000006,
+      "nombre": "Ejercicio extra de matemáticas",
+      "descripcion": "Resuelve problemas de porcentajes, razones y estadística aplicados al contexto de tecnología y educación.",
+      "tipo": "ejercicio",
+      "fecha_entrega": "2026-07-13",
+      "instrucciones": "Inventa 3 problemas matemáticos relacionados con el uso de tecnología en el salón de clases."
+    },
+    {
+      "id": 1720000000007,
+      "nombre": "Recuperación integral",
+      "descripcion": "Realiza un repaso completo de todos los temas del examen y entrega un resumen ejecutivo.",
+      "tipo": "tarea",
+      "fecha_entrega": "2026-07-17",
+      "instrucciones": "Incluye: (1) definición y propósito de Qwen, DeepSeek, OpenCode, ChatGPT; (2) etiquetas HTML básicas; (3) cómo crear una app HTML con IA desde el celular; (4) consideraciones éticas del uso de IA. Extensión: 2 cuartillas."
+    }
+  ],
+  "examReglasAsignacion": [
+    {
+      "id": 1721000000001,
+      "nombre": "Aprobado: tarea principal",
+      "condiciones": [{"tipo": "porcentaje_global", "seccion": "", "operador": ">=", "valor": 6, "unidad": "porcentaje"}],
+      "tareas_asignadas": [1720000000001]
+    },
+    {
+      "id": 1721000000002,
+      "nombre": "Refuerzo: opción múltiple",
+      "condiciones": [{"tipo": "porcentaje_global", "seccion": "", "operador": ">=", "valor": 6, "unidad": "porcentaje"}, {"tipo": "seccion", "seccion": "opcion_multiple", "operador": "<", "valor": 6, "unidad": "porcentaje"}],
+      "tareas_asignadas": [1720000000002]
+    },
+    {
+      "id": 1721000000005,
+      "nombre": "Refuerzo: abierta",
+      "condiciones": [{"tipo": "porcentaje_global", "seccion": "", "operador": ">=", "valor": 6, "unidad": "porcentaje"}, {"tipo": "seccion", "seccion": "abierta", "operador": "<", "valor": 6, "unidad": "porcentaje"}],
+      "tareas_asignadas": [1720000000005]
+    },
+    {
+      "id": 1721000000004,
+      "nombre": "Refuerzo: relacionar",
+      "condiciones": [{"tipo": "porcentaje_global", "seccion": "", "operador": ">=", "valor": 6, "unidad": "porcentaje"}, {"tipo": "seccion", "seccion": "relacionar", "operador": "<", "valor": 6, "unidad": "porcentaje"}],
+      "tareas_asignadas": [1720000000004]
+    },
+    {
+      "id": 1721000000006,
+      "nombre": "Refuerzo: matemática",
+      "condiciones": [{"tipo": "porcentaje_global", "seccion": "", "operador": ">=", "valor": 6, "unidad": "porcentaje"}, {"tipo": "seccion", "seccion": "matematica", "operador": "<", "valor": 6, "unidad": "porcentaje"}],
+      "tareas_asignadas": [1720000000006]
+    },
+    {
+      "id": 1721000000007,
+      "nombre": "Recuperación global",
+      "condiciones": [{"tipo": "porcentaje_global", "seccion": "", "operador": "<", "valor": 6, "unidad": "porcentaje"}],
+      "tareas_asignadas": [1720000000007]
+    }
+  ]
+}
