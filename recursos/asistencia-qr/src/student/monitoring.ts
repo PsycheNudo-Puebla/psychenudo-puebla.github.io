@@ -148,25 +148,22 @@ function detenerRastreoInteraccion(): void {
 }
 
 // ====== VERIFICAR SI LA CLASE ESTÁ EN CURSO ======
-/** Devuelve true si hay sesión activa o el horario indica clase en curso */
+/** Devuelve true si hay sesión activa o el horario indica clase en curso.
+ *  Orden de chequeo:
+ *    1. Horario del día (fuente primaria): si la hora actual está dentro → true
+ *    2. Gracia post-clase (30 min): si la sesión sigue activa → true
+ *    3. Sin horario: sesión activa con sanity check de duración máxima (3h)
+ *  Esto evita que una sesión que el profe olvidó cerrar mantenga
+ *  el banner "Ausente del monitoreo" horas después. */
 async function verificarClaseEnCurso(grupoId: string): Promise<boolean> {
   try {
-    // 1. Sesión activa del profesor
-    const { data: sesion } = await supabase
-      .from('sesiones_clase')
-      .select('id')
-      .eq('grupo_id', grupoId)
-      .eq('activa', true)
-      .maybeSingle();
-    if (sesion) return true;
-
-    // 2. Horario programado hoy
     const diaHoy = new Date().getDay();
     const ahora = new Date();
     const hh = ahora.getHours().toString().padStart(2,'0');
     const mm = ahora.getMinutes().toString().padStart(2,'0');
     const horaActualStr = `${hh}:${mm}`;
 
+    // 1. Horario programado hoy (fuente primaria de verdad)
     const { data: horarios } = await supabase
       .from('horarios')
       .select('hora_inicio, hora_fin')
@@ -174,12 +171,49 @@ async function verificarClaseEnCurso(grupoId: string): Promise<boolean> {
       .eq('dia_semana', diaHoy)
       .eq('activo', true);
 
-    if (horarios) {
+    if (horarios && horarios.length > 0) {
       for (const h of horarios) {
         const inicio = h.hora_inicio.substring(0, 5);
         const fin = h.hora_fin.substring(0, 5);
         if (horaActualStr >= inicio && horaActualStr <= fin) return true;
       }
+
+      // Estamos fuera del horario. Si pasó menos de 30 min del fin,
+      // verificar si la sesión sigue activa (el profe no la cerró aún).
+      // Si pasó más de 30 min → clase terminada, así haya sesión activa.
+      const finMasReciente = horarios.reduce((latest, h) =>
+        h.hora_fin > latest ? h.hora_fin : latest, horarios[0].hora_fin);
+      const [hf, mf] = finMasReciente.substring(0, 5).split(':').map(Number);
+      const finDate = new Date();
+      finDate.setHours(hf, mf, 0, 0);
+      const msDesdeFin = Date.now() - finDate.getTime();
+      const GRACIA_MS = 30 * 60 * 1000; // 30 min de gracia
+
+      if (msDesdeFin <= GRACIA_MS) {
+        const { data: sesion } = await supabase
+          .from('sesiones_clase')
+          .select('id')
+          .eq('grupo_id', grupoId)
+          .eq('activa', true)
+          .maybeSingle();
+        if (sesion) return true;
+      }
+      return false; // Fuera de horario + fuera de gracia
+    }
+
+    // 2. Sin horario: verificar sesión activa con sanity check de duración
+    const { data: sesion } = await supabase
+      .from('sesiones_clase')
+      .select('id, creado_en')
+      .eq('grupo_id', grupoId)
+      .eq('activa', true)
+      .maybeSingle();
+    if (sesion) {
+      if (sesion.creado_en) {
+        const horasActiva = (Date.now() - new Date(sesion.creado_en).getTime()) / 3_600_000;
+        if (horasActiva > 3) return false; // sesión abandonada >3h
+      }
+      return true;
     }
     return false;
   } catch { return false; }
@@ -191,15 +225,41 @@ export async function autoReanudarMonitoreo(userId: string): Promise<boolean> {
   if (monitoreoActivo) return true;
   try {
     const hoy = hoyLocal();
-    const { data: pendiente } = await supabase
+
+    // ── Obtener TODAS las asistencias pendientes del día ──
+    // (pueden ser varias si el alumno tiene múltiples clases el mismo día)
+    const { data: pendientes } = await supabase
       .from('asistencia')
       .select('id, grupo_id, tipo_asistencia, ultimo_latido')
       .eq('alumno_id', userId)
       .eq('fecha', hoy)
-      .eq('confirmada', false)
-      .maybeSingle();
+      .eq('confirmada', false);
 
-    if (!pendiente) return false;
+    if (!pendientes || pendientes.length === 0) return false;
+
+    // ── Paso 1: Separar en curso vs terminadas ──
+    // Auto-confirmar silenciosamente todas las clases que ya terminaron,
+    // para que no bloqueen la interacción con otros grupos.
+    // Si hay una en curso, procesarla con la lógica de reingreso.
+    let pendienteEnCurso: typeof pendientes[0] | null = null;
+    for (const p of pendientes) {
+      const enCurso = await verificarClaseEnCurso(p.grupo_id);
+      if (enCurso) {
+        if (!pendienteEnCurso) pendienteEnCurso = p;
+      } else {
+        // Clase terminada → auto-confirmar silenciosamente
+        await registrarEvento('asistencia_confirmada', 'Auto-confirmada — clase terminada', p.id);
+        localStorage.removeItem('token_monitoreo_' + p.id);
+        await supabase
+          .from('asistencia')
+          .update({ confirmada: true, token_monitoreo: null, ultimo_acceso_token: null })
+          .eq('id', p.id);
+      }
+    }
+
+    // Si no hay ninguna en curso, mostrar dashboard
+    if (!pendienteEnCurso) return false;
+    const pendiente = pendienteEnCurso;
 
     const { data: grupo } = await supabase
       .from('grupos')
@@ -207,20 +267,6 @@ export async function autoReanudarMonitoreo(userId: string): Promise<boolean> {
       .eq('id', pendiente.grupo_id)
       .maybeSingle();
     if (!grupo) return false;
-
-    const claseEnCurso = await verificarClaseEnCurso(pendiente.grupo_id);
-
-    if (!claseEnCurso) {
-      // Clase terminada — auto-confirmar cualquier asistencia pendiente
-      // para que no bloquee la interacción con otros grupos
-      await registrarEvento('asistencia_confirmada', 'Auto-confirmada — clase terminada', pendiente.id);
-      localStorage.removeItem('token_monitoreo_' + pendiente.id);
-      await supabase
-        .from('asistencia')
-        .update({ confirmada: true, token_monitoreo: null, ultimo_acceso_token: null })
-        .eq('id', pendiente.id);
-      return false;
-    }
 
     // Clase en curso. Verificar si el alumno estuvo ausente poco tiempo
     const ventanaMin = grupo.ventana_reingreso_min ?? 2;
@@ -280,66 +326,100 @@ export async function revisarAsistenciaPendiente(): Promise<void> {
 
   try {
     const hoy = hoyLocal();
-    const { data: asistenciaPendiente } = await supabase
+
+    // ── Obtener TODAS las asistencias pendientes del día ──
+    // (varias si el alumno tiene múltiples clases el mismo día)
+    const { data: pendientes } = await supabase
       .from('asistencia')
       .select('id, grupo_id, cambios_pantalla, sesion_codigo, ultimo_latido, tipo_asistencia, perdonada')
       .eq('alumno_id', alumno.id)
       .eq('fecha', hoy)
-      .eq('confirmada', false)
-      .maybeSingle();
+      .eq('confirmada', false);
 
-    if (!asistenciaPendiente) return;
+    if (!pendientes || pendientes.length === 0) return;
 
+    // ── Separar en curso vs terminadas ──
+    let pendienteEnCurso: typeof pendientes[0] | null = null;
+    let autoConfirmadas = 0;
+    for (const p of pendientes) {
+      const enCurso = await verificarClaseEnCurso(p.grupo_id);
+      if (enCurso) {
+        if (!pendienteEnCurso) pendienteEnCurso = p;
+      } else {
+        // Clase terminada → auto-confirmar silenciosamente
+        await registrarEvento('asistencia_confirmada', 'Auto-confirmada — clase terminada', p.id);
+        localStorage.removeItem('token_monitoreo_' + p.id);
+        await supabase
+          .from('asistencia')
+          .update({ confirmada: true, token_monitoreo: null, ultimo_acceso_token: null })
+          .eq('id', p.id);
+        autoConfirmadas++;
+      }
+    }
+
+    // Si todas fueron auto-confirmadas, mostrar banner genérico de éxito
+    if (!pendienteEnCurso) {
+      detenerKeepAliveSesion();
+      if (autoConfirmadas > 0) {
+        banner.innerHTML = `
+          <div style="background:#e8f5e9; border:1px solid #a5d6a7; border-radius:12px; padding:14px 16px; text-align:center;">
+            ✅ <strong style="color:#2e7d32;">Asistencias registradas</strong>
+            <br><small style="color:#666;">${autoConfirmadas === 1 ? 'Tu clase anterior ya terminó. Tu asistencia ha sido registrada.' : `Tus ${autoConfirmadas} clases anteriores ya terminaron. Tus asistencias han sido registradas.`}</small>
+          </div>`;
+        banner.classList.remove('hidden');
+      }
+      return;
+    }
+
+    // ── Hay una clase en curso → mostrar banner ──
     const { data: grupo } = await supabase
       .from('grupos')
       .select('nombre, limite_salidas, ventana_reingreso_min, limite_ausente_min')
-      .eq('id', asistenciaPendiente.grupo_id)
+      .eq('id', pendienteEnCurso.grupo_id)
       .maybeSingle();
     if (!grupo) return;
 
     const limite = grupo.limite_salidas ?? 3;
-    const cambiosActuales = asistenciaPendiente.cambios_pantalla || 0;
+    const cambiosActuales = pendienteEnCurso.cambios_pantalla || 0;
     const ventanaMin = grupo.ventana_reingreso_min ?? 2;
 
-    (window as any)._pendienteAsistenciaId = asistenciaPendiente.id;
-    (window as any)._pendienteGrupoId = asistenciaPendiente.grupo_id;
+    (window as any)._pendienteAsistenciaId = pendienteEnCurso.id;
+    (window as any)._pendienteGrupoId = pendienteEnCurso.grupo_id;
     (window as any)._pendienteGrupoNombre = grupo.nombre;
     (window as any)._pendienteLimite = limite;
     (window as any)._pendienteLimiteAusente = grupo.limite_ausente_min ?? 0;
-    (window as any)._pendienteUltimoLatido = asistenciaPendiente.ultimo_latido;
+    (window as any)._pendienteUltimoLatido = pendienteEnCurso.ultimo_latido;
     (window as any)._pendienteVentanaMin = ventanaMin;
     (window as any)._pendienteCambios = cambiosActuales;
 
-    const claseEnCurso = await verificarClaseEnCurso(asistenciaPendiente.grupo_id);
+    const claseEnCurso = await verificarClaseEnCurso(pendienteEnCurso.grupo_id);
     const w = window as any;
     w._pendienteClaseEnCurso = claseEnCurso;
 
     if (!claseEnCurso) {
       // ── CLASE TERMINADA → auto-confirmar ──
-      // La clase ya terminó, no tiene sentido mostrar botón de confirmar.
-      // Se auto-confirma para que no bloquee la interacción con otros grupos.
-      await registrarEvento('asistencia_confirmada', 'Auto-confirmada — clase terminada');
-      localStorage.removeItem('token_monitoreo_' + asistenciaPendiente.id);
+      await registrarEvento('asistencia_confirmada', 'Auto-confirmada — clase terminada', pendienteEnCurso.id);
+      localStorage.removeItem('token_monitoreo_' + pendienteEnCurso.id);
       await supabase
         .from('asistencia')
         .update({ confirmada: true, token_monitoreo: null, ultimo_acceso_token: null })
-        .eq('id', asistenciaPendiente.id);
+        .eq('id', pendienteEnCurso.id);
       detenerKeepAliveSesion();
       banner.innerHTML = `
         <div style="background:#e8f5e9; border:1px solid #a5d6a7; border-radius:12px; padding:14px 16px; text-align:center;">
           ✅ <strong style="color:#2e7d32;">Asistencia registrada</strong>
           <br><small style="color:#666;">Clase terminada. Tu asistencia ha sido registrada.</small>
         </div>`;
-    } else if (ventanaMin > 0 && asistenciaPendiente.ultimo_latido &&
-        Date.now() - new Date(asistenciaPendiente.ultimo_latido).getTime() <= ventanaMin * 60 * 1000) {
+    } else if (ventanaMin > 0 && pendienteEnCurso.ultimo_latido &&
+        Date.now() - new Date(pendienteEnCurso.ultimo_latido).getTime() <= ventanaMin * 60 * 1000) {
       // Verificar si la página fue cerrada (beforeunload en desktop)
-      const cerradoKey = 'monitoreo_cerrado_' + asistenciaPendiente.id;
+      const cerradoKey = 'monitoreo_cerrado_' + pendienteEnCurso.id;
       const cerradoPreviamente = localStorage.getItem(cerradoKey);
       if (cerradoPreviamente) {
         localStorage.removeItem(cerradoKey);
       }
       // Verificar si la pestaña fue cerrada y reabierta (sessionStorage se borra al cerrar)
-      const sessionActivo = sessionStorage.getItem('monitoreo_vivo_' + asistenciaPendiente.id);
+      const sessionActivo = sessionStorage.getItem('monitoreo_vivo_' + pendienteEnCurso.id);
       const tabFueCerrada = sessionActivo === null;
       if (!cerradoPreviamente && !tabFueCerrada) {
         // ── CLASE EN CURSO, LATIDO RECIENTE Y NO CERRADA → auto-reanudar
@@ -763,8 +843,6 @@ export function iniciarMonitoreo(
     }
 
     if (claseTerminada) {
-      clearInterval(monitorInterval!);
-      monitorInterval = null;
       const mins = (new Date().getTime() - _inicioMonitoreo) / 60000;
 
       if (_tipoAsistenciaActual === 'sin_derecho') {
@@ -779,6 +857,8 @@ export function iniciarMonitoreo(
             .eq('id', asistenciaActualId);
           detenerKeepAliveSesion();
         }
+        clearInterval(monitorInterval!);
+        monitorInterval = null;
         const st = document.getElementById('monitor-estado')!;
         st.innerHTML = '⏰ <strong>Clase terminada.</strong> Asistencia registrada como ausencia.';
         st.style.background = '#ffebee';
@@ -788,6 +868,39 @@ export function iniciarMonitoreo(
           _btnConfirmarMostrado = true;
           document.getElementById('btn-confirmar-asistencia')!.style.display = '';
           document.getElementById('espera-confirmar')!.style.display = 'none';
+        }
+        // Auto-confirmar después de 2 minutos de haber terminado la clase
+        // (así el estudiante tiene tiempo de ver el botón, pero si cierra
+        //  la página sin confirmar, la asistencia queda registrada igual)
+        if (_btnConfirmarMostrado && asistenciaActualId) {
+          let debeAutoConfirmar = false;
+          if (_horaFinStr) {
+            const [hf, mf] = _horaFinStr.split(':').map(Number);
+            const finDate = new Date();
+            finDate.setHours(hf, mf, 0, 0);
+            const msDesdeFin = Date.now() - finDate.getTime();
+            debeAutoConfirmar = msDesdeFin >= 2 * 60 * 1000;
+          } else {
+            // Sin horario: auto-confirmar en el segundo tick (5s después)
+            debeAutoConfirmar = true;
+          }
+          if (debeAutoConfirmar) {
+            await registrarEvento('asistencia_confirmada', 'Auto-confirmada — clase terminó hace 2+ min');
+            localStorage.removeItem('token_monitoreo_' + asistenciaActualId);
+            await supabase
+              .from('asistencia')
+              .update({ confirmada: true, token_monitoreo: null, ultimo_acceso_token: null })
+              .eq('id', asistenciaActualId);
+            detenerKeepAliveSesion();
+            clearInterval(monitorInterval!);
+            monitorInterval = null;
+            const st = document.getElementById('monitor-estado')!;
+            st.innerHTML = '⏰ <strong>Clase terminada.</strong> Asistencia confirmada automáticamente. ✅';
+            st.style.background = '#e8f5e9';
+            st.style.color = '#2e7d32';
+            document.getElementById('btn-confirmar-asistencia')!.style.display = 'none';
+            return;
+          }
         }
         const st = document.getElementById('monitor-estado')!;
         st.innerHTML = '⏰ <strong>Clase terminada.</strong> Confirma tu asistencia.';
