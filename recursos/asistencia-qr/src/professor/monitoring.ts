@@ -474,6 +474,9 @@ export function detenerMonitoreo(): void {
   if (monitorProfChannel) { supabase.removeChannel(monitorProfChannel); monitorProfChannel = null; }
   monitorGrupoId = null;
   _reingresoNotificados.clear();
+  // Ocultar el panel de monitoreo (el profesor vuelve a ver el detalle del grupo)
+  const panel = document.getElementById('monitoreo-panel');
+  if (panel) panel.classList.add('hidden');
 }
 
 // Alias para onclick en HTML
