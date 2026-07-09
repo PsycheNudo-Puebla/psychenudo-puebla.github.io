@@ -45,6 +45,11 @@ let tiempoAusenteAcumulado: number = 0;         // segundos totales de ausencia 
 const UMBRAL_INTERACCION_AUSENTE_MS = 5000;     // 5s sin interacción = inactivo vs ausente
 let _detenerRastreo: (() => void) | null = null;
 
+// ---- Variables para tracking activo/inactivo ----
+let _paginaVisible: boolean = true;            // true si la página está visible y con foco
+let tiempoActivoAcumulado: number = 0;          // segundos con página visible
+let _ultimoEventoSalida: number = 0;            // timestamp del último evento blur/oculto (evita duplicados)
+
 // ---- Variables para manejar recarga/cierre de página ----
 let _manejadorBeforeUnload: ((e: BeforeUnloadEvent) => void) | null = null;  // referencia para cleanup
 
@@ -561,6 +566,9 @@ export function iniciarMonitoreo(
   cambiosLimite = limite || 3;
   limiteAusenteMin = limiteAusente;
   cambiosContador = 0;
+  _paginaVisible = true;
+  _ultimoEventoSalida = 0;
+  tiempoActivoAcumulado = 0;
 
   // ── Marcar en sessionStorage que el monitoreo está activo en esta pestaña ──
   // sessionStorage se borra al cerrar la pestaña, permitiendo detectar
@@ -793,6 +801,12 @@ export function iniciarMonitoreo(
   // Timer en tiempo real: actualizar cada 1s
   if (timerInterval) clearInterval(timerInterval);
   timerInterval = window.setInterval(() => {
+    // Acumular tiempo activo por segundo
+    if (_paginaVisible) {
+      tiempoActivoAcumulado += 1;
+    }
+    actualizarTiemposUI();
+
     if (!monitoreoActivo || !_horaFinStr) return;
     const ahora = new Date();
     const [hf, mf] = _horaFinStr.split(':').map(Number);
@@ -847,6 +861,7 @@ export function iniciarMonitoreo(
   ultimaInteraccion = Date.now();
   estadoSalida = null;
   inicializarRastreoInteraccion();
+  actualizarTiemposUI();
 
   // ── Registrar inicio en bitácora ──
   registrarEvento('inicio_monitoreo', 'Inició monitoreo de asistencia');
@@ -856,10 +871,10 @@ export function iniciarMonitoreo(
   heartbeatInterval = window.setInterval(async () => {
     if (!asistenciaActualId) return;
     try {
+      const ahoraH = Date.now();
       // Si está ausente, incluir el tiempo transcurrido desde el último sync
       // para que el profesor vea tiempo en vivo (incluso si heartbeat está throttled)
       if (_ausenteDesde) {
-        const ahoraH = Date.now();
         const desdeH = _ultimoSyncAusencia > 0 ? _ultimoSyncAusencia : _ausenteDesde;
         const elapsedMs = ahoraH - desdeH;
         if (elapsedMs >= 1000) {
@@ -875,6 +890,8 @@ export function iniciarMonitoreo(
           tiempo_ausente_acumulado: Math.round(tiempoAusenteAcumulado)
         })
         .eq('id', asistenciaActualId);
+      // Actualizar UI de tiempos
+      actualizarTiemposUI();
     } catch { /* ignore errores de heartbeat */ }
   }, 30000);
 
@@ -1011,11 +1028,16 @@ async function cargarContadorExistente(): Promise<void> {
 // ====== MANEJADORES DE EVENTOS ======
 function manejarVisibilidad(): void {
   if (monitoreoActivo) {
+    _paginaVisible = document.visibilityState === 'visible';
     if (document.visibilityState === 'hidden') {
       const ahora = Date.now();
       if (ahora - ultimoCambioTimestamp < 2000) return;
-      if (_ausenteDesde !== null) return; // ya registrado por blur u otro evento
-      _ausenteDesde = ahora;
+      // Evita duplicar si blur ya registró esta misma salida
+      if (ahora - _ultimoEventoSalida < 1000) return;
+      _ultimoEventoSalida = ahora;
+      if (_ausenteDesde === null) {
+        _ausenteDesde = ahora;
+      }
 
       // Distinguir entre ausente (intencional) e inactivo (auto-bloqueo)
       const tiempoSinInteraccion = ahora - ultimaInteraccion;
@@ -1061,10 +1083,14 @@ function manejarVisibilidad(): void {
 
 function manejarBlur(): void {
   if (monitoreoActivo) {
+    _paginaVisible = false;
     const ahora = Date.now();
     if (ahora - ultimoCambioTimestamp < 2000) return;
-    if (_ausenteDesde !== null) return; // ya registrado por visibilitychange
-    _ausenteDesde = ahora;
+    if (ahora - _ultimoEventoSalida < 1000) return;
+    _ultimoEventoSalida = ahora;
+    if (_ausenteDesde === null) {
+      _ausenteDesde = ahora;
+    }
 
     const tiempoSinInteraccion = ahora - ultimaInteraccion;
     if (tiempoSinInteraccion < UMBRAL_INTERACCION_AUSENTE_MS) {
@@ -1079,6 +1105,7 @@ function manejarBlur(): void {
 }
 
 function manejarFocus(): void {
+  _paginaVisible = true;
   if (monitoreoActivo && _ausenteDesde !== null) {
     // Acumular solo lo que NO se haya sincronizado por heartbeat
     const desde = _ultimoSyncAusencia > 0 ? _ultimoSyncAusencia : _ausenteDesde;
@@ -1152,8 +1179,30 @@ async function incrementarCambio(): Promise<void> {
   }
 }
 
-// ====== ACTUALIZAR UI ======
+// ====== ACTUALIZAR UI DE TIEMPOS ======
+function actualizarTiemposUI(): void {
+  const el = document.getElementById('monitor-tiempos');
+  if (!el) return;
+  const activo = formatearDuracion(Math.round(tiempoActivoAcumulado));
+  const ausente = formatearDuracion(Math.round(tiempoAusenteAcumulado));
+  const total = tiempoActivoAcumulado + tiempoAusenteAcumulado;
+  const pct = total > 0 ? Math.round((tiempoActivoAcumulado / total) * 100) : 100;
+  el.innerHTML = `
+    <div style="display:flex; justify-content:space-between; font-size:0.85em; margin-bottom:4px;">
+      <span style="color:#2e7d32;">✅ Activo: <strong>${activo}</strong></span>
+      <span style="color:#c62828;">⏳ Ausente: <strong>${ausente}</strong></span>
+    </div>
+    <div style="height:6px; background:#eee; border-radius:3px; overflow:hidden;">
+      <div style="height:100%; width:${pct}%; background:${pct >= 80 ? '#4caf50' : pct >= 50 ? '#ff9800' : '#f44336'}; border-radius:3px; transition:width 0.5s;"></div>
+    </div>
+    <div style="font-size:0.75em; color:#999; margin-top:2px; text-align:center;">
+      Permanencia: ${pct}% en clase
+    </div>`;
+}
+
+// ====== ACTUALIZAR MONITOR UI ======
 function actualizarMonitorUI(): void {
+  actualizarTiemposUI();
   document.getElementById('monitor-contador')!.textContent = String(cambiosContador);
   const pct = Math.min((cambiosContador / cambiosLimite) * 100, 100);
   const barra = document.getElementById('monitor-barra')!;
