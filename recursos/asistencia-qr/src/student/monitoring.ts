@@ -157,7 +157,7 @@ export async function revisarAsistenciaPendiente(): Promise<void> {
     const hoy = new Date().toISOString().split('T')[0];
     const { data: asistenciaPendiente } = await supabase
       .from('asistencia')
-      .select('id, grupo_id, cambios_pantalla, sesion_codigo, ultimo_latido')
+      .select('id, grupo_id, cambios_pantalla, sesion_codigo, ultimo_latido, tipo_asistencia, perdonada')
       .eq('alumno_id', alumno.id)
       .eq('fecha', hoy)
       .eq('confirmada', false)
@@ -190,21 +190,52 @@ export async function revisarAsistenciaPendiente(): Promise<void> {
 
     if (!claseEnCurso) {
       // ── CLASE TERMINADA ──
-      // Solo mostrar confirmar si hubo latido reciente (presencia comprobable)
+      // Si el alumno regresa después de que terminó la clase, ya NO debe poder
+      // confirmar asistencia manualmente. Eso evita que abandonen el monitoreo
+      // antes de tiempo y confirmen al volver.
       const ultimoLatido = asistenciaPendiente.ultimo_latido
         ? new Date(asistenciaPendiente.ultimo_latido).getTime()
         : 0;
-      const tienePresencia = ultimoLatido > 0;
+      const ahora = Date.now();
+      const tiempoDesdeLatido = ahora - ultimoLatido;
+      const ULTIMO_LATIDO_RECIENTE_MS = 2 * 60 * 1000; // 2 min — estaba en monitoreo al final
 
-      if (tienePresencia) {
+      if (ultimoLatido > 0 && tiempoDesdeLatido <= ULTIMO_LATIDO_RECIENTE_MS) {
+        // Presencia muy reciente → verificar si puede auto-confirmar
+        const cambiosBD = asistenciaPendiente.cambios_pantalla || 0;
+        const excedioLimite = cambiosBD >= limite && !asistenciaPendiente.perdonada;
+
+        if (excedioLimite) {
+          // Excedió cambios sin perdón → NO auto-confirmar, avisar que necesita perdón
+          banner.innerHTML = `
+            <div style="background:#fff3e0; border:1px solid #ffe082; border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+              <div style="font-size:1.5em;">⚠️</div>
+              <div style="flex:1; min-width:150px;">
+                <strong style="color:#e65100;">Clase terminada — Límite excedido</strong>
+                <br><small style="color:#666;">Excediste el límite de cambios de pantalla sin perdón. El profesor debe perdonarte para confirmar tu asistencia.</small>
+              </div>
+            </div>`;
+        } else {
+          // Sin impedimentos → auto-confirmar (estuvo en monitoreo hasta el final)
+          await supabase
+            .from('asistencia')
+            .update({ confirmada: true })
+            .eq('id', asistenciaPendiente.id);
+          banner.innerHTML = `
+            <div style="background:#e8f5e9; border:1px solid #a5d6a7; border-radius:12px; padding:14px 16px; text-align:center;">
+              ✅ <strong style="color:#2e7d32;">Asistencia confirmada</strong>
+              <br><small style="color:#666;">Gracias por permanecer en clase.</small>
+            </div>`;
+        }
+      } else if (ultimoLatido > 0) {
+        // Tuvo presencia pero no al final → no puede confirmar
         banner.innerHTML = `
-          <div style="background:#e3f2fd; border:1px solid #90caf9; border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <div style="background:#fff3e0; border:1px solid #ffe082; border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
             <div style="font-size:1.5em;">⏰</div>
             <div style="flex:1; min-width:150px;">
-              <strong style="color:#1565c0;">Clase terminada</strong>
-              <br><small style="color:#666;">${escHTML(grupo.nombre)} — Confirma tu asistencia pendiente</small>
+              <strong style="color:#e65100;">Clase terminada</strong>
+              <br><small style="color:#666;">No estuviste en el monitoreo al final de la clase. Contacta a tu profesor para verificar tu asistencia.</small>
             </div>
-            <button onclick="window.confirmarAsistenciaPendiente('${asistenciaPendiente.id}')" class="btn-primary" style="background:#1565c0; white-space:nowrap; font-size:0.9em;">✅ Confirmar asistencia</button>
           </div>`;
       } else {
         banner.innerHTML = `
@@ -834,10 +865,11 @@ export async function confirmarAsistenciaPendiente(asistenciaId: string): Promis
     .maybeSingle();
   if (!a) return;
 
-  // Verificar presencia activa
+  // Verificar presencia activa (latido reciente)
   const latido = a.ultimo_latido ? new Date(a.ultimo_latido).getTime() : 0;
-  if (!latido) {
-    mostrarToast('🚫 No se detectó tu presencia en clase. Contacta a tu profesor.', 'warning', 6000);
+  const MIN_LATIDO_MS = 10 * 60 * 1000; // 10 min de tolerancia
+  if (!latido || Date.now() - latido > MIN_LATIDO_MS) {
+    mostrarToast('🚫 No se detectó tu presencia continua en clase. Contacta a tu profesor.', 'warning', 6000);
     return;
   }
 
