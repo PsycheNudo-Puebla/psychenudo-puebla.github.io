@@ -1039,19 +1039,12 @@ function manejarVisibilidad(): void {
         _ausenteDesde = ahora;
       }
 
-      // Distinguir entre ausente (intencional) e inactivo (auto-bloqueo)
-      const tiempoSinInteraccion = ahora - ultimaInteraccion;
-      if (tiempoSinInteraccion < UMBRAL_INTERACCION_AUSENTE_MS) {
-        // Había interacción reciente → salió intencionalmente → AUSENTE
-        estadoSalida = 'ausente';
-        registrarEvento('salida_pantalla', 'Salió de la pestaña/app (ausente)').then(id => { _ultimaSalidaId = id; });
-        incrementarCambio();
-      } else {
-        // Sin interacción reciente → auto-bloqueo → INACTIVO
-        estadoSalida = 'inactivo';
-        registrarEvento('salida_pantalla', 'Pantalla bloqueada (inactivo)').then(id => { _ultimaSalidaId = id; });
-        // No incrementa cambios_pantalla
-      }
+      // Toda salida cuenta como ausente (cambio de pantalla + tiempo)
+      // Eliminamos la distinción inactivo/ausente porque el estudiante
+      // puede estar viendo la página pasivamente sin interactuar >5s
+      estadoSalida = 'ausente';
+      registrarEvento('salida_pantalla', 'Salió de la pestaña/app').then(id => { _ultimaSalidaId = id; });
+      incrementarCambio();
     } else if (document.visibilityState === 'visible') {
       // Acumular tiempo ausente (solo lo que NO se haya sincronizado ya por heartbeat)
       if (_ausenteDesde) {
@@ -1060,16 +1053,10 @@ function manejarVisibilidad(): void {
         if (duracionSeg >= 1) {
           const txtDuracion = formatearDuracion(duracionSeg);
           if (_ultimaSalidaId) {
-            if (estadoSalida === 'ausente') {
-              actualizarEvento(_ultimaSalidaId, `Salió de la pestaña/app — Ausente ${txtDuracion}`);
-            } else {
-              actualizarEvento(_ultimaSalidaId, `Pantalla bloqueada — Inactivo ${txtDuracion}`);
-            }
+            actualizarEvento(_ultimaSalidaId, `Salió de la pestaña/app — Ausente ${txtDuracion}`);
           }
-          if (estadoSalida === 'ausente') {
-            tiempoAusenteAcumulado += duracionSeg;
-            sincronizarTiempoAusente();
-          }
+          tiempoAusenteAcumulado += duracionSeg;
+          sincronizarTiempoAusente();
         }
       }
       _ultimoSyncAusencia = 0;
@@ -1092,15 +1079,10 @@ function manejarBlur(): void {
       _ausenteDesde = ahora;
     }
 
-    const tiempoSinInteraccion = ahora - ultimaInteraccion;
-    if (tiempoSinInteraccion < UMBRAL_INTERACCION_AUSENTE_MS) {
-      estadoSalida = 'ausente';
-      registrarEvento('salida_pantalla', 'Perdió el foco (ausente)').then(id => { _ultimaSalidaId = id; });
-      incrementarCambio();
-    } else {
-      estadoSalida = 'inactivo';
-      registrarEvento('salida_pantalla', 'Perdió el foco (inactivo)').then(id => { _ultimaSalidaId = id; });
-    }
+    // Toda pérdida de foco cuenta como ausente (cambio de pantalla + tiempo)
+    estadoSalida = 'ausente';
+    registrarEvento('salida_pantalla', 'Perdió el foco').then(id => { _ultimaSalidaId = id; });
+    incrementarCambio();
   }
 }
 
@@ -1113,16 +1095,10 @@ function manejarFocus(): void {
     if (duracionSeg >= 1) {
       const txtDuracion = formatearDuracion(duracionSeg);
       if (_ultimaSalidaId) {
-        if (estadoSalida === 'ausente') {
-          actualizarEvento(_ultimaSalidaId, `Perdió el foco — Ausente ${txtDuracion}`);
-        } else {
-          actualizarEvento(_ultimaSalidaId, `Perdió el foco — Inactivo ${txtDuracion}`);
-        }
+        actualizarEvento(_ultimaSalidaId, `Perdió el foco — Ausente ${txtDuracion}`);
       }
-      if (estadoSalida === 'ausente') {
-        tiempoAusenteAcumulado += duracionSeg;
-        sincronizarTiempoAusente();
-      }
+      tiempoAusenteAcumulado += duracionSeg;
+      sincronizarTiempoAusente();
     }
     _ultimoSyncAusencia = 0;
     _ausenteDesde = null;
