@@ -7,6 +7,7 @@ import { mostrarToast } from '@/config/toaster';
 import { getAlumnoActual, setMonitoreoActivo } from './auth';
 import { cargarGrupos } from './dashboard';
 import { iniciarKeepAliveSesion, detenerKeepAliveSesion } from '@/shared/auth';
+import { hoyLocal } from '@/shared/utils';
 
 // ---- Variables de monitoreo ----
 export let monitoreoActivo = false;
@@ -124,7 +125,7 @@ async function verificarClaseEnCurso(grupoId: string): Promise<boolean> {
 export async function autoReanudarMonitoreo(userId: string): Promise<boolean> {
   if (monitoreoActivo) return true;
   try {
-    const hoy = new Date().toISOString().split('T')[0];
+    const hoy = hoyLocal();
     const { data: pendiente } = await supabase
       .from('asistencia')
       .select('id, grupo_id, tipo_asistencia, ultimo_latido')
@@ -209,7 +210,7 @@ export async function revisarAsistenciaPendiente(): Promise<void> {
   if (monitoreoActivo) return;
 
   try {
-    const hoy = new Date().toISOString().split('T')[0];
+    const hoy = hoyLocal();
     const { data: asistenciaPendiente } = await supabase
       .from('asistencia')
       .select('id, grupo_id, cambios_pantalla, sesion_codigo, ultimo_latido, tipo_asistencia, perdonada')

@@ -5,6 +5,7 @@ import { supabase } from '@/config/supabase';
 import { profesorActual } from '@/shared/auth';
 import { mostrarToast } from '@/config/toaster';
 import { MonitorAlumno } from '@/types';
+import { hoyLocal } from '@/shared/utils';
 
 let monitorGrupoId: string | null = null;
 let monitorPollInterval: ReturnType<typeof setTimeout> | null = null;
@@ -28,7 +29,7 @@ async function cargarAsistenciasActivas(): Promise<void> {
     .from('asistencia')
     .select('*, alumnos!inner(id, nombre, email)')
     .eq('grupo_id', monitorGrupoId)
-    .eq('fecha', new Date().toISOString().split('T')[0])
+    .eq('fecha', hoyLocal())
     .order('creado_en', { ascending: true });
 
   // Actualizar encabezado del monitoreo
@@ -154,7 +155,7 @@ export async function perdonarAlumno(asistenciaId: string, btn: HTMLButtonElemen
   }
 
   // Contar cuántos perdones tiene YA este alumno hoy
-  const hoy = new Date().toISOString().split('T')[0];
+  const hoy = hoyLocal();
   const { count: perdonesAlumno } = await supabase
     .from('asistencia')
     .select('*', { count: 'exact', head: true })

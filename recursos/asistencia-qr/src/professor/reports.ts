@@ -4,7 +4,7 @@
 import { supabase } from '@/config/supabase';
 import { mostrarToast, setLoading } from '@/config/toaster';
 import { GrupoAlumnoJoined, EstadoIcono, DIAS_CORTO } from '@/types';
-import { formatearFecha, formatearFechaLarga, formatearHora, escHTML, escAttr } from '@/shared/utils';
+import { formatearFecha, formatearFechaLarga, formatearHora, escHTML, escAttr, hoyLocal } from '@/shared/utils';
 
 // ---- Variable global para la vista "Ver" ----
 export let verGrupoActualId: string | null = null;
@@ -612,7 +612,7 @@ export async function resetearContadoresHoy(): Promise<void> {
   }
   if (!grupoId) { mostrarToast('No hay grupo activo.', 'warning'); return; }
 
-  const hoy = new Date().toISOString().split('T')[0];
+  const hoy = hoyLocal();
   const { error } = await supabase
     .from('asistencia')
     .update({ cambios_pantalla: 0 })

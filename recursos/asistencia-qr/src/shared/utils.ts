@@ -59,6 +59,14 @@ export function escAttr(s: string): string {
   return String(s).replace(/'/g, "\\'");
 }
 
+// ---- Fecha local hoy en formato YYYY-MM-DD ----
+// IMPORTANTE: Usar toLocaleDateString('en-CA') en vez de toISOString()
+// porque toISOString() usa UTC y puede dar el día INCORRECTO en husos
+// horarios negativos (ej. México). A las 10PM local, UTC ya es "mañana".
+export function hoyLocal(): string {
+  return new Date().toLocaleDateString('en-CA'); // 'en-CA' produce YYYY-MM-DD en hora local
+}
+
 // ---- Copiar al portapapeles ----
 export async function copiarAlPortapapeles(texto: string): Promise<boolean> {
   try {

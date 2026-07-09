@@ -5,6 +5,7 @@ import { supabase } from '@/config/supabase';
 import { mostrarToast } from '@/config/toaster';
 import { getAlumnoActual } from './auth';
 import { iniciarMonitoreo } from './monitoring';
+import { hoyLocal } from '@/shared/utils';
 
 // ---- Variables de escaneo ----
 export let html5QrCode: any = null;
@@ -247,7 +248,7 @@ async function procesarQR(qrData: string, resultadoDiv: HTMLElement): Promise<vo
       return;
     }
 
-    const hoy = new Date().toISOString().split('T')[0];
+    const hoy = hoyLocal();
 
     // Verificar si ya hay registro para este código de sesión
     const { data: asistenciaHoy } = await supabase

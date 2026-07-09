@@ -12,7 +12,6 @@ import { revisarAsistenciaPendiente } from './monitoring';
 export async function cargarGrupos(): Promise<void> {
   const alumno = getAlumnoActual();
   if (!alumno) return;
-
   // Revisar si hay asistencia pendiente para banner
   revisarAsistenciaPendiente();
 
