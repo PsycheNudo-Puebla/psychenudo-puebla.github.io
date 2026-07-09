@@ -33,6 +33,7 @@ let _tipoAsistenciaActual: string | null = null;
 let _ausenteDesde: number | null = null;       // timestamp cuando salió
 let _ultimaSalidaId: string | null = null;     // ID del último registro salida_pantalla
 let _reingresoPollInterval: number | null = null;  // polling fallback para reingreso
+let _reingresoEjecutandose = false;            // evita doble ejecución de ejecutarReingresoAprobado
 
 // ====== REGISTRAR EN BITÁCORA ======
 /**
@@ -285,14 +286,15 @@ export async function revisarAsistenciaPendiente(): Promise<void> {
             </div>`;
         }
       } else if (ultimoLatido > 0) {
-        // Tuvo presencia pero no al final → no puede confirmar
+        // Tuvo presencia pero no al final → puede confirmar si el latido es reciente (≤10 min)
         banner.innerHTML = `
           <div style="background:#fff3e0; border:1px solid #ffe082; border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
             <div style="font-size:1.5em;">⏰</div>
             <div style="flex:1; min-width:150px;">
               <strong style="color:#e65100;">Clase terminada</strong>
-              <br><small style="color:#666;">No estuviste en el monitoreo al final de la clase. Contacta a tu profesor para verificar tu asistencia.</small>
+              <br><small style="color:#666;">No estuviste en el monitoreo al final. Si estuviste presente la mayor parte de la clase, puedes confirmar.</small>
             </div>
+            <button onclick="window.confirmarAsistenciaPendiente('${asistenciaPendiente.id}')" class="btn-primary" style="background:#2e7d32; white-space:nowrap; font-size:0.9em;">✅ Confirmar asistencia</button>
           </div>`;
       } else {
         banner.innerHTML = `
@@ -339,13 +341,36 @@ export async function solicitarReingreso(): Promise<void> {
   const asistenciaId = w._pendienteAsistenciaId;
   if (!asistenciaId) return;
 
-  try {
-    await supabase
-      .from('asistencia')
-      .update({ reingreso_solicitado: true })
-      .eq('id', asistenciaId);
+  // Resetear guard por si quedó trabado de una ejecución anterior
+  _reingresoEjecutandose = false;
 
-    registrarEvento('reingreso_solicitado', 'Solicitó reingreso al profesor');
+  try {
+    // ── Verificar estado actual en BD ──
+    const { data: estado } = await supabase
+      .from('asistencia')
+      .select('reingreso_solicitado, ultimo_latido')
+      .eq('id', asistenciaId)
+      .maybeSingle();
+
+    // Si ya fue aprobado (por ejemplo mientras estábamos fuera), reanudar ya
+    if (estado && !estado.reingreso_solicitado && estado.ultimo_latido) {
+      _reingresoEjecutandose = true;
+      ejecutarReingresoAprobado(asistenciaId);
+      return;
+    }
+
+    // Solo hacer UPDATE si no está ya solicitado; si ya lo está,
+    // el valor en BD no cambia y Realtime no detectaría la "actualización".
+    if (!estado?.reingreso_solicitado) {
+      await supabase
+        .from('asistencia')
+        .update({ reingreso_solicitado: true })
+        .eq('id', asistenciaId);
+    }
+
+    registrarEvento('reingreso_solicitado', estado?.reingreso_solicitado
+      ? 'Reanudó espera de reingreso (ya solicitado antes)'
+      : 'Solicitó reingreso al profesor');
 
     // Mostrar pantalla de espera
     const banner = document.getElementById('reanudar-banner');
@@ -373,7 +398,9 @@ export async function solicitarReingreso(): Promise<void> {
       .on('postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'asistencia', filter: `id=eq.${asistenciaId}` },
         (payload: any) => {
+          if (_reingresoEjecutandose) return;
           if (!payload.new.reingreso_solicitado && payload.new.ultimo_latido) {
+            _reingresoEjecutandose = true;
             ejecutarReingresoAprobado(asistenciaId);
           }
         }
@@ -389,12 +416,16 @@ export async function solicitarReingreso(): Promise<void> {
           .eq('id', asistenciaId)
           .maybeSingle();
         if (asis && !asis.reingreso_solicitado && asis.ultimo_latido) {
-          // Aprobado detectado por polling
+          // Aprobado detectado por polling — con guard para evitar doble ejecución
+          if (_reingresoEjecutandose) return;
+          _reingresoEjecutandose = true;
           if (_reingresoPollInterval) { clearInterval(_reingresoPollInterval); _reingresoPollInterval = null; }
           if (reingresoChannel) { supabase.removeChannel(reingresoChannel); reingresoChannel = null; }
           ejecutarReingresoAprobado(asistenciaId);
         }
-      } catch { /* ignore errores de polling */ }
+      } catch (e) {
+        console.warn('⚠️ Error en polling de reingreso:', e);
+      }
     }, 2000);
   } catch (e) {
     console.warn('Error al solicitar reingreso:', e);
@@ -404,26 +435,42 @@ export async function solicitarReingreso(): Promise<void> {
 
 /** Ejecuta la reanudación del monitoreo cuando el profesor aprueba el reingreso */
 function ejecutarReingresoAprobado(asistenciaId: string): void {
-  registrarEvento('reingreso_aprobado', 'El profesor aprobó el reingreso');
-  // Limpiar channel + polling
-  if (reingresoChannel) { supabase.removeChannel(reingresoChannel); reingresoChannel = null; }
-  if (_reingresoPollInterval) { clearInterval(_reingresoPollInterval); _reingresoPollInterval = null; }
+  // Guard de seguridad: si ya estamos ejecutando esto, salir
+  if (_reingresoEjecutandose) return;
 
-  const w = window as any;
-  const grupoId = w._pendienteGrupoId;
-  const grupoNombre = w._pendienteGrupoNombre;
-  const limite = w._pendienteLimite ?? 3;
-  if (grupoId && grupoNombre) {
-    // Ocultar banner de reingreso y vistas previas
-    const banner = document.getElementById('reanudar-banner');
-    if (banner) banner.classList.add('hidden');
-    document.getElementById('login-view')!.classList.add('hidden');
-    document.getElementById('dashboard-view')!.classList.add('hidden');
-    iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite);
+  try {
+    _reingresoEjecutandose = true;
+    console.log('✅ Reingreso aprobado, reanudando monitoreo:', asistenciaId);
+
+    // Registrar en bitácora con asistenciaOverride porque asistenciaActualId aún es null
+    registrarEvento('reingreso_aprobado', 'El profesor aprobó el reingreso', asistenciaId);
+
+    // Limpiar channel + polling
+    if (reingresoChannel) { supabase.removeChannel(reingresoChannel); reingresoChannel = null; }
+    if (_reingresoPollInterval) { clearInterval(_reingresoPollInterval); _reingresoPollInterval = null; }
+
+    const w = window as any;
+    const grupoId = w._pendienteGrupoId;
+    const grupoNombre = w._pendienteGrupoNombre;
+    const limite = w._pendienteLimite ?? 3;
+    if (grupoId && grupoNombre) {
+      // Ocultar banner de reingreso y vistas previas
+      const banner = document.getElementById('reanudar-banner');
+      if (banner) banner.classList.add('hidden');
+      document.getElementById('login-view')!.classList.add('hidden');
+      document.getElementById('dashboard-view')!.classList.add('hidden');
+      iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite);
+    } else {
+      console.warn('⚠️ reingreso: faltan _pendienteGrupoId o _pendienteGrupoNombre');
+    }
+  } catch (e) {
+    console.error('❌ Error al ejecutar reingreso aprobado:', e);
+    _reingresoEjecutandose = false; // Permitir reintento
   }
 }
 
 export function cancelarReingreso(): void {
+  _reingresoEjecutandose = false;
   if (reingresoChannel) { supabase.removeChannel(reingresoChannel); reingresoChannel = null; }
   if (_reingresoPollInterval) { clearInterval(_reingresoPollInterval); _reingresoPollInterval = null; }
   // Volver al banner anterior recargando
@@ -815,6 +862,7 @@ function detenerMonitoreo(): void {
     clearInterval(_reingresoPollInterval);
     _reingresoPollInterval = null;
   }
+  _reingresoEjecutandose = false;
   asistenciaActualId = null;
   grupoActualId = null;
 }
