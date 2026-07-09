@@ -105,53 +105,53 @@
                     <button id="detalle-btn-editar" class="btn-secondary" style="flex:1; min-width:80px;">✏️ Editar</button>
                 </div>
             </div>
+        </div>
 
-            <!-- MONITOREO EN VIVO — Vista completa (reemplaza al panel anterior) -->
-            <div id="monitoreo-full-view" class="hidden">
-                <div class="card" style="padding: 16px;">
-                    <!-- Header -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <h2 style="margin: 0;">📊 Monitoreo en Vivo</h2>
-                        <span id="monitoreo-estado-badge" style="font-size: 0.65em; background: #4caf50; color: white; padding: 4px 14px; border-radius: 20px; font-weight: 700;">ACTIVO</span>
+        <!-- MONITOREO EN VIVO — Vista completa (NIVEL DASHBOARD, fuera de grupo-detalle) -->
+        <div id="monitoreo-full-view" class="hidden">
+            <div class="card" style="padding: 16px;">
+                <!-- Header -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h2 style="margin: 0;">📊 Monitoreo en Vivo</h2>
+                    <span id="monitoreo-estado-badge" style="font-size: 0.65em; background: #4caf50; color: white; padding: 4px 14px; border-radius: 20px; font-weight: 700;">ACTIVO</span>
+                </div>
+
+                <!-- QR + Info en fila -->
+                <div style="display: flex; gap: 16px; align-items: center; background: #f8f9ff; border-radius: 14px; padding: 14px; margin-bottom: 12px; border: 2px solid #e8ecf4;">
+                    <div id="monitoreo-qr-container" style="width: 160px; height: 160px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: white; border-radius: 10px; overflow: hidden;">
+                        <div style="color: #bbb; font-size: 0.85em; text-align: center;">⏳<br>Cargando QR...</div>
                     </div>
-
-                    <!-- QR + Info en fila -->
-                    <div style="display: flex; gap: 16px; align-items: center; background: #f8f9ff; border-radius: 14px; padding: 14px; margin-bottom: 12px; border: 2px solid #e8ecf4;">
-                        <div id="monitoreo-qr-container" style="width: 160px; height: 160px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: white; border-radius: 10px; overflow: hidden;">
-                            <div style="color: #bbb; font-size: 0.85em; text-align: center;">⏳<br>Cargando QR...</div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-weight: 700; font-size: 1.05em; color: #1a1a2e; margin-bottom: 4px;">
+                            📚 <span id="monitoreo-grupo-nombre"></span>
                         </div>
-                        <div style="flex: 1; min-width: 0;">
-                            <div style="font-weight: 700; font-size: 1.05em; color: #1a1a2e; margin-bottom: 4px;">
-                                📚 <span id="monitoreo-grupo-nombre"></span>
-                            </div>
-                            <div id="monitoreo-qr-info" style="font-size: 0.82em; color: #666; margin-bottom: 4px;">
-                                ⏳ Generando sesión...
-                            </div>
-                            <div id="monitoreo-qr-estado" style="font-size: 0.85em; font-weight: 700;">
-                                <span style="color: #999;">🔄 Iniciando...</span>
-                            </div>
-                            <div style="margin-top: 6px; font-size: 0.78em; color: #888;">
-                                <span id="monitoreo-alumnos-count">0</span> alumnos
-                                · ⏱ Ausencia máx: <span id="monitoreo-limite-ausente" style="cursor: pointer; border-bottom: 1px dashed #999;" onclick="editarLimiteAusente()">5</span> min
-                                · <span id="monitoreo-reingresos-container" style="display: none;">🔄 Reingresos: <strong id="monitoreo-reingresos-count">0</strong></span>
-                            </div>
+                        <div id="monitoreo-qr-info" style="font-size: 0.82em; color: #666; margin-bottom: 4px;">
+                            ⏳ Generando sesión...
+                        </div>
+                        <div id="monitoreo-qr-estado" style="font-size: 0.85em; font-weight: 700;">
+                            <span style="color: #999;">🔄 Iniciando...</span>
+                        </div>
+                        <div style="margin-top: 6px; font-size: 0.78em; color: #888;">
+                            <span id="monitoreo-alumnos-count">0</span> alumnos
+                            · ⏱ Ausencia máx: <span id="monitoreo-limite-ausente" style="cursor: pointer; border-bottom: 1px dashed #999;" onclick="editarLimiteAusente()">5</span> min
+                            · <span id="monitoreo-reingresos-container" style="display: none;">🔄 Reingresos: <strong id="monitoreo-reingresos-count">0</strong></span>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Lista de alumnos (scrollable) -->
-                    <div id="monitoreo-lista" class="list-container" style="max-height: calc(100vh - 380px); min-height: 120px; overflow-y: auto; border: 1px solid #f0f0f0; border-radius: 10px; padding: 8px;">
-                        <p class="empty-state">Esperando que los alumnos escaneen el QR...</p>
-                    </div>
+                <!-- Lista de alumnos (scrollable) -->
+                <div id="monitoreo-lista" class="list-container" style="max-height: calc(100vh - 380px); min-height: 120px; overflow-y: auto; border: 1px solid #f0f0f0; border-radius: 10px; padding: 8px;">
+                    <p class="empty-state">Esperando que los alumnos escaneen el QR...</p>
+                </div>
 
-                    <!-- Controles -->
-                    <div style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; justify-content: center;">
-                        <button onclick="resetearContadoresHoy()" class="btn-secondary" style="flex: 1; min-width: 140px; font-size: 0.85em; background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2;">
-                            🔄 Resetear pantallas (hoy)
-                        </button>
-                        <button onclick="cerrarMonitoreo()" class="btn-secondary" style="flex: 1; min-width: 140px; font-size: 0.85em;">
-                            ⬅ Cerrar monitoreo
-                        </button>
-                    </div>
+                <!-- Controles -->
+                <div style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; justify-content: center;">
+                    <button onclick="resetearContadoresHoy()" class="btn-secondary" style="flex: 1; min-width: 140px; font-size: 0.85em; background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2;">
+                        🔄 Resetear pantallas (hoy)
+                    </button>
+                    <button onclick="cerrarMonitoreo()" class="btn-secondary" style="flex: 1; min-width: 140px; font-size: 0.85em;">
+                        ⬅ Cerrar monitoreo
+                    </button>
                 </div>
             </div>
         </div>
