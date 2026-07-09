@@ -38,7 +38,7 @@ async function cargarAsistenciasActivas(): Promise<void> {
   // Actualizar encabezado del monitoreo
   const { data: grupo } = await supabase
     .from('grupos')
-    .select('numero_perdones, nombre')
+    .select('numero_perdones, nombre, limite_ausente_min')
     .eq('id', monitorGrupoId)
     .maybeSingle();
   const maxPerdones = grupo?.numero_perdones ?? 2;
@@ -84,6 +84,8 @@ async function cargarAsistenciasActivas(): Promise<void> {
     }
   }
 
+  const limiteAusenteMin = grupo?.limite_ausente_min ?? 5;
+
   container.innerHTML = asistencias.map((a: any) => {
     const nombre = a.alumnos?.nombre || a.alumnos?.email || 'Sin nombre';
     const cambios = a.cambios_pantalla || 0;
@@ -91,6 +93,8 @@ async function cargarAsistenciasActivas(): Promise<void> {
     const confirmada = a.confirmada;
     const perdonada = a.perdonada;
     const reingreso = a.reingreso_solicitado;
+    const tiempoAusenteSeg = a.tiempo_ausente_acumulado || 0;
+    const ausenteExcedido = limiteAusenteMin > 0 && tiempoAusenteSeg >= limiteAusenteMin * 60;
 
     let estadoHTML: string;
     if (confirmada) {
@@ -133,6 +137,15 @@ async function cargarAsistenciasActivas(): Promise<void> {
           <div style="height:100%; width:${ancho}%; background:${barraColor}; border-radius:3px; transition:width 0.3s;"></div>
         </div>
       </div>
+      ${tiempoAusenteSeg > 0
+        ? `<div style="font-size:0.82em; margin-top:4px;">
+            🕐 <strong>Ausente:</strong> ${formatearDuracionProf(tiempoAusenteSeg)}
+            ${ausenteExcedido
+              ? '<span style="color:#c62828; font-weight:600; margin-left:6px;">⚠️ Límite excedido</span>'
+              : `<span style="color:#999;">(límite: ${limiteAusenteMin} min)</span>`
+            }
+          </div>`
+        : ''}
       <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
         <div>${btnBitacora}</div>
         <div style="display:flex; flex-wrap:wrap; gap:4px;${reingreso ? ' width:100%;' : ''}">${btnPerdonar}${btnReingreso ? ' ' + btnReingreso : ''}</div>
@@ -380,6 +393,14 @@ export function cerrarBitacora(): void {
 /** Escape HTML para evitar XSS */
 function escHtml(s: string): string {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+/** Formatea segundos a texto amigable para el profesor */
+function formatearDuracionProf(segundos: number): string {
+  const mins = Math.floor(segundos / 60);
+  const segs = segundos % 60;
+  if (mins === 0) return `${segs}s`;
+  return segs > 0 ? `${mins}m ${segs}s` : `${mins}m`;
 }
 
 // ====== APROBAR REINGRESO ======

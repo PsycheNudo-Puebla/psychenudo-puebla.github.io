@@ -36,6 +36,13 @@ let _ultimaSalidaId: string | null = null;     // ID del último registro salida
 let _reingresoPollInterval: number | null = null;  // polling fallback para reingreso
 let _reingresoEjecutandose = false;            // evita doble ejecución de ejecutarReingresoAprobado
 
+// ---- Variables de rastreo de interacción / inactivo vs ausente ----
+let ultimaInteraccion: number = Date.now();     // timestamp de la última interacción del usuario
+let estadoSalida: 'ausente' | 'inactivo' | null = null;  // tipo de salida actual
+let tiempoAusenteAcumulado: number = 0;         // segundos totales de ausencia en esta sesión
+const UMBRAL_INTERACCION_AUSENTE_MS = 5000;     // 5s sin interacción = inactivo vs ausente
+let _detenerRastreo: (() => void) | null = null;
+
 // ====== REGISTRAR EN BITÁCORA ======
 /**
  * Inserta un evento en bitacora_actividad.
@@ -80,6 +87,40 @@ function formatearDuracion(segundos: number): string {
   const mins = Math.floor(segundos / 60);
   const segs = segundos % 60;
   return segs > 0 ? `${mins}m ${segs}s` : `${mins}m`;
+}
+
+// ====== SINCRONIZAR TIEMPO AUSENTE ACUMULADO A BD ======
+async function sincronizarTiempoAusente(): Promise<void> {
+  if (!asistenciaActualId) return;
+  try {
+    await supabase
+      .from('asistencia')
+      .update({ tiempo_ausente_acumulado: Math.round(tiempoAusenteAcumulado) })
+      .eq('id', asistenciaActualId);
+  } catch {
+    // Si la columna no existe aún (migración pendiente), falla silenciosamente
+  }
+}
+
+// ====== RASTREO DE INTERACCIÓN DEL USUARIO ======
+function inicializarRastreoInteraccion(): void {
+  detenerRastreoInteraccion();
+  const marcar = () => { ultimaInteraccion = Date.now(); };
+  document.addEventListener('touchstart', marcar, { passive: true });
+  document.addEventListener('click', marcar);
+  document.addEventListener('keydown', marcar);
+  _detenerRastreo = () => {
+    document.removeEventListener('touchstart', marcar);
+    document.removeEventListener('click', marcar);
+    document.removeEventListener('keydown', marcar);
+  };
+}
+
+function detenerRastreoInteraccion(): void {
+  if (_detenerRastreo) {
+    _detenerRastreo();
+    _detenerRastreo = null;
+  }
 }
 
 // ====== VERIFICAR SI LA CLASE ESTÁ EN CURSO ======
@@ -299,8 +340,11 @@ export async function solicitarReingreso(): Promise<void> {
       .eq('id', asistenciaId)
       .maybeSingle();
 
-    // Si ya fue aprobado (por ejemplo mientras estábamos fuera), reanudar ya
-    if (estado && !estado.reingreso_solicitado && estado.ultimo_latido) {
+    // Si ultimo_latido cambió desde que cargamos la página, el profesor
+    // ya lo aprobó mientras estábamos fuera → reanudar directamente
+    const latidoPrev = w._pendienteUltimoLatido;
+    if (estado && !estado.reingreso_solicitado && estado.ultimo_latido && 
+        latidoPrev && estado.ultimo_latido !== latidoPrev) {
       _reingresoEjecutandose = true;
       ejecutarReingresoAprobado(asistenciaId);
       return;
@@ -382,9 +426,6 @@ export async function solicitarReingreso(): Promise<void> {
 
 /** Ejecuta la reanudación del monitoreo cuando el profesor aprueba el reingreso */
 function ejecutarReingresoAprobado(asistenciaId: string): void {
-  // Guard de seguridad: si ya estamos ejecutando esto, salir
-  if (_reingresoEjecutandose) return;
-
   try {
     _reingresoEjecutandose = true;
     console.log('✅ Reingreso aprobado, reanudando monitoreo:', asistenciaId);
@@ -738,6 +779,23 @@ export function iniciarMonitoreo(
     } catch { /* ignorar errores de verificación */ }
   })();
 
+  // ── Cargar tiempo ausente acumulado previo ──
+  supabase
+    .from('asistencia')
+    .select('tiempo_ausente_acumulado')
+    .eq('id', asistenciaId)
+    .maybeSingle()
+    .then(({ data: a }) => {
+      if (a?.tiempo_ausente_acumulado) {
+        tiempoAusenteAcumulado = a.tiempo_ausente_acumulado;
+      }
+    });
+
+  // ── Inicializar rastreo de interacción ──
+  ultimaInteraccion = Date.now();
+  estadoSalida = null;
+  inicializarRastreoInteraccion();
+
   // ── Registrar inicio en bitácora ──
   registrarEvento('inicio_monitoreo', 'Inició monitoreo de asistencia');
 
@@ -748,7 +806,10 @@ export function iniciarMonitoreo(
     try {
       await supabase
         .from('asistencia')
-        .update({ ultimo_latido: new Date().toISOString() })
+        .update({
+          ultimo_latido: new Date().toISOString(),
+          tiempo_ausente_acumulado: Math.round(tiempoAusenteAcumulado)
+        })
         .eq('id', asistenciaActualId);
     } catch { /* ignore errores de heartbeat */ }
   }, 30000);
@@ -778,6 +839,11 @@ export function iniciarMonitoreo(
 function detenerMonitoreo(): void {
   monitoreoActivo = false;
   setMonitoreoActivo(false);
+
+  // Sincronizar tiempo ausente acumulado antes de detener
+  sincronizarTiempoAusente();
+  detenerRastreoInteraccion();
+
   document.removeEventListener('visibilitychange', manejarVisibilidad);
   window.removeEventListener('blur', manejarBlur);
   window.removeEventListener('focus', manejarFocus);
@@ -865,17 +931,35 @@ function manejarVisibilidad(): void {
       const ahora = Date.now();
       if (ahora - ultimoCambioTimestamp < 2000) return;
       _ausenteDesde = ahora;
-      registrarEvento('salida_pantalla', 'Salió de la pestaña/app').then(id => { _ultimaSalidaId = id; });
-      incrementarCambio();
+
+      // Distinguir entre ausente (intencional) e inactivo (auto-bloqueo)
+      const tiempoSinInteraccion = ahora - ultimaInteraccion;
+      if (tiempoSinInteraccion < UMBRAL_INTERACCION_AUSENTE_MS) {
+        // Había interacción reciente → salió intencionalmente → AUSENTE
+        estadoSalida = 'ausente';
+        registrarEvento('salida_pantalla', 'Salió de la pestaña/app (ausente)').then(id => { _ultimaSalidaId = id; });
+        incrementarCambio();
+      } else {
+        // Sin interacción reciente → auto-bloqueo → INACTIVO
+        estadoSalida = 'inactivo';
+        registrarEvento('salida_pantalla', 'Pantalla bloqueada (inactivo)').then(id => { _ultimaSalidaId = id; });
+        // No incrementa cambios_pantalla
+      }
     } else if (document.visibilityState === 'visible') {
-      // Calcular duración de la ausencia
       if (_ausenteDesde && _ultimaSalidaId) {
         const duracionSeg = Math.round((Date.now() - _ausenteDesde) / 1000);
         const txtDuracion = formatearDuracion(duracionSeg);
-        actualizarEvento(_ultimaSalidaId, `Salió de la pestaña/app — Ausente ${txtDuracion}`);
+        if (estadoSalida === 'ausente') {
+          actualizarEvento(_ultimaSalidaId, `Salió de la pestaña/app — Ausente ${txtDuracion}`);
+          tiempoAusenteAcumulado += duracionSeg;
+          sincronizarTiempoAusente();
+        } else {
+          actualizarEvento(_ultimaSalidaId, `Pantalla bloqueada — Inactivo ${txtDuracion}`);
+        }
       }
       _ausenteDesde = null;
       _ultimaSalidaId = null;
+      estadoSalida = null;
       registrarEvento('regreso_pantalla', 'Regresó a la pestaña/app');
     }
   }
@@ -885,23 +969,36 @@ function manejarBlur(): void {
   if (monitoreoActivo && !cambioEnProgreso) {
     const ahora = Date.now();
     if (ahora - ultimoCambioTimestamp < 2000) return;
+    if (_ausenteDesde !== null) return; // ya registrado por visibilitychange
     _ausenteDesde = ahora;
-    registrarEvento('salida_pantalla', 'Perdió el foco de la ventana').then(id => { _ultimaSalidaId = id; });
-    incrementarCambio();
+
+    const tiempoSinInteraccion = ahora - ultimaInteraccion;
+    if (tiempoSinInteraccion < UMBRAL_INTERACCION_AUSENTE_MS) {
+      estadoSalida = 'ausente';
+      registrarEvento('salida_pantalla', 'Perdió el foco (ausente)').then(id => { _ultimaSalidaId = id; });
+      incrementarCambio();
+    } else {
+      estadoSalida = 'inactivo';
+      registrarEvento('salida_pantalla', 'Perdió el foco (inactivo)').then(id => { _ultimaSalidaId = id; });
+    }
   }
 }
 
 function manejarFocus(): void {
-  if (monitoreoActivo && _ausenteDesde !== null) {
-    // El usuario regresó a la ventana después de blur
+  if (monitoreoActivo && _ausenteDesde !== null && _ultimaSalidaId) {
     const duracionSeg = Math.round((Date.now() - _ausenteDesde) / 1000);
-    if (_ultimaSalidaId) {
-      const txtDuracion = formatearDuracion(duracionSeg);
-      actualizarEvento(_ultimaSalidaId, `Perdió el foco de la ventana — Ausente ${txtDuracion}`);
+    const txtDuracion = formatearDuracion(duracionSeg);
+    if (estadoSalida === 'ausente') {
+      actualizarEvento(_ultimaSalidaId, `Perdió el foco — Ausente ${txtDuracion}`);
+      tiempoAusenteAcumulado += duracionSeg;
+      sincronizarTiempoAusente();
+    } else {
+      actualizarEvento(_ultimaSalidaId, `Perdió el foco — Inactivo ${txtDuracion}`);
     }
     _ausenteDesde = null;
     _ultimaSalidaId = null;
-    registrarEvento('regreso_pantalla', 'Recuperó el foco de la ventana');
+    estadoSalida = null;
+    registrarEvento('regreso_pantalla', 'Recuperó el foco');
   }
 }
 
