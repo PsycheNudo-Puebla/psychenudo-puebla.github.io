@@ -9,7 +9,7 @@
     <script src="js/qrcode.min.js"></script>
 
 
-  <script type="module" crossorigin src="./assets/profesor.cwYd_MGU.js"></script>
+  <script type="module" crossorigin src="./assets/profesor.BhDA1I94.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/styles.CFacL6rs.js">
   <link rel="modulepreload" crossorigin href="./assets/utils.Di9qfZNi.js">
   <link rel="stylesheet" crossorigin href="./assets/styles.Cvg8s2tI.css">
@@ -290,6 +290,20 @@
         </div>
     </div>
     
+    <!-- MODAL: Bitácora de actividad -->
+    <div id="modal-bitacora" class="modal-overlay hidden" onclick="if(event.target===this) cerrarBitacora()">
+        <div class="modal" style="max-width: 500px;">
+            <h3>📋 Bitácora de actividad</h3>
+            <p id="bitacora-alumno-info" style="color: #666; font-size: 0.9em; margin-bottom: 8px;"></p>
+            <div id="bitacora-contenido" style="max-height: 60vh; overflow-y: auto;">
+                <p class="empty-state">⏳ Cargando...</p>
+            </div>
+            <div class="modal-buttons">
+                <button onclick="cerrarBitacora()" class="btn-secondary" style="flex:1;">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL: Editar nombre de alumno -->
     <div id="modal-editar-alumno" class="modal-overlay hidden" onclick="if(event.target===this) cerrarModalEditarAlumno()">
         <div class="modal" style="max-width: 450px;">

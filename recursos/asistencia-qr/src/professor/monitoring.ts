@@ -10,12 +10,15 @@ import { hoyLocal } from '@/shared/utils';
 let monitorGrupoId: string | null = null;
 let monitorPollInterval: ReturnType<typeof setTimeout> | null = null;
 let monitorProfChannel: any = null;
+// Rastrear qué asistencias ya notificamos con reingreso para evitar toast repetidos
+const _reingresoNotificados = new Set<string>();
 
 export function getMonitorGrupoId(): string | null { return monitorGrupoId; }
 
 export async function reabrirMonitoreo(grupoId: string): Promise<void> {
   document.getElementById('monitoreo-panel')!.classList.remove('hidden');
   monitorGrupoId = grupoId;
+  _reingresoNotificados.clear();
   await cargarAsistenciasActivas();
   iniciarPolling(grupoId);
   iniciarRealtime(grupoId);
@@ -72,6 +75,15 @@ async function cargarAsistenciasActivas(): Promise<void> {
     (elSolicitantes.parentElement as HTMLElement).style.display = solicitantes.length > 0 ? '' : 'none';
   }
 
+  // Notificar nuevos reingresos (toast)
+  for (const a of asistencias) {
+    if (a.reingreso_solicitado && !a.confirmada && !_reingresoNotificados.has(a.id)) {
+      _reingresoNotificados.add(a.id);
+      const nombre = a.alumnos?.nombre || a.alumnos?.email || 'Alumno';
+      mostrarToast(`🔄 ${nombre} solicita reingreso`, 'info', 6000);
+    }
+  }
+
   container.innerHTML = asistencias.map((a: any) => {
     const nombre = a.alumnos?.nombre || a.alumnos?.email || 'Sin nombre';
     const cambios = a.cambios_pantalla || 0;
@@ -102,14 +114,15 @@ async function cargarAsistenciasActivas(): Promise<void> {
       : '';
 
     const btnReingreso = reingreso
-      ? `<button onclick="aprobarReingreso('${a.id}', this)" class="btn-primary" style="font-size:0.75em; padding:4px 10px; background:#6a1b9a; color:white; border:none; border-radius:8px; cursor:pointer;">✅ Aprobar reingreso</button>`
+      ? `<button onclick="aprobarReingreso('${a.id}', this)" class="btn-primary" style="font-size:0.85em; padding:6px 14px; background:#6a1b9a; color:white; border:none; border-radius:8px; cursor:pointer; width:100%; font-weight:700; box-shadow:0 2px 8px rgba(106,27,154,0.3);">🔄 Aprobar reingreso</button>`
       : '';
 
     // Botón de bitácora siempre visible
     const btnBitacora = `<button onclick="window.mostrarBitacora('${a.id}', this)" class="btn-secondary" style="font-size:0.75em; padding:4px 10px; background:#f3e5f5; color:#7b1fa2; border:1px solid #ce93d8; border-radius:8px; cursor:pointer;">📋 Ver actividad</button>`;
 
+    const reingresoBg = reingreso ? 'background:#f3e5f5; border:2px solid #6a1b9a;' : 'background:white; border:1px solid #eee;';
     return `
-    <div style="background:white; border-radius:10px; padding:12px; margin-bottom:8px; box-shadow:0 1px 4px rgba(0,0,0,0.06);${reingreso ? 'border-left:4px solid #6a1b9a;' : ''}">
+    <div style="${reingresoBg} border-radius:10px; padding:12px; margin-bottom:8px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
         <strong>👤 ${nombre}</strong>
         ${estadoHTML}
@@ -122,7 +135,7 @@ async function cargarAsistenciasActivas(): Promise<void> {
       </div>
       <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
         <div>${btnBitacora}</div>
-        <div>${btnPerdonar}${btnReingreso ? ' ' + btnReingreso : ''}</div>
+        <div style="display:flex; flex-wrap:wrap; gap:4px;${reingreso ? ' width:100%;' : ''}">${btnPerdonar}${btnReingreso ? ' ' + btnReingreso : ''}</div>
       </div>
     </div>`;
   }).join('');
@@ -212,39 +225,33 @@ function iniciarRealtime(grupoId: string): void {
     .subscribe();
 }
 
-// ====== MOSTRAR BITÁCORA DE ACTIVIDAD ======
-export async function mostrarBitacora(asistenciaId: string, btnContainer: HTMLElement): Promise<void> {
-  // Buscar si ya hay un contenedor de bitácora abierto
-  const existingContainer = document.getElementById('bitacora-' + asistenciaId);
-  if (existingContainer) {
-    // Toggle: si ya está visible, ocultarlo
-    if (existingContainer.style.display === 'none') {
-      existingContainer.style.display = '';
-      btnContainer.textContent = '📋 Ocultar actividad';
-    } else {
-      existingContainer.style.display = 'none';
-      btnContainer.textContent = '📋 Ver actividad';
+// ====== MOSTRAR BITÁCORA DE ACTIVIDAD (modal overlay) ======
+let _bitacoraAsistenciaId: string | null = null;
+
+export async function mostrarBitacora(asistenciaId: string, _btn: HTMLElement): Promise<void> {
+  _bitacoraAsistenciaId = asistenciaId;
+
+  const modal = document.getElementById('modal-bitacora');
+  const infoEl = document.getElementById('bitacora-alumno-info');
+  const contentEl = document.getElementById('bitacora-contenido');
+  if (!modal || !infoEl || !contentEl) return;
+
+  // Mostrar modal con carga
+  modal.classList.remove('hidden');
+  infoEl.textContent = 'Cargando...';
+  contentEl.innerHTML = '<p class="empty-state">⏳ Cargando actividad...</p>';
+
+  // Obtener el nombre del alumno desde el DOM de la lista de monitoreo
+  // Buscar en el card que contiene el botón
+  let nombreAlumno = 'Alumno';
+  try {
+    const card = _btn.closest('div[style*="background:white"]');
+    if (card) {
+      const strongEl = card.querySelector('strong');
+      if (strongEl) nombreAlumno = strongEl.textContent?.replace('👤 ', '') || nombreAlumno;
     }
-    return;
-  }
+  } catch { /* ignorar */ }
 
-  // Crear contenedor de bitácora
-  const container = document.createElement('div');
-  container.id = 'bitacora-' + asistenciaId;
-  container.style.marginTop = '8px';
-  container.style.borderTop = '1px solid #eee';
-  container.style.paddingTop = '8px';
-  container.innerHTML = '<div style="text-align:center; color:#999; padding:8px;">⏳ Cargando actividad...</div>';
-
-  // Insertar después del botón
-  const parentDiv = btnContainer.closest('div')?.parentElement;
-  if (parentDiv) {
-    parentDiv.appendChild(container);
-  }
-
-  btnContainer.textContent = '📋 Ocultar actividad';
-
-  // Obtener eventos de la bitácora
   try {
     const { data: eventos, error } = await supabase
       .from('bitacora_actividad')
@@ -255,14 +262,15 @@ export async function mostrarBitacora(asistenciaId: string, btnContainer: HTMLEl
 
     if (error) throw error;
 
+    infoEl.textContent = `👤 ${nombreAlumno} — ${eventos?.length || 0} eventos registrados`;
+
     if (!eventos || eventos.length === 0) {
-      container.innerHTML = '<div style="text-align:center; color:#999; padding:8px; font-size:0.85em;">📭 Sin actividad registrada.</div>';
+      contentEl.innerHTML = '<div style="text-align:center; color:#999; padding:16px; font-size:0.9em;">📭 Sin actividad registrada.</div>';
       return;
     }
 
     // Calcular estadísticas de ausencias
     let totalAusenciaSeg = 0;
-    let salidasSinRegreso = 0;
     for (const e of eventos) {
       if (e.tipo === 'salida_pantalla' && e.detalle) {
         const matchMins = e.detalle.match(/Ausente (\d+)m(?:\s+(\d+)s)?/);
@@ -271,13 +279,10 @@ export async function mostrarBitacora(asistenciaId: string, btnContainer: HTMLEl
           totalAusenciaSeg += parseInt(matchMins[1]) * 60 + (parseInt(matchMins[2]) || 0);
         } else if (matchSegs) {
           totalAusenciaSeg += parseInt(matchSegs[1]);
-        } else if (!e.detalle.includes('Ausente')) {
-          salidasSinRegreso++;
         }
       }
     }
 
-    // Mapa de tipos a iconos
     function iconoParaTipo(t: string): string {
       switch (t) {
         case 'inicio_monitoreo': return '🟢';
@@ -293,7 +298,6 @@ export async function mostrarBitacora(asistenciaId: string, btnContainer: HTMLEl
       }
     }
 
-    // Texto legible para cada tipo
     function textoParaTipo(t: string): string {
       switch (t) {
         case 'inicio_monitoreo': return 'Inicio';
@@ -309,9 +313,15 @@ export async function mostrarBitacora(asistenciaId: string, btnContainer: HTMLEl
       }
     }
 
-    // Formatear duración total
     const totalAusenciaTexto = totalAusenciaSeg > 0
       ? ` · Ausente total: ~${Math.round(totalAusenciaSeg / 60)} min`
+      : '';
+
+    // Determinar si el alumno está actualmente ausente
+    const ultimoEvento = eventos[0];
+    const estaAusente = ultimoEvento?.tipo === 'salida_pantalla' && ultimoEvento?.detalle && !ultimoEvento.detalle.includes('Ausente');
+    const alertaAusente = estaAusente
+      ? `<div style="background:#ffebee; color:#c62828; padding:6px 10px; border-radius:6px; font-size:0.82rem; font-weight:600; margin-bottom:6px;">🔴 Alumno actualmente ausente de la ventana de monitoreo</div>`
       : '';
 
     const eventosHtml = eventos.map((e: any) => {
@@ -321,7 +331,6 @@ export async function mostrarBitacora(asistenciaId: string, btnContainer: HTMLEl
         ? new Date(e.registrada_en).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
         : '--:--:--';
 
-      // Extraer duración del detalle si existe
       let detalleHtml = '';
       let duracionHtml = '';
       if (e.detalle) {
@@ -348,23 +357,23 @@ export async function mostrarBitacora(asistenciaId: string, btnContainer: HTMLEl
       </div>`;
     }).join('');
 
-    // Determinar si el alumno está actualmente ausente (último evento fue salida sin regreso)
-    const ultimoEvento = eventos[0]; // El más reciente por ORDER DESC
-    const estaAusente = ultimoEvento?.tipo === 'salida_pantalla' && ultimoEvento?.detalle && !ultimoEvento.detalle.includes('Ausente');
-    const alertaAusente = estaAusente
-      ? `<div style="background:#ffebee; color:#c62828; padding:6px 10px; border-radius:6px; font-size:0.82rem; font-weight:600; margin-bottom:6px;">🔴 Alumno actualmente ausente de la ventana de monitoreo</div>`
-      : '';
-
-    container.innerHTML = `
-      <div style="font-size:0.78rem; color:#666; margin-bottom:4px; font-weight:600;">
-        📋 Bitácora de actividad (${eventos.length} eventos${totalAusenciaTexto})
+    contentEl.innerHTML = `
+      <div style="font-size:0.82rem; color:#666; margin-bottom:6px; font-weight:600;">
+        📋 Actividad (${eventos.length} eventos${totalAusenciaTexto})
       </div>
       ${alertaAusente}
-      <div style="max-height:280px; overflow-y:auto; border:1px solid #f0f0f0; border-radius:6px; padding:4px 8px; background:#fafafa;">
+      <div style="max-height:320px; overflow-y:auto; border:1px solid #f0f0f0; border-radius:6px; padding:4px 8px; background:#fafafa;">
         ${eventosHtml}
       </div>`;
   } catch (e: any) {
-    container.innerHTML = `<div style="text-align:center; color:#c62828; padding:8px; font-size:0.85em;">❌ Error al cargar bitácora: ${escHtml(e.message)}</div>`;
+    contentEl.innerHTML = `<div style="text-align:center; color:#c62828; padding:16px; font-size:0.9em;">❌ Error al cargar bitácora: ${escHtml(e.message)}</div>`;
+  }
+}
+
+export function cerrarBitacora(): void {
+  const modal = document.getElementById('modal-bitacora');
+  if (modal) {
+    modal.classList.add('hidden');
   }
 }
 
@@ -394,6 +403,7 @@ export async function aprobarReingreso(asistenciaId: string, btn: HTMLButtonElem
   }
 
   mostrarToast('✅ Reingreso aprobado — el alumno volverá al monitoreo.', 'exito', 4000);
+  _reingresoNotificados.delete(asistenciaId);
   await cargarAsistenciasActivas();
 }
 
@@ -401,6 +411,7 @@ export function detenerMonitoreo(): void {
   if (monitorPollInterval) { clearTimeout(monitorPollInterval); monitorPollInterval = null; }
   if (monitorProfChannel) { supabase.removeChannel(monitorProfChannel); monitorProfChannel = null; }
   monitorGrupoId = null;
+  _reingresoNotificados.clear();
 }
 
 // Alias para onclick en HTML

@@ -64,6 +64,7 @@ w['cerrarMonitoreo'] = monitoring.cerrarMonitoreo;
 w['perdonarAlumno'] = monitoring.perdonarAlumno;
 w['aprobarReingreso'] = monitoring.aprobarReingreso;
 w['mostrarBitacora'] = monitoring.mostrarBitacora;
+w['cerrarBitacora'] = monitoring.cerrarBitacora;
 w['monitoreoModule'] = monitoring;
 
 // Reportes
