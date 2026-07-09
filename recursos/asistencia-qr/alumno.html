@@ -6,7 +6,7 @@
     <title>Asistencia QR - Alumno</title>
 
 
-  <script type="module" crossorigin src="./assets/alumno.jRnpbv45.js"></script>
+  <script type="module" crossorigin src="./assets/alumno.DFj8_M-p.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/styles.CFacL6rs.js">
   <link rel="modulepreload" crossorigin href="./assets/utils.Di9qfZNi.js">
   <link rel="stylesheet" crossorigin href="./assets/styles.Cvg8s2tI.css">
@@ -113,9 +113,12 @@
             </div>
 
             <!-- Estado -->
-            <div id="monitor-estado" style="padding: 12px; border-radius: 12px; margin-bottom: 20px; font-weight: 600; font-size: 0.95em;">
+            <div id="monitor-estado" style="padding: 12px; border-radius: 12px; margin-bottom: 16px; font-weight: 600; font-size: 0.95em;">
                 ✅ Asistencia registrada. ¡Mantén la app abierta!
             </div>
+
+            <!-- Tiempos activo/inactivo -->
+            <div id="monitor-tiempos" style="background: #f5f5f5; border-radius: 12px; padding: 12px; margin-bottom: 16px;"></div>
 
             <!-- Historial de cambios -->
             <div id="monitor-historial" style="max-height: 120px; overflow-y: auto; margin-bottom: 20px; font-size: 0.85em; color: #666; text-align: left;"></div>
@@ -134,7 +137,10 @@
             <button onclick="sincronizarContador()" class="btn-secondary" style="width: 100%; margin-top: 8px; font-size: 0.85em; background: #f0f4ff; color: #667eea; border: 1px solid #d0d8ff;">
                 🔄 Sincronizar contador
             </button>
-            <!-- El botón salir-monitoreo fue eliminado — el estudiante no debe poder salir -->
+            <!-- Botón salir del monitoreo (vuelve al dashboard sin cerrar la clase) -->
+            <button onclick="salirMonitoreo()" class="btn-secondary" style="width: 100%; margin-top: 8px; font-size: 0.85em; background: #fff0f0; color: #c62828; border: 1px solid #ffcdd2;">
+                🚪 Salir del monitoreo
+            </button>
             <p style="font-size: 0.75em; color: #999; margin-top: 10px;">
                 Al confirmar aceptas que has estado presente durante la clase
             </p>
