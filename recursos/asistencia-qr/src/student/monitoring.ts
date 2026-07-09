@@ -34,6 +34,7 @@ let _tipoAsistenciaActual: string | null = null;
 // ---- Variables de bitácora / duración de ausencias ----
 let _ausenteDesde: number | null = null;       // timestamp cuando salió
 let _ultimaSalidaId: string | null = null;     // ID del último registro salida_pantalla
+let _ultimoSyncAusencia: number = 0;           // timestamp del último heartbeat que sincronizó ausencia (evita doble conteo)
 let _reingresoPollInterval: number | null = null;  // polling fallback para reingreso
 let _reingresoEjecutandose = false;            // evita doble ejecución de ejecutarReingresoAprobado
 
@@ -212,15 +213,17 @@ export async function autoReanudarMonitoreo(userId: string): Promise<boolean> {
     const tiempoAusente = ultimoLatido > 0 ? ahora - ultimoLatido : Infinity;
 
     // Si ventanaMin es 0, nunca se permite auto-reingreso (siempre pedir permiso)
-    // Verificar si la página fue cerrada intencionalmente (beforeunload)
-  const cerradoKey = 'monitoreo_cerrado_' + pendiente.id;
-  const cerradoPreviamente = localStorage.getItem(cerradoKey);
-  if (cerradoPreviamente) {
-    // La página se cerró → forzar reingreso aunque el latido esté reciente
-    localStorage.removeItem(cerradoKey);
-  }
+    // Verificar si la página fue cerrada intencionalmente (beforeunload en desktop)
+    const cerradoKey = 'monitoreo_cerrado_' + pendiente.id;
+    const cerradoPreviamente = localStorage.getItem(cerradoKey);
+    if (cerradoPreviamente) {
+      localStorage.removeItem(cerradoKey);
+    }
+    // Verificar si la pestaña fue cerrada y reabierta (sessionStorage se borra al cerrar pestaña)
+    const sessionActivo = sessionStorage.getItem('monitoreo_vivo_' + pendiente.id);
+    const tabFueCerrada = sessionActivo === null; // null = pestaña nueva, no había monitoreo
 
-  if (ventanaMin > 0 && tiempoAusente <= ventanaMs && !cerradoPreviamente) {
+    if (ventanaMin > 0 && tiempoAusente <= ventanaMs && !cerradoPreviamente && !tabFueCerrada) {
       // Reciente y la página no fue cerrada → auto-reanudar
       document.getElementById('login-view')!.classList.add('hidden');
       document.getElementById('dashboard-view')!.classList.add('hidden');
@@ -310,13 +313,16 @@ export async function revisarAsistenciaPendiente(): Promise<void> {
         </div>`;
     } else if (ventanaMin > 0 && asistenciaPendiente.ultimo_latido &&
         Date.now() - new Date(asistenciaPendiente.ultimo_latido).getTime() <= ventanaMin * 60 * 1000) {
-      // Verificar si la página fue cerrada antes de auto-reanudar
+      // Verificar si la página fue cerrada (beforeunload en desktop)
       const cerradoKey = 'monitoreo_cerrado_' + asistenciaPendiente.id;
       const cerradoPreviamente = localStorage.getItem(cerradoKey);
       if (cerradoPreviamente) {
         localStorage.removeItem(cerradoKey);
       }
-      if (!cerradoPreviamente) {
+      // Verificar si la pestaña fue cerrada y reabierta (sessionStorage se borra al cerrar)
+      const sessionActivo = sessionStorage.getItem('monitoreo_vivo_' + asistenciaPendiente.id);
+      const tabFueCerrada = sessionActivo === null;
+      if (!cerradoPreviamente && !tabFueCerrada) {
         // ── CLASE EN CURSO, LATIDO RECIENTE Y NO CERRADA → auto-reanudar
         try {
           reanudarMonitoreo();
@@ -555,6 +561,11 @@ export function iniciarMonitoreo(
   cambiosLimite = limite || 3;
   limiteAusenteMin = limiteAusente;
   cambiosContador = 0;
+
+  // ── Marcar en sessionStorage que el monitoreo está activo en esta pestaña ──
+  // sessionStorage se borra al cerrar la pestaña, permitiendo detectar
+  // si el navegador fue cerrado y reabierto (incluso en móvil donde beforeunload no funciona)
+  sessionStorage.setItem('monitoreo_vivo_' + asistenciaId, '1');
 
   // ── Generar token de monitoreo ──
   const tokenMonitoreo = generarUUID();
@@ -845,6 +856,18 @@ export function iniciarMonitoreo(
   heartbeatInterval = window.setInterval(async () => {
     if (!asistenciaActualId) return;
     try {
+      // Si está ausente, incluir el tiempo transcurrido desde el último sync
+      // para que el profesor vea tiempo en vivo (incluso si heartbeat está throttled)
+      if (_ausenteDesde) {
+        const ahoraH = Date.now();
+        const desdeH = _ultimoSyncAusencia > 0 ? _ultimoSyncAusencia : _ausenteDesde;
+        const elapsedMs = ahoraH - desdeH;
+        if (elapsedMs >= 1000) {
+          const seg = Math.round(elapsedMs / 1000);
+          tiempoAusenteAcumulado += seg;
+          _ultimoSyncAusencia = ahoraH;
+        }
+      }
       await supabase
         .from('asistencia')
         .update({
@@ -902,6 +925,12 @@ function detenerMonitoreo(): void {
     window.removeEventListener('beforeunload', _manejadorBeforeUnload);
     _manejadorBeforeUnload = null;
   }
+
+  // Limpiar flag de sessionStorage (pestaña cerrada)
+  if (asistenciaActualId) {
+    sessionStorage.removeItem('monitoreo_vivo_' + asistenciaActualId);
+  }
+
   if (monitorChannel) {
     supabase.removeChannel(monitorChannel);
     monitorChannel = null;
@@ -1002,9 +1031,10 @@ function manejarVisibilidad(): void {
         // No incrementa cambios_pantalla
       }
     } else if (document.visibilityState === 'visible') {
-      // Acumular tiempo aunque _ultimaSalidaId sea null (async no completó en móvil)
+      // Acumular tiempo ausente (solo lo que NO se haya sincronizado ya por heartbeat)
       if (_ausenteDesde) {
-        const duracionSeg = Math.round((Date.now() - _ausenteDesde) / 1000);
+        const desde = _ultimoSyncAusencia > 0 ? _ultimoSyncAusencia : _ausenteDesde;
+        const duracionSeg = Math.round((Date.now() - desde) / 1000);
         if (duracionSeg >= 1) {
           const txtDuracion = formatearDuracion(duracionSeg);
           if (_ultimaSalidaId) {
@@ -1020,6 +1050,7 @@ function manejarVisibilidad(): void {
           }
         }
       }
+      _ultimoSyncAusencia = 0;
       _ausenteDesde = null;
       _ultimaSalidaId = null;
       estadoSalida = null;
@@ -1049,8 +1080,9 @@ function manejarBlur(): void {
 
 function manejarFocus(): void {
   if (monitoreoActivo && _ausenteDesde !== null) {
-    // Acumular tiempo aunque _ultimaSalidaId sea null (async no completó en móvil)
-    const duracionSeg = Math.round((Date.now() - _ausenteDesde) / 1000);
+    // Acumular solo lo que NO se haya sincronizado por heartbeat
+    const desde = _ultimoSyncAusencia > 0 ? _ultimoSyncAusencia : _ausenteDesde;
+    const duracionSeg = Math.round((Date.now() - desde) / 1000);
     if (duracionSeg >= 1) {
       const txtDuracion = formatearDuracion(duracionSeg);
       if (_ultimaSalidaId) {
@@ -1065,6 +1097,7 @@ function manejarFocus(): void {
         sincronizarTiempoAusente();
       }
     }
+    _ultimoSyncAusencia = 0;
     _ausenteDesde = null;
     _ultimaSalidaId = null;
     estadoSalida = null;
