@@ -29,6 +29,57 @@ let _horaFinStr = '';
 let _btnConfirmarMostrado = false;
 let _tipoAsistenciaActual: string | null = null;
 
+// ---- Variables de bitácora / duración de ausencias ----
+let _ausenteDesde: number | null = null;       // timestamp cuando salió
+let _ultimaSalidaId: string | null = null;     // ID del último registro salida_pantalla
+let _reingresoPollInterval: number | null = null;  // polling fallback para reingreso
+
+// ====== REGISTRAR EN BITÁCORA ======
+/**
+ * Inserta un evento en bitacora_actividad.
+ * @returns El ID del registro insertado, o null si falló.
+ */
+async function registrarEvento(tipo: string, detalle: string, asistenciaOverride?: string): Promise<string | null> {
+  const id = asistenciaOverride || asistenciaActualId;
+  if (!id) return null;
+  try {
+    const { data } = await supabase
+      .from('bitacora_actividad')
+      .insert({
+        asistencia_id: id,
+        tipo,
+        detalle,
+        registrada_en: new Date().toISOString(),
+      })
+      .select('id')
+      .single();
+    return data?.id ?? null;
+  } catch (e) {
+    console.warn('⚠️ Error al registrar bitácora:', e);
+    return null;
+  }
+}
+
+/** Actualiza el detalle de un evento de bitácora existente */
+async function actualizarEvento(eventoId: string, detalle: string): Promise<void> {
+  try {
+    await supabase
+      .from('bitacora_actividad')
+      .update({ detalle })
+      .eq('id', eventoId);
+  } catch (e) {
+    console.warn('⚠️ Error al actualizar bitácora:', e);
+  }
+}
+
+/** Formatea duración en segundos a texto legible */
+function formatearDuracion(segundos: number): string {
+  if (segundos < 60) return `${segundos}s`;
+  const mins = Math.floor(segundos / 60);
+  const segs = segundos % 60;
+  return segs > 0 ? `${mins}m ${segs}s` : `${mins}m`;
+}
+
 // ====== VERIFICAR SI LA CLASE ESTÁ EN CURSO ======
 /** Devuelve true si hay sesión activa o el horario indica clase en curso */
 async function verificarClaseEnCurso(grupoId: string): Promise<boolean> {
@@ -95,6 +146,7 @@ export async function autoReanudarMonitoreo(userId: string): Promise<boolean> {
     if (!claseEnCurso) {
       // Clase terminada — si es sin_derecho, auto-confirmar y salir
       if (pendiente.tipo_asistencia === 'sin_derecho') {
+        await registrarEvento('asistencia_confirmada', 'Auto-confirmada (sin derecho) — clase terminada', pendiente.id);
         await supabase
           .from('asistencia')
           .update({ confirmada: true })
@@ -219,6 +271,7 @@ export async function revisarAsistenciaPendiente(): Promise<void> {
             </div>`;
         } else {
           // Sin impedimentos → auto-confirmar (estuvo en monitoreo hasta el final)
+          await registrarEvento('asistencia_confirmada', 'Auto-confirmada — estuvo en monitoreo hasta el final');
           localStorage.removeItem('token_monitoreo_' + asistenciaPendiente.id);
           await supabase
             .from('asistencia')
@@ -292,6 +345,8 @@ export async function solicitarReingreso(): Promise<void> {
       .update({ reingreso_solicitado: true })
       .eq('id', asistenciaId);
 
+    registrarEvento('reingreso_solicitado', 'Solicitó reingreso al profesor');
+
     // Mostrar pantalla de espera
     const banner = document.getElementById('reanudar-banner');
     if (banner) {
@@ -307,41 +362,70 @@ export async function solicitarReingreso(): Promise<void> {
         </div>`;
     }
 
-    // Escuchar en tiempo real la aprobación del profesor
-    if (reingresoChannel) supabase.removeChannel(reingresoChannel);
+    // Limpiar canales/intervalos previos
+    if (reingresoChannel) { supabase.removeChannel(reingresoChannel); reingresoChannel = null; }
+    if (_reingresoPollInterval) { clearInterval(_reingresoPollInterval); _reingresoPollInterval = null; }
+
+    // --- ESTRATEGIA DUAL: Realtime + Polling ---
+    // 1) Realtime channel (rápido pero a veces falla)
     reingresoChannel = supabase
       .channel('reingreso-' + asistenciaId)
       .on('postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'asistencia', filter: `id=eq.${asistenciaId}` },
         (payload: any) => {
-          // Profesor aprobó: reingreso_solicitado=false y ultimo_latido actualizado
           if (!payload.new.reingreso_solicitado && payload.new.ultimo_latido) {
-            if (reingresoChannel) supabase.removeChannel(reingresoChannel);
-            reingresoChannel = null;
-            // Reanudar monitoreo
-            const grupoId = w._pendienteGrupoId;
-            const grupoNombre = w._pendienteGrupoNombre;
-            const limite = w._pendienteLimite ?? 3;
-            if (grupoId && grupoNombre) {
-              document.getElementById('login-view')!.classList.add('hidden');
-              document.getElementById('dashboard-view')!.classList.add('hidden');
-              iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite);
-            }
+            ejecutarReingresoAprobado(asistenciaId);
           }
         }
       )
       .subscribe();
+
+    // 2) Polling fallback cada 2s (robusto, nunca falla)
+    _reingresoPollInterval = window.setInterval(async () => {
+      try {
+        const { data: asis } = await supabase
+          .from('asistencia')
+          .select('reingreso_solicitado, ultimo_latido')
+          .eq('id', asistenciaId)
+          .maybeSingle();
+        if (asis && !asis.reingreso_solicitado && asis.ultimo_latido) {
+          // Aprobado detectado por polling
+          if (_reingresoPollInterval) { clearInterval(_reingresoPollInterval); _reingresoPollInterval = null; }
+          if (reingresoChannel) { supabase.removeChannel(reingresoChannel); reingresoChannel = null; }
+          ejecutarReingresoAprobado(asistenciaId);
+        }
+      } catch { /* ignore errores de polling */ }
+    }, 2000);
   } catch (e) {
     console.warn('Error al solicitar reingreso:', e);
     mostrarToast('Error al solicitar reingreso', 'error');
   }
 }
 
-export function cancelarReingreso(): void {
-  if (reingresoChannel) {
-    supabase.removeChannel(reingresoChannel);
-    reingresoChannel = null;
+/** Ejecuta la reanudación del monitoreo cuando el profesor aprueba el reingreso */
+function ejecutarReingresoAprobado(asistenciaId: string): void {
+  registrarEvento('reingreso_aprobado', 'El profesor aprobó el reingreso');
+  // Limpiar channel + polling
+  if (reingresoChannel) { supabase.removeChannel(reingresoChannel); reingresoChannel = null; }
+  if (_reingresoPollInterval) { clearInterval(_reingresoPollInterval); _reingresoPollInterval = null; }
+
+  const w = window as any;
+  const grupoId = w._pendienteGrupoId;
+  const grupoNombre = w._pendienteGrupoNombre;
+  const limite = w._pendienteLimite ?? 3;
+  if (grupoId && grupoNombre) {
+    // Ocultar banner de reingreso y vistas previas
+    const banner = document.getElementById('reanudar-banner');
+    if (banner) banner.classList.add('hidden');
+    document.getElementById('login-view')!.classList.add('hidden');
+    document.getElementById('dashboard-view')!.classList.add('hidden');
+    iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite);
   }
+}
+
+export function cancelarReingreso(): void {
+  if (reingresoChannel) { supabase.removeChannel(reingresoChannel); reingresoChannel = null; }
+  if (_reingresoPollInterval) { clearInterval(_reingresoPollInterval); _reingresoPollInterval = null; }
   // Volver al banner anterior recargando
   revisarAsistenciaPendiente();
 }
@@ -349,6 +433,10 @@ export function cancelarReingreso(): void {
 export function reanudarMonitoreo(): void {
   const w = window as any;
   if (w._pendienteAsistenciaId) {
+    // Ocultar banner de reingreso pendiente
+    const banner = document.getElementById('reanudar-banner');
+    if (banner) banner.classList.add('hidden');
+
     supabase
       .from('asistencia')
       .select('tipo_asistencia, cambios_pantalla')
@@ -482,6 +570,7 @@ export function iniciarMonitoreo(
           // Resetear contador al ser perdonado
           cambiosContador = 0;
           actualizarMonitorUI();
+          registrarEvento('perdonado', 'El profesor perdonó los cambios de pantalla');
           const st = document.getElementById('monitor-estado')!;
           st.innerHTML = '🙏 <strong>Perdonado por el profesor.</strong> Continúa en clase.';
           st.style.background = '#e8f5e9';
@@ -507,6 +596,7 @@ export function iniciarMonitoreo(
                     if (payload.new.perdonada && !payload.new.confirmada) {
                       cambiosContador = 0;
                       actualizarMonitorUI();
+                      registrarEvento('perdonado', 'El profesor perdonó los cambios de pantalla');
                       document.getElementById('monitor-estado')!.innerHTML = '🙏 <strong>Perdonado por el profesor.</strong> Continúa en clase.';
                       document.getElementById('monitor-estado')!.style.background = '#e8f5e9';
                       document.getElementById('monitor-estado')!.style.color = '#2e7d32';
@@ -574,6 +664,7 @@ export function iniciarMonitoreo(
         document.getElementById('espera-confirmar')!.style.display = 'none';
         // Auto-confirmar asistencia sin derecho porque la clase terminó
         if (asistenciaActualId) {
+          registrarEvento('clase_terminada', 'Clase terminó (sin derecho) — auto-confirmada');
           localStorage.removeItem('token_monitoreo_' + asistenciaActualId);
           await supabase
             .from('asistencia')
@@ -630,6 +721,32 @@ export function iniciarMonitoreo(
     actualizarTimer(_horaFinStr);
   }, 1000);
 
+  // ── Verificar si hay una salida_pantalla previa sin regreso (recarga/cierre) ──
+  (async () => {
+    try {
+      const { data: ultimos } = await supabase
+        .from('bitacora_actividad')
+        .select('id, tipo, detalle, registrada_en')
+        .eq('asistencia_id', asistenciaId)
+        .order('registrada_en', { ascending: false })
+        .limit(3);
+      if (ultimos && ultimos.length > 0) {
+        const ultimo = ultimos[0];
+        // Si el último evento fue salida_pantalla sin duración → cerrar ausencia
+        if (ultimo.tipo === 'salida_pantalla' && ultimo.detalle && !ultimo.detalle.includes('Ausente')) {
+          const desde = new Date(ultimo.registrada_en).getTime();
+          const duracionSeg = Math.round((Date.now() - desde) / 1000);
+          const txtDuracion = formatearDuracion(duracionSeg);
+          await actualizarEvento(ultimo.id, `${ultimo.detalle} — Ausente ${txtDuracion} (al recargar página)`);
+          await registrarEvento('regreso_pantalla', 'Regresó a la ventana (después de recargar página)');
+        }
+      }
+    } catch { /* ignorar errores de verificación */ }
+  })();
+
+  // ── Registrar inicio en bitácora ──
+  registrarEvento('inicio_monitoreo', 'Inició monitoreo de asistencia');
+
   // Heartbeat: probar presencia activa cada 30s
   if (heartbeatInterval) clearInterval(heartbeatInterval);
   heartbeatInterval = window.setInterval(async () => {
@@ -658,6 +775,7 @@ export function iniciarMonitoreo(
   // Event listeners para cambios de pantalla
   document.addEventListener('visibilitychange', manejarVisibilidad);
   window.addEventListener('blur', manejarBlur);
+  window.addEventListener('focus', manejarFocus);
 
   cargarContadorExistente();
 }
@@ -668,6 +786,7 @@ function detenerMonitoreo(): void {
   setMonitoreoActivo(false);
   document.removeEventListener('visibilitychange', manejarVisibilidad);
   window.removeEventListener('blur', manejarBlur);
+  window.removeEventListener('focus', manejarFocus);
   if (monitorChannel) {
     supabase.removeChannel(monitorChannel);
     monitorChannel = null;
@@ -691,6 +810,10 @@ function detenerMonitoreo(): void {
   if (reingresoChannel) {
     supabase.removeChannel(reingresoChannel);
     reingresoChannel = null;
+  }
+  if (_reingresoPollInterval) {
+    clearInterval(_reingresoPollInterval);
+    _reingresoPollInterval = null;
   }
   asistenciaActualId = null;
   grupoActualId = null;
@@ -742,10 +865,24 @@ async function cargarContadorExistente(): Promise<void> {
 
 // ====== MANEJADORES DE EVENTOS ======
 function manejarVisibilidad(): void {
-  if (document.visibilityState === 'hidden' && monitoreoActivo && !cambioEnProgreso) {
-    const ahora = Date.now();
-    if (ahora - ultimoCambioTimestamp < 2000) return;
-    incrementarCambio();
+  if (monitoreoActivo) {
+    if (document.visibilityState === 'hidden' && !cambioEnProgreso) {
+      const ahora = Date.now();
+      if (ahora - ultimoCambioTimestamp < 2000) return;
+      _ausenteDesde = ahora;
+      registrarEvento('salida_pantalla', 'Salió de la pestaña/app').then(id => { _ultimaSalidaId = id; });
+      incrementarCambio();
+    } else if (document.visibilityState === 'visible') {
+      // Calcular duración de la ausencia
+      if (_ausenteDesde && _ultimaSalidaId) {
+        const duracionSeg = Math.round((Date.now() - _ausenteDesde) / 1000);
+        const txtDuracion = formatearDuracion(duracionSeg);
+        actualizarEvento(_ultimaSalidaId, `Salió de la pestaña/app — Ausente ${txtDuracion}`);
+      }
+      _ausenteDesde = null;
+      _ultimaSalidaId = null;
+      registrarEvento('regreso_pantalla', 'Regresó a la pestaña/app');
+    }
   }
 }
 
@@ -753,7 +890,23 @@ function manejarBlur(): void {
   if (monitoreoActivo && !cambioEnProgreso) {
     const ahora = Date.now();
     if (ahora - ultimoCambioTimestamp < 2000) return;
+    _ausenteDesde = ahora;
+    registrarEvento('salida_pantalla', 'Perdió el foco de la ventana').then(id => { _ultimaSalidaId = id; });
     incrementarCambio();
+  }
+}
+
+function manejarFocus(): void {
+  if (monitoreoActivo && _ausenteDesde !== null) {
+    // El usuario regresó a la ventana después de blur
+    const duracionSeg = Math.round((Date.now() - _ausenteDesde) / 1000);
+    if (_ultimaSalidaId) {
+      const txtDuracion = formatearDuracion(duracionSeg);
+      actualizarEvento(_ultimaSalidaId, `Perdió el foco de la ventana — Ausente ${txtDuracion}`);
+    }
+    _ausenteDesde = null;
+    _ultimaSalidaId = null;
+    registrarEvento('regreso_pantalla', 'Recuperó el foco de la ventana');
   }
 }
 
@@ -775,6 +928,7 @@ async function incrementarCambio(): Promise<void> {
   actualizarMonitorUI();
   cambioEnProgreso = false;
   if (cambiosContador >= cambiosLimite) {
+    registrarEvento('limite_alcanzado', `Alcanzó el límite de ${cambiosLimite} cambios de pantalla`);
     const st = document.getElementById('monitor-estado')!;
     st.innerHTML = '⚠️ Límite alcanzado. El profesor puede perdonarte para reiniciar tu contador.';
     st.style.background = '#fff3e0';
@@ -858,6 +1012,9 @@ export async function confirmarAsistencia(): Promise<void> {
     return;
   }
 
+  // Registrar confirmación en bitácora
+  await registrarEvento('asistencia_confirmada', 'Confirmó su asistencia voluntariamente');
+
   // Limpiar token de monitoreo
   localStorage.removeItem('token_monitoreo_' + asistenciaActualId);
   await supabase
@@ -919,6 +1076,8 @@ export async function confirmarAsistenciaPendiente(asistenciaId: string): Promis
     mostrarToast('⚠️ No puedes confirmar: excediste el límite de cambios sin perdón.', 'warning', 5000);
     return;
   }
+
+  await registrarEvento('asistencia_confirmada', 'Confirmó su asistencia desde el banner de clase terminada');
 
   localStorage.removeItem('token_monitoreo_' + asistenciaId);
   await supabase

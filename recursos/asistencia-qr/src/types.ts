@@ -93,6 +93,14 @@ export interface LogSalida {
   creado_en?: string;
 }
 
+export interface BitacoraEntry {
+  id: string;
+  asistencia_id: string;
+  tipo: string;
+  detalle: string | null;
+  registrada_en: string;
+}
+
 export interface Perdon {
   id: string;
   asistencia_id: string;
