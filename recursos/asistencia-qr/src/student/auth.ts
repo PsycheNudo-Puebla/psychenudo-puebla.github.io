@@ -4,7 +4,7 @@
 import { supabase, obtenerDeviceId } from '@/config/supabase';
 import { mostrarToast, setLoading } from '@/config/toaster';
 import type { Alumno } from '@/types';
-import { verificarSesion, cerrarSesion } from '@/shared/auth';
+import { verificarSesion, cerrarSesion, iniciarKeepAliveSesion, detenerKeepAliveSesion } from '@/shared/auth';
 // El módulo de monitoreo se importa dinámicamente para evitar ciclos
 import { autoReanudarMonitoreo } from './monitoring';
 import { cargarGrupos } from './dashboard';
@@ -238,11 +238,15 @@ async function verificarYCargarAlumno(user: any): Promise<void> {
   document.getElementById('alumno-nombre')!.textContent = `Hola, ${data.nombre}`;
 
   // Auto-reentrada a monitoreo
-  if (await autoReanudarMonitoreo(alumnoActual!.id)) return;
+  if (await autoReanudarMonitoreo(alumnoActual!.id)) {
+    iniciarKeepAliveSesion();
+    return;
+  }
 
   document.getElementById('login-view')!.classList.add('hidden');
   document.getElementById('dashboard-view')!.classList.remove('hidden');
   cargarGrupos();
+  iniciarKeepAliveSesion();
 }
 
 export async function cargarDatosAlumno(user: any, intentos = 0): Promise<void> {
@@ -289,11 +293,15 @@ export async function cargarDatosAlumno(user: any, intentos = 0): Promise<void> 
   alumnoActual = data;
   document.getElementById('alumno-nombre')!.textContent = `Hola, ${data.nombre}`;
 
-  if (await autoReanudarMonitoreo(alumnoActual!.id)) return;
+  if (await autoReanudarMonitoreo(alumnoActual!.id)) {
+    iniciarKeepAliveSesion();
+    return;
+  }
 
   document.getElementById('login-view')!.classList.add('hidden');
   document.getElementById('dashboard-view')!.classList.remove('hidden');
   cargarGrupos();
+  iniciarKeepAliveSesion();
 }
 
 // Exponer alumnoActual para otros módulos

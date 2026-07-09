@@ -3,9 +3,10 @@
 // ============================================================
 import { supabase } from '@/config/supabase';
 import { mostrarToast, setLoading } from '@/config/toaster';
-import { iniciarSesion, cerrarSesion, profesorActual, restaurarSesionProfesor } from '@/shared/auth';
+import { iniciarSesion, cerrarSesion, profesorActual, restaurarSesionProfesor, iniciarKeepAliveSesion, detenerKeepAliveSesion } from '@/shared/auth';
 import { cargarGrupos } from './groups';
 import { detenerAutoScheduler, iniciarAutoQrChecker } from './qr';
+import { getMonitorGrupoId } from './monitoring';
 
 // ---- Estado ----
 export let estaIniciandoSesion = false;
@@ -23,6 +24,7 @@ export async function initProfesorAuth(): Promise<void> {
       document.getElementById('dashboard-view')!.classList.remove('hidden');
       cargarGrupos();
       iniciarAutoQrChecker();
+      iniciarKeepAliveSesion();
       authReady = true;
       return;
     }
@@ -33,12 +35,25 @@ export async function initProfesorAuth(): Promise<void> {
 }
 
 // Escuchar cambios de autenticación (cierre de sesión en otra pestaña, etc.)
-supabase.auth.onAuthStateChange((event, session) => {
+supabase.auth.onAuthStateChange(async (event, session) => {
   if (event === 'SIGNED_OUT') {
     // Al recargar la página, Supabase puede emitir SIGNED_OUT durante la
     // inicialización aunque la sesión siga activa. Ignoramos SIGNED_OUT
     // hasta que authReady = true (initProfesorAuth ya terminó).
     if (!authReady) return;
+
+    // Si estamos monitoreando una clase activa, intentar recuperar la sesión
+    // en lugar de cerrar el dashboard y perder visibilidad de los alumnos.
+    if (getMonitorGrupoId()) {
+      const { data: refreshed } = await supabase.auth.refreshSession();
+      if (refreshed?.session) {
+        console.log('🔄 Sesión recuperada automáticamente durante monitoreo');
+        return;
+      }
+      mostrarToast('⚠️ Se perdió la conexión con el servidor. Verifica tu internet.', 'error', 8000);
+      return;
+    }
+
     mostrarLogin();
   } else if (event === 'SIGNED_IN' && session?.user) {
     // Si ya estamos en dashboard, no re-inicializar
@@ -50,6 +65,7 @@ supabase.auth.onAuthStateChange((event, session) => {
         document.getElementById('dashboard-view')!.classList.remove('hidden');
         cargarGrupos();
         iniciarAutoQrChecker();
+        iniciarKeepAliveSesion();
       }
       authReady = true;
     });
@@ -80,6 +96,7 @@ export async function handleLogin(e: Event): Promise<void> {
       document.getElementById('dashboard-view')!.classList.remove('hidden');
       cargarGrupos();
       iniciarAutoQrChecker();
+      iniciarKeepAliveSesion();
     }
   } catch (err: any) {
     console.error('Error en login:', err);

@@ -2,10 +2,11 @@
 // Monitoreo de asistencia: detección de cambios de pantalla,
 // confirmación, sincronización en tiempo real, auto-reentrada
 // ============================================================
-import { supabase } from '@/config/supabase';
+import { supabase, generarUUID } from '@/config/supabase';
 import { mostrarToast } from '@/config/toaster';
 import { getAlumnoActual, setMonitoreoActivo } from './auth';
 import { cargarGrupos } from './dashboard';
+import { iniciarKeepAliveSesion, detenerKeepAliveSesion } from '@/shared/auth';
 
 // ---- Variables de monitoreo ----
 export let monitoreoActivo = false;
@@ -18,6 +19,7 @@ let monitorChannel: any = null;
 let monitorInterval: number | null = null;
 let timerInterval: number | null = null;
 let heartbeatInterval: number | null = null;
+let tokenInterval: number | null = null;
 let reingresoChannel: any = null;
 let cambioEnProgreso = false;
 let ultimoCambioTimestamp = 0;
@@ -217,10 +219,12 @@ export async function revisarAsistenciaPendiente(): Promise<void> {
             </div>`;
         } else {
           // Sin impedimentos → auto-confirmar (estuvo en monitoreo hasta el final)
+          localStorage.removeItem('token_monitoreo_' + asistenciaPendiente.id);
           await supabase
             .from('asistencia')
-            .update({ confirmada: true })
+            .update({ confirmada: true, token_monitoreo: null, ultimo_acceso_token: null })
             .eq('id', asistenciaPendiente.id);
+          detenerKeepAliveSesion();
           banner.innerHTML = `
             <div style="background:#e8f5e9; border:1px solid #a5d6a7; border-radius:12px; padding:14px 16px; text-align:center;">
               ✅ <strong style="color:#2e7d32;">Asistencia confirmada</strong>
@@ -390,6 +394,21 @@ export function iniciarMonitoreo(
   cambiosLimite = limite || 3;
   cambiosContador = 0;
 
+  // ── Generar token de monitoreo ──
+  const tokenMonitoreo = generarUUID();
+  localStorage.setItem('token_monitoreo_' + asistenciaId, tokenMonitoreo);
+  supabase
+    .from('asistencia')
+    .update({
+      token_monitoreo: tokenMonitoreo,
+      ultimo_acceso_token: new Date().toISOString()
+    })
+    .eq('id', asistenciaId)
+    .then(() => {
+      console.log('🔑 Token de monitoreo generado:', tokenMonitoreo);
+    });
+  iniciarKeepAliveSesion();
+
   document.getElementById('dashboard-view')!.classList.add('hidden');
   document.getElementById('monitor-view')!.classList.remove('hidden');
   document.getElementById('monitor-grupo')!.textContent = `📚 ${grupoNombre}`;
@@ -555,10 +574,12 @@ export function iniciarMonitoreo(
         document.getElementById('espera-confirmar')!.style.display = 'none';
         // Auto-confirmar asistencia sin derecho porque la clase terminó
         if (asistenciaActualId) {
+          localStorage.removeItem('token_monitoreo_' + asistenciaActualId);
           await supabase
             .from('asistencia')
-            .update({ confirmada: true })
+            .update({ confirmada: true, token_monitoreo: null, ultimo_acceso_token: null })
             .eq('id', asistenciaActualId);
+          detenerKeepAliveSesion();
         }
         const st = document.getElementById('monitor-estado')!;
         st.innerHTML = '⏰ <strong>Clase terminada.</strong> Asistencia registrada como ausencia.';
@@ -621,6 +642,19 @@ export function iniciarMonitoreo(
     } catch { /* ignore errores de heartbeat */ }
   }, 30000);
 
+  // Token keepalive: actualizar ultimo_acceso_token cada 60s
+  // Esto permite al profesor ver qué alumnos tienen sesión activa
+  if (tokenInterval) clearInterval(tokenInterval);
+  tokenInterval = window.setInterval(async () => {
+    if (!asistenciaActualId) return;
+    try {
+      await supabase
+        .from('asistencia')
+        .update({ ultimo_acceso_token: new Date().toISOString() })
+        .eq('id', asistenciaActualId);
+    } catch { /* ignore */ }
+  }, 60000);
+
   // Event listeners para cambios de pantalla
   document.addEventListener('visibilitychange', manejarVisibilidad);
   window.addEventListener('blur', manejarBlur);
@@ -645,6 +679,10 @@ function detenerMonitoreo(): void {
   if (heartbeatInterval) {
     clearInterval(heartbeatInterval);
     heartbeatInterval = null;
+  }
+  if (tokenInterval) {
+    clearInterval(tokenInterval);
+    tokenInterval = null;
   }
   if (timerInterval) {
     clearInterval(timerInterval);
@@ -820,10 +858,13 @@ export async function confirmarAsistencia(): Promise<void> {
     return;
   }
 
+  // Limpiar token de monitoreo
+  localStorage.removeItem('token_monitoreo_' + asistenciaActualId);
   await supabase
     .from('asistencia')
-    .update({ confirmada: true })
+    .update({ confirmada: true, token_monitoreo: null, ultimo_acceso_token: null })
     .eq('id', asistenciaActualId);
+  detenerKeepAliveSesion();
   mostrarConfirmada();
 }
 
@@ -879,10 +920,12 @@ export async function confirmarAsistenciaPendiente(asistenciaId: string): Promis
     return;
   }
 
+  localStorage.removeItem('token_monitoreo_' + asistenciaId);
   await supabase
     .from('asistencia')
-    .update({ confirmada: true })
+    .update({ confirmada: true, token_monitoreo: null, ultimo_acceso_token: null })
     .eq('id', asistenciaId);
+  detenerKeepAliveSesion();
 
   const banner = document.getElementById('reanudar-banner');
   if (banner) {

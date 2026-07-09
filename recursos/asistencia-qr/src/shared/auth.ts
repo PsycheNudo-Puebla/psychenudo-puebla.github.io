@@ -129,6 +129,7 @@ export async function registrar(
 
 // ---- CERRAR SESIÓN ----
 export async function cerrarSesion(rol: Rol): Promise<void> {
+  detenerKeepAliveSesion();
   await supabase.auth.signOut();
   if (rol === 'profesor') profesorActual = null;
   else alumnoActual = null;
@@ -177,4 +178,30 @@ export async function verificarSesion(): Promise<boolean> {
     return false;
   }
   return true;
+}
+
+// ---- KEEP-ALIVE DE SESIÓN (evita SIGNED_OUT inesperado) ----
+// Refresca proactivamente el JWT de Supabase cada 60s para que el token
+// nunca expire mientras la página esté abierta y haya monitoreo activo.
+let keepAliveInterval: ReturnType<typeof setInterval> | null = null;
+
+export function iniciarKeepAliveSesion(): void {
+  detenerKeepAliveSesion();
+  keepAliveInterval = setInterval(async () => {
+    try {
+      const { error } = await supabase.auth.refreshSession();
+      if (error) {
+        console.warn('⚠️ Error al refrescar sesión (keepalive):', error.message);
+      }
+    } catch (e) {
+      console.warn('⚠️ Error en keepalive:', e);
+    }
+  }, 60000); // cada 1 minuto
+}
+
+export function detenerKeepAliveSesion(): void {
+  if (keepAliveInterval) {
+    clearInterval(keepAliveInterval);
+    keepAliveInterval = null;
+  }
 }

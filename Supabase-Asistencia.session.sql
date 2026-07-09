@@ -287,3 +287,12 @@ ALTER TABLE public.asistencia ADD COLUMN IF NOT EXISTS ultimo_latido TIMESTAMPTZ
 ALTER TABLE public.asistencia ADD COLUMN IF NOT EXISTS reingreso_solicitado BOOLEAN DEFAULT FALSE;
 UPDATE public.grupos SET ventana_reingreso_min = 2 WHERE ventana_reingreso_min IS NULL;
 UPDATE public.asistencia SET ultimo_latido = creado_en WHERE ultimo_latido IS NULL AND confirmada = true;
+
+-- =============================================================
+-- 🔄 9. MIGRACIÓN: Token de Monitoreo + KeepAlive (2026-07-08)
+-- =============================================================
+ALTER TABLE public.asistencia ADD COLUMN IF NOT EXISTS token_monitoreo TEXT;
+COMMENT ON COLUMN public.asistencia.token_monitoreo IS 'UUID único generado por el alumno al iniciar monitoreo. Se limpia al confirmar asistencia.';
+
+ALTER TABLE public.asistencia ADD COLUMN IF NOT EXISTS ultimo_acceso_token TIMESTAMPTZ;
+COMMENT ON COLUMN public.asistencia.ultimo_acceso_token IS 'Timestamp del último keepalive del token (se actualiza cada 60s mientras el alumno está en monitoreo)';
