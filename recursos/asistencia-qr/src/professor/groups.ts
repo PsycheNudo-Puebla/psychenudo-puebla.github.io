@@ -195,7 +195,7 @@ async function cargarDetalleHorarios(grupoId: string): Promise<void> {
 
 // ---- CREAR GRUPO ----
 export async function crearGrupo(
-  nombre: string, materia: string, limite: number, perdones: number, codigoUnico: string, ventanaReingreso: number
+  nombre: string, materia: string, limite: number, perdones: number, codigoUnico: string, ventanaReingreso: number, limiteAusenteMin: number
 ): Promise<boolean> {
   if (!(await verificarSesion())) return false;
   try {
@@ -207,6 +207,7 @@ export async function crearGrupo(
         limite_salidas: limite || 3,
         numero_perdones: perdones || 2,
         ventana_reingreso_min: isNaN(ventanaReingreso) ? 2 : ventanaReingreso,
+        limite_ausente_min: limiteAusenteMin || 5,
         codigo_unico: codigoUnico,
       })
       .select()
@@ -258,6 +259,7 @@ export async function mostrarEditarGrupo(grupoId: string): Promise<void> {
   (document.getElementById('grupo-materia') as HTMLInputElement).value = grupo.materia || '';
   (document.getElementById('grupo-limite') as HTMLInputElement).value = String(grupo.limite_salidas || 3);
   (document.getElementById('grupo-perdones') as HTMLInputElement).value = String(grupo.numero_perdones || 2);
+  (document.getElementById('grupo-ausencia-max') as HTMLInputElement).value = String(grupo.limite_ausente_min ?? 5);
   (document.getElementById('grupo-ventana-reingreso') as HTMLInputElement).value = String(grupo.ventana_reingreso_min ?? 2);
   (document.getElementById('grupo-codigo') as HTMLInputElement).value = grupo.codigo_unico || '';
 
@@ -284,13 +286,13 @@ export async function mostrarEditarGrupo(grupoId: string): Promise<void> {
 }
 
 export async function guardarEdicionGrupo(
-  id: string, nombre: string, materia: string, limite: number, perdones: number, codigoUnico: string, ventanaReingreso: number
+  id: string, nombre: string, materia: string, limite: number, perdones: number, codigoUnico: string, ventanaReingreso: number, limiteAusenteMin: number
 ): Promise<boolean> {
   if (!(await verificarSesion())) return false;
   try {
     await supabase
       .from('grupos')
-      .update({ nombre, materia, limite_salidas: limite, numero_perdones: perdones, codigo_unico: codigoUnico, ventana_reingreso_min: ventanaReingreso })
+      .update({ nombre, materia, limite_salidas: limite, numero_perdones: perdones, codigo_unico: codigoUnico, ventana_reingreso_min: ventanaReingreso, limite_ausente_min: limiteAusenteMin })
       .eq('id', id);
 
     // Reemplazar horarios
@@ -381,6 +383,7 @@ export async function handleGuardarGrupo(e: Event): Promise<boolean> {
   const perdones = parseInt((document.getElementById('grupo-perdones') as HTMLInputElement).value) || 2;
   const rawVentana = parseInt((document.getElementById('grupo-ventana-reingreso') as HTMLInputElement).value);
   const ventanaReingreso = isNaN(rawVentana) ? 2 : rawVentana;
+  const limiteAusenteMin = parseInt((document.getElementById('grupo-ausencia-max') as HTMLInputElement).value) || 5;
   const codigo = (document.getElementById('grupo-codigo') as HTMLInputElement).value.trim();
 
   if (!nombre) {
@@ -390,9 +393,9 @@ export async function handleGuardarGrupo(e: Event): Promise<boolean> {
 
   let exito: boolean;
   if (editando) {
-    exito = await guardarEdicionGrupo(editando, nombre, materia, limite, perdones, codigo, ventanaReingreso);
+    exito = await guardarEdicionGrupo(editando, nombre, materia, limite, perdones, codigo, ventanaReingreso, limiteAusenteMin);
   } else {
-    exito = await crearGrupo(nombre, materia, limite, perdones, codigo, ventanaReingreso);
+    exito = await crearGrupo(nombre, materia, limite, perdones, codigo, ventanaReingreso, limiteAusenteMin);
   }
 
   if (exito) cerrarModal();

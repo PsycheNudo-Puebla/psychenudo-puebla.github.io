@@ -46,16 +46,12 @@ async function cargarAsistenciasActivas(): Promise<void> {
   const elNombreGrupo = document.getElementById('monitoreo-grupo-nombre');
   if (elNombreGrupo) elNombreGrupo.textContent = grupo?.nombre || '';
 
-  const elLimite = document.getElementById('monitoreo-perdones-max');
-  if (elLimite) elLimite.textContent = String(maxPerdones);
-
   const elLimiteAusente = document.getElementById('monitoreo-limite-ausente');
   if (elLimiteAusente && grupo?.limite_ausente_min !== undefined) {
     elLimiteAusente.textContent = String(grupo.limite_ausente_min);
   }
 
-  const elUsados = document.getElementById('monitoreo-perdones-usados');
-  if (elUsados) elUsados.textContent = String(0);
+  // Quitado: perdones del header (ahora se muestra por alumno en cada tarjeta)
 
   if (!asistencias || asistencias.length === 0) {
     container.innerHTML = '<p class="empty-state">📭 No hay alumnos registrados hoy.</p>';
@@ -67,10 +63,20 @@ async function cargarAsistenciasActivas(): Promise<void> {
   const elCount = document.getElementById('monitoreo-alumnos-count');
   if (elCount) elCount.textContent = String(asistencias.length);
 
-  // Contar perdones usados hoy (sumar perdonadas)
-  const perdonesUsados = asistencias.filter((a: any) => a.perdonada).length;
-  const elUsados2 = document.getElementById('monitoreo-perdones-usados');
-  if (elUsados2) elUsados2.textContent = String(perdonesUsados);
+  // Contar perdones por alumno hoy (para mostrar en cada tarjeta)
+  const { data: perdonesHoy } = await supabase
+    .from('asistencia')
+    .select('alumno_id, perdonada')
+    .eq('grupo_id', monitorGrupoId)
+    .eq('fecha', hoyLocal());
+  const perdonesPorAlumno: Record<string, number> = {};
+  if (perdonesHoy) {
+    for (const a of perdonesHoy) {
+      if (a.perdonada) {
+        perdonesPorAlumno[a.alumno_id] = (perdonesPorAlumno[a.alumno_id] || 0) + 1;
+      }
+    }
+  }
 
   // Contar alumnos con reingreso solicitado para el badge
   const solicitantes = asistencias.filter((a: any) => a.reingreso_solicitado && !a.confirmada);
@@ -129,11 +135,16 @@ async function cargarAsistenciasActivas(): Promise<void> {
     // Botón de bitácora siempre visible
     const btnBitacora = `<button onclick="window.mostrarBitacora('${a.id}', this)" class="btn-secondary" style="font-size:0.75em; padding:4px 10px; background:#f3e5f5; color:#7b1fa2; border:1px solid #ce93d8; border-radius:8px; cursor:pointer;">📋 Ver actividad</button>`;
 
+    const perdonesAlumno = perdonesPorAlumno[a.alumno_id] || 0;
+    const perdonesHTML = perdonesAlumno > 0
+      ? `<span style="font-size:0.8em; color:#f57f17; font-weight:600;">🙏 ${perdonesAlumno}/${maxPerdones}</span>`
+      : '';
+
     const reingresoBg = reingreso ? 'background:#f3e5f5; border:2px solid #6a1b9a;' : 'background:white; border:1px solid #eee;';
     return `
     <div style="${reingresoBg} border-radius:10px; padding:12px; margin-bottom:8px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-        <strong>👤 ${nombre}</strong>
+        <strong>👤 ${nombre} ${perdonesHTML}</strong>
         ${estadoHTML}
       </div>
       <div style="font-size:0.85em; color:#666;">

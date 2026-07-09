@@ -615,11 +615,11 @@ export async function resetearContadoresHoy(): Promise<void> {
   const hoy = hoyLocal();
   const { error } = await supabase
     .from('asistencia')
-    .update({ cambios_pantalla: 0 })
+    .update({ cambios_pantalla: 0, tiempo_ausente_acumulado: 0 })
     .eq('grupo_id', grupoId)
     .eq('fecha', hoy);
 
   if (error) { mostrarToast('Error: ' + error.message, 'error'); return; }
-  mostrarToast('✅ Contadores reseteados para hoy.', 'exito');
+  mostrarToast('✅ Cambios y tiempo ausente reseteados para hoy.', 'exito');
   renderVerGrupo();
 }
