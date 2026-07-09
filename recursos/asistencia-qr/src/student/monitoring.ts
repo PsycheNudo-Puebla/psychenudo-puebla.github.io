@@ -42,6 +42,7 @@ let _reingresoEjecutandose = false;            // evita doble ejecución de ejec
 let ultimaInteraccion: number = Date.now();     // timestamp de la última interacción del usuario
 let estadoSalida: 'ausente' | 'inactivo' | null = null;  // tipo de salida actual
 let tiempoAusenteAcumulado: number = 0;         // segundos totales de ausencia en esta sesión
+let tiempoInactivoAcumulado: number = 0;         // segundos con página oculta/sin foco (pantalla bloqueada, minimizada)
 const UMBRAL_INTERACCION_AUSENTE_MS = 5000;     // 5s sin interacción = inactivo vs ausente
 let _detenerRastreo: (() => void) | null = null;
 
@@ -106,6 +107,19 @@ async function sincronizarTiempoAusente(): Promise<void> {
     await supabase
       .from('asistencia')
       .update({ tiempo_ausente_acumulado: Math.round(tiempoAusenteAcumulado) })
+      .eq('id', asistenciaActualId);
+  } catch {
+    // Si la columna no existe aún (migración pendiente), falla silenciosamente
+  }
+}
+
+// ====== SINCRONIZAR TIEMPO INACTIVO ACUMULADO A BD ======
+async function sincronizarTiempoInactivo(): Promise<void> {
+  if (!asistenciaActualId) return;
+  try {
+    await supabase
+      .from('asistencia')
+      .update({ tiempo_inactivo_acumulado: Math.round(tiempoInactivoAcumulado) })
       .eq('id', asistenciaActualId);
   } catch {
     // Si la columna no existe aún (migración pendiente), falla silenciosamente
@@ -820,25 +834,83 @@ export function iniciarMonitoreo(
     actualizarTimer(_horaFinStr);
   }, 1000);
 
-  // ── Verificar si hay una salida_pantalla previa sin regreso (recarga/cierre) ──
+  // ── Verificar ausencia real por caducidad del heartbeat ──
+  // Si ultimo_latido envejeció más de la cuenta, el usuario realmente cerró
+  // la página (no solo bloqueó pantalla o minimizó). El heartbeat se detiene
+  // al cerrar, así que ahora − ultimo_latido = tiempo ausente real.
   (async () => {
     try {
+      const GRACIA_SEG = 10; // 10s de gracia para backgrounding trivial
+      const ahora = Date.now();
+      let ultimoLatidoTs = 0;
+      try {
+        const { data: asis } = await supabase
+          .from('asistencia')
+          .select('ultimo_latido')
+          .eq('id', asistenciaId)
+          .maybeSingle();
+        if (asis?.ultimo_latido) {
+          ultimoLatidoTs = new Date(asis.ultimo_latido).getTime();
+        }
+      } catch { /* ignorar */ }
+      const gapSeg = ultimoLatidoTs > 0 ? Math.round((ahora - ultimoLatidoTs) / 1000) : 0;
+      const huboAusenciaReal = gapSeg > GRACIA_SEG;
+
+      // Verificar si pagehide ya registró salida_pantalla
       const { data: ultimos } = await supabase
         .from('bitacora_actividad')
         .select('id, tipo, detalle, registrada_en')
         .eq('asistencia_id', asistenciaId)
         .order('registrada_en', { ascending: false })
         .limit(3);
+
+      let salidaYaRegistrada = false;
       if (ultimos && ultimos.length > 0) {
         const ultimo = ultimos[0];
-        // Si el último evento fue salida_pantalla sin duración → cerrar ausencia
         if (ultimo.tipo === 'salida_pantalla' && ultimo.detalle && !ultimo.detalle.includes('Ausente')) {
-          const desde = new Date(ultimo.registrada_en).getTime();
-          const duracionSeg = Math.round((Date.now() - desde) / 1000);
-          const txtDuracion = formatearDuracion(duracionSeg);
-          await actualizarEvento(ultimo.id, `${ultimo.detalle} — Ausente ${txtDuracion} (al recargar página)`);
-          await registrarEvento('regreso_pantalla', 'Regresó a la ventana (después de recargar página)');
+          salidaYaRegistrada = true;
+          // pagehide funcionó: cerrar la duración
+          if (huboAusenciaReal) {
+            const desde = new Date(ultimo.registrada_en).getTime();
+            const duracionSeg = Math.round((Date.now() - desde) / 1000);
+            const txtDuracion = formatearDuracion(duracionSeg);
+            await actualizarEvento(ultimo.id, `${ultimo.detalle} — Ausente ${txtDuracion} (al recargar página)`);
+            await registrarEvento('regreso_pantalla', 'Regresó a la ventana (después de recargar página)');
+          }
         }
+      }
+
+      // Si hubo ausencia real pero pagehide NO registró salida (crash/móvil):
+      // registrar ahora y sumar cambio
+      if (huboAusenciaReal && !salidaYaRegistrada) {
+        await registrarEvento('salida_pantalla', `Navegador cerrado inesperadamente — Ausente ${formatearDuracion(gapSeg)}`);
+        await registrarEvento('regreso_pantalla', 'Regresó después de cierre inesperado');
+        // Incrementar cambio (saltándose el guard de 2s porque es reingreso)
+        if (cambiosContador < cambiosLimite) {
+          cambiosContador++;
+          await supabase
+            .from('asistencia')
+            .update({ cambios_pantalla: cambiosContador, ultimo_cambio: new Date().toISOString() })
+            .eq('id', asistenciaId);
+          actualizarMonitorUI();
+        }
+      }
+
+      // Acumular tiempo ausente si hubo ausencia real
+      if (huboAusenciaReal) {
+        // Añadir solo el gap que no se haya registrado antes
+        // tiempoAusenteAcumulado puede tener valor previo de BD
+        const ausenciaNueva = gapSeg;
+        if (ausenciaNueva > 0) {
+          tiempoAusenteAcumulado += ausenciaNueva;
+          sincronizarTiempoAusente();
+        }
+        // Resetear estado de ausencia
+        _ausenteDesde = null;
+        _ultimoSyncAusencia = 0;
+        _ultimaSalidaId = null;
+        estadoSalida = null;
+        actualizarTiemposUI();
       }
     } catch { /* ignorar errores de verificación */ }
   })();
@@ -867,21 +939,18 @@ export function iniciarMonitoreo(
   registrarEvento('inicio_monitoreo', 'Inició monitoreo de asistencia');
 
   // Heartbeat: probar presencia activa cada 30s
+  // ❌ Ya NO acumula ausencia aquí. El tiempo ausente se calcula
+  //    exclusivamente en el reingreso, por gap de ultimo_latido.
+  //    Mientras la página está abierta (incluso invisible/bloqueada),
+  //    el heartbeat sigue latiendo → ultimo_latido no envejece.
   if (heartbeatInterval) clearInterval(heartbeatInterval);
   heartbeatInterval = window.setInterval(async () => {
     if (!asistenciaActualId) return;
     try {
-      const ahoraH = Date.now();
-      // Si está ausente, incluir el tiempo transcurrido desde el último sync
-      // para que el profesor vea tiempo en vivo (incluso si heartbeat está throttled)
-      if (_ausenteDesde) {
-        const desdeH = _ultimoSyncAusencia > 0 ? _ultimoSyncAusencia : _ausenteDesde;
-        const elapsedMs = ahoraH - desdeH;
-        if (elapsedMs >= 1000) {
-          const seg = Math.round(elapsedMs / 1000);
-          tiempoAusenteAcumulado += seg;
-          _ultimoSyncAusencia = ahoraH;
-        }
+      // Acumular tiempo inactivo para métrica de permanencia
+      if (!_paginaVisible) {
+        tiempoInactivoAcumulado += 30; // ~30s por intervalo
+        sincronizarTiempoInactivo();
       }
       await supabase
         .from('asistencia')
@@ -912,6 +981,7 @@ export function iniciarMonitoreo(
   document.addEventListener('visibilitychange', manejarVisibilidad);
   window.addEventListener('blur', manejarBlur);
   window.addEventListener('focus', manejarFocus);
+  window.addEventListener('pagehide', manejarPageHide);
 
   // ── beforeunload: marcar cierre en localStorage (para forzar reingreso al reabrir) ──
   _manejadorBeforeUnload = () => {
@@ -929,13 +999,15 @@ function detenerMonitoreo(): void {
   monitoreoActivo = false;
   setMonitoreoActivo(false);
 
-  // Sincronizar tiempo ausente acumulado antes de detener
+  // Sincronizar tiempos acumulados antes de detener
   sincronizarTiempoAusente();
+  sincronizarTiempoInactivo();
   detenerRastreoInteraccion();
 
   document.removeEventListener('visibilitychange', manejarVisibilidad);
   window.removeEventListener('blur', manejarBlur);
   window.removeEventListener('focus', manejarFocus);
+  window.removeEventListener('pagehide', manejarPageHide);
 
   // Limpiar beforeunload
   if (_manejadorBeforeUnload) {
@@ -1028,83 +1100,63 @@ async function cargarContadorExistente(): Promise<void> {
 // ====== MANEJADORES DE EVENTOS ======
 function manejarVisibilidad(): void {
   if (monitoreoActivo) {
-    _paginaVisible = document.visibilityState === 'visible';
     if (document.visibilityState === 'hidden') {
       const ahora = Date.now();
-      if (ahora - ultimoCambioTimestamp < 2000) return;
-      // Evita duplicar si blur ya registró esta misma salida
       if (ahora - _ultimoEventoSalida < 1000) return;
       _ultimoEventoSalida = ahora;
-      if (_ausenteDesde === null) {
-        _ausenteDesde = ahora;
-      }
-
-      // Toda salida cuenta como ausente (cambio de pantalla + tiempo)
-      // Eliminamos la distinción inactivo/ausente porque el estudiante
-      // puede estar viendo la página pasivamente sin interactuar >5s
-      estadoSalida = 'ausente';
-      registrarEvento('salida_pantalla', 'Salió de la pestaña/app').then(id => { _ultimaSalidaId = id; });
-      incrementarCambio();
-    } else if (document.visibilityState === 'visible') {
-      // Acumular tiempo ausente (solo lo que NO se haya sincronizado ya por heartbeat)
-      if (_ausenteDesde) {
-        const desde = _ultimoSyncAusencia > 0 ? _ultimoSyncAusencia : _ausenteDesde;
-        const duracionSeg = Math.round((Date.now() - desde) / 1000);
-        if (duracionSeg >= 1) {
-          const txtDuracion = formatearDuracion(duracionSeg);
-          if (_ultimaSalidaId) {
-            actualizarEvento(_ultimaSalidaId, `Salió de la pestaña/app — Ausente ${txtDuracion}`);
-          }
-          tiempoAusenteAcumulado += duracionSeg;
-          sincronizarTiempoAusente();
-        }
-      }
-      _ultimoSyncAusencia = 0;
-      _ausenteDesde = null;
-      _ultimaSalidaId = null;
+      _paginaVisible = false;
+      estadoSalida = 'inactivo';
+      // ❌ NO se cuenta como ausencia ni se incrementa cambio.
+      // Pantalla bloqueada / minimizada = inactividad, no ausencia.
+      // El heartbeat sigue corriendo, así que ultimo_latido no envejece.
+    } else if (document.visibilityState === 'visible' && _paginaVisible === false) {
+      _paginaVisible = true;
       estadoSalida = null;
-      registrarEvento('regreso_pantalla', 'Regresó a la pestaña/app');
+      // ❌ No hay ausencia que recuperar; la página nunca se fue realmente.
     }
   }
 }
 
 function manejarBlur(): void {
   if (monitoreoActivo) {
-    _paginaVisible = false;
     const ahora = Date.now();
-    if (ahora - ultimoCambioTimestamp < 2000) return;
     if (ahora - _ultimoEventoSalida < 1000) return;
     _ultimoEventoSalida = ahora;
-    if (_ausenteDesde === null) {
-      _ausenteDesde = ahora;
-    }
-
-    // Toda pérdida de foco cuenta como ausente (cambio de pantalla + tiempo)
-    estadoSalida = 'ausente';
-    registrarEvento('salida_pantalla', 'Perdió el foco').then(id => { _ultimaSalidaId = id; });
-    incrementarCambio();
+    _paginaVisible = false;
+    estadoSalida = 'inactivo';
+    // ❌ NO se cuenta como ausencia ni se incrementa cambio.
+    // Pérdida de foco (alt-tab, Win+L) = inactividad, no ausencia.
   }
 }
 
 function manejarFocus(): void {
-  _paginaVisible = true;
-  if (monitoreoActivo && _ausenteDesde !== null) {
-    // Acumular solo lo que NO se haya sincronizado por heartbeat
-    const desde = _ultimoSyncAusencia > 0 ? _ultimoSyncAusencia : _ausenteDesde;
-    const duracionSeg = Math.round((Date.now() - desde) / 1000);
-    if (duracionSeg >= 1) {
-      const txtDuracion = formatearDuracion(duracionSeg);
-      if (_ultimaSalidaId) {
-        actualizarEvento(_ultimaSalidaId, `Perdió el foco — Ausente ${txtDuracion}`);
-      }
-      tiempoAusenteAcumulado += duracionSeg;
-      sincronizarTiempoAusente();
-    }
-    _ultimoSyncAusencia = 0;
-    _ausenteDesde = null;
-    _ultimaSalidaId = null;
+  if (monitoreoActivo) {
+    _paginaVisible = true;
     estadoSalida = null;
-    registrarEvento('regreso_pantalla', 'Recuperó el foco');
+    // ❌ No hay ausencia que recuperar; el foco perdido era inactividad, no ausencia.
+  }
+}
+
+// ====== PAGEHIDE: ÚNICO DISPARADOR REAL DE AUSENCIA ======
+/**
+ * pagehide se dispara cuando el usuario cierra la pestaña/navegador
+ * o navega a otra página. Es la ÚNICA señal fiable de "ausencia real".
+ * A diferencia de blur/visibility, esto NO ocurre con pantalla bloqueada.
+ * 
+ * Nota: La operación es best-effort (la página se está descargando).
+ * Si no alcanza a completarse, el reingreso detectará el gap en ultimo_latido
+ * y compensará automáticamente.
+ */
+function manejarPageHide(): void {
+  if (monitoreoActivo) {
+    const ahora = Date.now();
+    if (ahora - ultimoCambioTimestamp < 2000) return;
+    if (_ausenteDesde === null) {
+      _ausenteDesde = ahora;
+    }
+    estadoSalida = 'ausente';
+    registrarEvento('salida_pantalla', 'Cerró la página/navegador');
+    incrementarCambio();
   }
 }
 
@@ -1160,13 +1212,15 @@ function actualizarTiemposUI(): void {
   const el = document.getElementById('monitor-tiempos');
   if (!el) return;
   const activo = formatearDuracion(Math.round(tiempoActivoAcumulado));
+  const inactivo = formatearDuracion(Math.round(tiempoInactivoAcumulado));
   const ausente = formatearDuracion(Math.round(tiempoAusenteAcumulado));
-  const total = tiempoActivoAcumulado + tiempoAusenteAcumulado;
+  const total = tiempoActivoAcumulado + tiempoInactivoAcumulado + tiempoAusenteAcumulado;
   const pct = total > 0 ? Math.round((tiempoActivoAcumulado / total) * 100) : 100;
   el.innerHTML = `
     <div style="display:flex; justify-content:space-between; font-size:0.85em; margin-bottom:4px;">
       <span style="color:#2e7d32;">✅ Activo: <strong>${activo}</strong></span>
-      <span style="color:#c62828;">⏳ Ausente: <strong>${ausente}</strong></span>
+      <span style="color:#ff9800;">💤 Inactivo: <strong>${inactivo}</strong></span>
+      <span style="color:#c62828;">🚪 Ausente: <strong>${ausente}</strong></span>
     </div>
     <div style="height:6px; background:#eee; border-radius:3px; overflow:hidden;">
       <div style="height:100%; width:${pct}%; background:${pct >= 80 ? '#4caf50' : pct >= 50 ? '#ff9800' : '#f44336'}; border-radius:3px; transition:width 0.5s;"></div>

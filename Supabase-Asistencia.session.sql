@@ -349,3 +349,11 @@ ALTER TABLE IF EXISTS public.grupos
     ADD COLUMN IF NOT EXISTS limite_ausente_min INTEGER DEFAULT 5;
 COMMENT ON COLUMN public.grupos.limite_ausente_min
     IS 'Minutos máximos de ausencia acumulada permitidos por alumno antes de marcarlo como ausente.';
+
+-- =============================================================
+-- 🆕 26. MIGRACIÓN: TIEMPO INACTIVO ACUMULADO (2026-07-09)
+-- =============================================================
+ALTER TABLE IF EXISTS public.asistencia
+    ADD COLUMN IF NOT EXISTS tiempo_inactivo_acumulado INTEGER DEFAULT 0;
+COMMENT ON COLUMN public.asistencia.tiempo_inactivo_acumulado
+    IS 'Segundos totales de inactividad acumulados (pantalla bloqueada, ventana minimizada, pérdida de foco). No incluye tiempo ausente (cierre real de página).';

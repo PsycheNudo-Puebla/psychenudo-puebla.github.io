@@ -25,9 +25,9 @@ Write-Host ""
 # 2. Respaldar HTMLs fuente locales (modo desarrollo: apuntan a .ts)
 #    Por si quieres restaurarlos después del deploy.
 Write-Host "📦 Respaldando HTMLs fuente locales..." -ForegroundColor Yellow
-if (-not (Test-Path "alumno.html.bak"))  { Copy-Item "alumno.html" "alumno.html.bak" }
-if (-not (Test-Path "profesor.html.bak")) { Copy-Item "profesor.html" "profesor.html.bak" }
-if (-not (Test-Path "index.html.bak"))    { Copy-Item "index.html" "index.html.bak" }
+Copy-Item "alumno.html" "alumno.html.bak" -Force
+Copy-Item "profesor.html" "profesor.html.bak" -Force
+Copy-Item "index.html" "index.html.bak" -Force
 Write-Host "   ✅ Respaldos actualizados" -ForegroundColor Green
 
 # 3. Copiar archivos compilados del dist/ a la raíz del proyecto
