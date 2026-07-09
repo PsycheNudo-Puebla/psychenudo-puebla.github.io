@@ -45,7 +45,6 @@ const UMBRAL_INTERACCION_AUSENTE_MS = 5000;     // 5s sin interacción = inactiv
 let _detenerRastreo: (() => void) | null = null;
 
 // ---- Variables para manejar recarga/cierre de página ----
-let _timeoutIncremento: number | null = null;    // timeout diferido para incrementarCambio
 let _manejadorBeforeUnload: ((e: BeforeUnloadEvent) => void) | null = null;  // referencia para cleanup
 
 // ====== REGISTRAR EN BITÁCORA ======
@@ -874,14 +873,8 @@ export function iniciarMonitoreo(
   window.addEventListener('blur', manejarBlur);
   window.addEventListener('focus', manejarFocus);
 
-  // ── beforeunload: cancelar incremento pendiente + marcar cierre en localStorage ──
+  // ── beforeunload: marcar cierre en localStorage (para forzar reingreso al reabrir) ──
   _manejadorBeforeUnload = () => {
-    // Cancelar incremento diferido (para que recarga/cierre no cuente como cambio)
-    if (_timeoutIncremento) {
-      clearTimeout(_timeoutIncremento);
-      _timeoutIncremento = null;
-    }
-    // Marcar en localStorage que la página se cerró (para forzar reingreso al reabrir)
     if (asistenciaActualId) {
       localStorage.setItem('monitoreo_cerrado_' + asistenciaActualId, Date.now().toString());
     }
@@ -908,10 +901,6 @@ function detenerMonitoreo(): void {
   if (_manejadorBeforeUnload) {
     window.removeEventListener('beforeunload', _manejadorBeforeUnload);
     _manejadorBeforeUnload = null;
-  }
-  if (_timeoutIncremento) {
-    clearTimeout(_timeoutIncremento);
-    _timeoutIncremento = null;
   }
   if (monitorChannel) {
     supabase.removeChannel(monitorChannel);
@@ -999,25 +988,13 @@ function manejarVisibilidad(): void {
       if (_ausenteDesde !== null) return; // ya registrado por blur u otro evento
       _ausenteDesde = ahora;
 
-      // Cancelar cualquier timeout de incremento previo
-      if (_timeoutIncremento) {
-        clearTimeout(_timeoutIncremento);
-        _timeoutIncremento = null;
-      }
-
       // Distinguir entre ausente (intencional) e inactivo (auto-bloqueo)
       const tiempoSinInteraccion = ahora - ultimaInteraccion;
       if (tiempoSinInteraccion < UMBRAL_INTERACCION_AUSENTE_MS) {
         // Había interacción reciente → salió intencionalmente → AUSENTE
         estadoSalida = 'ausente';
         registrarEvento('salida_pantalla', 'Salió de la pestaña/app (ausente)').then(id => { _ultimaSalidaId = id; });
-        // Diferir 1s el incremento: si la página se recarga/cierra o vuelve rápido, se cancela
-        if (!cambioEnProgreso) {
-          _timeoutIncremento = window.setTimeout(() => {
-            _timeoutIncremento = null;
-            incrementarCambio();
-          }, 1000);
-        }
+        incrementarCambio();
       } else {
         // Sin interacción reciente → auto-bloqueo → INACTIVO
         estadoSalida = 'inactivo';
@@ -1025,20 +1002,22 @@ function manejarVisibilidad(): void {
         // No incrementa cambios_pantalla
       }
     } else if (document.visibilityState === 'visible') {
-      // Cancelar cualquier incremento diferido (vuelta rápida o recarga cancelada)
-      if (_timeoutIncremento) {
-        clearTimeout(_timeoutIncremento);
-        _timeoutIncremento = null;
-      }
-      if (_ausenteDesde && _ultimaSalidaId) {
+      // Acumular tiempo aunque _ultimaSalidaId sea null (async no completó en móvil)
+      if (_ausenteDesde) {
         const duracionSeg = Math.round((Date.now() - _ausenteDesde) / 1000);
-        const txtDuracion = formatearDuracion(duracionSeg);
-        if (estadoSalida === 'ausente') {
-          actualizarEvento(_ultimaSalidaId, `Salió de la pestaña/app — Ausente ${txtDuracion}`);
-          tiempoAusenteAcumulado += duracionSeg;
-          sincronizarTiempoAusente();
-        } else {
-          actualizarEvento(_ultimaSalidaId, `Pantalla bloqueada — Inactivo ${txtDuracion}`);
+        if (duracionSeg >= 1) {
+          const txtDuracion = formatearDuracion(duracionSeg);
+          if (_ultimaSalidaId) {
+            if (estadoSalida === 'ausente') {
+              actualizarEvento(_ultimaSalidaId, `Salió de la pestaña/app — Ausente ${txtDuracion}`);
+            } else {
+              actualizarEvento(_ultimaSalidaId, `Pantalla bloqueada — Inactivo ${txtDuracion}`);
+            }
+          }
+          if (estadoSalida === 'ausente') {
+            tiempoAusenteAcumulado += duracionSeg;
+            sincronizarTiempoAusente();
+          }
         }
       }
       _ausenteDesde = null;
@@ -1056,22 +1035,11 @@ function manejarBlur(): void {
     if (_ausenteDesde !== null) return; // ya registrado por visibilitychange
     _ausenteDesde = ahora;
 
-    // Cancelar timeout previo si lo hubiera
-    if (_timeoutIncremento) {
-      clearTimeout(_timeoutIncremento);
-      _timeoutIncremento = null;
-    }
-
     const tiempoSinInteraccion = ahora - ultimaInteraccion;
     if (tiempoSinInteraccion < UMBRAL_INTERACCION_AUSENTE_MS) {
       estadoSalida = 'ausente';
       registrarEvento('salida_pantalla', 'Perdió el foco (ausente)').then(id => { _ultimaSalidaId = id; });
-      if (!cambioEnProgreso) {
-        _timeoutIncremento = window.setTimeout(() => {
-          _timeoutIncremento = null;
-          incrementarCambio();
-        }, 1000);
-      }
+      incrementarCambio();
     } else {
       estadoSalida = 'inactivo';
       registrarEvento('salida_pantalla', 'Perdió el foco (inactivo)').then(id => { _ultimaSalidaId = id; });
@@ -1080,20 +1048,22 @@ function manejarBlur(): void {
 }
 
 function manejarFocus(): void {
-  if (monitoreoActivo && _ausenteDesde !== null && _ultimaSalidaId) {
-    // Cancelar cualquier incremento diferido
-    if (_timeoutIncremento) {
-      clearTimeout(_timeoutIncremento);
-      _timeoutIncremento = null;
-    }
+  if (monitoreoActivo && _ausenteDesde !== null) {
+    // Acumular tiempo aunque _ultimaSalidaId sea null (async no completó en móvil)
     const duracionSeg = Math.round((Date.now() - _ausenteDesde) / 1000);
-    const txtDuracion = formatearDuracion(duracionSeg);
-    if (estadoSalida === 'ausente') {
-      actualizarEvento(_ultimaSalidaId, `Perdió el foco — Ausente ${txtDuracion}`);
-      tiempoAusenteAcumulado += duracionSeg;
-      sincronizarTiempoAusente();
-    } else {
-      actualizarEvento(_ultimaSalidaId, `Perdió el foco — Inactivo ${txtDuracion}`);
+    if (duracionSeg >= 1) {
+      const txtDuracion = formatearDuracion(duracionSeg);
+      if (_ultimaSalidaId) {
+        if (estadoSalida === 'ausente') {
+          actualizarEvento(_ultimaSalidaId, `Perdió el foco — Ausente ${txtDuracion}`);
+        } else {
+          actualizarEvento(_ultimaSalidaId, `Perdió el foco — Inactivo ${txtDuracion}`);
+        }
+      }
+      if (estadoSalida === 'ausente') {
+        tiempoAusenteAcumulado += duracionSeg;
+        sincronizarTiempoAusente();
+      }
     }
     _ausenteDesde = null;
     _ultimaSalidaId = null;
