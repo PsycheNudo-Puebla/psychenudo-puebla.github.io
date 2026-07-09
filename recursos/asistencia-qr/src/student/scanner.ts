@@ -233,17 +233,18 @@ async function procesarQR(qrData: string, resultadoDiv: HTMLElement): Promise<vo
     const limiteCambios = grupo?.limite_salidas ?? 3;
 
     // Verificar sesión activa
-    const { data: sesion } = await supabase
+    const { data: sesiones } = await supabase
       .from('sesiones_clase')
       .select('*')
       .eq('grupo_id', grupoId)
-      .eq('activa', true)
-      .maybeSingle();
-    if (!sesion) {
+      .eq('activa', true);
+    if (!sesiones || sesiones.length === 0) {
       resultadoDiv.textContent = '❌ No hay clase activa.';
       return;
     }
-    if (sesion.codigo_sesion !== codigoSesion) {
+    // Buscar sesión que coincida con el código del QR
+    const sesion = sesiones.find(s => s.codigo_sesion === codigoSesion);
+    if (!sesion) {
       resultadoDiv.textContent = '❌ QR expirado.';
       return;
     }

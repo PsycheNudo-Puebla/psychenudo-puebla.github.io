@@ -69,7 +69,14 @@ export async function generarQR(grupoId: string, grupoNombre: string): Promise<v
     return;
   }
 
-  // Crear sesión
+  // Desactivar sesiones anteriores para este grupo
+  await supabase
+    .from('sesiones_clase')
+    .update({ activa: false })
+    .eq('grupo_id', grupoId)
+    .eq('activa', true);
+
+  // Crear nueva sesión
   const codigoSesion = generarCodigo(8);
   const { data: sesion, error } = await supabase
     .from('sesiones_clase')

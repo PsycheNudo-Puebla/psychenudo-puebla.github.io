@@ -146,21 +146,14 @@ export async function autoReanudarMonitoreo(userId: string): Promise<boolean> {
     const claseEnCurso = await verificarClaseEnCurso(pendiente.grupo_id);
 
     if (!claseEnCurso) {
-      // Clase terminada — si es sin_derecho, auto-confirmar y salir
-      if (pendiente.tipo_asistencia === 'sin_derecho') {
-        await registrarEvento('asistencia_confirmada', 'Auto-confirmada (sin derecho) — clase terminada', pendiente.id);
-        await supabase
-          .from('asistencia')
-          .update({ confirmada: true })
-          .eq('id', pendiente.id);
-        return false;
-      }
-      // Guardamos vars para que revisarAsistenciaPendiente muestre banner
-      (window as any)._pendienteAsistenciaId = pendiente.id;
-      (window as any)._pendienteGrupoId = pendiente.grupo_id;
-      (window as any)._pendienteGrupoNombre = grupo.nombre;
-      (window as any)._pendienteLimite = grupo.limite_salidas ?? 3;
-      (window as any)._pendienteUltimoLatido = pendiente.ultimo_latido;
+      // Clase terminada — auto-confirmar cualquier asistencia pendiente
+      // para que no bloquee la interacción con otros grupos
+      await registrarEvento('asistencia_confirmada', 'Auto-confirmada — clase terminada', pendiente.id);
+      localStorage.removeItem('token_monitoreo_' + pendiente.id);
+      await supabase
+        .from('asistencia')
+        .update({ confirmada: true, token_monitoreo: null, ultimo_acceso_token: null })
+        .eq('id', pendiente.id);
       return false;
     }
 
@@ -245,68 +238,21 @@ export async function revisarAsistenciaPendiente(): Promise<void> {
     w._pendienteClaseEnCurso = claseEnCurso;
 
     if (!claseEnCurso) {
-      // ── CLASE TERMINADA ──
-      // Si el alumno regresa después de que terminó la clase, ya NO debe poder
-      // confirmar asistencia manualmente. Eso evita que abandonen el monitoreo
-      // antes de tiempo y confirmen al volver.
-      const ultimoLatido = asistenciaPendiente.ultimo_latido
-        ? new Date(asistenciaPendiente.ultimo_latido).getTime()
-        : 0;
-      const ahora = Date.now();
-      const tiempoDesdeLatido = ahora - ultimoLatido;
-      const ULTIMO_LATIDO_RECIENTE_MS = 2 * 60 * 1000; // 2 min — estaba en monitoreo al final
-
-      if (ultimoLatido > 0 && tiempoDesdeLatido <= ULTIMO_LATIDO_RECIENTE_MS) {
-        // Presencia muy reciente → verificar si puede auto-confirmar
-        const cambiosBD = asistenciaPendiente.cambios_pantalla || 0;
-        const excedioLimite = cambiosBD >= limite && !asistenciaPendiente.perdonada;
-
-        if (excedioLimite) {
-          // Excedió cambios sin perdón → NO auto-confirmar, avisar que necesita perdón
-          banner.innerHTML = `
-            <div style="background:#fff3e0; border:1px solid #ffe082; border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-              <div style="font-size:1.5em;">⚠️</div>
-              <div style="flex:1; min-width:150px;">
-                <strong style="color:#e65100;">Clase terminada — Límite excedido</strong>
-                <br><small style="color:#666;">Excediste el límite de cambios de pantalla sin perdón. El profesor debe perdonarte para confirmar tu asistencia.</small>
-              </div>
-            </div>`;
-        } else {
-          // Sin impedimentos → auto-confirmar (estuvo en monitoreo hasta el final)
-          await registrarEvento('asistencia_confirmada', 'Auto-confirmada — estuvo en monitoreo hasta el final');
-          localStorage.removeItem('token_monitoreo_' + asistenciaPendiente.id);
-          await supabase
-            .from('asistencia')
-            .update({ confirmada: true, token_monitoreo: null, ultimo_acceso_token: null })
-            .eq('id', asistenciaPendiente.id);
-          detenerKeepAliveSesion();
-          banner.innerHTML = `
-            <div style="background:#e8f5e9; border:1px solid #a5d6a7; border-radius:12px; padding:14px 16px; text-align:center;">
-              ✅ <strong style="color:#2e7d32;">Asistencia confirmada</strong>
-              <br><small style="color:#666;">Gracias por permanecer en clase.</small>
-            </div>`;
-        }
-      } else if (ultimoLatido > 0) {
-        // Tuvo presencia pero no al final → puede confirmar si el latido es reciente (≤10 min)
-        banner.innerHTML = `
-          <div style="background:#fff3e0; border:1px solid #ffe082; border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-            <div style="font-size:1.5em;">⏰</div>
-            <div style="flex:1; min-width:150px;">
-              <strong style="color:#e65100;">Clase terminada</strong>
-              <br><small style="color:#666;">No estuviste en el monitoreo al final. Si estuviste presente la mayor parte de la clase, puedes confirmar.</small>
-            </div>
-            <button onclick="window.confirmarAsistenciaPendiente('${asistenciaPendiente.id}')" class="btn-primary" style="background:#2e7d32; white-space:nowrap; font-size:0.9em;">✅ Confirmar asistencia</button>
-          </div>`;
-      } else {
-        banner.innerHTML = `
-          <div style="background:#ffebee; border:1px solid #ef9a9a; border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-            <div style="font-size:1.5em;">🚫</div>
-            <div style="flex:1; min-width:150px;">
-              <strong style="color:#c62828;">No se detectó tu presencia</strong>
-              <br><small style="color:#666;">No tienes actividad registrada. Contacta a tu profesor.</small>
-            </div>
-          </div>`;
-      }
+      // ── CLASE TERMINADA → auto-confirmar ──
+      // La clase ya terminó, no tiene sentido mostrar botón de confirmar.
+      // Se auto-confirma para que no bloquee la interacción con otros grupos.
+      await registrarEvento('asistencia_confirmada', 'Auto-confirmada — clase terminada');
+      localStorage.removeItem('token_monitoreo_' + asistenciaPendiente.id);
+      await supabase
+        .from('asistencia')
+        .update({ confirmada: true, token_monitoreo: null, ultimo_acceso_token: null })
+        .eq('id', asistenciaPendiente.id);
+      detenerKeepAliveSesion();
+      banner.innerHTML = `
+        <div style="background:#e8f5e9; border:1px solid #a5d6a7; border-radius:12px; padding:14px 16px; text-align:center;">
+          ✅ <strong style="color:#2e7d32;">Asistencia registrada</strong>
+          <br><small style="color:#666;">Clase terminada. Tu asistencia ha sido registrada.</small>
+        </div>`;
     } else if (ventanaMin > 0 && asistenciaPendiente.ultimo_latido &&
         Date.now() - new Date(asistenciaPendiente.ultimo_latido).getTime() <= ventanaMin * 60 * 1000) {
       // ── CLASE EN CURSO Y LATIDO RECIENTE → auto-reanudar directo
