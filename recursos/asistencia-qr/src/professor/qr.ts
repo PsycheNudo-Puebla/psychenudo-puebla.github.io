@@ -260,3 +260,175 @@ export function iniciarAutoQrChecker(): void {
 export function detenerAutoQrChecker(): void {
   if (autoQrInterval) { clearInterval(autoQrInterval); autoQrInterval = null; }
 }
+
+// Variables para el QR del monitoreo en vivo (separado del modal)
+let _monitoreoQrInterval: ReturnType<typeof setInterval> | null = null;
+let _monitoreoqrSesionId: string | null = null;
+let _monitoreoQrGrupoId: string | null = null;
+
+/**
+ * Inicia un QR en vivo dentro del contenedor especificado.
+ * Se usa desde la vista completa de monitoreo.
+ * Devuelve una función de limpieza para detener el QR.
+ */
+export async function iniciarQRMonitoreo(
+  grupoId: string,
+  grupoNombre: string,
+  containerId: string = 'monitoreo-qr-container',
+  infoId: string = 'monitoreo-qr-info',
+  estadoId: string = 'monitoreo-qr-estado'
+): Promise<() => void> {
+  // Limpiar QR anterior de monitoreo si existe
+  detenerQRMonitoreo();
+
+  _monitoreoQrGrupoId = grupoId;
+
+  const infoEl = document.getElementById(infoId);
+  const estadoEl = document.getElementById(estadoId);
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.warn('⚠️ No se encontró el contenedor del QR:', containerId);
+    return () => {};
+  }
+
+  if (infoEl) infoEl.textContent = '⏳ Generando sesión...';
+  if (estadoEl) estadoEl.innerHTML = '<span style="color:#999;">🔄 Iniciando...</span>';
+
+  // Cargar horarios para calcular ventana de tiempo
+  let tiempos: { inicio: string; fin: string; puntual: number; retardo: number } | null = null;
+  try {
+    const hoy = new Date().getDay();
+    const { data: horarios } = await supabase
+      .from('horarios')
+      .select('hora_inicio, hora_fin, puntual_minutos, retardo_minutos')
+      .eq('grupo_id', grupoId)
+      .eq('dia_semana', hoy);
+
+    if (horarios && horarios.length > 0) {
+      const ahora = new Date();
+      const actualMin = ahora.getHours() * 60 + ahora.getMinutes();
+      let masCercano = horarios[0];
+      let minDiff = Infinity;
+      for (const h of horarios) {
+        const [hh, mm] = h.hora_inicio.split(':').map(Number);
+        const inicioMin = hh * 60 + mm;
+        const diff = Math.abs(actualMin - inicioMin);
+        if (diff < minDiff) { minDiff = diff; masCercano = h; }
+      }
+      tiempos = {
+        inicio: masCercano.hora_inicio,
+        fin: masCercano.hora_fin,
+        puntual: masCercano.puntual_minutos || 10,
+        retardo: masCercano.retardo_minutos || 20,
+      };
+    }
+  } catch { /* sin horarios */ }
+
+  if (!tiempos) {
+    container.innerHTML = '<div style="color:#bbb; font-size:0.9em; text-align:center;">📅<br>Sin horario hoy</div>';
+    if (infoEl) infoEl.textContent = '📭 Sin clase programada hoy';
+    if (estadoEl) estadoEl.innerHTML = '<span style="color:#999;">Sin horario</span>';
+    return () => {};
+  }
+
+  // Desactivar sesiones anteriores
+  await supabase
+    .from('sesiones_clase')
+    .update({ activa: false })
+    .eq('grupo_id', grupoId)
+    .eq('activa', true);
+
+  // Crear nueva sesión
+  const codigoSesion = generarCodigo(8);
+  const { data: sesion, error } = await supabase
+    .from('sesiones_clase')
+    .insert({
+      grupo_id: grupoId,
+      profesor_id: profesorActual!.id,
+      codigo_sesion: codigoSesion,
+      activa: true,
+    })
+    .select()
+    .maybeSingle();
+
+  if (error || !sesion) {
+    container.innerHTML = `<p style="color:#999;">Error al crear sesión</p>`;
+    if (infoEl) infoEl.textContent = '❌ Error al crear sesión';
+    return () => {};
+  }
+
+  _monitoreoqrSesionId = sesion.id;
+
+  // Totales de la ventana
+  const ahora = new Date();
+  let finClaseMin = ahora.getTime() + 120 * 60000; // default 2h
+  let inicioMin = ahora.getTime();
+  let puntualHasta: Date | null = null;
+  let retardoHasta: Date | null = null;
+
+  if (tiempos) {
+    const [hI, mI] = tiempos.inicio.split(':').map(Number);
+    const [hF, mF] = tiempos.fin.split(':').map(Number);
+    const inicioClase = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), hI, mI);
+    finClaseMin = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), hF, mF).getTime();
+    inicioMin = inicioClase.getTime();
+    puntualHasta = new Date(inicioMin + tiempos.puntual * 60000);
+    retardoHasta = new Date(inicioMin + (tiempos.puntual + tiempos.retardo) * 60000);
+  }
+
+  function actualizarQR(): void {
+    const ahoraMs = Date.now();
+    const payload = JSON.stringify({ g: grupoId, s: codigoSesion, t: ahoraMs });
+    const qrData = `ASISTENCIA_QR:${btoa(payload)}`;
+
+    // Renderizar QR
+    container.innerHTML = '';
+    try {
+      new (window as any).QRCode(container, {
+        text: qrData,
+        width: 160,
+        height: 160,
+        colorDark: '#1a1a2e',
+        colorLight: '#ffffff',
+        correctLevel: (window as any).QRCode?.CorrectLevel?.H || 3,
+      });
+    } catch {
+      container.innerHTML = `<p style="color:#999;">Error QR</p>`;
+    }
+
+    // Timer
+    const diff = Math.max(0, finClaseMin - ahoraMs);
+    const mins = Math.floor(diff / 60000);
+    const secs = Math.floor((diff % 60000) / 1000);
+    if (infoEl) {
+      infoEl.textContent = `⏱️ ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    // Estado
+    if (estadoEl) {
+      if (puntualHasta && ahoraMs < puntualHasta.getTime()) {
+        estadoEl.innerHTML = '<span style="color:#2e7d32; font-weight:700;">🟢 A TIEMPO</span>';
+      } else if (retardoHasta && ahoraMs < retardoHasta.getTime()) {
+        estadoEl.innerHTML = '<span style="color:#e65100; font-weight:700;">🟡 RETARDO</span>';
+      } else if (ahoraMs < finClaseMin) {
+        estadoEl.innerHTML = '<span style="color:#c62828; font-weight:700;">🔴 SIN DERECHO</span>';
+      } else {
+        estadoEl.innerHTML = '<span style="color:#999; font-weight:700;">🔴 CERRADO</span>';
+      }
+    }
+  }
+
+  actualizarQR();
+  _monitoreoQrInterval = setInterval(actualizarQR, 10000);
+  return detenerQRMonitoreo;
+}
+
+/** Detiene el QR del monitoreo en vivo */
+export function detenerQRMonitoreo(): void {
+  if (_monitoreoQrInterval) { clearInterval(_monitoreoQrInterval); _monitoreoQrInterval = null; }
+  if (_monitoreoqrSesionId) {
+    supabase.from('sesiones_clase').update({ activa: false }).eq('id', _monitoreoqrSesionId).then();
+    _monitoreoqrSesionId = null;
+  }
+  _monitoreoQrGrupoId = null;
+}

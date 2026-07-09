@@ -6,6 +6,7 @@ import { profesorActual } from '@/shared/auth';
 import { mostrarToast } from '@/config/toaster';
 import { MonitorAlumno } from '@/types';
 import { hoyLocal } from '@/shared/utils';
+import { iniciarQRMonitoreo, detenerQRMonitoreo } from './qr';
 
 let monitorGrupoId: string | null = null;
 let monitorPollInterval: ReturnType<typeof setTimeout> | null = null;
@@ -16,9 +17,23 @@ const _reingresoNotificados = new Set<string>();
 export function getMonitorGrupoId(): string | null { return monitorGrupoId; }
 
 export async function reabrirMonitoreo(grupoId: string): Promise<void> {
-  document.getElementById('monitoreo-panel')!.classList.remove('hidden');
+  // Ocultar detalle del grupo y mostrar vista completa de monitoreo
+  document.getElementById('grupo-detalle-view')!.classList.add('hidden');
+  document.getElementById('monitoreo-full-view')!.classList.remove('hidden');
   monitorGrupoId = grupoId;
   _reingresoNotificados.clear();
+
+  // Obtener nombre del grupo
+  const { data: grupo } = await supabase
+    .from('grupos')
+    .select('nombre')
+    .eq('id', grupoId)
+    .maybeSingle();
+  const grupoNombre = grupo?.nombre || '';
+
+  // Iniciar QR en vivo en la vista
+  iniciarQRMonitoreo(grupoId, grupoNombre);
+
   await cargarAsistenciasActivas();
   iniciarPolling(grupoId);
   iniciarRealtime(grupoId);
@@ -474,9 +489,11 @@ export function detenerMonitoreo(): void {
   if (monitorProfChannel) { supabase.removeChannel(monitorProfChannel); monitorProfChannel = null; }
   monitorGrupoId = null;
   _reingresoNotificados.clear();
-  // Ocultar el panel de monitoreo (el profesor vuelve a ver el detalle del grupo)
-  const panel = document.getElementById('monitoreo-panel');
-  if (panel) panel.classList.add('hidden');
+  // Detener QR del monitoreo
+  detenerQRMonitoreo();
+  // Ocultar vista completa y regresar al detalle del grupo
+  document.getElementById('monitoreo-full-view')!.classList.add('hidden');
+  document.getElementById('grupo-detalle-view')!.classList.remove('hidden');
 }
 
 // Alias para onclick en HTML

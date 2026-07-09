@@ -118,9 +118,7 @@ export function volverALista(): void {
   grupoSeleccionadoId = null;
   document.getElementById('grupo-detalle-view')!.classList.add('hidden');
   document.getElementById('grupos-list-view')!.classList.remove('hidden');
-  // Ocultar monitoreo
-  document.getElementById('monitoreo-panel')!.classList.add('hidden');
-  // Limpiar si hay monitor activo
+  // Si hay monitoreo activo, cerrarlo
   const monitoreo = (window as any).monitoreoModule;
   if (monitoreo?.detenerMonitoreo) monitoreo.detenerMonitoreo();
   monitorGrupoId = null;
