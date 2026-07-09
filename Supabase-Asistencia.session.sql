@@ -336,3 +336,16 @@ CREATE POLICY "profesores_select_bitacora" ON public.bitacora_actividad FOR SELE
 
 CREATE INDEX IF NOT EXISTS idx_bitacora_asistencia ON public.bitacora_actividad(asistencia_id);
 CREATE INDEX IF NOT EXISTS idx_bitacora_registrada ON public.bitacora_actividad(registrada_en DESC);
+
+-- =============================================================
+-- 🆕 25. MIGRACIÓN: INACTIVO VS AUSENTE (2026-07-09)
+-- =============================================================
+ALTER TABLE IF EXISTS public.asistencia
+    ADD COLUMN IF NOT EXISTS tiempo_ausente_acumulado INTEGER DEFAULT 0;
+COMMENT ON COLUMN public.asistencia.tiempo_ausente_acumulado
+    IS 'Segundos totales de ausencia intencional acumulados durante la clase. No incluye tiempo inactivo (pantalla bloqueada).';
+
+ALTER TABLE IF EXISTS public.grupos
+    ADD COLUMN IF NOT EXISTS limite_ausente_min INTEGER DEFAULT 5;
+COMMENT ON COLUMN public.grupos.limite_ausente_min
+    IS 'Minutos máximos de ausencia acumulada permitidos por alumno antes de marcarlo como ausente.';

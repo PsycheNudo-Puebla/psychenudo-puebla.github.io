@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "html5-qrcode": "^2.3.8",
+    "pg": "^8.22.0",
     "qrcodejs": "^1.0.0"
   }
 }

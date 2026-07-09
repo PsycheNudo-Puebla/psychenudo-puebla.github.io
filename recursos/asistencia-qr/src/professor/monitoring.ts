@@ -49,6 +49,11 @@ async function cargarAsistenciasActivas(): Promise<void> {
   const elLimite = document.getElementById('monitoreo-perdones-max');
   if (elLimite) elLimite.textContent = String(maxPerdones);
 
+  const elLimiteAusente = document.getElementById('monitoreo-limite-ausente');
+  if (elLimiteAusente && grupo?.limite_ausente_min !== undefined) {
+    elLimiteAusente.textContent = String(grupo.limite_ausente_min);
+  }
+
   const elUsados = document.getElementById('monitoreo-perdones-usados');
   if (elUsados) elUsados.textContent = String(0);
 
@@ -437,3 +442,39 @@ export function detenerMonitoreo(): void {
 
 // Alias para onclick en HTML
 export const cerrarMonitoreo = detenerMonitoreo;
+
+// ====== EDITAR LÍMITE DE AUSENCIA POR GRUPO ======
+(window as any).editarLimiteAusente = function editarLimiteAusente(): void {
+  const span = document.getElementById('monitoreo-limite-ausente');
+  if (!span || !monitorGrupoId) return;
+  const valorActual = parseInt(span.textContent || '5');
+  span.innerHTML = `<input id="input-limite-ausente" type="number" min="1" max="60" value="${valorActual}" style="width:50px; text-align:center; font-size:0.9em; padding:2px 4px; border:1px solid #667eea; border-radius:4px;">`;
+  const input = document.getElementById('input-limite-ausente') as HTMLInputElement;
+  input?.focus();
+  input?.select();
+
+  const guardar = async () => {
+    let nuevoValor = parseInt(input?.value || '5');
+    if (nuevoValor < 1) nuevoValor = 1;
+    if (nuevoValor > 60) nuevoValor = 60;
+    const { error } = await supabase
+      .from('grupos')
+      .update({ limite_ausente_min: nuevoValor })
+      .eq('id', monitorGrupoId);
+    if (error) {
+      mostrarToast('❌ Error al guardar: ' + error.message, 'error');
+    } else {
+      mostrarToast(`✅ Límite de ausencia actualizado a ${nuevoValor} min`, 'exito', 3000);
+      span.textContent = String(nuevoValor);
+    }
+  };
+
+  const onSave = async () => { await guardar(); };
+  const onCancel = () => { span.textContent = String(valorActual); };
+
+  input?.addEventListener('blur', onSave);
+  input?.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Enter') { input?.blur(); }
+    if (e.key === 'Escape') { onCancel(); }
+  });
+};
