@@ -128,6 +128,10 @@ async function cargarAsistenciasActivas(): Promise<void> {
       ? `<button onclick="perdonarAlumno('${a.id}', this)" class="btn-secondary" style="font-size:0.75em; padding:4px 10px; background:#fff8e1; color:#f57f17;">🙏 Perdonar</button>`
       : '';
 
+    const btnResetAusencia = !confirmada && !reingreso && tiempoAusenteSeg > 0
+      ? `<button onclick="resetearAusenciaAlumno('${a.id}', this)" class="btn-secondary" style="font-size:0.75em; padding:4px 10px; background:#e3f2fd; color:#1565c0;">⏱️ Reset ausencia</button>`
+      : '';
+
     const btnReingreso = reingreso
       ? `<button onclick="aprobarReingreso('${a.id}', this)" class="btn-primary" style="font-size:0.85em; padding:6px 14px; background:#6a1b9a; color:white; border:none; border-radius:8px; cursor:pointer; width:100%; font-weight:700; box-shadow:0 2px 8px rgba(106,27,154,0.3);">🔄 Aprobar reingreso</button>`
       : '';
@@ -164,7 +168,7 @@ async function cargarAsistenciasActivas(): Promise<void> {
         : ''}
       <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
         <div>${btnBitacora}</div>
-        <div style="display:flex; flex-wrap:wrap; gap:4px;${reingreso ? ' width:100%;' : ''}">${btnPerdonar}${btnReingreso ? ' ' + btnReingreso : ''}</div>
+        <div style="display:flex; flex-wrap:wrap; gap:4px;${reingreso ? ' width:100%;' : ''}">${btnPerdonar}${btnResetAusencia ? ' ' + btnResetAusencia : ''}${btnReingreso ? ' ' + btnReingreso : ''}</div>
       </div>
     </div>`;
   }).join('');
@@ -227,6 +231,27 @@ export async function perdonarAlumno(asistenciaId: string, btn: HTMLButtonElemen
 
   const restantes = maxPerdones - (usados + 1);
   mostrarToast(`✅ Perdonado (${usados + 1}/${maxPerdones} de este alumno — quedan ${restantes})`, 'exito', 4000);
+  await cargarAsistenciasActivas();
+}
+
+// ====== RESETEAR TIEMPO AUSENTE DE UN ALUMNO ======
+export async function resetearAusenciaAlumno(asistenciaId: string, btn: HTMLButtonElement): Promise<void> {
+  btn.disabled = true;
+  btn.textContent = '⏳...';
+
+  const { error } = await supabase
+    .from('asistencia')
+    .update({ tiempo_ausente_acumulado: 0 })
+    .eq('id', asistenciaId);
+
+  if (error) {
+    mostrarToast('Error al resetear ausencia: ' + error.message, 'error');
+    btn.disabled = false;
+    btn.textContent = '⏱️ Reset ausencia';
+    return;
+  }
+
+  mostrarToast('✅ Tiempo ausente reseteado a 0', 'exito', 3000);
   await cargarAsistenciasActivas();
 }
 

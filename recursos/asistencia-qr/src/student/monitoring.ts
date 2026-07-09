@@ -16,6 +16,7 @@ let grupoActualId: string | null = null;
 let grupoActualNombre = '';
 let cambiosContador = 0;
 let cambiosLimite = 3;
+let limiteAusenteMin = 0;
 let monitorChannel: any = null;
 let monitorInterval: number | null = null;
 let timerInterval: number | null = null;
@@ -42,6 +43,10 @@ let estadoSalida: 'ausente' | 'inactivo' | null = null;  // tipo de salida actua
 let tiempoAusenteAcumulado: number = 0;         // segundos totales de ausencia en esta sesión
 const UMBRAL_INTERACCION_AUSENTE_MS = 5000;     // 5s sin interacción = inactivo vs ausente
 let _detenerRastreo: (() => void) | null = null;
+
+// ---- Variables para manejar recarga/cierre de página ----
+let _timeoutIncremento: number | null = null;    // timeout diferido para incrementarCambio
+let _manejadorBeforeUnload: ((e: BeforeUnloadEvent) => void) | null = null;  // referencia para cleanup
 
 // ====== REGISTRAR EN BITÁCORA ======
 /**
@@ -179,7 +184,7 @@ export async function autoReanudarMonitoreo(userId: string): Promise<boolean> {
 
     const { data: grupo } = await supabase
       .from('grupos')
-      .select('nombre, limite_salidas, ventana_reingreso_min')
+      .select('nombre, limite_salidas, ventana_reingreso_min, limite_ausente_min')
       .eq('id', pendiente.grupo_id)
       .maybeSingle();
     if (!grupo) return false;
@@ -208,12 +213,20 @@ export async function autoReanudarMonitoreo(userId: string): Promise<boolean> {
     const tiempoAusente = ultimoLatido > 0 ? ahora - ultimoLatido : Infinity;
 
     // Si ventanaMin es 0, nunca se permite auto-reingreso (siempre pedir permiso)
-    if (ventanaMin > 0 && tiempoAusente <= ventanaMs) {
-      // Reciente → auto-reanudar
+    // Verificar si la página fue cerrada intencionalmente (beforeunload)
+  const cerradoKey = 'monitoreo_cerrado_' + pendiente.id;
+  const cerradoPreviamente = localStorage.getItem(cerradoKey);
+  if (cerradoPreviamente) {
+    // La página se cerró → forzar reingreso aunque el latido esté reciente
+    localStorage.removeItem(cerradoKey);
+  }
+
+  if (ventanaMin > 0 && tiempoAusente <= ventanaMs && !cerradoPreviamente) {
+      // Reciente y la página no fue cerrada → auto-reanudar
       document.getElementById('login-view')!.classList.add('hidden');
       document.getElementById('dashboard-view')!.classList.add('hidden');
       _tipoAsistenciaActual = pendiente.tipo_asistencia;
-      iniciarMonitoreo(pendiente.id, pendiente.grupo_id, grupo.nombre, grupo.limite_salidas ?? 3);
+      iniciarMonitoreo(pendiente.id, pendiente.grupo_id, grupo.nombre, grupo.limite_salidas ?? 3, grupo.limite_ausente_min ?? 0);
       return true;
     }
 
@@ -223,6 +236,7 @@ export async function autoReanudarMonitoreo(userId: string): Promise<boolean> {
     (window as any)._pendienteGrupoId = pendiente.grupo_id;
     (window as any)._pendienteGrupoNombre = grupo.nombre;
     (window as any)._pendienteLimite = grupo.limite_salidas ?? 3;
+    (window as any)._pendienteLimiteAusente = grupo.limite_ausente_min ?? 0;
     (window as any)._pendienteUltimoLatido = pendiente.ultimo_latido;
     (window as any)._pendienteVentanaMin = ventanaMin;
     (window as any)._pendienteClaseEnCurso = true;
@@ -257,7 +271,7 @@ export async function revisarAsistenciaPendiente(): Promise<void> {
 
     const { data: grupo } = await supabase
       .from('grupos')
-      .select('nombre, limite_salidas, ventana_reingreso_min')
+      .select('nombre, limite_salidas, ventana_reingreso_min, limite_ausente_min')
       .eq('id', asistenciaPendiente.grupo_id)
       .maybeSingle();
     if (!grupo) return;
@@ -270,6 +284,7 @@ export async function revisarAsistenciaPendiente(): Promise<void> {
     (window as any)._pendienteGrupoId = asistenciaPendiente.grupo_id;
     (window as any)._pendienteGrupoNombre = grupo.nombre;
     (window as any)._pendienteLimite = limite;
+    (window as any)._pendienteLimiteAusente = grupo.limite_ausente_min ?? 0;
     (window as any)._pendienteUltimoLatido = asistenciaPendiente.ultimo_latido;
     (window as any)._pendienteVentanaMin = ventanaMin;
     (window as any)._pendienteCambios = cambiosActuales;
@@ -296,12 +311,33 @@ export async function revisarAsistenciaPendiente(): Promise<void> {
         </div>`;
     } else if (ventanaMin > 0 && asistenciaPendiente.ultimo_latido &&
         Date.now() - new Date(asistenciaPendiente.ultimo_latido).getTime() <= ventanaMin * 60 * 1000) {
-      // ── CLASE EN CURSO Y LATIDO RECIENTE → auto-reanudar directo
-      // Esto no debería ocurrir porque autoReanudarMonitoreo ya lo maneja,
-      // pero si llegó aquí igual, lo resolvemos
-      try {
-        reanudarMonitoreo();
-      } catch { /* ignore */ }
+      // Verificar si la página fue cerrada antes de auto-reanudar
+      const cerradoKey = 'monitoreo_cerrado_' + asistenciaPendiente.id;
+      const cerradoPreviamente = localStorage.getItem(cerradoKey);
+      if (cerradoPreviamente) {
+        localStorage.removeItem(cerradoKey);
+      }
+      if (!cerradoPreviamente) {
+        // ── CLASE EN CURSO, LATIDO RECIENTE Y NO CERRADA → auto-reanudar
+        try {
+          reanudarMonitoreo();
+        } catch { /* ignore */ }
+      } else {
+        // ── CLASE EN CURSO PERO FUE CERRADA → solicitar reingreso
+        const msgAusente = ventanaMin > 0
+          ? `La página fue cerrada. Solicita reingreso al profesor para continuar.`
+          : `Debes solicitar reingreso al profesor para volver a clase.`;
+        banner.innerHTML = `
+          <div style="background:#fff8e1; border:1px solid #ffe082; border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <div style="font-size:1.5em;">⏳</div>
+            <div style="flex:1; min-width:150px;">
+              <strong style="color:#e65100;">Sesión cerrada</strong>
+              <br><small style="color:#666;">${escHTML(grupo.nombre)} — ${msgAusente}</small>
+            </div>
+            <button onclick="window.solicitarReingreso()" class="btn-primary" style="background:#e65100; white-space:nowrap; font-size:0.9em;">🔁 Solicitar reingreso</button>
+          </div>`;
+        banner.classList.remove('hidden');
+      }
     } else {
       // ── CLASE EN CURSO PERO AUSENTE → solicitar reingreso
       const msgAusente = ventanaMin > 0
@@ -441,13 +477,14 @@ function ejecutarReingresoAprobado(asistenciaId: string): void {
     const grupoId = w._pendienteGrupoId;
     const grupoNombre = w._pendienteGrupoNombre;
     const limite = w._pendienteLimite ?? 3;
+    const limiteAusente = w._pendienteLimiteAusente ?? 0;
     if (grupoId && grupoNombre) {
       // Ocultar banner de reingreso y vistas previas
       const banner = document.getElementById('reanudar-banner');
       if (banner) banner.classList.add('hidden');
       document.getElementById('login-view')!.classList.add('hidden');
       document.getElementById('dashboard-view')!.classList.add('hidden');
-      iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite);
+      iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite, limiteAusente);
     } else {
       console.warn('⚠️ reingreso: faltan _pendienteGrupoId o _pendienteGrupoNombre');
     }
@@ -488,7 +525,8 @@ export function reanudarMonitoreo(): void {
       w._pendienteAsistenciaId,
       w._pendienteGrupoId,
       w._pendienteGrupoNombre,
-      w._pendienteLimite
+      w._pendienteLimite,
+      w._pendienteLimiteAusente
     );
     const cambiosPrevios = w._pendienteCambios || 0;
     if (cambiosPrevios > 0) {
@@ -507,7 +545,8 @@ export function iniciarMonitoreo(
   asistenciaId: string,
   grupoId: string,
   grupoNombre: string,
-  limite: number
+  limite: number,
+  limiteAusente: number = 0
 ): void {
   monitoreoActivo = true;
   setMonitoreoActivo(true);
@@ -515,6 +554,7 @@ export function iniciarMonitoreo(
   grupoActualId = grupoId;
   grupoActualNombre = grupoNombre;
   cambiosLimite = limite || 3;
+  limiteAusenteMin = limiteAusente;
   cambiosContador = 0;
 
   // ── Generar token de monitoreo ──
@@ -780,13 +820,15 @@ export function iniciarMonitoreo(
   })();
 
   // ── Cargar tiempo ausente acumulado previo ──
+  // Solo cargar si es mayor que el valor actual (evita overwrite si el usuario
+  // ya acumuló tiempo entre iniciarMonitoreo y esta respuesta asíncrona)
   supabase
     .from('asistencia')
     .select('tiempo_ausente_acumulado')
     .eq('id', asistenciaId)
     .maybeSingle()
     .then(({ data: a }) => {
-      if (a?.tiempo_ausente_acumulado) {
+      if (a?.tiempo_ausente_acumulado && a.tiempo_ausente_acumulado > tiempoAusenteAcumulado) {
         tiempoAusenteAcumulado = a.tiempo_ausente_acumulado;
       }
     });
@@ -832,6 +874,20 @@ export function iniciarMonitoreo(
   window.addEventListener('blur', manejarBlur);
   window.addEventListener('focus', manejarFocus);
 
+  // ── beforeunload: cancelar incremento pendiente + marcar cierre en localStorage ──
+  _manejadorBeforeUnload = () => {
+    // Cancelar incremento diferido (para que recarga/cierre no cuente como cambio)
+    if (_timeoutIncremento) {
+      clearTimeout(_timeoutIncremento);
+      _timeoutIncremento = null;
+    }
+    // Marcar en localStorage que la página se cerró (para forzar reingreso al reabrir)
+    if (asistenciaActualId) {
+      localStorage.setItem('monitoreo_cerrado_' + asistenciaActualId, Date.now().toString());
+    }
+  };
+  window.addEventListener('beforeunload', _manejadorBeforeUnload);
+
   cargarContadorExistente();
 }
 
@@ -847,6 +903,16 @@ function detenerMonitoreo(): void {
   document.removeEventListener('visibilitychange', manejarVisibilidad);
   window.removeEventListener('blur', manejarBlur);
   window.removeEventListener('focus', manejarFocus);
+
+  // Limpiar beforeunload
+  if (_manejadorBeforeUnload) {
+    window.removeEventListener('beforeunload', _manejadorBeforeUnload);
+    _manejadorBeforeUnload = null;
+  }
+  if (_timeoutIncremento) {
+    clearTimeout(_timeoutIncremento);
+    _timeoutIncremento = null;
+  }
   if (monitorChannel) {
     supabase.removeChannel(monitorChannel);
     monitorChannel = null;
@@ -927,10 +993,17 @@ async function cargarContadorExistente(): Promise<void> {
 // ====== MANEJADORES DE EVENTOS ======
 function manejarVisibilidad(): void {
   if (monitoreoActivo) {
-    if (document.visibilityState === 'hidden' && !cambioEnProgreso) {
+    if (document.visibilityState === 'hidden') {
       const ahora = Date.now();
       if (ahora - ultimoCambioTimestamp < 2000) return;
+      if (_ausenteDesde !== null) return; // ya registrado por blur u otro evento
       _ausenteDesde = ahora;
+
+      // Cancelar cualquier timeout de incremento previo
+      if (_timeoutIncremento) {
+        clearTimeout(_timeoutIncremento);
+        _timeoutIncremento = null;
+      }
 
       // Distinguir entre ausente (intencional) e inactivo (auto-bloqueo)
       const tiempoSinInteraccion = ahora - ultimaInteraccion;
@@ -938,7 +1011,13 @@ function manejarVisibilidad(): void {
         // Había interacción reciente → salió intencionalmente → AUSENTE
         estadoSalida = 'ausente';
         registrarEvento('salida_pantalla', 'Salió de la pestaña/app (ausente)').then(id => { _ultimaSalidaId = id; });
-        incrementarCambio();
+        // Diferir 1s el incremento: si la página se recarga/cierra o vuelve rápido, se cancela
+        if (!cambioEnProgreso) {
+          _timeoutIncremento = window.setTimeout(() => {
+            _timeoutIncremento = null;
+            incrementarCambio();
+          }, 1000);
+        }
       } else {
         // Sin interacción reciente → auto-bloqueo → INACTIVO
         estadoSalida = 'inactivo';
@@ -946,6 +1025,11 @@ function manejarVisibilidad(): void {
         // No incrementa cambios_pantalla
       }
     } else if (document.visibilityState === 'visible') {
+      // Cancelar cualquier incremento diferido (vuelta rápida o recarga cancelada)
+      if (_timeoutIncremento) {
+        clearTimeout(_timeoutIncremento);
+        _timeoutIncremento = null;
+      }
       if (_ausenteDesde && _ultimaSalidaId) {
         const duracionSeg = Math.round((Date.now() - _ausenteDesde) / 1000);
         const txtDuracion = formatearDuracion(duracionSeg);
@@ -966,17 +1050,28 @@ function manejarVisibilidad(): void {
 }
 
 function manejarBlur(): void {
-  if (monitoreoActivo && !cambioEnProgreso) {
+  if (monitoreoActivo) {
     const ahora = Date.now();
     if (ahora - ultimoCambioTimestamp < 2000) return;
     if (_ausenteDesde !== null) return; // ya registrado por visibilitychange
     _ausenteDesde = ahora;
 
+    // Cancelar timeout previo si lo hubiera
+    if (_timeoutIncremento) {
+      clearTimeout(_timeoutIncremento);
+      _timeoutIncremento = null;
+    }
+
     const tiempoSinInteraccion = ahora - ultimaInteraccion;
     if (tiempoSinInteraccion < UMBRAL_INTERACCION_AUSENTE_MS) {
       estadoSalida = 'ausente';
       registrarEvento('salida_pantalla', 'Perdió el foco (ausente)').then(id => { _ultimaSalidaId = id; });
-      incrementarCambio();
+      if (!cambioEnProgreso) {
+        _timeoutIncremento = window.setTimeout(() => {
+          _timeoutIncremento = null;
+          incrementarCambio();
+        }, 1000);
+      }
     } else {
       estadoSalida = 'inactivo';
       registrarEvento('salida_pantalla', 'Perdió el foco (inactivo)').then(id => { _ultimaSalidaId = id; });
@@ -986,6 +1081,11 @@ function manejarBlur(): void {
 
 function manejarFocus(): void {
   if (monitoreoActivo && _ausenteDesde !== null && _ultimaSalidaId) {
+    // Cancelar cualquier incremento diferido
+    if (_timeoutIncremento) {
+      clearTimeout(_timeoutIncremento);
+      _timeoutIncremento = null;
+    }
     const duracionSeg = Math.round((Date.now() - _ausenteDesde) / 1000);
     const txtDuracion = formatearDuracion(duracionSeg);
     if (estadoSalida === 'ausente') {
@@ -1007,39 +1107,45 @@ async function incrementarCambio(): Promise<void> {
   if (!asistenciaActualId || cambiosContador >= cambiosLimite) return;
   const ahora = Date.now();
   if (ahora - ultimoCambioTimestamp < 2000) return;
+  if (cambioEnProgreso) return; // ya hay un incremento en curso
   ultimoCambioTimestamp = ahora;
   cambioEnProgreso = true;
   cambiosContador++;
-  await supabase
-    .from('asistencia')
-    .update({
-      cambios_pantalla: cambiosContador,
-      ultimo_cambio: new Date().toISOString(),
-    })
-    .eq('id', asistenciaActualId);
-  actualizarMonitorUI();
-  cambioEnProgreso = false;
-  if (cambiosContador >= cambiosLimite) {
-    registrarEvento('limite_alcanzado', `Alcanzó el límite de ${cambiosLimite} cambios de pantalla`);
-    const st = document.getElementById('monitor-estado')!;
-    st.innerHTML = '⚠️ Límite alcanzado. El profesor puede perdonarte para reiniciar tu contador.';
-    st.style.background = '#fff3e0';
-    st.style.color = '#e65100';
-
-    // Si ya estaba perdonado y re-excede, revocar el perdón
-    // para que necesite uno nuevo (evita confirmar sin permiso)
-    const { data: asis } = await supabase
+  try {
+    await supabase
       .from('asistencia')
-      .select('perdonada')
-      .eq('id', asistenciaActualId)
-      .maybeSingle();
-    if (asis?.perdonada) {
-      await supabase
+      .update({
+        cambios_pantalla: cambiosContador,
+        ultimo_cambio: new Date().toISOString(),
+      })
+      .eq('id', asistenciaActualId);
+    actualizarMonitorUI();
+    if (cambiosContador >= cambiosLimite) {
+      registrarEvento('limite_alcanzado', `Alcanzó el límite de ${cambiosLimite} cambios de pantalla`);
+      const st = document.getElementById('monitor-estado')!;
+      st.innerHTML = '⚠️ Límite alcanzado. El profesor puede perdonarte para reiniciar tu contador.';
+      st.style.background = '#fff3e0';
+      st.style.color = '#e65100';
+
+      // Si ya estaba perdonado y re-excede, revocar el perdón
+      // para que necesite uno nuevo (evita confirmar sin permiso)
+      const { data: asis } = await supabase
         .from('asistencia')
-        .update({ perdonada: false, estado: 'presente' })
-        .eq('id', asistenciaActualId);
-      st.innerHTML = '⚠️ Límite alcanzado de nuevo. El profesor debe perdonarte otra vez.';
+        .select('perdonada')
+        .eq('id', asistenciaActualId)
+        .maybeSingle();
+      if (asis?.perdonada) {
+        await supabase
+          .from('asistencia')
+          .update({ perdonada: false, estado: 'presente' })
+          .eq('id', asistenciaActualId);
+        st.innerHTML = '⚠️ Límite alcanzado de nuevo. El profesor debe perdonarte otra vez.';
+      }
     }
+  } catch (e) {
+    console.warn('⚠️ Error al incrementar cambio:', e);
+  } finally {
+    cambioEnProgreso = false;
   }
 }
 
@@ -1104,6 +1210,13 @@ export async function confirmarAsistencia(): Promise<void> {
     return;
   }
 
+  // Verificar tiempo ausente acumulado
+  const tiempoAusente = Math.round(tiempoAusenteAcumulado);
+  if (limiteAusenteMin > 0 && tiempoAusente >= limiteAusenteMin * 60) {
+    mostrarToast(`⏱️ Has estado ausente ${formatearDuracion(tiempoAusente)} (límite: ${limiteAusenteMin} min). No puedes confirmar tu asistencia.`, 'warning', 6000);
+    return;
+  }
+
   // Registrar confirmación en bitácora
   await registrarEvento('asistencia_confirmada', 'Confirmó su asistencia voluntariamente');
 
@@ -1149,11 +1262,26 @@ export function salirMonitoreo(): void {
 export async function confirmarAsistenciaPendiente(asistenciaId: string): Promise<void> {
   const { data: a } = await supabase
     .from('asistencia')
-    .select('id, cambios_pantalla, perdonada, ultimo_latido')
+    .select('id, cambios_pantalla, perdonada, ultimo_latido, tiempo_ausente_acumulado, grupo_id')
     .eq('id', asistenciaId)
     .eq('confirmada', false)
     .maybeSingle();
   if (!a) return;
+
+  // Obtener límite de ausencia del grupo
+  const { data: grupo } = await supabase
+    .from('grupos')
+    .select('limite_ausente_min')
+    .eq('id', a.grupo_id)
+    .maybeSingle();
+  const limiteAusente = grupo?.limite_ausente_min ?? 0;
+
+  // Verificar tiempo ausente acumulado desde BD
+  const tiempoAusenteBD = a.tiempo_ausente_acumulado || 0;
+  if (limiteAusente > 0 && tiempoAusenteBD >= limiteAusente * 60) {
+    mostrarToast(`⏱️ Has estado ausente ${formatearDuracion(tiempoAusenteBD)} (límite: ${limiteAusente} min). No puedes confirmar tu asistencia.`, 'warning', 6000);
+    return;
+  }
 
   // Verificar presencia activa (latido reciente)
   const latido = a.ultimo_latido ? new Date(a.ultimo_latido).getTime() : 0;
