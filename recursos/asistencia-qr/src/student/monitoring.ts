@@ -16,7 +16,6 @@ let grupoActualId: string | null = null;
 let grupoActualNombre = '';
 let cambiosContador = 0;
 let cambiosLimite = 3;
-let limiteAusenteMin = 0;
 let monitorChannel: any = null;
 let monitorInterval: number | null = null;
 let timerInterval: number | null = null;
@@ -31,22 +30,11 @@ let _horaFinStr = '';
 let _btnConfirmarMostrado = false;
 let _tipoAsistenciaActual: string | null = null;
 
-// ---- Variables de bitácora / duración de ausencias ----
-let _ausenteDesde: number | null = null;       // timestamp cuando salió
-let _ultimaSalidaId: string | null = null;     // ID del último registro salida_pantalla
-let _ultimoSyncAusencia: number = 0;           // timestamp del último heartbeat que sincronizó ausencia (evita doble conteo)
+// ---- Variables de polling/eventos ----
 let _reingresoPollInterval: number | null = null;  // polling fallback para reingreso
 let _reingresoEjecutandose = false;            // evita doble ejecución de ejecutarReingresoAprobado
 
-// ---- Variables de rastreo de interacción / inactivo vs ausente ----
-let ultimaInteraccion: number = Date.now();     // timestamp de la última interacción del usuario
-let estadoSalida: 'ausente' | 'inactivo' | null = null;  // tipo de salida actual
-let tiempoAusenteAcumulado: number = 0;         // segundos totales de ausencia en esta sesión
-let tiempoInactivoAcumulado: number = 0;         // segundos con página oculta/sin foco (pantalla bloqueada, minimizada)
-const UMBRAL_INTERACCION_AUSENTE_MS = 5000;     // 5s sin interacción = inactivo vs ausente
-let _detenerRastreo: (() => void) | null = null;
-
-// ---- Variables para tracking activo/inactivo ----
+// ---- Variables de tracking ----
 let _paginaVisible: boolean = true;            // true si la página está visible y con foco
 let tiempoActivoAcumulado: number = 0;          // segundos con página visible
 let _ultimoEventoSalida: number = 0;            // timestamp del último evento blur/oculto (evita duplicados)
@@ -80,18 +68,6 @@ async function registrarEvento(tipo: string, detalle: string, asistenciaOverride
   }
 }
 
-/** Actualiza el detalle de un evento de bitácora existente */
-async function actualizarEvento(eventoId: string, detalle: string): Promise<void> {
-  try {
-    await supabase
-      .from('bitacora_actividad')
-      .update({ detalle })
-      .eq('id', eventoId);
-  } catch (e) {
-    console.warn('⚠️ Error al actualizar bitácora:', e);
-  }
-}
-
 /** Formatea duración en segundos a texto legible */
 function formatearDuracion(segundos: number): string {
   if (segundos < 60) return `${segundos}s`;
@@ -100,52 +76,7 @@ function formatearDuracion(segundos: number): string {
   return segs > 0 ? `${mins}m ${segs}s` : `${mins}m`;
 }
 
-// ====== SINCRONIZAR TIEMPO AUSENTE ACUMULADO A BD ======
-async function sincronizarTiempoAusente(): Promise<void> {
-  if (!asistenciaActualId) return;
-  try {
-    await supabase
-      .from('asistencia')
-      .update({ tiempo_ausente_acumulado: Math.round(tiempoAusenteAcumulado) })
-      .eq('id', asistenciaActualId);
-  } catch {
-    // Si la columna no existe aún (migración pendiente), falla silenciosamente
-  }
-}
-
-// ====== SINCRONIZAR TIEMPO INACTIVO ACUMULADO A BD ======
-async function sincronizarTiempoInactivo(): Promise<void> {
-  if (!asistenciaActualId) return;
-  try {
-    await supabase
-      .from('asistencia')
-      .update({ tiempo_inactivo_acumulado: Math.round(tiempoInactivoAcumulado) })
-      .eq('id', asistenciaActualId);
-  } catch {
-    // Si la columna no existe aún (migración pendiente), falla silenciosamente
-  }
-}
-
-// ====== RASTREO DE INTERACCIÓN DEL USUARIO ======
-function inicializarRastreoInteraccion(): void {
-  detenerRastreoInteraccion();
-  const marcar = () => { ultimaInteraccion = Date.now(); };
-  document.addEventListener('touchstart', marcar, { passive: true });
-  document.addEventListener('click', marcar);
-  document.addEventListener('keydown', marcar);
-  _detenerRastreo = () => {
-    document.removeEventListener('touchstart', marcar);
-    document.removeEventListener('click', marcar);
-    document.removeEventListener('keydown', marcar);
-  };
-}
-
-function detenerRastreoInteraccion(): void {
-  if (_detenerRastreo) {
-    _detenerRastreo();
-    _detenerRastreo = null;
-  }
-}
+// ====== FORMATEAR DURACIÓN ======
 
 // ====== VERIFICAR SI LA CLASE ESTÁ EN CURSO ======
 /** Devuelve true si hay sesión activa o el horario indica clase en curso.
@@ -263,7 +194,7 @@ export async function autoReanudarMonitoreo(userId: string): Promise<boolean> {
 
     const { data: grupo } = await supabase
       .from('grupos')
-      .select('nombre, limite_salidas, ventana_reingreso_min, limite_ausente_min')
+      .select('nombre, limite_salidas, ventana_reingreso_min')
       .eq('id', pendiente.grupo_id)
       .maybeSingle();
     if (!grupo) return false;
@@ -293,7 +224,7 @@ export async function autoReanudarMonitoreo(userId: string): Promise<boolean> {
       document.getElementById('login-view')!.classList.add('hidden');
       document.getElementById('dashboard-view')!.classList.add('hidden');
       _tipoAsistenciaActual = pendiente.tipo_asistencia;
-      iniciarMonitoreo(pendiente.id, pendiente.grupo_id, grupo.nombre, grupo.limite_salidas ?? 3, grupo.limite_ausente_min ?? 0);
+      iniciarMonitoreo(pendiente.id, pendiente.grupo_id, grupo.nombre, grupo.limite_salidas ?? 3);
       return true;
     }
 
@@ -303,7 +234,6 @@ export async function autoReanudarMonitoreo(userId: string): Promise<boolean> {
     (window as any)._pendienteGrupoId = pendiente.grupo_id;
     (window as any)._pendienteGrupoNombre = grupo.nombre;
     (window as any)._pendienteLimite = grupo.limite_salidas ?? 3;
-    (window as any)._pendienteLimiteAusente = grupo.limite_ausente_min ?? 0;
     (window as any)._pendienteUltimoLatido = pendiente.ultimo_latido;
     (window as any)._pendienteVentanaMin = ventanaMin;
     (window as any)._pendienteClaseEnCurso = true;
@@ -374,7 +304,7 @@ export async function revisarAsistenciaPendiente(): Promise<void> {
     // ── Hay una clase en curso → mostrar banner ──
     const { data: grupo } = await supabase
       .from('grupos')
-      .select('nombre, limite_salidas, ventana_reingreso_min, limite_ausente_min')
+      .select('nombre, limite_salidas, ventana_reingreso_min')
       .eq('id', pendienteEnCurso.grupo_id)
       .maybeSingle();
     if (!grupo) return;
@@ -387,7 +317,6 @@ export async function revisarAsistenciaPendiente(): Promise<void> {
     (window as any)._pendienteGrupoId = pendienteEnCurso.grupo_id;
     (window as any)._pendienteGrupoNombre = grupo.nombre;
     (window as any)._pendienteLimite = limite;
-    (window as any)._pendienteLimiteAusente = grupo.limite_ausente_min ?? 0;
     (window as any)._pendienteUltimoLatido = pendienteEnCurso.ultimo_latido;
     (window as any)._pendienteVentanaMin = ventanaMin;
     (window as any)._pendienteCambios = cambiosActuales;
@@ -581,14 +510,13 @@ function ejecutarReingresoAprobado(asistenciaId: string): void {
     const grupoId = w._pendienteGrupoId;
     const grupoNombre = w._pendienteGrupoNombre;
     const limite = w._pendienteLimite ?? 3;
-    const limiteAusente = w._pendienteLimiteAusente ?? 0;
     if (grupoId && grupoNombre) {
       // Ocultar banner de reingreso y vistas previas
       const banner = document.getElementById('reanudar-banner');
       if (banner) banner.classList.add('hidden');
       document.getElementById('login-view')!.classList.add('hidden');
       document.getElementById('dashboard-view')!.classList.add('hidden');
-      iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite, limiteAusente);
+      iniciarMonitoreo(asistenciaId, grupoId, grupoNombre, limite);
     } else {
       console.warn('⚠️ reingreso: faltan _pendienteGrupoId o _pendienteGrupoNombre');
     }
@@ -629,8 +557,7 @@ export function reanudarMonitoreo(): void {
       w._pendienteAsistenciaId,
       w._pendienteGrupoId,
       w._pendienteGrupoNombre,
-      w._pendienteLimite,
-      w._pendienteLimiteAusente
+      w._pendienteLimite
     );
     const cambiosPrevios = w._pendienteCambios || 0;
     if (cambiosPrevios > 0) {
@@ -649,8 +576,7 @@ export function iniciarMonitoreo(
   asistenciaId: string,
   grupoId: string,
   grupoNombre: string,
-  limite: number,
-  limiteAusente: number = 0
+  limite: number
 ): void {
   monitoreoActivo = true;
   setMonitoreoActivo(true);
@@ -658,7 +584,6 @@ export function iniciarMonitoreo(
   grupoActualId = grupoId;
   grupoActualNombre = grupoNombre;
   cambiosLimite = limite || 3;
-  limiteAusenteMin = limiteAusente;
   cambiosContador = 0;
   _paginaVisible = true;
   _ultimoEventoSalida = 0;
@@ -947,132 +872,23 @@ export function iniciarMonitoreo(
     actualizarTimer(_horaFinStr);
   }, 1000);
 
-  // ── Verificar ausencia real por caducidad del heartbeat ──
-  // Si ultimo_latido envejeció más de la cuenta, el usuario realmente cerró
-  // la página (no solo bloqueó pantalla o minimizó). El heartbeat se detiene
-  // al cerrar, así que ahora − ultimo_latido = tiempo ausente real.
-  (async () => {
-    try {
-      const GRACIA_SEG = 10; // 10s de gracia para backgrounding trivial
-      const ahora = Date.now();
-      let ultimoLatidoTs = 0;
-      try {
-        const { data: asis } = await supabase
-          .from('asistencia')
-          .select('ultimo_latido')
-          .eq('id', asistenciaId)
-          .maybeSingle();
-        if (asis?.ultimo_latido) {
-          ultimoLatidoTs = new Date(asis.ultimo_latido).getTime();
-        }
-      } catch { /* ignorar */ }
-      const gapSeg = ultimoLatidoTs > 0 ? Math.round((ahora - ultimoLatidoTs) / 1000) : 0;
-      const huboAusenciaReal = gapSeg > GRACIA_SEG;
-
-      // Verificar si pagehide ya registró salida_pantalla
-      const { data: ultimos } = await supabase
-        .from('bitacora_actividad')
-        .select('id, tipo, detalle, registrada_en')
-        .eq('asistencia_id', asistenciaId)
-        .order('registrada_en', { ascending: false })
-        .limit(3);
-
-      let salidaYaRegistrada = false;
-      if (ultimos && ultimos.length > 0) {
-        const ultimo = ultimos[0];
-        if (ultimo.tipo === 'salida_pantalla' && ultimo.detalle && !ultimo.detalle.includes('Ausente')) {
-          salidaYaRegistrada = true;
-          // pagehide funcionó: cerrar la duración
-          if (huboAusenciaReal) {
-            const desde = new Date(ultimo.registrada_en).getTime();
-            const duracionSeg = Math.round((Date.now() - desde) / 1000);
-            const txtDuracion = formatearDuracion(duracionSeg);
-            await actualizarEvento(ultimo.id, `${ultimo.detalle} — Ausente ${txtDuracion} (al recargar página)`);
-            await registrarEvento('regreso_pantalla', 'Regresó a la ventana (después de recargar página)');
-          }
-        }
-      }
-
-      // Si hubo ausencia real pero pagehide NO registró salida (crash/móvil):
-      // registrar ahora y sumar cambio
-      if (huboAusenciaReal && !salidaYaRegistrada) {
-        await registrarEvento('salida_pantalla', `Navegador cerrado inesperadamente — Ausente ${formatearDuracion(gapSeg)}`);
-        await registrarEvento('regreso_pantalla', 'Regresó después de cierre inesperado');
-        // Incrementar cambio (saltándose el guard de 2s porque es reingreso)
-        if (cambiosContador < cambiosLimite) {
-          cambiosContador++;
-          await supabase
-            .from('asistencia')
-            .update({ cambios_pantalla: cambiosContador, ultimo_cambio: new Date().toISOString() })
-            .eq('id', asistenciaId);
-          actualizarMonitorUI();
-        }
-      }
-
-      // Acumular tiempo ausente si hubo ausencia real
-      if (huboAusenciaReal) {
-        // Añadir solo el gap que no se haya registrado antes
-        // tiempoAusenteAcumulado puede tener valor previo de BD
-        const ausenciaNueva = gapSeg;
-        if (ausenciaNueva > 0) {
-          tiempoAusenteAcumulado += ausenciaNueva;
-          sincronizarTiempoAusente();
-        }
-        // Resetear estado de ausencia
-        _ausenteDesde = null;
-        _ultimoSyncAusencia = 0;
-        _ultimaSalidaId = null;
-        estadoSalida = null;
-        actualizarTiemposUI();
-      }
-    } catch { /* ignorar errores de verificación */ }
-  })();
-
-  // ── Cargar tiempo ausente acumulado previo ──
-  // Solo cargar si es mayor que el valor actual (evita overwrite si el usuario
-  // ya acumuló tiempo entre iniciarMonitoreo y esta respuesta asíncrona)
-  supabase
-    .from('asistencia')
-    .select('tiempo_ausente_acumulado')
-    .eq('id', asistenciaId)
-    .maybeSingle()
-    .then(({ data: a }) => {
-      if (a?.tiempo_ausente_acumulado && a.tiempo_ausente_acumulado > tiempoAusenteAcumulado) {
-        tiempoAusenteAcumulado = a.tiempo_ausente_acumulado;
-      }
-    });
-
-  // ── Inicializar rastreo de interacción ──
-  ultimaInteraccion = Date.now();
-  estadoSalida = null;
-  inicializarRastreoInteraccion();
+  // ── Inicializar UI de tiempos ──
   actualizarTiemposUI();
 
   // ── Registrar inicio en bitácora ──
   registrarEvento('inicio_monitoreo', 'Inició monitoreo de asistencia');
 
   // Heartbeat: probar presencia activa cada 30s
-  // ❌ Ya NO acumula ausencia aquí. El tiempo ausente se calcula
-  //    exclusivamente en el reingreso, por gap de ultimo_latido.
-  //    Mientras la página está abierta (incluso invisible/bloqueada),
-  //    el heartbeat sigue latiendo → ultimo_latido no envejece.
   if (heartbeatInterval) clearInterval(heartbeatInterval);
   heartbeatInterval = window.setInterval(async () => {
     if (!asistenciaActualId) return;
     try {
-      // Acumular tiempo inactivo para métrica de permanencia
-      if (!_paginaVisible) {
-        tiempoInactivoAcumulado += 30; // ~30s por intervalo
-        sincronizarTiempoInactivo();
-      }
       await supabase
         .from('asistencia')
         .update({
-          ultimo_latido: new Date().toISOString(),
-          tiempo_ausente_acumulado: Math.round(tiempoAusenteAcumulado)
+          ultimo_latido: new Date().toISOString()
         })
         .eq('id', asistenciaActualId);
-      // Actualizar UI de tiempos
       actualizarTiemposUI();
     } catch { /* ignore errores de heartbeat */ }
   }, 30000);
@@ -1111,11 +927,6 @@ export function iniciarMonitoreo(
 function detenerMonitoreo(): void {
   monitoreoActivo = false;
   setMonitoreoActivo(false);
-
-  // Sincronizar tiempos acumulados antes de detener
-  sincronizarTiempoAusente();
-  sincronizarTiempoInactivo();
-  detenerRastreoInteraccion();
 
   document.removeEventListener('visibilitychange', manejarVisibilidad);
   window.removeEventListener('blur', manejarBlur);
@@ -1218,14 +1029,10 @@ function manejarVisibilidad(): void {
       if (ahora - _ultimoEventoSalida < 1000) return;
       _ultimoEventoSalida = ahora;
       _paginaVisible = false;
-      estadoSalida = 'inactivo';
-      // ❌ NO se cuenta como ausencia ni se incrementa cambio.
-      // Pantalla bloqueada / minimizada = inactividad, no ausencia.
-      // El heartbeat sigue corriendo, así que ultimo_latido no envejece.
+      // Cada ocultamiento (bloqueo, minimizar, cambiar app) = +1 cambio
+      incrementarCambio();
     } else if (document.visibilityState === 'visible' && _paginaVisible === false) {
       _paginaVisible = true;
-      estadoSalida = null;
-      // ❌ No hay ausencia que recuperar; la página nunca se fue realmente.
     }
   }
 }
@@ -1236,38 +1043,27 @@ function manejarBlur(): void {
     if (ahora - _ultimoEventoSalida < 1000) return;
     _ultimoEventoSalida = ahora;
     _paginaVisible = false;
-    estadoSalida = 'inactivo';
-    // ❌ NO se cuenta como ausencia ni se incrementa cambio.
-    // Pérdida de foco (alt-tab, Win+L) = inactividad, no ausencia.
+    // Cada pérdida de foco (alt-tab, Win+L) = +1 cambio
+    incrementarCambio();
   }
 }
 
 function manejarFocus(): void {
   if (monitoreoActivo) {
     _paginaVisible = true;
-    estadoSalida = null;
-    // ❌ No hay ausencia que recuperar; el foco perdido era inactividad, no ausencia.
   }
 }
 
-// ====== PAGEHIDE: ÚNICO DISPARADOR REAL DE AUSENCIA ======
 /**
- * pagehide se dispara cuando el usuario cierra la pestaña/navegador
- * o navega a otra página. Es la ÚNICA señal fiable de "ausencia real".
- * A diferencia de blur/visibility, esto NO ocurre con pantalla bloqueada.
- * 
- * Nota: La operación es best-effort (la página se está descargando).
- * Si no alcanza a completarse, el reingreso detectará el gap en ultimo_latido
- * y compensará automáticamente.
+ * pagehide se dispara al cerrar pestaña/navegador o navegar a otra página.
+ * En móvil también ocurre al bloquear pantalla. Es best-effort porque
+ * la página se está descargando; si no alcanza, no pasa nada, el contador
+ * de cambios_pantalla ya se incrementó con blur/visibility.
  */
 function manejarPageHide(): void {
   if (monitoreoActivo) {
     const ahora = Date.now();
     if (ahora - ultimoCambioTimestamp < 2000) return;
-    if (_ausenteDesde === null) {
-      _ausenteDesde = ahora;
-    }
-    estadoSalida = 'ausente';
     registrarEvento('salida_pantalla', 'Cerró la página/navegador');
     incrementarCambio();
   }
@@ -1325,21 +1121,9 @@ function actualizarTiemposUI(): void {
   const el = document.getElementById('monitor-tiempos');
   if (!el) return;
   const activo = formatearDuracion(Math.round(tiempoActivoAcumulado));
-  const inactivo = formatearDuracion(Math.round(tiempoInactivoAcumulado));
-  const ausente = formatearDuracion(Math.round(tiempoAusenteAcumulado));
-  const total = tiempoActivoAcumulado + tiempoInactivoAcumulado + tiempoAusenteAcumulado;
-  const pct = total > 0 ? Math.round((tiempoActivoAcumulado / total) * 100) : 100;
   el.innerHTML = `
-    <div style="display:flex; justify-content:space-between; font-size:0.85em; margin-bottom:4px;">
+    <div style="display:flex; justify-content:center; font-size:0.85em; margin-bottom:4px;">
       <span style="color:#2e7d32;">✅ Activo: <strong>${activo}</strong></span>
-      <span style="color:#ff9800;">💤 Inactivo: <strong>${inactivo}</strong></span>
-      <span style="color:#c62828;">🚪 Ausente: <strong>${ausente}</strong></span>
-    </div>
-    <div style="height:6px; background:#eee; border-radius:3px; overflow:hidden;">
-      <div style="height:100%; width:${pct}%; background:${pct >= 80 ? '#4caf50' : pct >= 50 ? '#ff9800' : '#f44336'}; border-radius:3px; transition:width 0.5s;"></div>
-    </div>
-    <div style="font-size:0.75em; color:#999; margin-top:2px; text-align:center;">
-      Permanencia: ${pct}% en clase
     </div>`;
 }
 
@@ -1405,13 +1189,6 @@ export async function confirmarAsistencia(): Promise<void> {
     return;
   }
 
-  // Verificar tiempo ausente acumulado
-  const tiempoAusente = Math.round(tiempoAusenteAcumulado);
-  if (limiteAusenteMin > 0 && tiempoAusente >= limiteAusenteMin * 60) {
-    mostrarToast(`⏱️ Has estado ausente ${formatearDuracion(tiempoAusente)} (límite: ${limiteAusenteMin} min). No puedes confirmar tu asistencia.`, 'warning', 6000);
-    return;
-  }
-
   // Registrar confirmación en bitácora
   await registrarEvento('asistencia_confirmada', 'Confirmó su asistencia voluntariamente');
 
@@ -1457,26 +1234,11 @@ export function salirMonitoreo(): void {
 export async function confirmarAsistenciaPendiente(asistenciaId: string): Promise<void> {
   const { data: a } = await supabase
     .from('asistencia')
-    .select('id, cambios_pantalla, perdonada, ultimo_latido, tiempo_ausente_acumulado, grupo_id')
+    .select('id, cambios_pantalla, perdonada, ultimo_latido, grupo_id')
     .eq('id', asistenciaId)
     .eq('confirmada', false)
     .maybeSingle();
   if (!a) return;
-
-  // Obtener límite de ausencia del grupo
-  const { data: grupo } = await supabase
-    .from('grupos')
-    .select('limite_ausente_min')
-    .eq('id', a.grupo_id)
-    .maybeSingle();
-  const limiteAusente = grupo?.limite_ausente_min ?? 0;
-
-  // Verificar tiempo ausente acumulado desde BD
-  const tiempoAusenteBD = a.tiempo_ausente_acumulado || 0;
-  if (limiteAusente > 0 && tiempoAusenteBD >= limiteAusente * 60) {
-    mostrarToast(`⏱️ Has estado ausente ${formatearDuracion(tiempoAusenteBD)} (límite: ${limiteAusente} min). No puedes confirmar tu asistencia.`, 'warning', 6000);
-    return;
-  }
 
   // Verificar presencia activa (latido reciente)
   const latido = a.ultimo_latido ? new Date(a.ultimo_latido).getTime() : 0;
