@@ -202,7 +202,7 @@ export async function crearGrupo(
       .insert({
         profesor_id: profesorActual!.id,
         nombre, materia,
-        limite_salidas: limite || 3,
+        limite_salidas: Math.max(2, limite) || 3,
         numero_perdones: perdones || 2,
         ventana_reingreso_min: isNaN(ventanaReingreso) ? 2 : ventanaReingreso,
         limite_ausente_min: limiteAusenteMin || 5,
@@ -377,7 +377,7 @@ export async function handleGuardarGrupo(e: Event): Promise<boolean> {
   const editando = form.dataset.editando;
   const nombre = (document.getElementById('grupo-nombre') as HTMLInputElement).value.trim();
   const materia = (document.getElementById('grupo-materia') as HTMLInputElement).value.trim();
-  const limite = parseInt((document.getElementById('grupo-limite') as HTMLInputElement).value) || 3;
+  const limite = Math.max(2, parseInt((document.getElementById('grupo-limite') as HTMLInputElement).value) || 3);
   const perdones = parseInt((document.getElementById('grupo-perdones') as HTMLInputElement).value) || 2;
   const rawVentana = parseInt((document.getElementById('grupo-ventana-reingreso') as HTMLInputElement).value);
   const ventanaReingreso = isNaN(rawVentana) ? 2 : rawVentana;
