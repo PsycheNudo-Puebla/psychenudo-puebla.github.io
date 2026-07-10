@@ -62,7 +62,6 @@ w['reabrirMonitoreo'] = monitoring.reabrirMonitoreo;
 w['detenerMonitoreo'] = monitoring.detenerMonitoreo;
 w['cerrarMonitoreo'] = monitoring.cerrarMonitoreo;
 w['perdonarAlumno'] = monitoring.perdonarAlumno;
-w['resetearAusenciaAlumno'] = monitoring.resetearAusenciaAlumno;
 w['aprobarReingreso'] = monitoring.aprobarReingreso;
 w['mostrarBitacora'] = monitoring.mostrarBitacora;
 w['cerrarBitacora'] = monitoring.cerrarBitacora;

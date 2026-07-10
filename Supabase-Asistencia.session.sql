@@ -338,22 +338,18 @@ CREATE INDEX IF NOT EXISTS idx_bitacora_asistencia ON public.bitacora_actividad(
 CREATE INDEX IF NOT EXISTS idx_bitacora_registrada ON public.bitacora_actividad(registrada_en DESC);
 
 -- =============================================================
--- 🆕 25. MIGRACIÓN: INACTIVO VS AUSENTE (2026-07-09)
+-- 🆕 25. MIGRACIÓN: REVERSIÓN — ELIMINAR COLUMNAS DE AUSENCIA (2026-07-09)
+-- =============================================================
+-- Ya no diferenciamos entre inactivo y ausente porque no podemos
+-- discernir con certeza entre pantalla bloqueada y cambio de app.
+-- Nos quedamos solo con cambios_pantalla como métrica principal.
+-- La bitácora de actividad se mantiene para comportamientos sospechosos.
 -- =============================================================
 ALTER TABLE IF EXISTS public.asistencia
-    ADD COLUMN IF NOT EXISTS tiempo_ausente_acumulado INTEGER DEFAULT 0;
-COMMENT ON COLUMN public.asistencia.tiempo_ausente_acumulado
-    IS 'Segundos totales de ausencia intencional acumulados durante la clase. No incluye tiempo inactivo (pantalla bloqueada).';
+    DROP COLUMN IF EXISTS tiempo_ausente_acumulado;
 
 ALTER TABLE IF EXISTS public.grupos
-    ADD COLUMN IF NOT EXISTS limite_ausente_min INTEGER DEFAULT 5;
-COMMENT ON COLUMN public.grupos.limite_ausente_min
-    IS 'Minutos máximos de ausencia acumulada permitidos por alumno antes de marcarlo como ausente.';
+    DROP COLUMN IF EXISTS limite_ausente_min;
 
--- =============================================================
--- 🆕 26. MIGRACIÓN: TIEMPO INACTIVO ACUMULADO (2026-07-09)
--- =============================================================
 ALTER TABLE IF EXISTS public.asistencia
-    ADD COLUMN IF NOT EXISTS tiempo_inactivo_acumulado INTEGER DEFAULT 0;
-COMMENT ON COLUMN public.asistencia.tiempo_inactivo_acumulado
-    IS 'Segundos totales de inactividad acumulados (pantalla bloqueada, ventana minimizada, pérdida de foco). No incluye tiempo ausente (cierre real de página).';
+    DROP COLUMN IF EXISTS tiempo_inactivo_acumulado;

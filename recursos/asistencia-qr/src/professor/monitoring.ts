@@ -53,18 +53,13 @@ async function cargarAsistenciasActivas(): Promise<void> {
   // Actualizar encabezado del monitoreo
   const { data: grupo } = await supabase
     .from('grupos')
-    .select('numero_perdones, nombre, limite_ausente_min')
+    .select('numero_perdones, nombre')
     .eq('id', monitorGrupoId)
     .maybeSingle();
   const maxPerdones = grupo?.numero_perdones ?? 2;
 
   const elNombreGrupo = document.getElementById('monitoreo-grupo-nombre');
   if (elNombreGrupo) elNombreGrupo.textContent = grupo?.nombre || '';
-
-  const elLimiteAusente = document.getElementById('monitoreo-limite-ausente');
-  if (elLimiteAusente && grupo?.limite_ausente_min !== undefined) {
-    elLimiteAusente.textContent = String(grupo.limite_ausente_min);
-  }
 
   // Quitado: perdones del header (ahora se muestra por alumno en cada tarjeta)
 
@@ -110,8 +105,6 @@ async function cargarAsistenciasActivas(): Promise<void> {
     }
   }
 
-  const limiteAusenteMin = grupo?.limite_ausente_min ?? 5;
-
   container.innerHTML = asistencias.map((a: any) => {
     const nombre = a.alumnos?.nombre || a.alumnos?.email || 'Sin nombre';
     const cambios = a.cambios_pantalla || 0;
@@ -119,8 +112,6 @@ async function cargarAsistenciasActivas(): Promise<void> {
     const confirmada = a.confirmada;
     const perdonada = a.perdonada;
     const reingreso = a.reingreso_solicitado;
-    const tiempoAusenteSeg = a.tiempo_ausente_acumulado || 0;
-    const ausenteExcedido = limiteAusenteMin > 0 && tiempoAusenteSeg >= limiteAusenteMin * 60;
 
     let estadoHTML: string;
     if (confirmada) {
@@ -141,10 +132,6 @@ async function cargarAsistenciasActivas(): Promise<void> {
 
     const btnPerdonar = !perdonada && !confirmada && !reingreso
       ? `<button onclick="perdonarAlumno('${a.id}', this)" class="btn-secondary" style="font-size:0.75em; padding:4px 10px; background:#fff8e1; color:#f57f17;">🙏 Perdonar</button>`
-      : '';
-
-    const btnResetAusencia = !confirmada && !reingreso && tiempoAusenteSeg > 0
-      ? `<button onclick="resetearAusenciaAlumno('${a.id}', this)" class="btn-secondary" style="font-size:0.75em; padding:4px 10px; background:#e3f2fd; color:#1565c0;">⏱️ Reset ausencia</button>`
       : '';
 
     const btnReingreso = reingreso
@@ -172,18 +159,9 @@ async function cargarAsistenciasActivas(): Promise<void> {
           <div style="height:100%; width:${ancho}%; background:${barraColor}; border-radius:3px; transition:width 0.3s;"></div>
         </div>
       </div>
-      ${tiempoAusenteSeg > 0
-        ? `<div style="font-size:0.82em; margin-top:4px;">
-            🕐 <strong>Ausente:</strong> ${formatearDuracionProf(tiempoAusenteSeg)}
-            ${ausenteExcedido
-              ? '<span style="color:#c62828; font-weight:600; margin-left:6px;">⚠️ Límite excedido</span>'
-              : `<span style="color:#999;">(límite: ${limiteAusenteMin} min)</span>`
-            }
-          </div>`
-        : ''}
       <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px;">
         <div>${btnBitacora}</div>
-        <div style="display:flex; flex-wrap:wrap; gap:4px;${reingreso ? ' width:100%;' : ''}">${btnPerdonar}${btnResetAusencia ? ' ' + btnResetAusencia : ''}${btnReingreso ? ' ' + btnReingreso : ''}</div>
+        <div style="display:flex; flex-wrap:wrap; gap:4px;${reingreso ? ' width:100%;' : ''}">${btnPerdonar}${btnReingreso ? ' ' + btnReingreso : ''}</div>
       </div>
     </div>`;
   }).join('');
@@ -246,27 +224,6 @@ export async function perdonarAlumno(asistenciaId: string, btn: HTMLButtonElemen
 
   const restantes = maxPerdones - (usados + 1);
   mostrarToast(`✅ Perdonado (${usados + 1}/${maxPerdones} de este alumno — quedan ${restantes})`, 'exito', 4000);
-  await cargarAsistenciasActivas();
-}
-
-// ====== RESETEAR TIEMPO AUSENTE DE UN ALUMNO ======
-export async function resetearAusenciaAlumno(asistenciaId: string, btn: HTMLButtonElement): Promise<void> {
-  btn.disabled = true;
-  btn.textContent = '⏳...';
-
-  const { error } = await supabase
-    .from('asistencia')
-    .update({ tiempo_ausente_acumulado: 0 })
-    .eq('id', asistenciaId);
-
-  if (error) {
-    mostrarToast('Error al resetear ausencia: ' + error.message, 'error');
-    btn.disabled = false;
-    btn.textContent = '⏱️ Reset ausencia';
-    return;
-  }
-
-  mostrarToast('✅ Tiempo ausente reseteado a 0', 'exito', 3000);
   await cargarAsistenciasActivas();
 }
 
@@ -451,14 +408,6 @@ function escHtml(s: string): string {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-/** Formatea segundos a texto amigable para el profesor */
-function formatearDuracionProf(segundos: number): string {
-  const mins = Math.floor(segundos / 60);
-  const segs = segundos % 60;
-  if (mins === 0) return `${segs}s`;
-  return segs > 0 ? `${mins}m ${segs}s` : `${mins}m`;
-}
-
 // ====== APROBAR REINGRESO ======
 export async function aprobarReingreso(asistenciaId: string, btn: HTMLButtonElement): Promise<void> {
   btn.disabled = true;
@@ -498,39 +447,3 @@ export function detenerMonitoreo(): void {
 
 // Alias para onclick en HTML
 export const cerrarMonitoreo = detenerMonitoreo;
-
-// ====== EDITAR LÍMITE DE AUSENCIA POR GRUPO ======
-(window as any).editarLimiteAusente = function editarLimiteAusente(): void {
-  const span = document.getElementById('monitoreo-limite-ausente');
-  if (!span || !monitorGrupoId) return;
-  const valorActual = parseInt(span.textContent || '5');
-  span.innerHTML = `<input id="input-limite-ausente" type="number" min="1" max="60" value="${valorActual}" style="width:50px; text-align:center; font-size:0.9em; padding:2px 4px; border:1px solid #667eea; border-radius:4px;">`;
-  const input = document.getElementById('input-limite-ausente') as HTMLInputElement;
-  input?.focus();
-  input?.select();
-
-  const guardar = async () => {
-    let nuevoValor = parseInt(input?.value || '5');
-    if (nuevoValor < 1) nuevoValor = 1;
-    if (nuevoValor > 60) nuevoValor = 60;
-    const { error } = await supabase
-      .from('grupos')
-      .update({ limite_ausente_min: nuevoValor })
-      .eq('id', monitorGrupoId);
-    if (error) {
-      mostrarToast('❌ Error al guardar: ' + error.message, 'error');
-    } else {
-      mostrarToast(`✅ Límite de ausencia actualizado a ${nuevoValor} min`, 'exito', 3000);
-      span.textContent = String(nuevoValor);
-    }
-  };
-
-  const onSave = async () => { await guardar(); };
-  const onCancel = () => { span.textContent = String(valorActual); };
-
-  input?.addEventListener('blur', onSave);
-  input?.addEventListener('keydown', (e: KeyboardEvent) => {
-    if (e.key === 'Enter') { input?.blur(); }
-    if (e.key === 'Escape') { onCancel(); }
-  });
-};
