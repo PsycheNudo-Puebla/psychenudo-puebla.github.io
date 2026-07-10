@@ -6,7 +6,7 @@
     <title>Asistencia QR - Alumno</title>
 
 
-  <script type="module" crossorigin src="./assets/alumno.BFIDPUJe.js"></script>
+  <script type="module" crossorigin src="./assets/alumno.BtpppPcU.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/styles.CFacL6rs.js">
   <link rel="modulepreload" crossorigin href="./assets/utils.Di9qfZNi.js">
   <link rel="stylesheet" crossorigin href="./assets/styles.Cvg8s2tI.css">
@@ -117,13 +117,46 @@
                 ✅ Asistencia registrada. ¡Mantén la app abierta!
             </div>
 
+            <!-- Advertencia de actividad temprana (se muestra al desbloquear antes del cierre) -->
+            <div id="monitor-advertencia-temprana" class="hidden" style="background:#fff3e0; border:1.5px solid #ffb300; border-radius:10px; padding:10px 14px; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                <span style="font-size:1.3em;">🟡</span>
+                <div style="font-size:0.85em; color:#e65100; font-weight:600;">
+                    Actividad detectada antes del cierre
+                    <br><small style="font-weight:400; color:#888;">El profesor puede ver esta actividad en la bitácora.</small>
+                </div>
+            </div>
+
             <!-- Tiempos activo/inactivo -->
             <div id="monitor-tiempos" style="background: #f5f5f5; border-radius: 12px; padding: 12px; margin-bottom: 16px;"></div>
 
             <!-- Historial de cambios -->
             <div id="monitor-historial" style="max-height: 120px; overflow-y: auto; margin-bottom: 20px; font-size: 0.85em; color: #666; text-align: left;"></div>
             
-            <!-- Indicador de espera (visible mientras no se pueda confirmar) -->
+            <!-- Inicio de registro de asistencia (visible hasta que el alumno lo active) -->
+            <div id="registro-inicio-section" style="margin-bottom: 12px;">
+                <button id="btn-iniciar-registro" onclick="iniciarRegistroAsistencia()" class="btn-primary" style="width:100%; font-size:1.1em; padding:16px; background:#4caf50; border:none; border-radius:12px; color:white; font-weight:700; cursor:pointer; box-shadow:0 3px 10px rgba(76,175,80,0.3);">
+                    📝 Iniciar registro de asistencia
+                </button>
+                <div style="margin-top:10px; padding:12px; background:#fff8e1; border:1px solid #ffe082; border-radius:10px; text-align:center;">
+                    <div style="font-size:1.3em; margin-bottom:4px;">🔒</div>
+                    <span style="font-size:0.9em; color:#e65100; font-weight:600;">Después de iniciar, <strong>BLOQUEA tu teléfono</strong> y guárdalo.</span>
+                    <br><small style="color:#888; font-size:0.8em;">Si desbloqueas y usas otra app, el profesor lo verá en la bitácora.</small>
+                </div>
+            </div>
+            
+            <!-- Instrucción post-registro (visible después de hacer clic) -->
+            <div id="registro-iniciado-section" class="hidden" style="margin-bottom:12px;">
+                <div style="background:#e8f5e9; border:1px solid #a5d6a7; border-radius:12px; padding:14px; text-align:center;">
+                    <div style="font-size:1.3em; margin-bottom:6px;">✅</div>
+                    <strong style="color:#2e7d32; font-size:1.05em;">Registro iniciado</strong>
+                    <p style="color:#555; margin-top:6px; font-size:0.9em;">
+                        🔒 <strong>BLOQUEA tu teléfono ahora.</strong>
+                        <br><small style="color:#888;">Al bloquear se registrará 1 cambio de pantalla (esperado). Si desbloqueas y cambias de app durante la clase, se acumularán más cambios y el profesor lo verá.</small>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Indicador de espera (visible solo después de iniciar registro) -->
             <div id="espera-confirmar" style="display: none; padding: 18px; margin-bottom: 4px; text-align: center;">
                 <div style="font-size: 2.5em; margin-bottom: 8px;">🕐</div>
                 <div style="font-weight: 600; color: #667eea; font-size: 0.95em;">Espera a que finalice la clase</div>
@@ -136,10 +169,6 @@
             </button>
             <button onclick="sincronizarContador()" class="btn-secondary" style="width: 100%; margin-top: 8px; font-size: 0.85em; background: #f0f4ff; color: #667eea; border: 1px solid #d0d8ff;">
                 🔄 Sincronizar contador
-            </button>
-            <!-- Botón salir del monitoreo (vuelve al dashboard sin cerrar la clase) -->
-            <button onclick="salirMonitoreo()" class="btn-secondary" style="width: 100%; margin-top: 8px; font-size: 0.85em; background: #fff0f0; color: #c62828; border: 1px solid #ffcdd2;">
-                🚪 Salir del monitoreo
             </button>
             <p style="font-size: 0.75em; color: #999; margin-top: 10px;">
                 Al confirmar aceptas que has estado presente durante la clase

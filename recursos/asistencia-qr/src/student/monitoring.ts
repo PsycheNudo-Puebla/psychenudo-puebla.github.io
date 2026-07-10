@@ -29,6 +29,7 @@ let _confirmarDesde: Date | null = null;
 let _horaFinStr = '';
 let _btnConfirmarMostrado = false;
 let _tipoAsistenciaActual: string | null = null;
+let _actividadTempranaAdvertida = false;
 
 // ---- Variables de polling/eventos ----
 let _reingresoPollInterval: number | null = null;  // polling fallback para reingreso
@@ -588,6 +589,10 @@ export function iniciarMonitoreo(
   _paginaVisible = true;
   _ultimoEventoSalida = 0;
   tiempoActivoAcumulado = 0;
+  _actividadTempranaAdvertida = false;
+  // Ocultar advertencia temprana al iniciar
+  const advElInit = document.getElementById('monitor-advertencia-temprana');
+  if (advElInit) advElInit.classList.add('hidden');
 
   // ── Marcar en sessionStorage que el monitoreo está activo en esta pestaña ──
   // sessionStorage se borra al cerrar la pestaña, permitiendo detectar
@@ -621,8 +626,8 @@ export function iniciarMonitoreo(
 
   const btnConfirmar = document.getElementById('btn-confirmar-asistencia') as HTMLButtonElement;
   btnConfirmar.style.display = 'none';
-  document.getElementById('espera-confirmar')!.style.display = '';
-  // El botón salir-monitoreo fue eliminado — el estudiante no debe poder salir
+  // espera-confirmar se muestra solo después de que el alumno haga clic en "Iniciar registro"
+  document.getElementById('espera-confirmar')!.style.display = 'none';
   (window as any)._btnConfirmarMostrado = false;
 
   // Obtener horario de hoy
@@ -1033,6 +1038,7 @@ function manejarVisibilidad(): void {
       incrementarCambio();
     } else if (document.visibilityState === 'visible' && _paginaVisible === false) {
       _paginaVisible = true;
+      verificarActividadTemprana();
     }
   }
 }
@@ -1050,7 +1056,9 @@ function manejarBlur(): void {
 
 function manejarFocus(): void {
   if (monitoreoActivo) {
+    const estabaInactivo = !_paginaVisible;
     _paginaVisible = true;
+    if (estabaInactivo) verificarActividadTemprana();
   }
 }
 
@@ -1157,6 +1165,69 @@ function actualizarMonitorUI(): void {
     hist.innerHTML = `<div style="font-weight:600;color:#333;">📋 Historial:</div>${items}`;
   } else {
     hist.innerHTML = '<div style="color:#999;">Sin cambios. ✅</div>';
+  }
+}
+
+// ====== INICIAR REGISTRO DE ASISTENCIA (paso consciente del alumno) ======
+export async function iniciarRegistroAsistencia(): Promise<void> {
+  if (!asistenciaActualId) {
+    mostrarToast('⚠️ No hay una sesión activa. Escanea el QR primero.', 'warning');
+    return;
+  }
+
+  // Registrar en bitácora
+  await registrarEvento('inicio_monitoreo', 'Registro de asistencia iniciado voluntariamente por el alumno');
+
+  // Ocultar sección de inicio (botón + instrucción inicial)
+  const inicioSection = document.getElementById('registro-inicio-section');
+  if (inicioSection) inicioSection.classList.add('hidden');
+
+  // Mostrar confirmación + instrucción de bloqueo
+  const iniciadoSection = document.getElementById('registro-iniciado-section');
+  if (iniciadoSection) iniciadoSection.classList.remove('hidden');
+
+  // Mostrar espera-confirmar a menos que sea sin_derecho
+  if (_tipoAsistenciaActual !== 'sin_derecho') {
+    document.getElementById('espera-confirmar')!.style.display = '';
+  }
+
+  // Actualizar estado
+  const st = document.getElementById('monitor-estado');
+  if (st && _tipoAsistenciaActual !== 'sin_derecho') {
+    st.innerHTML = '✅ <strong>Registro iniciado.</strong> Bloquea tu teléfono ahora.';
+    st.style.background = '#e8f5e9';
+    st.style.color = '#2e7d32';
+  }
+
+  mostrarToast('✅ Registro iniciado. Bloquea tu teléfono.', 'exito', 3000);
+}
+
+// ====== DETECTAR ACTIVIDAD TEMPRANA (desbloqueo antes del cierre) ======
+/**
+ * Detecta si el alumno vuelve a estar visible (desbloquea el teléfono)
+ * antes de la ventana de 5 min previa al cierre de clase, y marca
+ * la actividad temprana con una advertencia visual 🟡 tanto para el
+ * alumno como para el profesor (vía BD).
+ */
+function verificarActividadTemprana(): void {
+  if (_actividadTempranaAdvertida) return;
+  if (!_confirmarDesde || !asistenciaActualId) return;
+
+  const ahora = new Date();
+  if (ahora < _confirmarDesde) {
+    // Volvió visible ANTES de los 5 min finales → actividad temprana
+    _actividadTempranaAdvertida = true;
+
+    // Persistir en BD para que el profesor lo vea en su panel
+    supabase
+      .from('asistencia')
+      .update({ actividad_temprana: true })
+      .eq('id', asistenciaActualId)
+      .then(() => {});
+
+    // Mostrar advertencia visual en la UI del alumno
+    const advEl = document.getElementById('monitor-advertencia-temprana');
+    if (advEl) advEl.classList.remove('hidden');
   }
 }
 
@@ -1303,3 +1374,4 @@ function escHTML(s: string): string {
 (window as any).confirmarAsistenciaPendiente = confirmarAsistenciaPendiente;
 (window as any).solicitarReingreso = solicitarReingreso;
 (window as any).cancelarReingreso = cancelarReingreso;
+(window as any).iniciarRegistroAsistencia = iniciarRegistroAsistencia;

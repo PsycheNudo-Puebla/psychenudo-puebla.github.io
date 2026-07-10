@@ -353,3 +353,15 @@ ALTER TABLE IF EXISTS public.grupos
 
 ALTER TABLE IF EXISTS public.asistencia
     DROP COLUMN IF EXISTS tiempo_inactivo_acumulado;
+
+-- =============================================================
+-- 🆕 26. MIGRACIÓN: Columna actividad_temprana (2026-07-10)
+-- =============================================================
+-- Indica si el alumno desbloqueó el teléfono (volvió a la ventana
+-- de monitoreo) ANTES de los 5 minutos finales de la clase.
+-- El profesor ve 🟡 en su panel; el alumno ve una advertencia 🟡.
+-- =============================================================
+ALTER TABLE IF EXISTS public.asistencia
+    ADD COLUMN IF NOT EXISTS actividad_temprana BOOLEAN DEFAULT false;
+
+COMMENT ON COLUMN public.asistencia.actividad_temprana IS '🟡 True si el alumno desbloqueó el teléfono antes de los 5 min finales de la clase. Visible como advertencia para alumno y profesor.';

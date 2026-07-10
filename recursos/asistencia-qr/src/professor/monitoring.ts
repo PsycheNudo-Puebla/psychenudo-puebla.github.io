@@ -53,10 +53,11 @@ async function cargarAsistenciasActivas(): Promise<void> {
   // Actualizar encabezado del monitoreo
   const { data: grupo } = await supabase
     .from('grupos')
-    .select('numero_perdones, nombre')
+    .select('numero_perdones, nombre, limite_salidas')
     .eq('id', monitorGrupoId)
     .maybeSingle();
   const maxPerdones = grupo?.numero_perdones ?? 2;
+  const limiteSalidas = grupo?.limite_salidas ?? 3;
 
   const elNombreGrupo = document.getElementById('monitoreo-grupo-nombre');
   if (elNombreGrupo) elNombreGrupo.textContent = grupo?.nombre || '';
@@ -108,7 +109,7 @@ async function cargarAsistenciasActivas(): Promise<void> {
   container.innerHTML = asistencias.map((a: any) => {
     const nombre = a.alumnos?.nombre || a.alumnos?.email || 'Sin nombre';
     const cambios = a.cambios_pantalla || 0;
-    const excedido = cambios >= 3;
+    const excedido = cambios >= limiteSalidas;
     const confirmada = a.confirmada;
     const perdonada = a.perdonada;
     const reingreso = a.reingreso_solicitado;
@@ -127,7 +128,7 @@ async function cargarAsistenciasActivas(): Promise<void> {
     }
 
     // Barra de cambios
-    const ancho = Math.min((cambios / 3) * 100, 100);
+    const ancho = Math.min((cambios / limiteSalidas) * 100, 100);
     const barraColor = excedido ? '#c62828' : perdonada ? '#f57f17' : '#ff9800';
 
     const btnPerdonar = !perdonada && !confirmada && !reingreso
@@ -150,11 +151,11 @@ async function cargarAsistenciasActivas(): Promise<void> {
     return `
     <div style="${reingresoBg} border-radius:10px; padding:12px; margin-bottom:8px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-        <strong>👤 ${nombre} ${perdonesHTML}</strong>
+        <strong>👤 ${nombre} ${a.actividad_temprana ? '🟡 ' : ''}${perdonesHTML}</strong>
         ${estadoHTML}
       </div>
       <div style="font-size:0.85em; color:#666;">
-        📱 Cambios de pantalla: ${cambios}/3
+        📱 Cambios de pantalla: ${cambios}/${limiteSalidas}
         <div style="height:6px; background:#eee; border-radius:3px; margin-top:4px;">
           <div style="height:100%; width:${ancho}%; background:${barraColor}; border-radius:3px; transition:width 0.3s;"></div>
         </div>
