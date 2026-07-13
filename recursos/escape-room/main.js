@@ -254,6 +254,7 @@ window.addEventListener('load', () => {
     ctx = canvas.getContext('2d');
     ui = document.getElementById('ui-overlay');
     menu = document.getElementById('menu');
+    document.body.classList.add('menu-visible'); // La pantalla de inicio usa todo el espacio
     jsonInput = document.getElementById('jsonInput');
     startBtn = document.getElementById('startBtn');
     const sidebarLeftBtn = document.getElementById('sidebarLeft');
@@ -520,6 +521,7 @@ function nextLevel() {
 async function gameCompleted() {
     state.running = false;
     menu.style.display = 'flex';
+    document.body.classList.add('menu-visible');
     menu.innerHTML = `
         <h1>¡JUEGO COMPLETADO!</h1>
         <p>Has superado todos los niveles.</p>
@@ -571,6 +573,7 @@ window.toggleLevelInstructions = function() {
 
 function startGame() {
     menu.style.display = 'none';
+    document.body.classList.remove('menu-visible');
     // Si es nivel de tenis, empezamos con la interfaz oculta para ver el juego
     if (currentLevelData && currentLevelData.type === 'tennis') {
         ui.style.display = 'none';
