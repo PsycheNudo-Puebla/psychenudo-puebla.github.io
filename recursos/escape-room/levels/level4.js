@@ -22,6 +22,12 @@
                 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
                 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
             ],
             tileObjects: [
@@ -29,8 +35,13 @@
             ],
             solved: false,
             idleTimer: 0,
-            maxIdleTime: 300, // Aumentado de 3 a 5 segundos aprox
-            startGrace: 180,  // 3 segundos de gracia al iniciar
+            maxIdleTime: 300,
+            startGrace: 180,
+            // 🛡️ ZONA SEGURA: Toldo simple en esquina inferior izquierda
+            safeZone: { x: 16, y: 468, w: 96, h: 80 },
+            safeZoneActive: true,
+            playerWasInSafeZone: false,
+            structureWalls: [],
             spider: {
                 x: cW / 2, y: 30, state: "scanning", targetX: cW / 2, targetY: 30,
                 heldItem: null, animFrame: 0, animCounter: 0, speed: 4,
@@ -54,8 +65,9 @@
         const spacing = numPedestals > 5 ? 80 : 100;
         const startX = (cW - (numPedestals * spacing)) / 2;
 
+        // Pedestales en la línea inferior (y: 470), accesibles desde la zona segura
         for (let i = 0; i < numPedestals; i++) {
-            base.pedestals.push({ id: i, x: startX + (i * spacing), y: 350, tower: null });
+            base.pedestals.push({ id: i, x: startX + (i * spacing), y: 470, tower: null });
         }
 
         // Barajar hasta asegurar que NO empiece resuelto
@@ -86,9 +98,14 @@
             base.pedestals[availableIndices[idx]].tower = { ...item };
         });
 
-        // Desplazamos al jugador a la izquierda al iniciar para evitar alineación inmediata
-        player.x = cW / 2 - 100; player.y = 200;
-        player.isCaptured = false;
+        // Colocamos al jugador dentro de la zona segura (esquina inferior izquierda)
+        player.x = 40; player.y = 490;
+        
+        // Agregar furniture (techo con colisión física) al nivel
+        base.furniture = [
+            { x: base.safeZone.x - 4, y: base.safeZone.y - 16, w: 96, h: 32, collidable: true }
+        ];
+        
         return base;
     },
     update: (dt) => {
@@ -122,10 +139,28 @@
             currentLevelData.idleTimer = 0;
         }
 
+        // 🛡️ ZONA SEGURA: Verificar si el jugador está dentro
+        const sz = currentLevelData.safeZone;
+        const playerIsInSafeZone = (
+            player.x + player.w / 2 >= sz.x &&
+            player.x + player.w / 2 <= sz.x + sz.w &&
+            player.y + player.h / 2 >= sz.y &&
+            player.y + player.h / 2 <= sz.y + sz.h
+        );
+
+        // Zona segura: solo seguimiento de estado, sin mensajes (se infiere)
+        if (playerIsInSafeZone && !currentLevelData.playerWasInSafeZone) {
+            currentLevelData.playerWasInSafeZone = true;
+        } else if (!playerIsInSafeZone && currentLevelData.playerWasInSafeZone) {
+            currentLevelData.playerWasInSafeZone = false;
+        }
+
+        // Si el jugador está en la zona segura, la araña no lo detecta ni lo captura
         const s = currentLevelData.spider;
 
-        // REGLA DE ORO: Solo captura si NO lleva un objeto y ha pasado el tiempo de gracia
-        if (!player.isCaptured && currentLevelData.startGrace <= 0 && !s.heldItem) {
+        // REGLA DE ORO: Solo captura si NO lleva un objeto, ha pasado el tiempo de gracia,
+        // y el jugador NO está en la zona segura
+        if (!player.isCaptured && currentLevelData.startGrace <= 0 && !s.heldItem && !playerIsInSafeZone) {
             const distToBody = Math.hypot((player.x + 12) - s.x, (player.y + 20) - s.y);
             if (distToBody < 65) {
                 s.heldItem = "PLAYER";
@@ -136,8 +171,8 @@
 
         switch(s.state) {
             case "scanning":
-                // 1. Detección: Solo si ha pasado el periodo de gracia
-                const isPlayerTarget = (currentLevelData.startGrace <= 0) && (
+                // Detección: Solo si ha pasado el periodo de gracia y el jugador no está en zona segura
+                const isPlayerTarget = (currentLevelData.startGrace <= 0) && !playerIsInSafeZone && (
                                      (currentLevelData.idleTimer >= currentLevelData.maxIdleTime) || 
                                      (Math.abs(s.x - (player.x + 32)) < 30)
                 );
@@ -153,8 +188,11 @@
                             s.currentTargetPedestal = towers[Math.floor(Math.random() * towers.length)];
                         }
                     }
-                    if (s.currentTargetPedestal) {
+                    if (s.currentTargetPedestal && s.currentTargetPedestal.tower) {
                         target = { x: s.currentTargetPedestal.x + 20, y: s.currentTargetPedestal.y, isPlayer: false };
+                    } else if (currentLevelData.startGrace <= 0 && !playerIsInSafeZone) {
+                        // Fallback: sin torres disponibles, ir al jugador
+                        target = { x: player.x, y: player.y, isPlayer: true };
                     }
                 }
 
@@ -172,6 +210,12 @@
                 break;
             
             case "descending":
+                // El techo bloquea el descenso de la araña
+                if (s.x > sz.x - 4 && s.x < sz.x - 4 + 96 && s.y + 7 * dt >= sz.y - 16 && s.y <= sz.y - 16 + 32) {
+                    s.state = "scanning";
+                    s.y = sz.y - 16 - 10;
+                    break;
+                }
                 s.y += 7 * dt; // Descenso más agresivo
                 if (s.y >= s.targetY) {
                     // El contacto con el jugador ya se maneja globalmente arriba.
@@ -227,6 +271,56 @@
         }
     },
     draw: () => {
+        const sz = currentLevelData.safeZone;
+        const pulse = Math.sin(Date.now() * 0.003) * 0.2 + 0.5;
+        
+        // === TECHO con diseño de pared (tile 1 - ladrillos del borde) ===
+        TILES[1].pattern(sz.x - 4, sz.y - 16);
+        TILES[1].pattern(sz.x + 28, sz.y - 16);
+        TILES[1].pattern(sz.x + 60, sz.y - 16);
+        
+        // Sombra bajo el techo
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        ctx.fillRect(sz.x - 4, sz.y + 16, sz.w + 8, 8);
+        
+        // (Sin poste izquierdo — techo autosoportado)
+        
+        // (Sin marco visual — la zona segura se infiere por el techo y ubicación)
+
+        // === TELARAÑAS decorativas en el techo ===
+        ctx.strokeStyle = 'rgba(200, 210, 220, 0.3)';
+        ctx.lineWidth = 1;
+        const cobwebs = [
+            { x: 80, y: 58, w: 20, h: 18 },
+            { x: 240, y: 56, w: 16, h: 16 },
+            { x: 450, y: 58, w: 22, h: 20 },
+            { x: 640, y: 57, w: 18, h: 16 },
+            { x: 740, y: 58, w: 16, h: 14 }
+        ];
+        cobwebs.forEach(cw => {
+            // Hilos principales en abanico
+            for (let i = -2; i <= 2; i++) {
+                ctx.beginPath();
+                ctx.moveTo(cw.x, 52);
+                ctx.lineTo(cw.x + i * cw.w * 0.25, cw.y + cw.h);
+                ctx.stroke();
+            }
+            // Hilos transversales (tela)
+            for (let j = 1; j <= 3; j++) {
+                const wy = 52 + (cw.h + 8) * (j / 3);
+                const hw = j * cw.w * 0.2;
+                ctx.beginPath();
+                ctx.moveTo(cw.x - hw, wy);
+                ctx.lineTo(cw.x + hw, wy);
+                ctx.stroke();
+            }
+            // Hilo colgante central
+            ctx.beginPath();
+            ctx.moveTo(cw.x, 52);
+            ctx.lineTo(cw.x, cw.y + cw.h + 6);
+            ctx.stroke();
+        });
+
         currentLevelData.pedestals.forEach(p => {
             if (TILES[8]) TILES[8].pattern(p.x, p.y); 
             if (p.tower) {

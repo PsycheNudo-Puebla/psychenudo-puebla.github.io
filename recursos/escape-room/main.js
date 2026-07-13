@@ -193,7 +193,10 @@ const state = {
     inputModo: false,
     currentInput: "",
     paused: false,
-    soundEnabled: true
+    soundEnabled: true,
+    controlMode: 'dpad',
+    showingInstructions: false,
+    instructionsShownThisLevel: false
 };
 
 // Inicialización del sonido de pasos (Asegúrate de tener el archivo en assets/)
@@ -217,6 +220,23 @@ window.addEventListener('keydown', e => {
 
     if (state.running && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
         e.preventDefault();
+    }
+
+    // B button: mostrar/ocultar instrucciones
+    if (e.code === 'KeyB' && state.running && !state.inputModo) {
+        e.preventDefault();
+        window.toggleLevelInstructions();
+        return;
+    }
+
+    // Select button: abrir menú de control (usamos ShiftLeft o Tab como Select en desktop)
+    if ((e.code === 'ShiftLeft' || e.code === 'ShiftRight' || e.code === 'Tab') && state.running && !state.inputModo) {
+        e.preventDefault();
+        if (window.showControlMenu) {
+            state.paused = true;
+            window.showControlMenu();
+        }
+        return;
     }
 
     keys[e.code] = true;
@@ -403,6 +423,12 @@ window.addEventListener('load', () => {
 
 function loadCurrentLevel() {
     state.inventory = null;
+    // Resetear estado completo del jugador para que funcione REINTENTAR
+    player.isCaptured = false;
+    player.moving = false;
+    player.showPrompt = false;
+    player.animFrame = 0;
+    player.direction = "down";
     const levelData = state.allLevels[state.levelIndex];
     
     // Reiniciar posición por defecto
@@ -448,6 +474,10 @@ function nextLevel() {
             window.gameStats.initLevel(state.levelIndex);
         }
         
+        // Reiniciar indicador de instrucciones para el nuevo nivel
+        state.instructionsShownThisLevel = false;
+        state.showingInstructions = false;
+        
         loadCurrentLevel();
         ui.innerHTML = "Entrando a: " + currentLevelData.title;
     } else {
@@ -475,6 +505,39 @@ async function gameCompleted() {
     };
 }
 
+// Sistema de instrucciones por nivel
+window.toggleLevelInstructions = function() {
+    if (!state.running || !currentLevelData) return;
+    state.showingInstructions = !state.showingInstructions;
+    const level = state.allLevels[state.levelIndex];
+    if (state.showingInstructions) {
+        const desc = currentLevelData.description || level.description || "Explora la habitación.";
+        const title = level.title || currentLevelData.title || "Nivel";
+        let controlesInfo = "⬆️⬇️⬅️➡️ Mover | [A/Space] Interactuar";
+        if (currentLevelData.type === 'date') controlesInfo += " | [B] Instrucciones";
+        if (currentLevelData.type === 'tower') controlesInfo += " | 🕷️ ¡Evita a la araña!";
+        if (currentLevelData.type === 'atomic') controlesInfo += " | 🔥 El fuego sube, ¡date prisa!";
+        if (currentLevelData.type === 'art') controlesInfo += " | 🖼️ Coloca el cuadro correcto";
+        if (currentLevelData.type === 'snakes') controlesInfo += " | 🐍 ¡Cuidado con las serpientes!";
+        if (currentLevelData.type === 'bridge') controlesInfo += " | 🌉 Responde V o F al cruzar";
+        if (currentLevelData.type === 'dragon') controlesInfo += " | 🐉 ¡Derríbalo con respuestas!";
+        if (currentLevelData.type === 'tennis') controlesInfo += " | 🎾 ¡Devuelve la bomba!";
+        if (currentLevelData.type === 'maze') controlesInfo += " | 🧩 Responde y escapa del laberinto";
+        ui.innerHTML = `
+            <div style="background: rgba(0,0,0,0.9); padding: 15px; border: 2px solid #f8b800;">
+                <strong style="color: #f8b800;">📋 ${title}</strong><br><br>
+                ${desc}<br><br>
+                <span style="color: #aaa; font-size: 11px;">${controlesInfo}</span><br><br>
+                <span style="color: #ffff66; font-size: 10px;">[B/Shift] Volver al juego</span>
+            </div>
+        `;
+        state.paused = true;
+    } else {
+        state.paused = false;
+        ui.innerHTML = level.title || currentLevelData.title || "";
+    }
+};
+
 function startGame() {
     menu.style.display = 'none';
     // Si es nivel de tenis, empezamos con la interfaz oculta para ver el juego
@@ -485,9 +548,22 @@ function startGame() {
         const level = state.allLevels[state.levelIndex];
         const desc = currentLevelData.description || level.description || "Explora la habitación.";
         ui.innerHTML = `<strong>${level.title}</strong><br>${desc}`;
+        
+        // Mostrar invitación a instrucciones al inicio del nivel
+        if (!state.instructionsShownThisLevel) {
+            state.instructionsShownThisLevel = true;
+            // Mostrar un breve mensaje indicando que puede presionar B para instrucciones
+            setTimeout(() => {
+                if (state.running && !state.inputModo && !state.showingInstructions) {
+                    ui.innerHTML = `<strong>${level.title}</strong><br>${desc}<br><br>
+                        <span style="color: #ffff66; font-size: 11px;">💡 Presiona [B] para instrucciones detalladas</span>`;
+                }
+            }, 200);
+        }
     }
     window.gameStats.gameStartTime = new Date(); // Record game start time
     state.inputModo = false; // Asegurar que el modo de entrada de texto esté desactivado al iniciar el juego
+    state.showingInstructions = false;
     state.running = true;
     lastTime = performance.now();
     requestAnimationFrame(gameLoop);
@@ -530,8 +606,17 @@ function checkCollision(nx, ny) {
         }
 
         if (currentLevelData.tileObjects) {
-            const hit = currentLevelData.tileObjects.find(o => o.tileX === gx && o.tileY === gy && o.collidable);
-            if (hit) return true;
+            // Verificar colisión en una cuadrícula 2x2 alrededor del punto de pie,
+            // porque los puntos de colisión (nx+24, ny+50) no cubren todo el sprite.
+            // Esto detecta muebles (plantas, sillas) en tiles adyacentes.
+            for (let dgx = 0; dgx >= -1; dgx--) {
+                for (let dgy = 0; dgy >= -1; dgy--) {
+                    const hit = currentLevelData.tileObjects.find(o =>
+                        o.collidable && o.tileX === gx + dgx && o.tileY === gy + dgy
+                    );
+                    if (hit) return true;
+                }
+            }
         }
 
         // Colisión con muebles (Furniture)
@@ -621,9 +706,7 @@ function handleKeyboardInput(e) {
     if (e.key === "Enter") {
         validarPassword();
     } else if (e.key === "Escape" || e.code === "Space") {
-        state.inputModo = false;
-        toggleMobileKeyboard(false);
-        ui.innerHTML = currentLevelData.title + ". Explora la habitación.";
+        salirModoInput();
     } else if (e.key === "Backspace") {
         state.currentInput = state.currentInput.slice(0, -1);
         const input = document.getElementById('hidden-mobile-input');
@@ -635,6 +718,15 @@ function handleKeyboardInput(e) {
         if (input) input.value = state.currentInput;
         actualizarDialogoInput();
     }
+}
+
+function salirModoInput() {
+    state.inputModo = false;
+    state.currentInput = "";
+    toggleMobileKeyboard(false);
+    const input = document.getElementById('hidden-mobile-input');
+    if (input) input.value = "";
+    ui.innerHTML = currentLevelData?.title ? currentLevelData.title + ". Explora la habitación." : "Explora la habitación.";
 }
 
 function actualizarDialogoInput() {
@@ -654,8 +746,17 @@ function actualizarDialogoInput() {
             SISTEMA DE SEGURIDAD<br>INGRESE CÓDIGO (${length} caracteres):<br><br>
             <span style="letter-spacing:10px; font-size: 24px; color: #f8b800;">${display}</span><br><br>
             <small>[ENTER] Confirmar - [ESC] Salir</small><br>
-            <button id="mobile-kb-btn" style="margin-top:15px; padding:10px; font-family:inherit; display:none; background:#3cbcfc; border:none; color:white; border-radius:5px; font-size:12px; touch-action: manipulation;">ABRIR TECLADO</button>
+            <div style="display:flex; gap:10px; justify-content:center; margin-top:15px;">
+                <button id="mobile-kb-btn" style="display:none; padding:10px; font-family:inherit; background:#3cbcfc; border:none; color:white; border-radius:5px; font-size:12px; touch-action: manipulation;">ABRIR TECLADO</button>
+                <button id="salir-input-btn" style="padding:10px; font-family:inherit; background:#a80020; border:none; color:white; border-radius:5px; font-size:12px; cursor:pointer; touch-action: manipulation;">✕ SALIR</button>
+            </div>
         </div>`;
+
+    const salirBtn = document.getElementById('salir-input-btn');
+    if (salirBtn) {
+        salirBtn.onclick = salirModoInput;
+        salirBtn.ontouchstart = (e) => { e.preventDefault(); salirModoInput(); };
+    }
 
     // iOS y Android a veces bloquean el focus automático. Ofrecemos un botón de respaldo.
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
@@ -948,30 +1049,160 @@ function setupMobileControls() {
     mobileUI.innerHTML = `
         <style>
             #mobile-controls { position: fixed; bottom: 0; left: 0; right: 0; height: 220px; background: #9ea0ac; border-top: 4px solid #757781; display: flex; justify-content: space-around; align-items: center; pointer-events: auto; z-index: 9999; padding-bottom: 20px; box-sizing: border-box; }
-            .dpad { display: grid; grid-template-columns: repeat(3, 50px); grid-template-rows: repeat(3, 50px); background: #757781; padding: 5px; border-radius: 5px; }
-            .btn-mobile { width: 50px; height: 50px; background: #2d2d2d; color: #757781; display: flex; align-items: center; justify-content: center; user-select: none; font-size: 20px; -webkit-tap-highlight-color: transparent; box-shadow: inset 0 0 5px #000; }
-            .btn-mobile:active { background: #000; color: #fff; }
-            .center-buttons { display: flex; flex-direction: row; gap: 20px; align-self: flex-end; margin-bottom: 10px; }
-            .btn-pill { width: 45px; height: 15px; background: #757781; border-radius: 10px; transform: rotate(-25deg); position: relative; }
-            .btn-pill::after { content: attr(data-label); position: absolute; bottom: -20px; left: 0; font-size: 8px; color: #343434; font-family: 'Press Start 2P'; transform: rotate(25deg); }
-            .btn-action-group { display: flex; gap: 15px; }
-            .btn-circle { width: 65px; height: 65px; border-radius: 50%; background: #a80020; border: 3px solid #700016; color: rgba(0,0,0,0.3); font-size: 14px; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 2px 2px 0 #700016; }
-            .btn-circle:active { transform: translate(1px, 1px); box-shadow: none; background: #700016; }
+            #mobile-controls .dpad { display: grid; grid-template-columns: repeat(3, 50px); grid-template-rows: repeat(3, 50px); background: #757781; padding: 5px; border-radius: 5px; }
+            #mobile-controls .btn-mobile { width: 50px; height: 50px; background: #2d2d2d; color: #757781; display: flex; align-items: center; justify-content: center; user-select: none; font-size: 20px; -webkit-tap-highlight-color: transparent; box-shadow: inset 0 0 5px #000; }
+            #mobile-controls .btn-mobile:active { background: #000; color: #fff; }
+            #mobile-controls .center-buttons { display: flex; flex-direction: row; gap: 20px; align-self: flex-end; margin-bottom: 10px; }
+            #mobile-controls .btn-pill { width: 45px; height: 15px; background: #757781; border-radius: 10px; transform: rotate(-25deg); position: relative; }
+            #mobile-controls .btn-pill::after { content: attr(data-label); position: absolute; bottom: -20px; left: 0; font-size: 8px; color: #343434; font-family: 'Press Start 2P'; transform: rotate(25deg); }
+            #mobile-controls .btn-action-group { display: flex; gap: 15px; align-items: center; }
+            #mobile-controls .btn-circle { width: 65px; height: 65px; border-radius: 50%; background: #a80020; border: 3px solid #700016; color: rgba(0,0,0,0.3); font-size: 14px; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 2px 2px 0 #700016; }
+            #mobile-controls .btn-circle:active { transform: translate(1px, 1px); box-shadow: none; background: #700016; }
+            #mobile-controls .btn-circle-b { width: 55px; height: 55px; border-radius: 50%; background: #346856; border: 3px solid #1a3a2a; color: rgba(0,0,0,0.3); font-size: 14px; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 2px 2px 0 #1a3a2a; }
+            #mobile-controls .btn-circle-b:active { transform: translate(1px, 1px); box-shadow: none; background: #1a3a2a; }
+            /* Joystick styles */
+            #mobile-controls .joystick-area { display: none; width: 140px; height: 140px; position: relative; border-radius: 50%; background: #555; box-shadow: inset 0 0 15px rgba(0,0,0,0.5); }
+            #mobile-controls .joystick-knob { width: 50px; height: 50px; border-radius: 50%; background: #a80020; position: absolute; top: 45px; left: 45px; box-shadow: 0 3px 5px rgba(0,0,0,0.4); pointer-events: none; }
+            #mobile-controls .joystick-area.active { display: block; }
+            /* Control menu overlay */
+            .control-menu-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; font-family: 'Press Start 2P', monospace; color: white; }
+            .control-menu-overlay h2 { color: #f8b800; font-size: 16px; margin-bottom: 20px; }
+            .control-menu-overlay .ctrl-btn { padding: 12px 24px; margin: 8px; background: #333; border: 2px solid #666; color: white; font-family: inherit; font-size: 11px; cursor: pointer; min-width: 200px; }
+            .control-menu-overlay .ctrl-btn:hover { border-color: #f8b800; }
+            .control-menu-overlay .ctrl-btn.active { border-color: #f8b800; background: #503000; }
+            .control-menu-overlay .ctrl-close { margin-top: 20px; padding: 8px 16px; background: #a80020; border: none; color: white; font-family: inherit; font-size: 10px; cursor: pointer; }
         </style>
-        <div class="dpad">
+        <div class="dpad" id="ctrl-dpad">
             <div></div><div class="btn-mobile" data-key="ArrowUp">▲</div><div></div>
             <div class="btn-mobile" data-key="ArrowLeft">◀</div><div></div><div class="btn-mobile" data-key="ArrowRight">▶</div>
             <div></div><div class="btn-mobile" data-key="ArrowDown">▼</div><div></div>
+        </div>
+        <div class="joystick-area" id="ctrl-joystick">
+            <div class="joystick-knob" id="joystick-knob"></div>
         </div>
         <div class="center-buttons">
             <div class="btn-pill" data-key="Select" data-label="SELECT"></div>
             <div class="btn-pill" data-key="Enter" data-label="START"></div>
         </div>
         <div class="btn-action-group">
+            <div class="btn-circle-b btn-mobile" data-key="KeyB" id="btn-b">B</div>
             <div class="btn-circle btn-mobile" data-key="Space">A</div>
         </div>
     `;
     document.body.appendChild(mobileUI);
+
+    // Estado del joystick
+    let joystickActive = false;
+    let joystickInterval = null;
+    let joystickBase = { x: 0, y: 0 };
+    const joystickArea = document.getElementById('ctrl-joystick');
+    const joystickKnob = document.getElementById('joystick-knob');
+    const dpadArea = document.getElementById('ctrl-dpad');
+
+    function setupJoystick() {
+        if (!joystickArea) return;
+        const updateJoystick = (touchX, touchY) => {
+            const rect = joystickArea.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            const maxDist = rect.width / 2 - 30;
+            let dx = touchX - cx;
+            let dy = touchY - cy;
+            const dist = Math.hypot(dx, dy);
+            if (dist > maxDist) {
+                dx = (dx / dist) * maxDist;
+                dy = (dy / dist) * maxDist;
+            }
+            joystickKnob.style.left = (45 + dx) + 'px';
+            joystickKnob.style.top = (45 + dy) + 'px';
+
+            // Limpiar teclas anteriores
+            keys['ArrowUp'] = false;
+            keys['ArrowDown'] = false;
+            keys['ArrowLeft'] = false;
+            keys['ArrowRight'] = false;
+
+            // Determinar dirección principal
+            if (dist > 15) {
+                const angle = Math.atan2(dy, dx);
+                if (angle > -Math.PI * 0.75 && angle < -Math.PI * 0.25) keys['ArrowUp'] = true;
+                else if (angle > Math.PI * 0.25 && angle < Math.PI * 0.75) keys['ArrowDown'] = true;
+                if (angle > Math.PI * 0.75 || angle < -Math.PI * 0.75) keys['ArrowLeft'] = true;
+                else if (angle > -Math.PI * 0.25 && angle < Math.PI * 0.25) keys['ArrowRight'] = true;
+            }
+        };
+        joystickArea.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            joystickActive = true;
+            const touch = e.touches[0];
+            updateJoystick(touch.clientX, touch.clientY);
+        });
+        joystickArea.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (!joystickActive) return;
+            const touch = e.touches[0];
+            updateJoystick(touch.clientX, touch.clientY);
+        });
+        joystickArea.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            joystickActive = false;
+            joystickKnob.style.left = '45px';
+            joystickKnob.style.top = '45px';
+            keys['ArrowUp'] = false;
+            keys['ArrowDown'] = false;
+            keys['ArrowLeft'] = false;
+            keys['ArrowRight'] = false;
+        });
+    }
+
+    // Función para mostrar/ocultar menú de control
+    window.showControlMenu = function() {
+        const currentMode = state.controlMode || 'dpad';
+        const overlay = document.createElement('div');
+        overlay.className = 'control-menu-overlay';
+        overlay.id = 'control-menu-overlay';
+        overlay.innerHTML = `
+            <h2>🎮 CONFIGURACIÓN DE CONTROL</h2>
+            <p style="font-size:9px; color:#aaa; margin-bottom:15px;">Selecciona tu modo de control preferido</p>
+            <button class="ctrl-btn ${currentMode === 'dpad' ? 'active' : ''}" data-mode="dpad">⬆️⬇️⬅️➡️ CRUZETA</button>
+            <button class="ctrl-btn ${currentMode === 'joystick' ? 'active' : ''}" data-mode="joystick">🕹️ JOYSTICK CLÁSICO</button>
+            <button class="ctrl-close" id="ctrl-menu-close">✕ CERRAR</button>
+        `;
+        document.body.appendChild(overlay);
+
+        overlay.querySelectorAll('.ctrl-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const mode = btn.getAttribute('data-mode');
+                state.controlMode = mode;
+                localStorage.setItem('escapeRoomControlMode', mode);
+                overlay.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                aplicarModoControl(mode);
+            });
+        });
+        document.getElementById('ctrl-menu-close').onclick = () => {
+            overlay.remove();
+            if (state.paused) state.paused = false;
+        };
+    };
+
+    function aplicarModoControl(mode) {
+        if (mode === 'joystick') {
+            dpadArea.style.display = 'none';
+            joystickArea.style.display = 'block';
+            joystickArea.classList.add('active');
+            setupJoystick();
+        } else {
+            dpadArea.style.display = 'grid';
+            joystickArea.style.display = 'none';
+            joystickArea.classList.remove('active');
+        }
+    }
+
+    // Cargar modo guardado
+    const savedMode = localStorage.getItem('escapeRoomControlMode') || 'dpad';
+    state.controlMode = savedMode;
+    aplicarModoControl(savedMode);
 
     // Mapear toques a las variables de teclas que ya usa el motor (tanto .btn-mobile como .btn-pill)
     const allButtons = mobileUI.querySelectorAll('.btn-mobile, .btn-pill');
@@ -982,6 +1213,10 @@ function setupMobileControls() {
             if (key === 'Select') {
                 if (state.inputModo) {
                     toggleMobileKeyboard(true);
+                } else {
+                    if (!state.running) return;
+                    state.paused = true;
+                    window.showControlMenu();
                 }
                 return;
             }
@@ -989,9 +1224,21 @@ function setupMobileControls() {
                 if (state.running && !state.inputModo) state.paused = !state.paused;
                 return;
             }
+            if (key === 'KeyB') {
+                window.toggleLevelInstructions();
+                return;
+            }
             keys[key] = true; 
         });
         btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[key] = false; });
+    });
+    
+    // También soporte para mouse (desktop/testing)
+    allButtons.forEach(btn => {
+        const key = btn.getAttribute('data-key');
+        if (key === 'Select' || key === 'Enter' || key === 'KeyB') return;
+        btn.addEventListener('mousedown', (e) => { e.preventDefault(); keys[key] = true; });
+        btn.addEventListener('mouseup', (e) => { e.preventDefault(); keys[key] = false; });
     });
 }
 
