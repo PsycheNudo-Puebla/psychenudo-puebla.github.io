@@ -130,17 +130,9 @@
     draw: () => {
         const data = currentLevelData;
 
-        // 1. Dibujar el abismo y el marco (Igual que drawCommonRoom en main.js)
+        // 1. Dibujar el abismo (el marco común de ladrillo lo aporta drawCommonRoom)
         ctx.fillStyle = "#000000";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Dibujar el muro superior para consistencia visual
-        ctx.fillStyle = NES_PALETTE.wallDark; ctx.fillRect(0, 0, canvas.width, 60);
-        ctx.fillStyle = NES_PALETTE.wall; ctx.fillRect(0, 45, canvas.width, 15);
-        
-        // Borde de la pantalla
-        ctx.strokeStyle = NES_PALETTE.black; ctx.lineWidth = 4;
-        ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
 
         // 2. Dibujar el puente alternando filas
         ctx.imageSmoothingEnabled = false;
@@ -189,7 +181,11 @@
             }
         }
 
-        // 3. Dibujar la puerta de salida al final
+        // Marco común (este nivel pinta el abismo sobre él)
+        drawBrickFrame();
+        drawRoomHeader();
+
+        // 3. Puerta de salida: se redibuja encima del marco para que no la tape
         if (data.steps.every(s => s.resolved)) {
             const exit = data.tileObjects.find(o => o.id === "exit");
             if (exit && TILES[5]) {

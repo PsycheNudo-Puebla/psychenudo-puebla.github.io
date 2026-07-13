@@ -21,9 +21,10 @@
             progressB: false,
             map: [
                 [1,1,1,1,1,1,1,1,1,1,1,1,5,1,1,1,1,1,1,1,1,1,1,1,1],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -144,9 +145,12 @@
     draw: () => {
         const data = currentLevelData;
         
-        // Dibujar ítems como cofres si estamos en sub-habitaciones
+        // Dibujar ítems si estamos en sub-habitaciones
         data.roomItems.forEach(item => {
-            drawChest(item.x, item.y);
+            ctx.fillStyle = NES_PALETTE.gold;
+            ctx.fillRect(item.x, item.y, 32, 32);
+            ctx.fillStyle = NES_PALETTE.white;
+            ctx.fillRect(item.x + 8, item.y + 8, 16, 16);
         });
 
         // Dibujar Serpientes
@@ -180,20 +184,12 @@
             }
         });
 
-        // Velas decorativas en las paredes laterales (estilo mansion)
+        // Indicadores de progreso en la sala central
         if (data.currentRoom === 'center') {
-            drawMansionSconce(16, 110); drawMansionSconce(16, 300);
-            drawMansionSconce(784, 110); drawMansionSconce(784, 300);
-        } else if (data.currentRoom === 'A') {
-            drawMansionSconce(16, 150); drawMansionSconce(16, 270); // Pared del fondo (Oeste)
-        } else if (data.currentRoom === 'B') {
-            drawMansionSconce(784, 150); drawMansionSconce(784, 270); // Pared del fondo (Este)
-        }
-
-        // Interruptores de pared (recuadro) en la sala central
-        if (data.currentRoom === 'center') {
-            drawWallSwitch(16, 170, data.progressA);
-            drawWallSwitch(784, 170, data.progressB);
+            ctx.fillStyle = data.progressA ? "lime" : "red";
+            ctx.fillRect(20, 160, 20, 20);
+            ctx.fillStyle = data.progressB ? "lime" : "red";
+            ctx.fillRect(760, 160, 20, 20);
         }
     },
     interact: () => {
@@ -212,7 +208,6 @@
                     data.roomItems = [];
                 } else {
                     data.statusMessage = "❌ ¡ERROR! Objeto falso. ¡Las serpientes despiertan!";
-                    flashFailure();
                     data.messageTimer = 120;
                     for(let i=0; i<3; i++) data.snakes.push({ x: Math.random()*800, y: -20, speed: 1.5, history: [] });
                 }
@@ -283,7 +278,7 @@ function returnToCenter() {
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],

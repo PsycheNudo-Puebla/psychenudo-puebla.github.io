@@ -169,6 +169,7 @@ levelLogics['art'] = {
                 return;
             } else {
                 ui.innerHTML = "❌ ¡ERROR! Este cuadro no pertenece aquí. El gas venenoso se ha activado.";
+                flashFailure();
                 currentLevelData.gasActive = true;
                 // El cuadro vuelve a la pared
                 currentLevelData.furniture.push({ id: 'painting', ...state.inventory, x: 100, y: MAP_OFFSET_Y + 5, w: 60, h: 40, interactable: true, collidable: false });

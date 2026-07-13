@@ -1,3 +1,12 @@
+// Superficie superior de la llama: lenguas altas y bajas que viajan (compartida por draw y colisión)
+function flameSurface(fy, x, t) {
+    return fy
+        - 20 * Math.abs(Math.sin(x * 0.025 + t * 1.2))
+        - 12 * Math.sin(x * 0.07 + t * 2.0)
+        - 7 * Math.sin(x * 0.16 + t * 3.1)
+        - 26 * Math.pow(Math.max(0, Math.sin(x * 0.04 + t * 0.8 + 1.7)), 2);
+}
+
 levelLogics['atomic'] = {
     init: (levelData) => {
         // Priorizar datos del escenario si existen, de lo contrario usar la raíz
@@ -23,11 +32,13 @@ levelLogics['atomic'] = {
                 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
             ],
             tileObjects: [],
+            floorColor: '#4a3a2a', // Suelo de madera oscura homogéneo (sin rejilla)
             fireY: canvas.height, // El fuego empieza desde abajo
             fireSpeed: 0.2, // Velocidad reducida para dar tiempo al jugador
             doorOpen: false, // La puerta de salida se abre al resolver el puzzle
             gameOver: false,
             initialPromptShown: false,
+            embers: [], // Brasas ascendentes del fuego
             furniture: [
                 // No hay alfombra en este nivel
             ]
@@ -114,8 +125,26 @@ levelLogics['atomic'] = {
         if (!currentLevelData.doorOpen && !currentLevelData.gameOver) {
             currentLevelData.fireY -= currentLevelData.fireSpeed * dt;
 
-            // Game Over si el fuego alcanza al jugador
-            if (player.y + player.h > currentLevelData.fireY) {
+            // Brasas ascendentes
+            if (Math.random() < 0.5) {
+                currentLevelData.embers.push({
+                    x: Math.random() * canvas.width,
+                    y: currentLevelData.fireY + Math.random() * 30,
+                    life: 1,
+                    vy: 0.4 + Math.random() * 0.6,
+                    vx: (Math.random() - 0.5) * 0.5
+                });
+            }
+            currentLevelData.embers.forEach(e => {
+                e.y -= e.vy * dt;
+                e.x += e.vx * dt;
+                e.life -= 0.012 * dt;
+            });
+            currentLevelData.embers = currentLevelData.embers.filter(e => e.life > 0);
+
+            // Game Over si la llama toca al jugador (usa la punta local de la llama en su x)
+            const flameTop = flameSurface(currentLevelData.fireY, player.x + player.w / 2, Date.now() * 0.004);
+            if (player.y + player.h > flameTop) {
                 currentLevelData.gameOver = true;
                 gameOver("¡El fuego te ha alcanzado!");
             }
@@ -179,32 +208,41 @@ levelLogics['atomic'] = {
             // No dibujamos el pedestal aquí, se dibuja como tileObject
         });
 
-        // Dibujar el fuego mejorado (Dos colores: Rojo y Naranja)
-        const time = Date.now() * 0.005;
-        
-        // Capa Roja (Fondo)
-        ctx.fillStyle = '#ff0000';
-        ctx.beginPath();
-        ctx.moveTo(0, currentLevelData.fireY);
-        for(let i=0; i<=canvas.width; i+=20) {
-            let flicker = Math.sin(time + i * 0.1) * 20;
-            ctx.lineTo(i, currentLevelData.fireY + flicker);
+        // --- Fuego mejorado: capas de llama + resplandor + brasas ---
+        const FW = canvas.width, FH = canvas.height;
+        const fy = currentLevelData.fireY;
+        const t = Date.now() * 0.004;
+        // Lenguas vivas: cada columna es una llama con los tres colores
+        // (rojo en la base -> naranja -> amarillo en la punta) y punta ondulada
+        const step = 5;
+        for (let x = 0; x < FW; x += step) {
+            const top = flameSurface(fy, x, t);
+            if (top >= FH) continue;
+            const grad = ctx.createLinearGradient(0, top, 0, FH);
+            grad.addColorStop(0, '#ffe23f');    // punta amarilla
+            grad.addColorStop(0.28, '#ffb000');
+            grad.addColorStop(0.55, '#ff8c00'); // naranja
+            grad.addColorStop(1, '#d40000');    // base roja
+            ctx.fillStyle = grad;
+            ctx.fillRect(x, top, step + 1, FH - top);
         }
-        ctx.lineTo(canvas.width, canvas.height);
-        ctx.lineTo(0, canvas.height);
-        ctx.fill();
 
-        // Capa Naranja (Frente)
-        ctx.fillStyle = '#ff8c00';
-        ctx.beginPath();
-        ctx.moveTo(0, currentLevelData.fireY + 15);
-        for(let i=0; i<=canvas.width; i+=20) {
-            let flicker = Math.cos(time + i * 0.1) * 15;
-            ctx.lineTo(i, currentLevelData.fireY + 15 + flicker);
-        }
-        ctx.lineTo(canvas.width, canvas.height);
-        ctx.lineTo(0, canvas.height);
-        ctx.fill();
+        // Resplandor en la punta de la llama (cubre las lenguas)
+        const glow = ctx.createLinearGradient(0, fy - 70, 0, fy + 12);
+        glow.addColorStop(0, 'rgba(255,170,60,0)');
+        glow.addColorStop(1, 'rgba(255,170,60,0.32)');
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, fy - 70, FW, 82);
+
+        // Brasas ascendentes
+        currentLevelData.embers.forEach(e => {
+            ctx.globalAlpha = Math.max(0, e.life);
+            ctx.fillStyle = 'rgba(255,130,0,0.7)';
+            ctx.fillRect(e.x - 1, e.y - 1, 4, 4);
+            ctx.fillStyle = '#ffd23f';
+            ctx.fillRect(e.x, e.y, 2, 2);
+        });
+        ctx.globalAlpha = 1;
     },
     interact: () => {
         const playerCenterX = player.x + 32;
@@ -257,6 +295,7 @@ levelLogics['atomic'] = {
                 state.inventory = null;
             } else {
                 ui.innerHTML = "❌ Incorrecto. El " + state.inventory.name + " vuelve a su sitio.";
+                flashFailure();
                 
                 if (window.gameStats) window.gameStats.recordQuestion(state.levelIndex, currentLevelData.prompt, false);
                 

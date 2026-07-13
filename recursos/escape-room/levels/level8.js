@@ -279,10 +279,10 @@
         ctx.fillStyle = this.palette.grass;
         ctx.fillRect(32, 32 + MAP_OFFSET_Y, canvas.width - 64, canvas.height - 64 - MAP_OFFSET_Y);
 
-        // Líneas de cancha (verticales)
+        // Líneas de cancha (horizontal)
         ctx.strokeStyle = this.palette.line;
         ctx.setLineDash([5, 5]);
-        ctx.beginPath(); ctx.moveTo(canvas.width / 2, 32 + MAP_OFFSET_Y); ctx.lineTo(canvas.width / 2, canvas.height - 32); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(32, (MAP_OFFSET_Y + canvas.height) / 2); ctx.lineTo(canvas.width - 32, (MAP_OFFSET_Y + canvas.height) / 2); ctx.stroke();
         ctx.setLineDash([]);
 
         if (!this.won) {

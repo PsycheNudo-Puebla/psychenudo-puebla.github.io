@@ -421,6 +421,21 @@ window.addEventListener('load', () => {
     }
 });
 
+// Iguala la altura de la sala a un tamaño común (12 filas) rellenando con
+// piso el espacio hasta el muro inferior. Así el muro de abajo queda siempre
+// en el mismo sitio y no aparece una franja gris a media pantalla.
+// No mueve objetos (solo añade filas de piso con muros laterales).
+function normalizeRoom(map, targetRows) {
+    if (!Array.isArray(map) || map.length >= targetRows) return map;
+    const last = map[map.length - 1];            // muro inferior original
+    const floorRow = map[map.length - 2] || last; // piso con muros laterales
+    const pad = targetRows - map.length;
+    const out = map.slice(0, map.length - 1);
+    for (let i = 0; i < pad; i++) out.push(floorRow.slice());
+    out.push(last);
+    return out;
+}
+
 function loadCurrentLevel() {
     state.inventory = null;
     // Resetear estado completo del jugador para que funcione REINTENTAR
@@ -443,6 +458,21 @@ function loadCurrentLevel() {
     } else {
         currentLevelData = { title: "Error", map: [[1]] };
         console.error(`ERROR: La lógica para el tipo '${levelData.type}' no está cargada. Revisa que levels/level4.js esté incluido en el HTML.`);
+    }
+
+    // Uniformizar el tamaño de la sala (evita la franja gris a media pantalla).
+    // Se omiten los niveles con mapa especial (maze, tennis).
+    if (currentLevelData.map && !['maze', 'tennis'].includes(levelData.type)) {
+        currentLevelData.map = normalizeRoom(currentLevelData.map, 12);
+    }
+
+    // Acento de tema en el panel de diálogo según el tipo de nivel
+    if (ui) {
+        const THEME_ACCENT = {
+            date: '#4aa3ff', atomic: '#ff8c00', art: '#b06bff', tower: '#39d98a',
+            snakes: '#39d98a', bridge: '#36c6c6', dragon: '#ff4a4a', tennis: '#39d98a', maze: '#b0a080'
+        };
+        ui.style.setProperty('--accent', THEME_ACCENT[levelData.type] || '#f8b800');
     }
 }
 
@@ -634,9 +664,14 @@ function checkCollision(nx, ny) {
 function drawMap() {
     // Dibujar el mapa base
     if (currentLevelData.map) {
+        const floorColor = currentLevelData.floorColor;
         currentLevelData.map.forEach((row, y) => {
             row.forEach((tileType, x) => {
-                if (TILES[tileType]) {
+                if (tileType === 0 && floorColor) {
+                    // Suelo liso y homogéneo (sin rejilla) cuando el nivel lo define
+                    ctx.fillStyle = floorColor;
+                    ctx.fillRect(x * TILE_SIZE, y * TILE_SIZE + MAP_OFFSET_Y, TILE_SIZE, TILE_SIZE);
+                } else if (TILES[tileType]) {
                     TILES[tileType].pattern(x * TILE_SIZE, y * TILE_SIZE + MAP_OFFSET_Y);
                 }
             });
@@ -654,25 +689,150 @@ function drawMap() {
     }
 }
 
+// ─────────────────────────────────────────────────────────────
+// MARCO COMÚN
+//  - Parte SUPERIOR: madera tallada con velas y placa de título.
+//  - Lados y BASE: ladrillo gris (mismo tile que la sala), idéntico
+//    en todos los niveles.
+// ─────────────────────────────────────────────────────────────
+
+// Vela / palmatoria de pared (pequeña decoración de la cabecera)
+function drawMansionSconce(cx, cy) {
+    ctx.fillStyle = NES_PALETTE.woodDark;
+    ctx.fillRect(cx - 2, cy - 2, 4, 10);
+    ctx.fillStyle = '#e8d8a0';
+    ctx.fillRect(cx - 2, cy - 8, 4, 8);
+    const flick = Math.sin(Date.now() * 0.01 + cx) * 1.5;
+    ctx.fillStyle = NES_PALETTE.gold;
+    ctx.fillRect(cx - 1, Math.round(cy - 12 + flick), 2, 4);
+    ctx.fillStyle = '#ff6600';
+    ctx.fillRect(cx - 1, Math.round(cy - 11 + flick), 2, 2);
+    ctx.fillStyle = 'rgba(248, 184, 0, 0.12)';
+    ctx.beginPath();
+    ctx.arc(cx, cy - 10, 9, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+// Cofre de madera (32x32) para ítems recolectables
+function drawChest(x, y) {
+    ctx.fillStyle = NES_PALETTE.woodDark;
+    ctx.fillRect(x + 2, y + 8, 28, 22);
+    ctx.fillStyle = NES_PALETTE.wood;
+    ctx.fillRect(x + 4, y + 10, 24, 18);
+    ctx.fillStyle = NES_PALETTE.woodLight;
+    ctx.fillRect(x + 2, y + 4, 28, 8);
+    ctx.fillStyle = NES_PALETTE.wood;
+    ctx.fillRect(x + 4, y + 4, 24, 4);
+    ctx.fillStyle = '#9a9a9a'; // Bandas metálicas
+    ctx.fillRect(x + 2, y + 12, 28, 3);
+    ctx.fillRect(x + 13, y + 4, 5, 26);
+    ctx.fillStyle = NES_PALETTE.gold; // Cerrojo
+    ctx.fillRect(x + 14, y + 15, 4, 7);
+    ctx.fillStyle = 'rgba(255,255,255,0.18)'; // Brillo
+    ctx.fillRect(x + 6, y + 6, 6, 3);
+}
+
+// Interruptor de pared: panel (recuadro) con indicador luminoso y palanca
+function drawWallSwitch(px, py, on) {
+    ctx.fillStyle = '#3a2e22'; // Marco
+    ctx.fillRect(px - 15, py - 20, 30, 40);
+    ctx.fillStyle = '#1c1610'; // Interior
+    ctx.fillRect(px - 12, py - 17, 24, 34);
+    const lit = on ? '#39ff14' : '#ff2a2a';
+    ctx.fillStyle = lit; // Indicador
+    ctx.fillRect(px - 7, py - 13, 14, 12);
+    ctx.fillStyle = on ? 'rgba(57,255,20,0.25)' : 'rgba(255,42,42,0.25)';
+    ctx.beginPath(); ctx.arc(px, py - 7, 16, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#c8c8c8'; // Palanca
+    ctx.fillRect(px - 2, py + 2, 4, 12);
+    ctx.fillStyle = lit; // Pomo (arriba=on, abajo=off)
+    ctx.fillRect(px - 5, on ? py + 1 : py + 11, 10, 5);
+}
+
+// Cabecera de madera: muro superior + paneles + placa de título + velas
+function drawRoomHeader() {
+    const W = canvas.width;
+    const H = MAP_OFFSET_Y;
+
+    ctx.fillStyle = NES_PALETTE.wood;
+    ctx.fillRect(0, 0, W, H);
+    // Paneles verticales de madera oscura
+    ctx.fillStyle = NES_PALETTE.woodDark;
+    for (let x = 16; x < W; x += 64) {
+        ctx.fillRect(x, 8, 4, H - 12);
+    }
+    // Moldura inferior que separa el muro de la sala
+    ctx.fillStyle = NES_PALETTE.woodDark;
+    ctx.fillRect(0, H - 4, W, 4);
+    ctx.fillStyle = NES_PALETTE.gold;
+    ctx.fillRect(0, H - 5, W, 1);
+
+    // Placa de título centrada
+    const title = (currentLevelData && currentLevelData.title) ? currentLevelData.title : "SALA";
+    const plaqueW = Math.min(380, W - 160);
+    const plaqueX = (W - plaqueW) / 2;
+    const plaqueY = 10;
+    const plaqueH = H - 20;
+    ctx.fillStyle = NES_PALETTE.woodLight;
+    ctx.fillRect(plaqueX, plaqueY, plaqueW, plaqueH);
+    ctx.strokeStyle = NES_PALETTE.woodDark; ctx.lineWidth = 3;
+    ctx.strokeRect(plaqueX, plaqueY, plaqueW, plaqueH);
+    ctx.strokeStyle = NES_PALETTE.gold; ctx.lineWidth = 1;
+    ctx.strokeRect(plaqueX + 3, plaqueY + 3, plaqueW - 6, plaqueH - 6);
+    let t = title.toUpperCase();
+    if (t.length > 28) t = t.slice(0, 27) + "…";
+    ctx.fillStyle = NES_PALETTE.white;
+    ctx.font = '10px "Press Start 2P", monospace';
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(t, W / 2, plaqueY + plaqueH / 2 + 1);
+    ctx.textAlign = "start";
+    ctx.textBaseline = "alphabetic";
+
+    // Velas flanqueando la placa
+    drawMansionSconce(48, H / 2);
+    drawMansionSconce(W - 48, H / 2);
+}
+
+// Bordes de ladrillo gris en lados y base del canvas.
+// Mismo grosor (1 tile) y dibujo que el muro de la sala; la parte
+// superior la aporta drawRoomHeader (madera). Así el marco es uniforme.
+function drawBrickFrame() {
+    const W = canvas.width, H = canvas.height;
+    const B = TILE_SIZE;
+    // Inferior: cubrir desde el muro inferior de la sala hasta el borde, para
+    // que no quede una franja gris entre la sala y el marco de abajo.
+    const roomBottom = (currentLevelData && currentLevelData.map)
+        ? currentLevelData.map.length * TILE_SIZE + MAP_OFFSET_Y
+        : H - B;
+    for (let x = 0; x < W; x += TILE_SIZE) {
+        for (let y = roomBottom; y < H; y += TILE_SIZE) {
+            TILES[1].pattern(x, y);
+        }
+    }
+    // Izquierda y derecha
+    for (let y = 0; y < H; y += TILE_SIZE) {
+        TILES[1].pattern(0, y);
+        TILES[1].pattern(W - B, y);
+    }
+}
+
 function drawCommonRoom() {
     // Dibujar suelo base siempre para evitar huecos negros
     ctx.fillStyle = NES_PALETTE.floor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Cuadrícula tenue decorativa
+
+    // Cuadrícula tenue decorativa del suelo
     ctx.fillStyle = 'rgba(0,0,0,0.03)';
-    for(let i=0; i<canvas.width; i+=32) {
-        for(let j=60; j<canvas.height; j+=32) {
-            if((i+j)%64===0) ctx.fillRect(i, j, 32, 32);
+    for (let i = 0; i < canvas.width; i += 32) {
+        for (let j = MAP_OFFSET_Y; j < canvas.height; j += 32) {
+            if ((i + j) % 64 === 0) ctx.fillRect(i, j, 32, 32);
         }
     }
 
-    // Pared superior base
-    ctx.fillStyle = NES_PALETTE.wallDark; ctx.fillRect(0, 0, canvas.width, 60);
-    ctx.fillStyle = NES_PALETTE.wall; ctx.fillRect(0, 45, canvas.width, 15);
-    
-    ctx.strokeStyle = NES_PALETTE.black; ctx.lineWidth = 4;
-    ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
+    // Marco: ladrillo gris en lados/base + madera con velas en la superior
+    drawBrickFrame();
+    drawRoomHeader();
 }
 
 function validarPassword() {
@@ -688,6 +848,7 @@ function validarPassword() {
         const input = document.getElementById('hidden-mobile-input');
         if (input) input.value = "";
         ui.innerHTML = "❌ CLAVE INCORRECTA. Intenta de nuevo.";
+        flashFailure();
         if (window.gameStats) window.gameStats.recordQuestion(state.levelIndex, "Ingreso de código de seguridad", false);
         setTimeout(actualizarDialogoInput, 1000);
     }
@@ -898,6 +1059,34 @@ function handleInteraction() {
     }
 }
 
+// Señal visual de fallo: parpadeo rojo que se desvanece
+let failureFlash = 0;
+function flashFailure() { failureFlash = 1; }
+window.flashFailure = flashFailure;
+
+// Atmósfera global: viñeteado + tinte cálido + respiración de las velas
+function drawAtmosphere() {
+    const W = canvas.width, H = canvas.height;
+    if (!drawAtmosphere._grad) {
+        const g = ctx.createRadialGradient(W / 2, H / 2, H * 0.32, W / 2, H / 2, H * 0.78);
+        g.addColorStop(0, 'rgba(0,0,0,0)');
+        g.addColorStop(0.7, 'rgba(10,6,2,0.12)');
+        g.addColorStop(1, 'rgba(0,0,0,0.5)');
+        drawAtmosphere._grad = g;
+    }
+    ctx.fillStyle = drawAtmosphere._grad;
+    ctx.fillRect(0, 0, W, H);
+    // Respiración de la luz de las velas (parpadeo global suave)
+    const t = Date.now();
+    const candle = 0.5 + 0.5 * Math.sin(t * 0.0013);
+    const flutter = 0.5 + 0.5 * Math.sin(t * 0.009 + 1.7);
+    const flick = 0.82 + 0.18 * (candle * 0.6 + flutter * 0.4); // ~0.82..1.0
+    ctx.fillStyle = `rgba(60,30,5,${0.06 * flick})`;
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = `rgba(0,0,0,${(1 - flick) * 0.05})`;
+    ctx.fillRect(0, 0, W, H);
+}
+
 function gameLoop(timestamp) {
     if (!state.running) return;
 
@@ -926,6 +1115,19 @@ function gameLoop(timestamp) {
 
     drawPlayer(player.x, player.y);
     
+    // Atmósfera (viñeteado + tinte) sobre toda la escena
+    drawAtmosphere();
+
+    // Señal de fallo: destello rojo + borde que se desvanece
+    if (failureFlash > 0) {
+        ctx.fillStyle = `rgba(190,0,0,${0.4 * failureFlash})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = `rgba(255,50,50,${0.9 * failureFlash})`;
+        ctx.lineWidth = 8;
+        ctx.strokeRect(4, 4, canvas.width - 8, canvas.height - 8);
+        failureFlash = Math.max(0, failureFlash - 0.045);
+    }
+
     if (player.showPrompt) {
         ctx.fillStyle = NES_PALETTE.black;
         ctx.font = '20px "Press Start 2P"';
@@ -949,6 +1151,7 @@ function gameLoop(timestamp) {
 }
 
 function gameOver(message) {
+    flashFailure();
     state.running = false;
     ui.style.display = 'block'; // Asegurar que el panel de UI sea visible para mostrar los botones
     ctx.fillStyle = "rgba(0,0,0,0.85)";
@@ -1010,7 +1213,8 @@ function setupMobileControls() {
     ui.style.overflowY = 'auto';
     ui.style.pointerEvents = 'auto';
     ui.style.padding = '20px';
-    ui.style.borderTop = '4px solid #7c7c7c';
+    const accent = (ui.style.getPropertyValue('--accent') || '#f8b800').trim() || '#f8b800';
+    ui.style.borderTop = '4px solid ' + accent;
     ui.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
 
     // Crear un input invisible para disparar el teclado del celular

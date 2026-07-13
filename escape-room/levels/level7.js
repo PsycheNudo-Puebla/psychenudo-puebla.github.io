@@ -379,7 +379,6 @@ levelLogics['dragon'] = {
                     gameOver("¡El cañón explotó por usar la munición incorrecta!");
                 } else {
                     this.showText = "¡ERROR! Daño al cañón. Un fallo más y explotará.";
-                    flashFailure();
                 }
                 player.heldItem.collected = false; // La bala vuelve a su sitio
                 player.heldItem = null;
