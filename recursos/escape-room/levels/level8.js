@@ -209,10 +209,12 @@
         this.diabloPaddle.x = this.diablo.x;
         this.diabloPaddle.y = this.diablo.y + 35; // Frente al Diablo
 
-        // Colisión con Jugador (Paleta inferior)
+        // Colisión con Jugador (Paleta inferior) - AABB completo
         if (this.bomb.vy > 0 && // Bomba moviéndose hacia abajo
             this.bomb.y + this.bomb.r > this.playerPaddle.y &&
-            this.bomb.x > this.playerPaddle.x && this.bomb.x < this.playerPaddle.x + this.playerPaddle.w) {
+            this.bomb.y - this.bomb.r < this.playerPaddle.y + this.playerPaddle.h &&
+            this.bomb.x + this.bomb.r > this.playerPaddle.x &&
+            this.bomb.x - this.bomb.r < this.playerPaddle.x + this.playerPaddle.w) {
             
             // Lógica de Empuje / Amortiguación
             let speedMultiplier = 1.05; // Base
@@ -234,10 +236,12 @@
             this.bomb.y = this.playerPaddle.y - this.bomb.r;
         }
 
-        // Colisión con Diablo (Paleta superior)
+        // Colisión con Diablo (Paleta superior) - AABB completo
         if (this.bomb.vy < 0 && // Bomba moviéndose hacia arriba
-            this.bomb.y - this.bomb.r < this.diabloPaddle.y + this.diabloPaddle.h &&
-            this.bomb.x > this.diabloPaddle.x && this.bomb.x < this.diabloPaddle.x + this.diabloPaddle.w) {
+            this.bomb.y + this.bomb.r > this.diabloPaddle.y && // Borde inferior de la bomba debajo del borde superior de la paleta
+            this.bomb.y - this.bomb.r < this.diabloPaddle.y + this.diabloPaddle.h && // Borde superior de la bomba arriba del borde inferior
+            this.bomb.x + this.bomb.r > this.diabloPaddle.x && // Borde derecho de la bomba a la derecha del borde izquierdo
+            this.bomb.x - this.bomb.r < this.diabloPaddle.x + this.diabloPaddle.w) { // Borde izquierdo a la izquierda del borde derecho
             
             // El Diablo también devuelve con ángulo basado en dónde le pegue
             let hit = (this.bomb.x - (this.diabloPaddle.x + this.diabloPaddle.w / 2)) / (this.diabloPaddle.w / 2) + (Math.random() - 0.5) * 0.3; // Pequeña imperfección

@@ -429,6 +429,7 @@ function loadCurrentLevel() {
     player.showPrompt = false;
     player.animFrame = 0;
     player.direction = "down";
+    player.speed = 5; // Velocidad base por defecto (cada nivel la ajusta si necesita)
     const levelData = state.allLevels[state.levelIndex];
     
     // Reiniciar posición por defecto
