@@ -296,17 +296,29 @@ window.addEventListener('load', () => {
         if (toggleDiv) toggleDiv.classList.toggle('show');
     };
 
+    // Inicializar soporte para móviles (debe ir antes de cualquier uso de isMobile)
+    window.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
     // Toggle de controles en el menú principal
     const toggleControlsBtn = document.getElementById('toggleControlsBtn');
     const controlesInfo = document.getElementById('controles-info');
     if (toggleControlsBtn && controlesInfo) {
+        // Generar texto de controles adaptado a móvil/escritorio
+        if (window.isMobile) {
+            controlesInfo.innerHTML = `
+                🎮 CONTROLES:<br>
+                🕹️ Joystick: Mover<br>
+                [A]/Toque: Interactuar<br>
+                [B]/Menú: Instrucciones del nivel<br>
+                [Select]/Menú: Control<br>
+                ⏸️ Pausa / ⚙️ Panel<br><br>
+                💡 Toca [B] en cada nivel para ver instrucciones
+            `;
+        }
         toggleControlsBtn.onclick = () => {
             controlesInfo.style.display = controlesInfo.style.display === 'none' ? 'block' : 'none';
         };
     }
-
-    // Inicializar soporte para móviles
-    window.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     setupMobileControls();
 
     // Precarga de imágenes del jugador
@@ -546,8 +558,8 @@ window.toggleLevelInstructions = function() {
     if (state.showingInstructions) {
         const desc = currentLevelData.description || level.description || "Explora la habitación.";
         const title = level.title || currentLevelData.title || "Nivel";
-        let controlesInfo = "⬆️⬇️⬅️➡️ Mover | [A/Space] Interactuar";
-        if (currentLevelData.type === 'date') controlesInfo += " | [B] Instrucciones";
+        let controlesInfo = "⬆️⬇️⬅️➡️ Mover | " + (window.isMobile ? "🖐️ Tocar" : "[A/Space]") + " Interactuar";
+        if (currentLevelData.type === 'date') controlesInfo += " | " + (window.isMobile ? "📋 Menú" : "[B]") + " Instrucciones";
         if (currentLevelData.type === 'tower') controlesInfo += " | 🕷️ ¡Evita a la araña!";
         if (currentLevelData.type === 'atomic') controlesInfo += " | 🔥 El fuego sube, ¡date prisa!";
         if (currentLevelData.type === 'art') controlesInfo += " | 🖼️ Coloca el cuadro correcto";
@@ -561,7 +573,7 @@ window.toggleLevelInstructions = function() {
                 <strong style="color: #f8b800;">📋 ${title}</strong><br><br>
                 ${desc}<br><br>
                 <span style="color: #aaa; font-size: 11px;">${controlesInfo}</span><br><br>
-                <span style="color: #ffff66; font-size: 10px;">[B/Shift] Volver al juego</span>
+                <span style="color: #ffff66; font-size: 10px;">${window.isMobile ? "📋 Menú" : "[B/Shift]"} Volver al juego</span>
             </div>
         `;
         state.paused = true;
@@ -589,8 +601,9 @@ function startGame() {
             // Mostrar un breve mensaje indicando que puede presionar B para instrucciones
             setTimeout(() => {
                 if (state.running && !state.inputModo && !state.showingInstructions) {
+                    const hintKey = window.isMobile ? "📋 Menú" : "[B]";
                     ui.innerHTML = `<strong>${level.title}</strong><br>${desc}<br><br>
-                        <span style="color: #ffff66; font-size: 11px;">💡 Presiona [B] para instrucciones detalladas</span>`;
+                        <span style="color: #ffff66; font-size: 11px;">💡 Presiona ${hintKey} para instrucciones detalladas</span>`;
                 }
             }, 200);
         }
@@ -910,7 +923,7 @@ function actualizarDialogoInput() {
         <div style="background: rgba(0,0,0,0.8); padding: 20px; border: 2px solid white; text-align: center;">
             SISTEMA DE SEGURIDAD<br>INGRESE CÓDIGO (${length} caracteres):<br><br>
             <span style="letter-spacing:10px; font-size: 24px; color: #f8b800;">${display}</span><br><br>
-            <small>[ENTER] Confirmar - [ESC] Salir</small><br>
+            ${window.isMobile ? "" : '<small>[ENTER] Confirmar - [ESC] Salir</small><br>'}
             <div style="display:flex; gap:10px; justify-content:center; margin-top:15px;">
                 <button id="mobile-kb-btn" style="display:none; padding:10px; font-family:inherit; background:#3cbcfc; border:none; color:white; border-radius:5px; font-size:12px; touch-action: manipulation;">ABRIR TECLADO</button>
                 <button id="salir-input-btn" style="padding:10px; font-family:inherit; background:#a80020; border:none; color:white; border-radius:5px; font-size:12px; cursor:pointer; touch-action: manipulation;">✕ SALIR</button>
@@ -1374,6 +1387,7 @@ function setupMobileControls() {
             <p style="font-size:9px; color:#aaa; margin-bottom:15px;">Selecciona tu modo de control preferido</p>
             <button class="ctrl-btn ${currentMode === 'dpad' ? 'active' : ''}" data-mode="dpad">⬆️⬇️⬅️➡️ CRUZETA</button>
             <button class="ctrl-btn ${currentMode === 'joystick' ? 'active' : ''}" data-mode="joystick">🕹️ JOYSTICK CLÁSICO</button>
+            <button id="ctrl-menu-mainmenu" class="ctrl-close" style="background:#346856; margin-top:4px;">🏠 MENÚ PRINCIPAL</button>
             <button class="ctrl-close" id="ctrl-menu-close">✕ CERRAR</button>
         `;
         document.body.appendChild(overlay);
@@ -1388,6 +1402,9 @@ function setupMobileControls() {
                 aplicarModoControl(mode);
             });
         });
+        document.getElementById('ctrl-menu-mainmenu').onclick = () => {
+            location.reload();
+        };
         document.getElementById('ctrl-menu-close').onclick = () => {
             overlay.remove();
             if (state.paused) state.paused = false;
