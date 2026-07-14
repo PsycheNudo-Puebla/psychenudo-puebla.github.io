@@ -47,7 +47,7 @@ levelLogics['dragon'] = {
         };
         // Paredes del refugio (Fortaleza superior)
         this.refugeWalls = [
-            { id: 'ref_r', x: 550, y: 60, w: 20, h: 125, collidable: true },
+            { id: 'ref_r', x: 550, y: 60, w: 20, h: 145, collidable: true },
             { id: 'ref_b', x: 94, y: 185, w: 456, h: 20, collidable: true }
         ];
         levelData.furniture = [this.cannonFurniture, ...this.refugeWalls];
@@ -195,10 +195,10 @@ levelLogics['dragon'] = {
         const dragonHitX = this.dragon.x - 50; 
         const distToDragon = Math.hypot((player.x + player.w / 2) - dragonHitX, (player.y + player.h / 2) - this.dragon.y);
         
-        // Zona segura: Dentro del rectángulo de la fortaleza
+        // Zona segura: rectángulo uniforme dentro del refugio, sin pisar el marco de ladrillo
         const px = player.x + player.w / 2;
         const py = player.y + player.h / 2;
-        const inSafeZone = px > 32 && px < 550 && py > 60 && py < 185;
+        const inSafeZone = px >= 94 && px <= 550 && py >= 92 && py <= 185;
 
         if (!inSafeZone && distToDragon < 60) {
             this.gameOver = true;
@@ -244,7 +244,7 @@ levelLogics['dragon'] = {
             const fy = this.dragonFire.y;
             // Detección por volumen: si entra en el área del muro horizontal o vertical
             const hitRefugeWall = (fy >= 185 && fy <= 205 && fx >= 94 && fx <= 550) || // Muro inferior (horizontal)
-                                 (fx >= 550 && fx <= 570 && fy >= 60 && fy <= 185);   // Muro derecho (vertical)
+                                 (fx >= 550 && fx <= 570 && fy >= 60 && fy <= 205);   // Muro derecho (vertical)
             
             if (hitRefugeWall) {
                 // Crear partículas de explosión al chocar con el muro
@@ -410,19 +410,60 @@ levelLogics['dragon'] = {
             player.direction = "right";
         }
 
+        // --- Fondo temático: mazmorra de piedra (frío, sin lava) ---
+        const fTop = MAP_OFFSET_Y, fBot = canvas.height, fL = TILE_SIZE, fR = canvas.width - TILE_SIZE;
+
+        // Piedra fría (degradado azulado-gris)
+        const grad = ctx.createLinearGradient(0, fTop, 0, fBot);
+        grad.addColorStop(0, "#3a4250");
+        grad.addColorStop(0.5, "#2b313c");
+        grad.addColorStop(1, "#1c212a");
+        ctx.fillStyle = grad;
+        ctx.fillRect(fL, fTop, fR - fL, fBot - fTop);
+
+        // Muro de piedra: ladrillos fríos con mortero (patrón escalonado)
+        const BW = 32, BH = 24;
+        ctx.strokeStyle = "rgba(0,0,0,0.35)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let by = fTop; by <= fBot; by += BH) { ctx.moveTo(fL, by + 0.5); ctx.lineTo(fR, by + 0.5); }
+        for (let row = 0, by = fTop; by <= fBot; by += BH, row++) {
+            const offset = (row % 2) * (BW / 2);
+            for (let bx = fL - BW + offset; bx <= fR; bx += BW) {
+                ctx.moveTo(bx + 0.5, by); ctx.lineTo(bx + 0.5, by + BH);
+            }
+        }
+        ctx.stroke();
+
+        // Leve resalte de los bloques (piedra húmeda)
+        ctx.fillStyle = "rgba(255,255,255,0.04)";
+        for (let row = 0, by = fTop; by <= fBot; by += BH, row++) {
+            const offset = (row % 2) * (BW / 2);
+            for (let bx = fL - BW + offset; bx <= fR; bx += BW) {
+                ctx.fillRect(bx + 2, by + 2, BW - 4, 3);
+            }
+        }
+
+        // --- Zona segura visible: rectángulo uniforme dentro del refugio ---
+        ctx.fillStyle = "rgba(60,200,140,0.10)";
+        ctx.fillRect(94, 92, 550 - 94, 185 - 92);
+        ctx.strokeStyle = "rgba(60,200,140,0.35)";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(94, 92, 550 - 94, 185 - 92);
+
         // Dibujar la Fortaleza de Piedra (Refugio)
         ctx.fillStyle = "#5a352a"; // Café oscuro cenizo (Piedra antigua)
         ctx.strokeStyle = "#251510"; // Contorno muy oscuro
         ctx.lineWidth = 2;
 
         // Estructura en L: Muro Derecho (Vertical) y Muro Inferior (Horizontal)
-        ctx.fillRect(550, 60, 20, 125); ctx.strokeRect(550, 60, 20, 125);
+        ctx.fillRect(550, 60, 20, 145); ctx.strokeRect(550, 60, 20, 145);
         ctx.fillRect(94, 185, 456, 20); ctx.strokeRect(94, 185, 456, 20);
 
         // Textura de bloques (Detalles visuales para que no sea un bloque liso)
         ctx.strokeStyle = "rgba(0,0,0,0.2)";
         ctx.beginPath();
-        for(let ty = 85; ty < 185; ty += 25) {
+        for(let ty = 85; ty < 205; ty += 25) {
             ctx.moveTo(550, ty); ctx.lineTo(560, ty); // Muro der
         }
         ctx.stroke();
@@ -446,8 +487,11 @@ levelLogics['dragon'] = {
                 ctx.fillStyle = "#ffffff";
                 ctx.beginPath(); ctx.arc(b.x - 3, b.y - 3, 3, 0, Math.PI*2); ctx.fill();
 
-                ctx.fillStyle = this.palette.black;
+                ctx.fillStyle = "#ffffff";
                 ctx.font = "bold 14px monospace";
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = "rgba(0,0,0,0.85)";
+                ctx.strokeText(b.option.substring(0, 15), b.x - 30, b.y + 30);
                 ctx.fillText(b.option.substring(0, 15), b.x - 30, b.y + 30);
             }
         });

@@ -287,28 +287,28 @@
         
         // (Sin marco visual — la zona segura se infiere por el techo y ubicación)
 
-        // === TELARAÑAS decorativas en el techo ===
-        ctx.strokeStyle = 'rgba(200, 210, 220, 0.3)';
-        ctx.lineWidth = 1;
+        // === TELARAÑAS más grandes en el marco superior (fuera del ladrillo) ===
+        ctx.strokeStyle = 'rgba(214, 224, 234, 0.42)';
+        ctx.lineWidth = 1.3;
         const cobwebs = [
-            { x: 80, y: 58, w: 20, h: 18 },
-            { x: 240, y: 56, w: 16, h: 16 },
-            { x: 450, y: 58, w: 22, h: 20 },
-            { x: 640, y: 57, w: 18, h: 16 },
-            { x: 740, y: 58, w: 16, h: 14 }
+            { x: 22,  y: 4, w: 48, h: 46 },
+            { x: 150, y: 4, w: 34, h: 40 },
+            { x: 650, y: 4, w: 34, h: 40 },
+            { x: 778, y: 4, w: 48, h: 46 }
         ];
         cobwebs.forEach(cw => {
-            // Hilos principales en abanico
+            const topY = 2;
+            // Hilos radiales en abanico
             for (let i = -2; i <= 2; i++) {
                 ctx.beginPath();
-                ctx.moveTo(cw.x, 52);
-                ctx.lineTo(cw.x + i * cw.w * 0.25, cw.y + cw.h);
+                ctx.moveTo(cw.x, topY);
+                ctx.lineTo(cw.x + i * cw.w * 0.3, cw.y + cw.h);
                 ctx.stroke();
             }
             // Hilos transversales (tela)
-            for (let j = 1; j <= 3; j++) {
-                const wy = 52 + (cw.h + 8) * (j / 3);
-                const hw = j * cw.w * 0.2;
+            for (let j = 1; j <= 4; j++) {
+                const wy = topY + (cw.h + 4) * (j / 4);
+                const hw = j * cw.w * 0.26;
                 ctx.beginPath();
                 ctx.moveTo(cw.x - hw, wy);
                 ctx.lineTo(cw.x + hw, wy);
@@ -316,8 +316,8 @@
             }
             // Hilo colgante central
             ctx.beginPath();
-            ctx.moveTo(cw.x, 52);
-            ctx.lineTo(cw.x, cw.y + cw.h + 6);
+            ctx.moveTo(cw.x, topY);
+            ctx.lineTo(cw.x, cw.y + cw.h + 4);
             ctx.stroke();
         });
 

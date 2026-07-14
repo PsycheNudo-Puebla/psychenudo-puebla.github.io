@@ -28,37 +28,42 @@
       ],
       "map": [
         [1,1,1,1,1,1,1,1,1,1,1,1,5,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,4,1,1],
+        [1,0,0,0,0,0,0,0,0,0,0,6,6,6,0,0,0,0,0,0,0,0,0,0,1],
+        [1,4,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,4,1],
+        [1,4,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,4,1],
+        [1,4,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,4,1],
+        [1,4,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,4,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,4,1,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,0,1],
+        [1,4,0,0,4,0,0,0,0,0,3,0,0,3,0,0,0,0,0,0,4,0,0,4,1],
+        [1,4,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,4,1],
+        [1,4,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,4,1],
+        [1,4,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,4,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
       ],
       "tileObjects": [
-        { "id": "t1", "type": "table", "tileX": 10, "tileY": 4, "interactive": true },
-        { "id": "t2", "type": "table", "tileX": 13, "tileY": 4, "interactive": true },
-        { "id": "s1", "type": "bookshelf", "tileX": 2, "tileY": 1, "interactive": true },
-        { "id": "s2", "type": "bookshelf", "tileX": 20, "tileY": 1, "interactive": true },
-        { "id": "s3", "type": "bookshelf", "tileX": 2, "tileY": 8, "interactive": true },
-        { "id": "s4", "type": "bookshelf", "tileX": 20, "tileY": 8, "interactive": true },
+        { "id": "t1", "type": "table", "tileX": 11, "tileY": 7, "interactive": true },
+        { "id": "s1", "type": "bookshelf", "tileX": 1, "tileY": 2, "interactive": true },
+        { "id": "s3", "type": "bookshelf", "tileX": 1, "tileY": 9, "interactive": true },
+        { "id": "s2", "type": "bookshelf", "tileX": 23, "tileY": 2, "interactive": true },
+        { "id": "s4", "type": "bookshelf", "tileX": 23, "tileY": 9, "interactive": true },
+        { "id": "s5", "type": "bookshelf", "tileX": 4, "tileY": 2, "interactive": true },
+        { "id": "s6", "type": "bookshelf", "tileX": 4, "tileY": 9, "interactive": true },
+        { "id": "s7", "type": "bookshelf", "tileX": 20, "tileY": 2, "interactive": true },
+        { "id": "s8", "type": "bookshelf", "tileX": 20, "tileY": 9, "interactive": true },
         { "id": "locked_door", "type": "door", "tileX": 12, "tileY": 0, "interactive": true },
         { "id": "p1", "type": "plant", "tileX": 1, "tileY": 1 },
         { "id": "p2", "type": "plant", "tileX": 23, "tileY": 1 },
-        { "id": "p3", "type": "plant", "tileX": 1, "tileY": 8 },
-        { "id": "p4", "type": "plant", "tileX": 23, "tileY": 8 },
-        { "id": "c1", "type": "chair", "tileX": 9, "tileY": 4 },
-        { "id": "c2", "type": "chair", "tileX": 16, "tileY": 4 },
-        { "id": "r1", "type": "rug", "tileX": 11, "tileY": 11 }
+        { "id": "p3", "type": "plant", "tileX": 1, "tileY": 14 },
+        { "id": "p4", "type": "plant", "tileX": 23, "tileY": 14 },
+        { "id": "c1", "type": "chair", "tileX": 10, "tileY": 9 },
+        { "id": "c2", "type": "chair", "tileX": 13, "tileY": 9 },
+        { "id": "r1", "type": "rug", "tileX": 11, "tileY": 1 },
+        { "id": "r2", "type": "rug", "tileX": 12, "tileY": 1 },
+        { "id": "r3", "type": "rug", "tileX": 13, "tileY": 1 }
       ]
     },
     {
@@ -69,7 +74,7 @@
         {
           "prompt": "¡El fuego sube! Elige el objeto de más alto valor para abrir la salida.",
           "items": [
-            { "name": "Estatua Hierro", "val": 26, "shape": "statue", "color": "#404040" },
+            { "name": "Estatua Hierro", "val": 26, "shape": "statue", "color": "#9aa7b4" },
             { "name": "Florero Plata", "val": 47, "shape": "vase", "color": "#e4e4e4" },
             { "name": "Trofeo de Oro", "val": 79, "shape": "trophy", "color": "#f8b800" }
           ],
@@ -78,7 +83,7 @@
         {
           "prompt": "¡SABIDURÍA! Coloca el elemento con menor número atómico en el pedestal (Hidrógeno).",
           "items": [
-            { "name": "Gato de Carbono", "val": 6, "shape": "statue", "color": "#202020" },
+            { "name": "Gato de Carbono", "val": 6, "shape": "statue", "color": "#525d6b" },
             { "name": "Vaso de Nitrogeno", "val": 7, "shape": "vase", "color": "#ffffff" },
             { "name": "Copa de Oxigeno", "val": 8, "shape": "trophy", "color": "#3cbcfc" }
           ],

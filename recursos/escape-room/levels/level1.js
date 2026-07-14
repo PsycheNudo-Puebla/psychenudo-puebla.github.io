@@ -7,6 +7,7 @@ levelLogics['date'] = {
                 delete obj.hasWinningObject;
                 delete obj.foundHint;
                 delete obj.bookshelfHint;
+                delete obj.searched;
             });
         }
         
@@ -50,16 +51,9 @@ levelLogics['date'] = {
             doorAnimY: 0
         };
         
-        // Spawn seguro dentro del Laboratorio
-        player.x = 400; player.y = 300;
+        // Spawn seguro dentro del Archivo (frente a la mesa central)
+        player.x = 400; player.y = 380;
         
-        // Distribuir pistas en los libreros
-        const hints = base.bookshelfHints || [];
-        const bookshelves = base.tileObjects.filter(o => o.type === 'bookshelf');
-        bookshelves.forEach((bs, i) => {
-            if (hints[i]) bs.bookshelfHint = hints[i];
-        });
-
         // Activar colisiones en muebles sólidos (plantas, sillas)
         base.tileObjects.forEach(obj => {
             if (obj.type === 'plant' || obj.type === 'chair') {
@@ -67,13 +61,32 @@ levelLogics['date'] = {
             }
         });
 
-        // Lógica de juego: Ocultar objeto ganador
-        const potentialSpots = base.tileObjects.filter(o => o.type !== 'door');
-        // Hacemos que todos los muebles candidatos muestren el signo "?"
-        potentialSpots.forEach(spot => spot.interactive = true);
+        // Todos los muebles (excepto la puerta) son revisables: muestran "?"
+        // hasta que el jugador los revise; tras revisarlos ya no aparece el signo.
+        const reviewable = base.tileObjects.filter(o => o.type !== 'door');
+        reviewable.forEach(spot => spot.interactive = true);
 
-        const winner = potentialSpots[Math.floor(Math.random() * potentialSpots.length)];
+        // Pistas y objeto final: SOLO en libreros, mesa y sillas (plantas excluidas)
+        const eligible = base.tileObjects.filter(o =>
+            o.type === 'bookshelf' || o.type === 'table' || o.type === 'chair'
+        );
+
+        // Objeto final en un lugar elegible al azar
+        const winner = eligible[Math.floor(Math.random() * eligible.length)];
         winner.hasWinningObject = true;
+
+        // Pistas en los demás lugares elegibles (sin pisar el objeto final,
+        // para que las 3 pistas sean siempre visibles)
+        const hintPool = eligible.filter(o => o !== winner);
+        const hints = base.bookshelfHints || [];
+        const shuffled = hintPool.slice();
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        shuffled.slice(0, hints.length).forEach((o, i) => {
+            if (hints[i]) o.bookshelfHint = hints[i];
+        });
         
         // Sistema robusto de tracking: IDs de pistas descubiertas
         // (evita problemas de referencia de objetos entre JSON y runtime)
@@ -82,6 +95,85 @@ levelLogics['date'] = {
         return base;
     },
     draw: () => {
+        // ⭐ Gran mesa central (cols 10-13, rows 7-8) dibujada como pieza única
+        const tbx = 10 * TILE_SIZE;
+        const tby = 7 * TILE_SIZE + MAP_OFFSET_Y;
+        const tbw = 4 * TILE_SIZE;
+        const tbh = 2 * TILE_SIZE;
+        // Sombra en el suelo
+        ctx.fillStyle = 'rgba(0,0,0,0.30)';
+        ctx.fillRect(tbx + 4, tby + tbh - 3, tbw - 8, 7);
+        // Cuerpo de la mesa
+        ctx.fillStyle = NES_PALETTE.wood;
+        ctx.fillRect(tbx + 2, tby + 2, tbw - 4, tbh - 4);
+        // Superficie superior (resalte)
+        ctx.fillStyle = NES_PALETTE.woodLight;
+        ctx.fillRect(tbx + 2, tby + 2, tbw - 4, 7);
+        // Veta de madera
+        ctx.fillStyle = 'rgba(0,0,0,0.12)';
+        for (let gy = tby + 14; gy < tby + tbh - 8; gy += 9) ctx.fillRect(tbx + 5, gy, tbw - 10, 1);
+        // Borde inferior oscuro
+        ctx.fillStyle = NES_PALETTE.woodDark;
+        ctx.fillRect(tbx + 2, tby + tbh - 9, tbw - 4, 7);
+        // Patas en las esquinas
+        ctx.fillStyle = NES_PALETTE.woodDark;
+        ctx.fillRect(tbx + 4, tby + tbh - 6, 7, 8);
+        ctx.fillRect(tbx + tbw - 11, tby + tbh - 6, 7, 8);
+        ctx.fillRect(tbx + tbw / 2 - 3, tby + tbh - 6, 7, 8);
+
+        // ⭐ Libreros (4 unidades, 2 por columna, cada una 4 cuadros de alto).
+        // Se dibujan como pieza continua para que el bastidor quede alineado
+        // (el TILES[4] por tile dejaba marcos desalineados al apilar 4).
+        const bookshelfH = 4 * TILE_SIZE;
+        const drawBookcase = (px, py, w, h) => {
+            // Sombra en el suelo
+            ctx.fillStyle = 'rgba(0,0,0,0.28)';
+            ctx.fillRect(px + 2, py + h - 4, w - 4, 6);
+            // Panel trasero
+            ctx.fillStyle = NES_PALETTE.wood;
+            ctx.fillRect(px + 3, py + 3, w - 6, h - 6);
+            // Postes laterales
+            ctx.fillStyle = NES_PALETTE.woodDark;
+            ctx.fillRect(px, py, 4, h);
+            ctx.fillRect(px + w - 4, py, 4, h);
+            // Rieles superior e inferior
+            ctx.fillRect(px, py, w, 5);
+            ctx.fillRect(px, py + h - 5, w, 5);
+            // Baldas internas (3 baldas => 4 compartimentos)
+            const comp = h / 4;
+            for (let i = 1; i < 4; i++) {
+                ctx.fillStyle = NES_PALETTE.woodDark;
+                ctx.fillRect(px + 4, Math.round(py + comp * i) - 2, w - 8, 4);
+            }
+            // Libros en cada compartimento
+            const bookColors = ['#c84b31', '#3b6ea5', '#e0b84b', '#4a8c5a', '#8e44ad', '#d98c4a'];
+            for (let c = 0; c < 4; c++) {
+                const top = py + comp * c + 4;
+                const bottom = py + comp * (c + 1) - 4;
+                const compH = bottom - top;
+                let bx = px + 6;
+                let i = 0;
+                while (bx < px + w - 8) {
+                    const bw = 3 + (i % 3);
+                    const bh = compH - (i % 2) * 3;
+                    ctx.fillStyle = bookColors[(i + c) % bookColors.length];
+                    ctx.fillRect(bx, Math.round(bottom - bh), bw, bh);
+                    ctx.fillStyle = 'rgba(255,255,255,0.18)';
+                    ctx.fillRect(bx, Math.round(bottom - bh), 1, bh);
+                    bx += bw + 1;
+                    i++;
+                }
+            }
+        };
+        if (currentLevelData.tileObjects) {
+            currentLevelData.tileObjects.forEach(obj => {
+                if (obj.type !== 'bookshelf') return;
+                const px = obj.tileX * TILE_SIZE;
+                const py = obj.tileY * TILE_SIZE + MAP_OFFSET_Y;
+                drawBookcase(px, py, TILE_SIZE, bookshelfH);
+            });
+        }
+
         // ⭐ Marcadores brillantes tipo estrella para pistas descubiertas
         const pulse = Math.sin(Date.now() * 0.004) * 0.3 + 0.7;
         
@@ -119,7 +211,7 @@ levelLogics['date'] = {
                     if (markerType === 'object') {
                         // ◆ Diamante dorado para OBJETO FINAL
                         const baseAlpha = 0.75 + pulse * 0.25;
-                        const s = 8;
+                        const s = 10;
                         const drawDia = (ox, oy) => {
                             ctx.beginPath();
                             ctx.moveTo(cx + ox, cy + oy - s);
@@ -152,8 +244,8 @@ levelLogics['date'] = {
                     } else {
                         // ★ Estrella dorada para PISTAS de librero
                         const baseAlpha = 0.65 + pulse * 0.35;
-                        const outerR = 6;
-                        const innerR = 2.5;
+                        const outerR = 10;
+                        const innerR = 4;
                         const spikes = 5;
                         // Borde negro (dibujar 8 veces con offset 1px)
                         for (let dx = -1; dx <= 1; dx++) {
@@ -209,6 +301,7 @@ levelLogics['date'] = {
         });
 
         if (!obj) return;
+        obj.searched = true;
 
         if (obj.type === 'door') {
             if (currentLevelData.doorUnlocked) {
@@ -232,7 +325,7 @@ levelLogics['date'] = {
                 // Releer la pista si ya la encontró
                 ui.innerHTML = `⭐ ${currentLevelData.object}:\n"${currentLevelData.pistaLibrero}"<br><br><span style="color: #ffff66; font-size: 11px;">💡 Busca en el teclado de la puerta el año/código</span>`;
             }
-        } else if (obj.type === 'bookshelf' && obj.bookshelfHint) {
+        } else if (obj.bookshelfHint) {
             // Tracking robusto por ID (evita problemas con referencias del JSON)
             if (currentLevelData._foundHintIds && !currentLevelData._foundHintIds.includes(obj.id)) {
                 currentLevelData._foundHintIds.push(obj.id);

@@ -32,7 +32,7 @@ levelLogics['atomic'] = {
                 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
             ],
             tileObjects: [],
-            floorColor: '#4a3a2a', // Suelo de madera oscura homogéneo (sin rejilla)
+            floorColor: '#222a33', // Suelo slate azulado de laboratorio (frío, resalta el fuego)
             fireY: canvas.height, // El fuego empieza desde abajo
             fireSpeed: 0.2, // Velocidad reducida para dar tiempo al jugador
             doorOpen: false, // La puerta de salida se abre al resolver el puzzle
@@ -71,9 +71,9 @@ levelLogics['atomic'] = {
             id: 'main_pedestal',
             type: 'pedestal_tile',
             tileX: answerPedTileX,
-            tileY: 0, // En la pared superior
+            tileY: 1, // Un espacio abajo de la puerta, para distinguirlo
             x: answerPedTileX * TILE_SIZE,
-            y: MAP_OFFSET_Y,
+            y: MAP_OFFSET_Y + TILE_SIZE,
             w: TILE_SIZE,
             h: TILE_SIZE,
             interactive: true,
@@ -194,6 +194,16 @@ levelLogics['atomic'] = {
             currentLevelData.map[0][12] = 0;
         }
 
+        // Rejilla tenue de laboratorio: da profundidad y separa los objetos del fondo
+        ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+        ctx.lineWidth = 1;
+        for (let gx = 0; gx <= canvas.width; gx += TILE_SIZE) {
+            ctx.beginPath(); ctx.moveTo(gx + 0.5, MAP_OFFSET_Y); ctx.lineTo(gx + 0.5, canvas.height); ctx.stroke();
+        }
+        for (let gy = MAP_OFFSET_Y; gy <= canvas.height; gy += TILE_SIZE) {
+            ctx.beginPath(); ctx.moveTo(0, gy + 0.5); ctx.lineTo(canvas.width, gy + 0.5); ctx.stroke();
+        }
+
         currentLevelData.furniture.forEach(f => {
             if (f.id === 'chem') {
                 levelLogics['atomic'].drawChem(f);
@@ -207,6 +217,24 @@ levelLogics['atomic'] = {
             }
             // No dibujamos el pedestal aquí, se dibuja como tileObject
         });
+
+        // Objeto colocado en el pedestal de respuesta (permanece visible ahí,
+        // correcto o incorrecto, hasta que el jugador lo retire)
+        const ansPed = currentLevelData.tileObjects.find(o => o.id === 'main_pedestal');
+        if (ansPed && ansPed.placed) {
+            levelLogics['atomic'].drawChem({
+                x: ansPed.x,
+                y: ansPed.y - 20, // Igual que los químicos sobre sus pedestales
+                color: ansPed.placed.color,
+                shape: ansPed.placed.shape,
+                name: ansPed.placed.name
+            });
+            if (checkProximity(ansPed)) {
+                ctx.fillStyle = NES_PALETTE.black;
+                ctx.font = "18px 'Press Start 2P'";
+                ctx.fillText(ansPed.placed.name, ansPed.x, ansPed.y - 30);
+            }
+        }
 
         // --- Fuego mejorado: capas de llama + resplandor + brasas ---
         const FW = canvas.width, FH = canvas.height;
@@ -287,27 +315,35 @@ levelLogics['atomic'] = {
 
         // 4. Interacción con el pedestal de respuesta
         const pedestalTileObj = currentLevelData.tileObjects.find(o => o.id === 'main_pedestal' && o.interactive && checkProximity(o));
-        if (pedestalTileObj && state.inventory) {
-            if (state.inventory.val === currentLevelData.targetValue) {
-                currentLevelData.doorOpen = true;
-                ui.innerHTML = "✅ ¡Puerta abierta! ¡Sal rápido!";
-                if (window.gameStats) window.gameStats.recordQuestion(state.levelIndex, currentLevelData.prompt, true);
-                state.inventory = null;
+        if (pedestalTileObj) {
+            if (state.inventory) {
+                if (pedestalTileObj.placed) {
+                    // Ya hay un objeto en el pedestal: primero debe retirarlo
+                    ui.innerHTML = "Retira primero el objeto del pedestal antes de colocar otro.";
+                } else {
+                    // Colocar el objeto en el pedestal (permanece visualizado ahí)
+                    const obj = state.inventory;
+                    pedestalTileObj.placed = { ...obj };
+                    state.inventory = null;
+                    if (obj.val === currentLevelData.targetValue) {
+                        currentLevelData.doorOpen = true;
+                        ui.innerHTML = "✅ ¡Puerta abierta! " + obj.name + " era correcto.";
+                        if (window.gameStats) window.gameStats.recordQuestion(state.levelIndex, currentLevelData.prompt, true);
+                    } else {
+                        ui.innerHTML = "❌ " + obj.name + " no es correcto. Retíralo y devuélvelo a su sitio.";
+                        flashFailure();
+                        if (window.gameStats) window.gameStats.recordQuestion(state.levelIndex, currentLevelData.prompt, false);
+                        currentLevelData.fireSpeed += 0.3; // Acelerar el fuego como penalización
+                    }
+                }
+            } else if (pedestalTileObj.placed) {
+                // Sin objeto en mano: recoger el que está en el pedestal para devolverlo
+                state.inventory = { ...pedestalTileObj.placed };
+                pedestalTileObj.placed = null;
+                ui.innerHTML = "Has tomado " + state.inventory.name + ". Regrésalo a su pedestal de origen.";
             } else {
-                ui.innerHTML = "❌ Incorrecto. El " + state.inventory.name + " vuelve a su sitio.";
-                flashFailure();
-                
-                if (window.gameStats) window.gameStats.recordQuestion(state.levelIndex, currentLevelData.prompt, false);
-                
-                // Devolver automáticamente al pedestal de origen
-                currentLevelData.furniture.push({ ...state.inventory });
-                state.inventory = null;
-                
-                currentLevelData.fireSpeed += 0.3; // Acelerar el fuego como penalización
+                ui.innerHTML = "El pedestal está vacío. Necesitas un objeto.";
             }
-            return;
-        } else if (pedestalTileObj && !state.inventory) {
-            ui.innerHTML = "El pedestal está vacío. Necesitas un objeto.";
             return;
         }
     }

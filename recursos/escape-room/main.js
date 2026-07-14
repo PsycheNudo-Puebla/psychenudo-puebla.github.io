@@ -46,24 +46,27 @@ const TILE_SIZE = 32;
 const MAP_OFFSET_Y = 60;
 
 const TILES = {
-    0: { // Suelo con baldosas
+    0: { // Suelo de parquet de madera (identidad mansiones)
         pattern: (x, y) => {
-            ctx.fillStyle = NES_PALETTE.floor;
+            // Base de madera cálida
+            ctx.fillStyle = '#7a5230';
             ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
-            // Baldosas con líneas
-            ctx.strokeStyle = 'rgba(0,0,0,0.1)';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
-            ctx.beginPath();
-            ctx.moveTo(x + TILE_SIZE/2, y);
-            ctx.lineTo(x + TILE_SIZE/2, y + TILE_SIZE);
-            ctx.moveTo(x, y + TILE_SIZE/2);
-            ctx.lineTo(x + TILE_SIZE, y + TILE_SIZE/2);
-            ctx.stroke();
-            // Sombras en esquinas
-            ctx.fillStyle = 'rgba(0,0,0,0.05)';
-            ctx.fillRect(x + TILE_SIZE - 4, y + 2, 2, TILE_SIZE - 4);
-            ctx.fillRect(x + 2, y + TILE_SIZE - 4, TILE_SIZE - 4, 2);
+            // Tablones verticales con juntas oscuras
+            ctx.fillStyle = 'rgba(0,0,0,0.22)';
+            ctx.fillRect(x + 7, y, 1, TILE_SIZE);
+            ctx.fillRect(x + 15, y, 1, TILE_SIZE);
+            ctx.fillRect(x + 23, y, 1, TILE_SIZE);
+            // Veta de madera (resaltes)
+            ctx.fillStyle = 'rgba(255,225,180,0.10)';
+            ctx.fillRect(x + 1, y + 5, 6, 1);
+            ctx.fillRect(x + 9, y + 16, 6, 1);
+            ctx.fillRect(x + 17, y + 24, 6, 1);
+            ctx.fillStyle = 'rgba(0,0,0,0.10)';
+            ctx.fillRect(x + 1, y + 11, 6, 1);
+            ctx.fillRect(x + 9, y + 22, 6, 1);
+            // Sombra inferior para dar profundidad
+            ctx.fillStyle = 'rgba(0,0,0,0.14)';
+            ctx.fillRect(x, y + TILE_SIZE - 3, TILE_SIZE, 3);
         }
     },
     1: { // Pared de ladrillos NES con tilt
@@ -87,88 +90,145 @@ const TILES = {
             ctx.fillRect(x + TILE_SIZE - 4, y + 2, 2, TILE_SIZE - 4);
         }
     },
-    2: { // Mesa de madera
+    2: { // Mesa de madera (tapa con resalte y patas)
         pattern: (x, y) => {
-            ctx.fillStyle = NES_PALETTE.wood;
-            ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
-            ctx.fillStyle = NES_PALETTE.woodLight;
-            ctx.fillRect(x + 2, y + 2, TILE_SIZE - 4, 8);
+            // Sombra en el suelo
+            ctx.fillStyle = 'rgba(0,0,0,0.25)';
+            ctx.fillRect(x + 3, y + TILE_SIZE - 3, TILE_SIZE - 6, 3);
             // Patas
+            ctx.fillStyle = NES_PALETTE.woodDark;
+            ctx.fillRect(x + 5, y + 15, 4, 15);
+            ctx.fillRect(x + TILE_SIZE - 9, y + 15, 4, 15);
+            // Tapa
             ctx.fillStyle = NES_PALETTE.wood;
-            ctx.fillRect(x + 4, y + 10, 4, 18);
-            ctx.fillRect(x + TILE_SIZE - 8, y + 10, 4, 18);
-            ctx.fillStyle = "rgba(0,0,0,0.2)";
-            ctx.fillRect(x + 4, y + TILE_SIZE - 4, TILE_SIZE - 8, 4);
+            ctx.fillRect(x + 2, y + 8, TILE_SIZE - 4, 8);
+            ctx.fillStyle = NES_PALETTE.woodLight;
+            ctx.fillRect(x + 2, y + 8, TILE_SIZE - 4, 3);
+            ctx.fillStyle = 'rgba(0,0,0,0.22)';
+            ctx.fillRect(x + 2, y + 13, TILE_SIZE - 4, 2);
         }
     },
     3: { // Silla de madera
         pattern: (x, y) => {
-            ctx.fillStyle = NES_PALETTE.wood;
-            ctx.fillRect(x + 6, y + 6, TILE_SIZE - 12, TILE_SIZE - 12);
-            // Asiento
-            ctx.fillStyle = NES_PALETTE.woodLight;
-            ctx.fillRect(x + 4, y + 14, TILE_SIZE - 8, 4);
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.fillRect(x + 4, y + TILE_SIZE - 3, TILE_SIZE - 8, 3);
             // Respaldo
-            ctx.fillRect(x + 6, y + 4, TILE_SIZE - 12, 10);
-            // Patas
             ctx.fillStyle = NES_PALETTE.wood;
-            ctx.fillRect(x + 8, y + 18, 4, 10);
-            ctx.fillRect(x + TILE_SIZE - 12, y + 18, 4, 10);
-        }
-    },
-    4: { // Librero lleno
-        pattern: (x, y) => {
-            ctx.fillStyle = NES_PALETTE.wood;
-            ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+            ctx.fillRect(x + 6, y + 2, TILE_SIZE - 12, 12);
             ctx.fillStyle = NES_PALETTE.woodLight;
-            ctx.fillRect(x+2, y+4, TILE_SIZE-4, 4);
-            ctx.fillRect(x+2, y+16, TILE_SIZE-4, 4);
-            // Libros pixelados
-            const colors = [NES_PALETTE.object, NES_PALETTE.rug, NES_PALETTE.gold];
-            for(let i=0; i<3; i++) {
-                ctx.fillStyle = colors[i];
-                ctx.fillRect(x + 4 + (i*8), y + 8, 6, 8);
-                ctx.fillRect(x + 4 + (i*8), y + 20, 6, 8);
-            }
+            ctx.fillRect(x + 6, y + 2, TILE_SIZE - 12, 3);
+            // Asiento
+            ctx.fillStyle = NES_PALETTE.wood;
+            ctx.fillRect(x + 4, y + 14, TILE_SIZE - 8, 5);
+            ctx.fillStyle = NES_PALETTE.woodLight;
+            ctx.fillRect(x + 4, y + 14, TILE_SIZE - 8, 2);
+            // Patas
+            ctx.fillStyle = NES_PALETTE.woodDark;
+            ctx.fillRect(x + 7, y + 19, 3, 9);
+            ctx.fillRect(x + TILE_SIZE - 10, y + 19, 3, 9);
         }
     },
-    5: { // Puerta Clásica Madera
+    4: { // Librero con estanterías y libros de colores
         pattern: (x, y) => {
-            ctx.fillStyle = '#402000'; // Marco de madera oscura
+            // Bastidor
+            ctx.fillStyle = NES_PALETTE.woodDark;
             ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
-            // Hoja de la puerta
             ctx.fillStyle = NES_PALETTE.wood;
-            ctx.fillRect(x + 4, y + 2, TILE_SIZE - 8, TILE_SIZE - 2);
-            // Paneles decorativos
-            ctx.fillStyle = '#402000';
-            ctx.fillRect(x + 8, y + 6, 6, 8);
-            ctx.fillRect(x + 18, y + 6, 6, 8);
-            ctx.fillRect(x + 8, y + 18, 6, 8);
-            ctx.fillRect(x + 18, y + 18, 6, 8);
+            ctx.fillRect(x + 2, y + 1, TILE_SIZE - 4, TILE_SIZE - 2);
+            // Balda central
+            ctx.fillStyle = NES_PALETTE.woodDark;
+            ctx.fillRect(x + 2, y + 11, TILE_SIZE - 4, 2);
+            ctx.fillStyle = 'rgba(0,0,0,0.25)';
+            ctx.fillRect(x + 3, y + 13, TILE_SIZE - 6, 2);
+            // Libros (fila superior)
+            const bookColors = ['#c84b31', '#3b6ea5', '#e0b84b', '#4a8c5a', '#8e44ad', '#d98c4a'];
+            const off = (x / TILE_SIZE | 0);
+            let bx = x + 4;
+            for (let i = 0; i < 4 && bx < x + TILE_SIZE - 4; i++) {
+                ctx.fillStyle = bookColors[(i + off) % bookColors.length];
+                const bh = 7 + (i % 2);
+                ctx.fillRect(bx, y + 4, 4, bh);
+                ctx.fillStyle = 'rgba(255,255,255,0.18)';
+                ctx.fillRect(bx, y + 4, 1, bh);
+                bx += 5;
+            }
+            // Libros (fila inferior)
+            bx = x + 4;
+            for (let i = 0; i < 4 && bx < x + TILE_SIZE - 4; i++) {
+                ctx.fillStyle = bookColors[(i + 2) % bookColors.length];
+                ctx.fillRect(bx, y + 15, 4, 10);
+                ctx.fillStyle = 'rgba(255,255,255,0.18)';
+                ctx.fillRect(bx, y + 15, 1, 10);
+                bx += 5;
+            }
+            // Resalte del bastidor
+            ctx.fillStyle = 'rgba(255,255,255,0.12)';
+            ctx.fillRect(x + 2, y + 1, TILE_SIZE - 4, 2);
+        }
+    },
+    5: { // Puerta clásica de madera (con paneles y pomo dorado)
+        pattern: (x, y) => {
+            ctx.fillStyle = '#3a2410'; // Marco
+            ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+            ctx.fillStyle = NES_PALETTE.wood;
+            ctx.fillRect(x + 3, y + 1, TILE_SIZE - 6, TILE_SIZE - 1);
+            ctx.fillStyle = NES_PALETTE.woodLight;
+            ctx.fillRect(x + 3, y + 1, TILE_SIZE - 6, 3);
+            // Paneles hundidos
+            ctx.fillStyle = NES_PALETTE.woodDark;
+            ctx.fillRect(x + 7, y + 6, 6, 8);
+            ctx.fillRect(x + 19, y + 6, 6, 8);
+            ctx.fillRect(x + 7, y + 18, 6, 8);
+            ctx.fillRect(x + 19, y + 18, 6, 8);
             // Pomo dorado
             ctx.fillStyle = NES_PALETTE.gold;
-            ctx.fillRect(x + TILE_SIZE - 12, y + 16, 4, 4);
+            ctx.fillRect(x + TILE_SIZE - 9, y + 15, 3, 3);
         }
     },
-    6: { // Alfombra decorativa
+    6: { // Alfombra ornamental (diamante central)
         pattern: (x, y) => {
-            ctx.fillStyle = NES_PALETTE.rug;
+            ctx.fillStyle = '#7a2230';
             ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+            ctx.fillStyle = '#9c2f3f';
+            ctx.fillRect(x + 3, y + 3, TILE_SIZE - 6, TILE_SIZE - 6);
+            ctx.strokeStyle = NES_PALETTE.gold;
+            ctx.lineWidth = 1;
+            ctx.strokeRect(x + 3, y + 3, TILE_SIZE - 6, TILE_SIZE - 6);
+            // Diamante
             ctx.fillStyle = NES_PALETTE.gold;
-            ctx.strokeRect(x + 4, y + 4, TILE_SIZE - 8, TILE_SIZE - 8);
-            ctx.fillRect(x + 14, y + 14, 4, 4);
+            ctx.beginPath();
+            ctx.moveTo(x + TILE_SIZE / 2, y + 8);
+            ctx.lineTo(x + TILE_SIZE - 8, y + TILE_SIZE / 2);
+            ctx.lineTo(x + TILE_SIZE / 2, y + TILE_SIZE - 8);
+            ctx.lineTo(x + 8, y + TILE_SIZE / 2);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = '#7a2230';
+            ctx.fillRect(x + TILE_SIZE / 2 - 2, y + TILE_SIZE / 2 - 2, 4, 4);
         }
     },
     7: { // Maceta con planta
         pattern: (x, y) => {
-            ctx.fillStyle = NES_PALETTE.woodDark;
-            ctx.fillRect(x + 8, y + 16, 16, 12);
-            ctx.fillStyle = '#00a800';
-            ctx.fillRect(x + 14, y + 4, 4, 12);
-            ctx.fillRect(x + 8, y + 8, 6, 6);
-            ctx.fillRect(x + 18, y + 8, 6, 6);
-            ctx.fillStyle = '#007800';
-            ctx.fillRect(x + 10, y, 12, 8);
+            // Maceta
+            ctx.fillStyle = '#9c5a2c';
+            ctx.fillRect(x + 9, y + 18, 14, 12);
+            ctx.fillStyle = '#b8733a';
+            ctx.fillRect(x + 9, y + 18, 14, 3);
+            ctx.fillStyle = 'rgba(0,0,0,0.22)';
+            ctx.fillRect(x + 9, y + 28, 14, 2);
+            // Tierra
+            ctx.fillStyle = '#3a2412';
+            ctx.fillRect(x + 10, y + 16, 12, 3);
+            // Tallo
+            ctx.fillStyle = '#2e8b2e';
+            ctx.fillRect(x + 15, y + 4, 3, 14);
+            // Hojas
+            ctx.fillStyle = '#3fae3f';
+            ctx.beginPath(); ctx.ellipse(x + 10, y + 10, 5, 7, -0.5, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(x + 22, y + 11, 5, 7, 0.5, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(x + 16, y + 4, 5, 7, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = 'rgba(255,255,255,0.15)';
+            ctx.beginPath(); ctx.ellipse(x + 14, y + 8, 2, 4, -0.5, 0, Math.PI * 2); ctx.fill();
         }
     },
     8: { // Pedestal vacío
@@ -409,6 +469,12 @@ window.addEventListener('load', () => {
         footer.innerText = "Creado por Alfredo Adrián González Lazcano";
         menuContent.appendChild(footer);
     }
+
+    // Exponer processJSONData para que el editor de niveles (levelEditor.js)
+    // pueda lanzar sets personalizados creados por docentes.
+    window.processJSONData = processJSONData;
+    // Exponer también el contenido de un set en edición (si el editor lo fija)
+    window.__customSetData = null;
 
     // Agregar eventos a botones de presets
     const level1Btn = document.getElementById('level1Btn');
@@ -653,15 +719,17 @@ function checkCollision(nx, ny) {
         }
 
         if (currentLevelData.tileObjects) {
-            // Verificar colisión en una cuadrícula 2x2 alrededor del punto de pie,
-            // porque los puntos de colisión (nx+24, ny+50) no cubren todo el sprite.
-            // Esto detecta muebles (plantas, sillas) en tiles adyacentes.
-            for (let dgx = 0; dgx >= -1; dgx--) {
-                for (let dgy = 0; dgy >= -1; dgy--) {
-                    const hit = currentLevelData.tileObjects.find(o =>
-                        o.collidable && o.tileX === gx + dgx && o.tileY === gy + dgy
-                    );
-                    if (hit) return true;
+            // Colisión AABB de la caja de pies contra muebles colisionables
+            // (plantas, sillas). Caja más ancha que los puntos de pie para no
+            // dejar "burbujas" de colisión invisibles en la sala (el lookahead
+            // 2x2 bloqueaba un tile entero al lado del mueble).
+            const pL = nx + 6, pR = nx + 58, pT = ny + 46, pB = ny + 62;
+            for (let obj of currentLevelData.tileObjects) {
+                if (!obj.collidable) continue;
+                const ox = obj.tileX * TILE_SIZE;
+                const oy = obj.tileY * TILE_SIZE + MAP_OFFSET_Y;
+                if (pL < ox + TILE_SIZE && pR > ox && pT < oy + TILE_SIZE && pB > oy) {
+                    return true;
                 }
             }
         }
@@ -681,14 +749,25 @@ function drawMap() {
     // Dibujar el mapa base
     if (currentLevelData.map) {
         const floorColor = currentLevelData.floorColor;
+        const drawFloor = (px, py) => {
+            if (floorColor) { ctx.fillStyle = floorColor; ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE); }
+            else TILES[0].pattern(px, py);
+        };
         currentLevelData.map.forEach((row, y) => {
             row.forEach((tileType, x) => {
-                if (tileType === 0 && floorColor) {
-                    // Suelo liso y homogéneo (sin rejilla) cuando el nivel lo define
-                    ctx.fillStyle = floorColor;
-                    ctx.fillRect(x * TILE_SIZE, y * TILE_SIZE + MAP_OFFSET_Y, TILE_SIZE, TILE_SIZE);
+                const px = x * TILE_SIZE, py = y * TILE_SIZE + MAP_OFFSET_Y;
+                if (tileType === 0) {
+                    drawFloor(px, py);
                 } else if (TILES[tileType]) {
-                    TILES[tileType].pattern(x * TILE_SIZE, y * TILE_SIZE + MAP_OFFSET_Y);
+                    // En el nivel 'date' la mesa se dibuja como pieza única en level1.js:
+                    // no pintamos la mesa pequeña por tile (evita ver "mesas sueltas")
+                    if ((tileType === 2 || tileType === 4) && currentLevelData.type === 'date') {
+                        drawFloor(px, py);
+                    } else {
+                        // Siempre dibujar el piso debajo del mueble para evitar fondo en blanco
+                        drawFloor(px, py);
+                        TILES[tileType].pattern(px, py);
+                    }
                 }
             });
         });
@@ -699,7 +778,12 @@ function drawMap() {
         currentLevelData.tileObjects.forEach(obj => {
             const tileType = TILE_OBJECT_TYPES[obj.type];
             if (tileType !== undefined && TILES[tileType]) {
-                TILES[tileType].pattern(obj.tileX * TILE_SIZE, obj.tileY * TILE_SIZE + MAP_OFFSET_Y);
+                // En el nivel 'date' la mesa y los libreros ya se dibujan desde el
+                // mapa (piezas de 2 cuadros). No los redibujamos como objeto suelto
+                // para evitar libreros/mesas "sueltos" extra encima de los del mapa.
+                if ((obj.type === 'table' || obj.type === 'bookshelf') && currentLevelData.type === 'date') return;
+                const px = obj.tileX * TILE_SIZE, py = obj.tileY * TILE_SIZE + MAP_OFFSET_Y;
+                TILES[tileType].pattern(px, py);
             }
         });
     }
@@ -1027,7 +1111,7 @@ function update(dt) {
 
     // Revisar objetos de tiles (puertas, libreros, pedestales)
     if (currentLevelData.tileObjects) {
-        isNearInteractable = currentLevelData.tileObjects.some(o => o.interactive && checkProximity(o));
+        isNearInteractable = currentLevelData.tileObjects.some(o => o.interactive && !o.searched && checkProximity(o));
     }
     // Revisar muebles (cuadros, químicos)
     if (!isNearInteractable && currentLevelData.furniture) {
@@ -1037,7 +1121,8 @@ function update(dt) {
     const gx = Math.floor((player.x + player.w / 2) / TILE_SIZE);
     const gy = Math.floor((player.y + player.h - 10 - MAP_OFFSET_Y) / TILE_SIZE);
     const tileBajoPies = currentLevelData.map?.[gy]?.[gx];
-    if (tileBajoPies === 4 || tileBajoPies === 5) isNearInteractable = true;
+    const doorObj = currentLevelData.tileObjects.find(o => o.type === 'door');
+    if (tileBajoPies === 4 || (tileBajoPies === 5 && !(doorObj && doorObj.searched))) isNearInteractable = true;
 
     player.showPrompt = isNearInteractable;
 
