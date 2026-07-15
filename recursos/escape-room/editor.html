@@ -72,7 +72,7 @@
             let fields = '';
             if (lvlId === 1) {
                 fields = `<label>Nombre del Objeto:</label><input class="obj" placeholder="ej: Diario Antiguo">
-                          <label>Código de Seguridad (Clave):</label><input class="key" placeholder="ej: 1234">
+                          <label>Contraseña (palabra/clave/fecha sin espacios):</label><input class="key" placeholder="ej: D-C">
                           <label>Pistas para los libreros (una por línea):</label><textarea class="hints" rows="3" placeholder="Pista 1\nPista 2\nPista 3"></textarea>`;
             } else if (lvlId === 2) {
                 fields = `<label>Instrucción al jugador:</label><input class="prompt" placeholder="ej: Selecciona el síntoma físico">
@@ -126,7 +126,7 @@
                 scenarios.forEach(sc => {
                     let data = {};
                     if (lvl.id === 1) {
-                        data = { object: sc.querySelector('.obj').value, claveCIE: sc.querySelector('.key').value, bookshelfHints: sc.querySelector('.hints').value.split('\n') };
+                        data = { object: sc.querySelector('.obj').value, password: sc.querySelector('.key').value, bookshelfHints: sc.querySelector('.hints').value.split('\n') };
                     } else if (lvl.id === 2) {
                         const items = [
                             { name: sc.querySelector('.n1').value, val: 1, shape: 'statue', color: sc.querySelector('.c1').value },
@@ -149,7 +149,7 @@
                         const items = sc.querySelector('.items').value.split(',').map((n, i) => ({ 
                             id: i, name: n.trim(), color: colors[i % colors.length], size: (i + 1) * 2 
                         }));
-                        data = { description: "Ordena según el CIE-11", items };
+                        data = { description: "Ordena los elementos para avanzar", items };
                     } else if (lvl.id === 5) {
                         data = { 
                             roomA: [{name: sc.querySelector('.optAC').value, desc: sc.querySelector('.qA').value, correct: true}, {name: sc.querySelector('.optAI1').value, desc: "Incorrecto", correct: false}, {name: sc.querySelector('.optAI2').value, desc: "Incorrecto", correct: false}],

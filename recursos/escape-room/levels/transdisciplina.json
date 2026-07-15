@@ -8,9 +8,7 @@
         {
           "object": "Herramienta del psicólogo",
           "pistaLibrero": "PREGUNTA: ¿Cuál es la principal herramienta de trabajo del psicólogo?",
-          "claveCIE": "PALABRA",
-          "discoveryYear": "PALABRA",
-          "longitudClave": 7,
+          "password": "PALABRA",
           "bookshelfHints": [
             "PISTA: La única forma de alcanzar el alma.",
             "PISTA: Todos los enfoques la utilizan.",
@@ -20,9 +18,7 @@
         {
           "object": "Mapa de Traslape",
           "pistaLibrero": "REPORTE: La psicología comparte objetos de estudio con la filosofía, la antropología y la historia. ¿Qué concepto une a todas?",
-          "claveCIE": "SUJETO",
-          "discoveryYear": "SUJETO",
-          "longitudClave": 6,
+          "password": "SUJETO",
           "bookshelfHints": [
             "PISTA: La filosofía estudia la conciencia y la existencia.",
             "PISTA: La antropología estudia al ser humano en sociedad.",

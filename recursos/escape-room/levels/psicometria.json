@@ -6,9 +6,7 @@
       "title": "Nivel 1: Análisis de Cleaver",
       "object": "Reporte Cleaver",
       "pistaLibrero": "REPORTE: El perfil muestra una alta orientación a resultados bajo presión, pero un bajo apego a normas. ¿Qué combinación de factores (D, I, S, C) define este 'Empuje'?",
-      "claveCIE": "D-C", 
-      "discoveryYear": "D-C",
-      "longitudClave": 3,
+      "password": "D-C",
       "bookshelfHints": [
         "PISTA: La Dominancia (D) mide el empuje para obtener resultados en situaciones de oposición.",
         "PISTA: El Cumplimiento (C) mide la evitación de riesgos y el apego a estándares.",

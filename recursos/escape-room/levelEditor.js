@@ -10,55 +10,123 @@
     const STORAGE_KEY = 'escapeRoomCustomSet';
     const LEVEL_TYPES = ['date', 'atomic', 'art', 'tower', 'snakes', 'bridge', 'dragon', 'tennis', 'maze'];
     const TYPE_LABELS = {
-        date: 'Fecha / Clave (Biblioteca)',
-        atomic: 'Rasgos (Estatuas)',
-        art: 'Arte / Estilo (Cuadros)',
-        tower: 'Torre (Ordenar letras)',
-        snakes: 'Serpientes (Salas A/B)',
-        bridge: 'Puente (Verdadero/Falso)',
-        dragon: 'Dragón (Opciones)',
-        tennis: 'Tenis (Opciones)',
-        maze: 'Laberinto (V/F)'
+        date: 'Nivel 1 · Contraseña (pistas + clave)',
+        atomic: 'Nivel 2 · Elegir el objeto según el valor',
+        art: 'Nivel 3 · El elemento que no encaja',
+        tower: 'Nivel 4 · Ordenar elementos (acrónimo)',
+        snakes: 'Nivel 5 · Elegir 2 objetos (salas A y B)',
+        bridge: 'Nivel 6 · Verdadero / Falso (puente)',
+        dragon: 'Nivel 7 · Opción múltiple (bala correcta)',
+        tennis: 'Nivel 8 · Opción múltiple (tenis)',
+        maze: 'Nivel 9 · Verdadero / Falso (laberinto)'
+    };
+    // Explicación corta de cómo juega el alumno y qué debe escribir el docente.
+    const TYPE_HELP = {
+        date: 'El alumno lee un OBJETO y una PREGUNTA CLAVE, recoge PISTAS en el librero y escribe la CONTRASEÑA en la puerta. La contraseña puede ser una palabra, un acrónimo, una fecha o una clave (ej. "D-C", "6A70", "2024"). Se recomienda una sola palabra sin espacios; su longitud se calcula automáticamente.',
+        atomic: 'El escenario plantea una pregunta con un VALOR CORRECTO. El alumno elige la estatua cuyo valor numérico coincide. Escribe el enunciado, el valor objetivo y las estatuas con su valor.',
+        art: 'Hay varios cuadros, cada uno con un ESTILO. El alumno debe elegir el cuadro cuyo estilo NO coincide con el ESTILO CORRECTO (el "intruso"). Marca el estilo buscado y describe cada cuadro.',
+        tower: 'Los bloques aparecen en ORDEN ALEATORIO (no por tamaño). El alumno debe ordenarlos para formar la secuencia. Indica en "Orden correcto" la posición de cada bloque (1 = primero).',
+        snakes: 'Dos salas (A y B). En CADA sala el alumno elige UN objeto correcto (marca la casilla). Usa entre 2 y 4 opciones por sala. Al acertar ambas, avanza.',
+        bridge: 'Preguntas de Verdadero/Falso sobre el puente. Por el diseño del puente el límite es de 3 preguntas.',
+        dragon: 'Pregunta de opción múltiple: la opción que marques como correcta es la BALA que debe disparar el alumno al dragón. Máximo 4 opciones por pregunta.',
+        tennis: 'Igual que el nivel 7, pero jugando al tenis: la opción marcada como correcta es la respuesta. Máximo 4 opciones por pregunta.',
+        maze: 'Verdadero/Falso dentro del laberinto. Puedes poner varias preguntas para ir abriendo el camino.'
+    };
+    const LIMITS = {
+        bridge: { questions: 3 },
+        dragon: { options: 4 },
+        tennis: { options: 4 },
+        snakes: { roomOptionsMin: 2, roomOptionsMax: 4 },
+        maze: { questions: 8 }
     };
 
     let editorData = { name: 'Mis Niveles', levels: [] };
     let overlay, levelsRoot;
 
-    /* ---------- Plantillas por tipo ---------- */
+    /* ---------- Plantillas por tipo (con ejemplos) ---------- */
     function defaultLevel(type) {
         const base = { id: 1, type: type, title: '' };
         switch (type) {
             case 'date':
                 return Object.assign(base, {
-                    object: '', pistaLibrero: '', claveCIE: '', discoveryYear: '',
-                    longitudClave: 3, bookshelfHints: ['', '']
+                    title: 'Nivel 1: Contraseña',
+                    object: 'Reporte del caso',
+                    pistaLibrero: 'Lee el reporte: ¿qué combinación de factores define el perfil? Escribe la contraseña en la puerta.',
+                    password: 'D-C',
+                    bookshelfHints: [
+                        'Pista 1: La Dominancia (D) mide el empuje para obtener resultados.',
+                        'Pista 2: El Cumplimiento (C) mide el apego a normas y estándares.'
+                    ]
                 });
             case 'atomic':
                 return Object.assign(base, {
-                    challenges: [{ prompt: '', targetValue: 0, items: [{ name: '', val: 0, shape: 'statue', color: '#3cbcfc' }] }]
+                    title: 'Nivel 2: El rasgo correcto',
+                    challenges: [{
+                        prompt: '¿Cuál de estas estatuas representa el factor que evalúa la estabilidad emocional?',
+                        targetValue: 6,
+                        items: [{ name: 'Neuroticismo', val: 6, shape: 'statue', color: '#a80020' }]
+                    }]
                 });
             case 'art':
                 return Object.assign(base, {
-                    targetStyle: '', description: '',
-                    paintings: [{ name: '', description: '', style: '' }]
+                    title: 'Nivel 3: El intruso',
+                    targetStyle: 'Baron',
+                    description: 'Elige el cuadro cuyo estilo NO coincide con el estilo correcto.',
+                    paintings: [
+                        { name: 'Prueba de Realidad', description: 'Evalúa la capacidad de validar el pensamiento.', style: 'Baron' },
+                        { name: 'Sentido Común', description: 'Evalúa el juicio en situaciones sociales.', style: 'Moss' }
+                    ]
                 });
             case 'tower':
                 return Object.assign(base, {
-                    description: '',
-                    items: [{ id: 1, name: '', color: '#3cbcfc', size: 1 }]
+                    title: 'Nivel 4: Forma el acrónimo',
+                    description: 'Ordena los bloques para formar la palabra OCEAN.',
+                    items: [
+                        { id: 1, name: 'O - Apertura', color: '#3cbcfc', size: 2 },
+                        { id: 2, name: 'C - Responsabilidad', color: '#f8b800', size: 4 }
+                    ]
                 });
             case 'snakes':
                 return Object.assign(base, {
-                    description: '',
-                    roomA: [{ name: '', desc: '', correct: false }],
-                    roomB: [{ name: '', desc: '', correct: false }]
+                    title: 'Nivel 5: Equivalencias',
+                    description: 'En cada sala elige el objeto correcto para avanzar.',
+                    roomA: [
+                        { name: 'D (Dominancia)', desc: 'Equivale a Asertividad en Baron.', correct: true },
+                        { name: 'C (Cumplimiento)', desc: 'Equivale a Empatía en Baron.', correct: false }
+                    ],
+                    roomB: [
+                        { name: 'I (Influencia)', desc: 'Equivale a Relaciones Interpersonales.', correct: true },
+                        { name: 'S (Constancia)', desc: 'Equivale a Solución de Problemas.', correct: false }
+                    ]
                 });
             case 'bridge':
-            case 'maze':
-                return Object.assign(base, { questions: [{ prompt: '', correct: 'V' }] });
+                return Object.assign(base, {
+                    title: 'Nivel 6: El puente de la certeza',
+                    questions: [{ prompt: '¿La prueba de MOSS evalúa la adaptabilidad social?', correct: 'V' }]
+                });
             case 'dragon':
+                return Object.assign(base, {
+                    title: 'Nivel 7: El guardián',
+                    questions: [{
+                        question: '¿Qué combinación define un perfil audaz e independiente?',
+                        options: ['Alta Dominancia y Bajo Cumplimiento (D+ C-)', 'Alta Constancia e Influencia (S+ I+)', 'Bajo Empuje y Alto Cumplimiento (D- C+)'],
+                        correct: 0
+                    }]
+                });
             case 'tennis':
-                return Object.assign(base, { questions: [{ question: '', options: ['', '', ''], correct: 0 }] });
+                return Object.assign(base, {
+                    title: 'Nivel 8: Duelo final',
+                    questions: [{
+                        question: '¿Cuál es el mejor predictor de éxito laboral general?',
+                        options: ['Neuroticismo', 'Responsabilidad', 'Amabilidad'],
+                        correct: 1
+                    }]
+                });
+            case 'maze':
+                return Object.assign(base, {
+                    title: 'Nivel 9: Escape',
+                    questions: [{ prompt: '¿El modelo OCEAN postula cinco dimensiones de la personalidad?', correct: 'V' }]
+                });
         }
         return base;
     }
@@ -71,6 +139,7 @@
             else if (k === 'text') e.textContent = attrs[k];
             else if (k.startsWith('on') && typeof attrs[k] === 'function') e.addEventListener(k.slice(2), attrs[k]);
             else if (k === 'html') e.innerHTML = attrs[k];
+            else if (k === 'style' && typeof attrs[k] === 'object') Object.assign(e.style, attrs[k]);
             else e.setAttribute(k, attrs[k]);
         }
         if (children) (Array.isArray(children) ? children : [children]).forEach(c => { if (c) e.appendChild(c); });
@@ -117,32 +186,37 @@
         return el('button', { class: 'ed-btn ' + (cls || ''), text: label, onclick: onClick });
     }
 
-    /* ---------- Editores de listas (preguntas / items / etc) ---------- */
+    /* ---------- Editores de listas ---------- */
     function arrayBlock(parent, opts) {
-        // opts: { title, items, makeDefault, rowRenderer, addLabel }
+        // opts: { title, items, makeDefault, rowRenderer, addLabel, max, maxMsg }
         const section = el('div', { class: 'ed-subblock' });
         section.appendChild(el('div', { class: 'ed-subtitle', text: opts.title }));
         const list = el('div', { class: 'ed-list' });
         opts.items.forEach((item, i) => {
             const row = el('div', { class: 'ed-row' });
             const head = el('div', { class: 'ed-rowhead' });
-            head.appendChild(el('span', { text: (opts.title + ' #' + (i + 1)) }));
+            head.appendChild(el('span', { text: opts.title.replace(/s*$/, '') + ' #' + (i + 1) }));
             head.appendChild(button('✕', () => { opts.items.splice(i, 1); renderLevels(); }, 'ed-danger ed-mini'));
             row.appendChild(head);
             opts.rowRenderer(row, item);
             list.appendChild(row);
         });
         section.appendChild(list);
-        section.appendChild(button(opts.addLabel || '+ Añadir', () => { opts.items.push(opts.makeDefault()); renderLevels(); }, 'ed-add'));
+        const atMax = opts.max && opts.items.length >= opts.max;
+        const addBtn = button(atMax ? (opts.maxMsg || 'Máximo alcanzado') : (opts.addLabel || '+ Añadir'),
+            () => { if (!atMax) { opts.items.push(opts.makeDefault()); renderLevels(); } }, 'ed-add');
+        if (atMax) { addBtn.disabled = true; addBtn.classList.add('ed-disabled'); }
+        section.appendChild(addBtn);
         parent.appendChild(section);
     }
 
-    function stringListBlock(parent, title, arr) {
+    function stringListBlock(parent, title, arr, max) {
         arrayBlock(parent, {
-            title: title, items: arr, makeDefault: () => '', addLabel: '+ Añadir pista',
+            title: title, items: arr, max: max, maxMsg: 'Máximo ' + max + ' pistas', makeDefault: () => '',
+            addLabel: '+ Añadir pista',
             rowRenderer: (row, item) => {
                 const idx = arr.indexOf(item);
-                field(row, 'Texto', 'text', item, v => { arr[idx] = v; });
+                field(row, 'Texto de la pista', 'text', item, v => { arr[idx] = v; }, { placeholder: 'Ej: La Dominancia (D) mide el empuje...' });
             }
         });
     }
@@ -151,85 +225,86 @@
     function renderTypeFields(card, lvl) {
         switch (lvl.type) {
             case 'date':
-                field(card, 'Objeto / Reporte', 'text', lvl.object, v => lvl.object = v);
-                field(card, 'Pista del librero', 'text', lvl.pistaLibrero, v => lvl.pistaLibrero = v);
-                field(card, 'Clave CIE', 'text', lvl.claveCIE, v => lvl.claveCIE = v);
-                field(card, 'Año de descubrimiento', 'text', lvl.discoveryYear, v => lvl.discoveryYear = v);
-                field(card, 'Longitud de clave', 'number', lvl.longitudClave, v => lvl.longitudClave = parseInt(v, 10) || 0);
-                stringListBlock(card, 'Pistas del librero', lvl.bookshelfHints);
+                field(card, 'Objeto final (lo que el jugador lee como pista clave)', 'text', lvl.object, v => lvl.object = v, { placeholder: 'Ej: Reporte del caso' });
+                field(card, 'Pregunta clave (lo que dice el objeto para guiar a la contraseña)', 'text', lvl.pistaLibrero, v => lvl.pistaLibrero = v, { placeholder: 'Ej: ¿Qué combinación define el perfil?' });
+                field(card, 'Contraseña (una palabra/clave/fecha sin espacios)', 'text', lvl.password, v => lvl.password = v.trim(), { placeholder: 'Ej: D-C  o  6A70  o  2024' });
+                stringListBlock(card, 'Pistas de apoyo (en el librero)', lvl.bookshelfHints, 6);
                 break;
             case 'atomic':
                 arrayBlock(card, {
-                    title: 'Retos', items: lvl.challenges, makeDefault: () => ({ prompt: '', targetValue: 0, items: [{ name: '', val: 0, shape: 'statue', color: '#3cbcfc' }] }), addLabel: '+ Añadir reto',
+                    title: 'Reto', items: lvl.challenges, makeDefault: () => ({ prompt: '', targetValue: 0, items: [{ name: '', val: 0, shape: 'statue', color: '#3cbcfc' }] }), addLabel: '+ Añadir reto',
                     rowRenderer: (row, ch) => {
                         const ci = lvl.challenges.indexOf(ch);
-                        field(row, 'Enunciado', 'text', ch.prompt, v => lvl.challenges[ci].prompt = v);
-                        field(row, 'Valor objetivo', 'number', ch.targetValue, v => lvl.challenges[ci].targetValue = parseInt(v, 10) || 0);
+                        field(row, 'Enunciado de la pregunta', 'text', ch.prompt, v => lvl.challenges[ci].prompt = v, { placeholder: 'Ej: ¿Qué estatua representa la estabilidad?' });
+                        field(row, 'Valor correcto (número objetivo)', 'number', ch.targetValue, v => lvl.challenges[ci].targetValue = parseInt(v, 10) || 0);
                         arrayBlock(row, {
-                            title: 'Estatuas', items: ch.items, makeDefault: () => ({ name: '', val: 0, shape: 'statue', color: '#3cbcfc' }), addLabel: '+ Añadir estatua',
+                            title: 'Estatuas', items: ch.items, makeDefault: () => ({ name: '', val: 0, shape: 'statue', color: '#3cbcfc' }), addLabel: '+ Añadir estatua', max: 6, maxMsg: 'Máx 6 estatuas',
                             rowRenderer: (r2, it) => {
                                 const ii = ch.items.indexOf(it);
-                                field(r2, 'Nombre', 'text', it.name, v => ch.items[ii].name = v);
-                                field(r2, 'Valor', 'number', it.val, v => ch.items[ii].val = parseInt(v, 10) || 0);
-                                field(r2, 'Color (hex)', 'text', it.color, v => ch.items[ii].color = v);
+                                field(r2, 'Nombre del objeto', 'text', it.name, v => ch.items[ii].name = v, { placeholder: 'Ej: Neuroticismo' });
+                                field(r2, 'Valor numérico', 'number', it.val, v => ch.items[ii].val = parseInt(v, 10) || 0);
+                                field(r2, 'Color (hex)', 'text', it.color, v => ch.items[ii].color = v, { placeholder: '#a80020' });
                             }
                         });
                     }
                 });
                 break;
             case 'art':
-                field(card, 'Estilo objetivo', 'text', lvl.targetStyle, v => lvl.targetStyle = v);
-                field(card, 'Descripción', 'text', lvl.description, v => lvl.description = v);
+                field(card, 'Estilo correcto (el que NO debe tener el cuadro a elegir)', 'text', lvl.targetStyle, v => lvl.targetStyle = v, { placeholder: 'Ej: Baron' });
+                field(card, 'Descripción del reto', 'text', lvl.description, v => lvl.description = v, { placeholder: 'Ej: Elige el cuadro que no encaja' });
                 arrayBlock(card, {
-                    title: 'Cuadros', items: lvl.paintings, makeDefault: () => ({ name: '', description: '', style: '' }), addLabel: '+ Añadir cuadro',
+                    title: 'Cuadros', items: lvl.paintings, makeDefault: () => ({ name: '', description: '', style: '' }), addLabel: '+ Añadir cuadro', max: 6, maxMsg: 'Máx 6 cuadros',
                     rowRenderer: (row, p) => {
                         const pi = lvl.paintings.indexOf(p);
-                        field(row, 'Nombre', 'text', p.name, v => lvl.paintings[pi].name = v);
-                        field(row, 'Descripción', 'text', p.description, v => lvl.paintings[pi].description = v);
-                        field(row, 'Estilo', 'text', p.style, v => lvl.paintings[pi].style = v);
+                        field(row, 'Nombre del cuadro', 'text', p.name, v => lvl.paintings[pi].name = v, { placeholder: 'Ej: Prueba de Realidad' });
+                        field(row, 'Descripción', 'text', p.description, v => lvl.paintings[pi].description = v, { placeholder: 'Ej: Evalúa la capacidad de...' });
+                        field(row, 'Estilo del cuadro', 'text', p.style, v => lvl.paintings[pi].style = v, { placeholder: 'Ej: Baron' });
                     }
                 });
                 break;
             case 'tower':
-                field(card, 'Descripción', 'text', lvl.description, v => lvl.description = v);
+                field(card, 'Instrucción para el alumno', 'text', lvl.description, v => lvl.description = v, { placeholder: 'Ej: Ordena para formar el acrónimo OCEAN' });
                 arrayBlock(card, {
-                    title: 'Letras / Bloques', items: lvl.items, makeDefault: () => ({ id: lvl.items.length + 1, name: '', color: '#3cbcfc', size: 1 }), addLabel: '+ Añadir bloque',
+                    title: 'Bloques', items: lvl.items, makeDefault: () => ({ id: lvl.items.length + 1, name: '', color: '#3cbcfc', size: 1 }), addLabel: '+ Añadir bloque', max: 8, maxMsg: 'Máx 8 bloques',
                     rowRenderer: (row, it) => {
                         const ii = lvl.items.indexOf(it);
-                        field(row, 'Nombre', 'text', it.name, v => lvl.items[ii].name = v);
-                        field(row, 'Color (hex)', 'text', it.color, v => lvl.items[ii].color = v);
-                        field(row, 'Tamaño', 'number', it.size, v => lvl.items[ii].size = parseInt(v, 10) || 1);
+                        field(row, 'Etiqueta del bloque', 'text', it.name, v => lvl.items[ii].name = v, { placeholder: 'Ej: O - Apertura' });
+                        field(row, 'Color (hex)', 'text', it.color, v => lvl.items[ii].color = v, { placeholder: '#3cbcfc' });
+                        field(row, 'Orden correcto (1 = primero)', 'number', it.size, v => lvl.items[ii].size = parseInt(v, 10) || 1);
                     }
                 });
                 break;
             case 'snakes':
-                field(card, 'Descripción', 'text', lvl.description, v => lvl.description = v);
+                field(card, 'Descripción del reto', 'text', lvl.description, v => lvl.description = v);
+                const roomMax = LIMITS.snakes.roomOptionsMax;
                 arrayBlock(card, {
-                    title: 'Sala A', items: lvl.roomA, makeDefault: () => ({ name: '', desc: '', correct: false }), addLabel: '+ Añadir opción',
+                    title: 'Sala A (elige 1 correcta)', items: lvl.roomA, makeDefault: () => ({ name: '', desc: '', correct: false }), addLabel: '+ Añadir opción',
+                    max: roomMax, maxMsg: 'Máx ' + roomMax + ' opciones',
                     rowRenderer: (row, o) => {
                         const i = lvl.roomA.indexOf(o);
-                        field(row, 'Nombre', 'text', o.name, v => lvl.roomA[i].name = v);
-                        field(row, 'Descripción', 'text', o.desc, v => lvl.roomA[i].desc = v);
-                        checkboxField(row, '¿Correcta?', o.correct, v => lvl.roomA[i].correct = v);
+                        field(row, 'Nombre del objeto', 'text', o.name, v => lvl.roomA[i].name = v, { placeholder: 'Ej: D (Dominancia)' });
+                        field(row, 'Descripción', 'text', o.desc, v => lvl.roomA[i].desc = v, { placeholder: 'Ej: Equivale a Asertividad' });
+                        checkboxField(row, '¿Es la opción CORRECTA de esta sala?', o.correct, v => lvl.roomA[i].correct = v);
                     }
                 });
                 arrayBlock(card, {
-                    title: 'Sala B', items: lvl.roomB, makeDefault: () => ({ name: '', desc: '', correct: false }), addLabel: '+ Añadir opción',
+                    title: 'Sala B (elige 1 correcta)', items: lvl.roomB, makeDefault: () => ({ name: '', desc: '', correct: false }), addLabel: '+ Añadir opción',
+                    max: roomMax, maxMsg: 'Máx ' + roomMax + ' opciones',
                     rowRenderer: (row, o) => {
                         const i = lvl.roomB.indexOf(o);
-                        field(row, 'Nombre', 'text', o.name, v => lvl.roomB[i].name = v);
-                        field(row, 'Descripción', 'text', o.desc, v => lvl.roomB[i].desc = v);
-                        checkboxField(row, '¿Correcta?', o.correct, v => lvl.roomB[i].correct = v);
+                        field(row, 'Nombre del objeto', 'text', o.name, v => lvl.roomB[i].name = v, { placeholder: 'Ej: I (Influencia)' });
+                        field(row, 'Descripción', 'text', o.desc, v => lvl.roomB[i].desc = v, { placeholder: 'Ej: Equivale a Relaciones Interpersonales' });
+                        checkboxField(row, '¿Es la opción CORRECTA de esta sala?', o.correct, v => lvl.roomB[i].correct = v);
                     }
                 });
                 break;
             case 'bridge':
-            case 'maze':
                 arrayBlock(card, {
                     title: 'Preguntas (V/F)', items: lvl.questions, makeDefault: () => ({ prompt: '', correct: 'V' }), addLabel: '+ Añadir pregunta',
+                    max: LIMITS.bridge.questions, maxMsg: 'Máximo ' + LIMITS.bridge.questions + ' (diseño del puente)',
                     rowRenderer: (row, q) => {
                         const qi = lvl.questions.indexOf(q);
-                        field(row, 'Enunciado', 'text', q.prompt, v => lvl.questions[qi].prompt = v);
+                        field(row, 'Enunciado', 'text', q.prompt, v => lvl.questions[qi].prompt = v, { placeholder: 'Ej: ¿La prueba de MOSS evalúa la adaptabilidad social?' });
                         selectField(row, 'Respuesta', q.correct, [{ value: 'V', text: 'Verdadero' }, { value: 'F', text: 'Falso' }], v => lvl.questions[qi].correct = v);
                     }
                 });
@@ -237,24 +312,40 @@
             case 'dragon':
             case 'tennis':
                 arrayBlock(card, {
-                    title: 'Preguntas (opciones)', items: lvl.questions, makeDefault: () => ({ question: '', options: ['', '', ''], correct: 0 }), addLabel: '+ Añadir pregunta',
+                    title: 'Preguntas (opción múltiple)', items: lvl.questions, makeDefault: () => ({ question: '', options: ['', '', ''], correct: 0 }), addLabel: '+ Añadir pregunta',
                     rowRenderer: (row, q) => {
                         const qi = lvl.questions.indexOf(q);
-                        field(row, 'Pregunta', 'text', q.question, v => lvl.questions[qi].question = v);
+                        field(row, 'Pregunta', 'text', q.question, v => lvl.questions[qi].question = v, { placeholder: 'Ej: ¿Cuál es el mejor predictor de éxito laboral?' });
                         const optsWrap = el('div', { class: 'ed-subblock' });
-                        optsWrap.appendChild(el('div', { class: 'ed-subtitle', text: 'Opciones' }));
+                        optsWrap.appendChild(el('div', { class: 'ed-subtitle', text: 'Opciones (marca la correcta · máx ' + LIMITS[type].options + ')' }));
                         q.options.forEach((opt, oi) => {
                             const orow = el('div', { class: 'ed-inline' });
-                            const radio = el('input', { type: 'radio', name: 'correct_' + qi });
+                            const radio = el('input', { type: 'radio', name: 'correct_' + qi + '_' + lvl.type });
                             radio.checked = (q.correct === oi);
                             radio.addEventListener('change', () => { lvl.questions[qi].correct = oi; });
                             orow.appendChild(radio);
-                            const inp = el('input', { type: 'text', value: opt, class: 'ed-input' });
+                            const inp = el('input', { type: 'text', value: opt, class: 'ed-input', placeholder: 'Texto de la opción' });
                             inp.addEventListener('input', () => lvl.questions[qi].options[oi] = inp.value);
                             orow.appendChild(inp);
+                            if (q.options.length > 2) orow.appendChild(button('✕', () => { lvl.questions[qi].options.splice(oi, 1); if (lvl.questions[qi].correct >= lvl.questions[qi].options.length) lvl.questions[qi].correct = 0; renderLevels(); }, 'ed-danger ed-mini'));
                             optsWrap.appendChild(orow);
                         });
+                        const atMax = q.options.length >= LIMITS[type].options;
+                        const addOpt = button(atMax ? 'Máximo ' + LIMITS[type].options : '+ Añadir opción', () => { if (!atMax) { lvl.questions[qi].options.push(''); renderLevels(); } }, 'ed-add ed-mini');
+                        if (atMax) addOpt.disabled = true;
+                        optsWrap.appendChild(addOpt);
                         row.appendChild(optsWrap);
+                    }
+                });
+                break;
+            case 'maze':
+                arrayBlock(card, {
+                    title: 'Preguntas (V/F)', items: lvl.questions, makeDefault: () => ({ prompt: '', correct: 'V' }), addLabel: '+ Añadir pregunta',
+                    max: LIMITS.maze.questions, maxMsg: 'Máximo ' + LIMITS.maze.questions,
+                    rowRenderer: (row, q) => {
+                        const qi = lvl.questions.indexOf(q);
+                        field(row, 'Enunciado', 'text', q.prompt, v => lvl.questions[qi].prompt = v, { placeholder: 'Ej: ¿El modelo OCEAN tiene cinco dimensiones?' });
+                        selectField(row, 'Respuesta', q.correct, [{ value: 'V', text: 'Verdadero' }, { value: 'F', text: 'Falso' }], v => lvl.questions[qi].correct = v);
                     }
                 });
                 break;
@@ -271,7 +362,9 @@
             head.appendChild(button('Eliminar nivel', () => { editorData.levels.splice(idx, 1); renderLevels(); }, 'ed-danger'));
             card.appendChild(head);
 
-            field(card, 'Título del nivel', 'text', lvl.title, v => lvl.title = v);
+            card.appendChild(el('div', { class: 'ed-help', text: 'ℹ ' + (TYPE_HELP[lvl.type] || '') }));
+
+            field(card, 'Título del nivel', 'text', lvl.title, v => lvl.title = v, { placeholder: 'Ej: Nivel 1: Análisis de Cleaver' });
             selectField(card, 'Tipo de nivel', lvl.type, LEVEL_TYPES.map(t => ({ value: t, text: TYPE_LABELS[t] })), v => {
                 const keepTitle = lvl.title;
                 const fresh = defaultLevel(v);
@@ -291,11 +384,31 @@
         if (!editorData.name.trim()) problems.push('Falta el nombre del set.');
         if (editorData.levels.length === 0) problems.push('Agrega al menos un nivel.');
         editorData.levels.forEach((lvl, i) => {
-            if (!lvl.title.trim()) problems.push('Nivel ' + (i + 1) + ': falta el título.');
-            if (['bridge', 'maze'].includes(lvl.type) && (!lvl.questions || lvl.questions.length === 0))
-                problems.push('Nivel ' + (i + 1) + ': necesita al menos una pregunta.');
-            if (['dragon', 'tennis'].includes(lvl.type) && (!lvl.questions || lvl.questions.length === 0))
-                problems.push('Nivel ' + (i + 1) + ': necesita al menos una pregunta.');
+            const tag = 'Nivel ' + (i + 1) + ' (' + (TYPE_LABELS[lvl.type] || lvl.type) + ')';
+            if (!lvl.title.trim()) problems.push(tag + ': falta el título.');
+            if (['bridge', 'maze'].includes(lvl.type)) {
+                if (!lvl.questions || lvl.questions.length === 0) problems.push(tag + ': necesita al menos una pregunta.');
+                lvl.questions && lvl.questions.forEach((q, qi) => { if (!q.prompt || !q.prompt.trim()) problems.push(tag + ' pregunta #' + (qi + 1) + ': falta el enunciado.'); });
+            }
+            if (['dragon', 'tennis'].includes(lvl.type)) {
+                if (!lvl.questions || lvl.questions.length === 0) problems.push(tag + ': necesita al menos una pregunta.');
+                lvl.questions && lvl.questions.forEach((q, qi) => {
+                    if (!q.question || !q.question.trim()) problems.push(tag + ' pregunta #' + (qi + 1) + ': falta el enunciado.');
+                    const valid = (q.options || []).filter(o => o && o.trim());
+                    if (valid.length < 2) problems.push(tag + ' pregunta #' + (qi + 1) + ': necesita al menos 2 opciones.');
+                    if (q.correct == null || !q.options[q.correct] || !q.options[q.correct].trim()) problems.push(tag + ' pregunta #' + (qi + 1) + ': marca una opción correcta con texto.');
+                });
+            }
+            if (lvl.type === 'snakes') {
+                ['roomA', 'roomB'].forEach(room => {
+                    const arr = lvl[room] || [];
+                    if (arr.length < LIMITS.snakes.roomOptionsMin) problems.push(tag + ' ' + room + ': necesita al menos ' + LIMITS.snakes.roomOptionsMin + ' opciones.');
+                    if (!arr.some(o => o.correct)) problems.push(tag + ' ' + room + ': marca UNA opción correcta.');
+                });
+            }
+            if (lvl.type === 'date') {
+                if (!lvl.password || !lvl.password.trim()) problems.push(tag + ': falta la contraseña.');
+            }
         });
         return problems;
     }
@@ -381,7 +494,7 @@
 
         const nameRow = el('div', { class: 'ed-namerow' });
         nameRow.appendChild(el('label', { text: 'Nombre del set:' }));
-        const nameInp = el('input', { id: 'ed-setname', type: 'text', value: editorData.name, class: 'ed-input' });
+        const nameInp = el('input', { id: 'ed-setname', type: 'text', value: editorData.name, class: 'ed-input', placeholder: 'Ej: Psicometría 2' });
         nameInp.addEventListener('input', () => editorData.name = nameInp.value);
         nameRow.appendChild(nameInp);
         panel.appendChild(nameRow);
@@ -435,17 +548,19 @@
         .ed-top { display:flex; justify-content: space-between; align-items:center; }
         .ed-top h2 { color:#f8b800; margin:0; font-size: 16px; }
         .ed-namerow { display:flex; gap:10px; align-items:center; margin:14px 0; }
-        .ed-namerow label { color:#f8b800; font-size: 11px; }
+        .ed-namerow label { color:#f8b800; font-size: 11px; white-space:nowrap; }
         .ed-toolbar { display:flex; flex-wrap:wrap; gap:8px; margin-bottom: 16px; }
         .ed-levels { display:flex; flex-direction:column; gap:14px; }
         .ed-card { border:2px solid #5a3a1e; border-radius:10px; padding:14px; background: rgba(255,255,255,.03); }
-        .ed-cardhead { display:flex; justify-content: space-between; align-items:center; margin-bottom:10px; }
+        .ed-cardhead { display:flex; justify-content: space-between; align-items:center; margin-bottom:8px; }
         .ed-cnum { color:#f8b800; font-size: 13px; }
+        .ed-help { background: rgba(54,198,198,.12); border:1px solid #2a6e6e; border-radius:8px;
+            padding:10px; font-size:10px; line-height:1.6; color:#bfe9e9; margin-bottom:10px; }
         .ed-field { display:flex; flex-direction:column; margin:8px 0; }
         .ed-field label { font-size: 10px; color:#cbb78a; margin-bottom:4px; }
         .ed-input { font-family: inherit; font-size: 11px; padding:8px; border-radius:6px; border:1px solid #5a3a1e;
             background:#1b120a; color:#fff; }
-        .ed-inline { display:flex; align-items:center; gap:8px; }
+        .ed-inline { display:flex; align-items:center; gap:8px; margin:6px 0; }
         .ed-inline label { font-size: 10px; }
         .ed-subblock { border:1px dashed #5a3a1e; border-radius:8px; padding:10px; margin:10px 0; }
         .ed-subtitle { color:#36c6c6; font-size:10px; margin-bottom:8px; }
@@ -454,6 +569,7 @@
         .ed-rowhead { display:flex; justify-content: space-between; align-items:center; margin-bottom:6px; font-size:10px; color:#ffd23f; }
         .ed-btn { font-family: inherit; cursor:pointer; border:none; border-radius:8px; padding:9px 12px; font-size:11px; color:#000; background:#a80020; }
         .ed-btn:hover { filter: brightness(1.1); }
+        .ed-btn:disabled, .ed-disabled { opacity:.5; cursor:not-allowed; filter:none; }
         .ed-gold { background:#f8b800; }
         .ed-play { background:#39d98a; }
         .ed-add { background:#3cbcfc; }

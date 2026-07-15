@@ -45,8 +45,7 @@ levelLogics['date'] = {
             foundObject: false,
             object: activeScenario.object, // Asegurar que el objeto se pase
             pistaLibrero: activeScenario.pistaLibrero, // Asegurar que la pista se pase
-            claveCIE: activeScenario.claveCIE, // Asegurar que la clave se pase
-            longitudClave: activeScenario.longitudClave, // Asegurar que la longitud se pase
+            password: activeScenario.password || activeScenario.claveCIE, // Contraseña (palabra/clave/fecha)
             doorUnlocked: false,
             doorAnimY: 0
         };
@@ -323,7 +322,7 @@ levelLogics['date'] = {
                 if (window.gameStats) window.gameStats.recordQuestion(state.levelIndex, "Encontrar: " + currentLevelData.object, true);
             } else {
                 // Releer la pista si ya la encontró
-                ui.innerHTML = `⭐ ${currentLevelData.object}:\n"${currentLevelData.pistaLibrero}"<br><br><span style="color: #ffff66; font-size: 11px;">💡 Busca en el teclado de la puerta el año/código</span>`;
+                ui.innerHTML = `⭐ ${currentLevelData.object}:\n"${currentLevelData.pistaLibrero}"<br><br><span style="color: #ffff66; font-size: 11px;">💡 Escribe la contraseña en el teclado de la puerta</span>`;
             }
         } else if (obj.bookshelfHint) {
             // Tracking robusto por ID (evita problemas con referencias del JSON)

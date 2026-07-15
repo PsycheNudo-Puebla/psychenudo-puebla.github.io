@@ -5,9 +5,8 @@
       "type": "date",
       "title": "Nivel 1: El Diagnóstico",
       "object": "Expediente Clínico",
-      "pistaLibrero": "EXPEDIENTE: Paciente con tristeza profunda y anhedonia. ¿Código CIE-11?",
-      "claveCIE": "6A70",
-      "longitudClave": 4,
+      "pistaLibrero": "EXPEDIENTE: Paciente con tristeza profunda y anhedonia. ¿Cuál es el código diagnóstico?",
+      "password": "6A70",
       "bookshelfHints": [
         "PISTA: El bloque 6A corresponde a Trastornos Mentales.",
         "PISTA: La letra 'A' en el código suele referirse a subcategorías de humor.",
@@ -18,8 +17,7 @@
       "id": 2,
       "type": "atomic",
       "title": "Nivel 2: El Pedestal de Valor",
-      "claveCIE": "6C23",
-      "longitudClave": 4,
+      "password": "6C23",
       "challenges": [
         {
           "prompt": "El valor más alto es la solución.",
@@ -43,8 +41,7 @@
         {"tileX": 12, "name": "TDAH", "description": "PINTURA: Patrón de inatención, desorganización y niveles excesivos de actividad motora.", "style": "Neurodesarrollo"},
         {"tileX": 19, "name": "Trastorno Amnésico", "description": "PINTURA: Deterioro marcado de las funciones cognitivas y la memoria respecto a un nivel previo.", "style": "Neurocognitivo"}
       ],
-      "claveCIE": "6D72",
-      "longitudClave": 4
+      "password": "6D72"
     },
     {
       "id": 4,
@@ -81,7 +78,7 @@
       "title": "Nivel 6: El Abismo del Diagnóstico",
       "questions": [
         { "prompt": "¿La anhedonia es la incapacidad de sentir placer?", "correct": "V" },
-        { "prompt": "¿El CIE-11 es publicado por la Asociación Americana de Psiquiatría?", "correct": "F" },
+        { "prompt": "¿La clasificación internacional de enfermedades es publicada por la Asociación Americana de Psiquiatría?", "correct": "F" },
         { "prompt": "¿Las alucinaciones son percepciones sin objeto?", "correct": "V" }
       ]
     },
@@ -91,7 +88,7 @@
       "title": "Nivel 7: El Guardián del Habla",
       "questions": [
         {
-          "question": "¿Cuál es el código CIE-11 para el Trastorno del desarrollo del lenguaje?",
+          "question": "¿Cuál es el código para el Trastorno del desarrollo del lenguaje?",
           "options": ["6A01", "6A02", "6A03"],
           "correct": 0
         },

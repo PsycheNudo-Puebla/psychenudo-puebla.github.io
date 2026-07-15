@@ -935,8 +935,15 @@ function drawCommonRoom() {
     drawRoomHeader();
 }
 
+function getPasswordLength() {
+    // La longitud se calcula automáticamente a partir de la contraseña registrada
+    // (una sola palabra/clave sin espacios). Se recomienda que el docente no use espacios.
+    const pass = (currentLevelData.password || currentLevelData.claveCIE || currentLevelData.discoveryYear || "").toString().toUpperCase().replace(/\s+/g, '');
+    return pass.length || 4;
+}
+
 function validarPassword() {
-    const pass = (currentLevelData.claveCIE || currentLevelData.discoveryYear || "").toString().toUpperCase();
+    const pass = (currentLevelData.password || currentLevelData.claveCIE || currentLevelData.discoveryYear || "").toString().toUpperCase();
     if (state.currentInput === pass) {
         ui.innerHTML = "✅ ¡CLAVE CORRECTA! Puerta abierta.";
         state.inputModo = false;
@@ -974,7 +981,7 @@ function handleKeyboardInput(e) {
         const input = document.getElementById('hidden-mobile-input');
         if (input) input.value = state.currentInput;
         actualizarDialogoInput();
-    } else if (e.key.length === 1 && e.key !== " " && !e.altKey && state.currentInput.length < (currentLevelData.longitudClave || 4)) {
+    } else if (e.key.length === 1 && e.key !== " " && !e.altKey && state.currentInput.length < getPasswordLength()) {
         state.currentInput += e.key.toUpperCase();
         const input = document.getElementById('hidden-mobile-input');
         if (input) input.value = state.currentInput;
@@ -994,7 +1001,7 @@ function salirModoInput() {
 function actualizarDialogoInput() {
     if (state.inputModo) toggleMobileKeyboard(true);
     if (!state.inputModo) return;
-    let length = currentLevelData.longitudClave || 4;
+    let length = getPasswordLength();
     let display = "";
     for (let i = 0; i < length; i++) {
         if (i < state.currentInput.length) {
@@ -1331,7 +1338,7 @@ function setupMobileControls() {
     // Listener para capturar texto en móviles de forma nativa
     hiddenInput.addEventListener('input', (e) => {
         if (state.inputModo) {
-            state.currentInput = e.target.value.toUpperCase().slice(0, currentLevelData.longitudClave || 4);
+            state.currentInput = e.target.value.toUpperCase().slice(0, getPasswordLength());
             actualizarDialogoInput();
         }
     });

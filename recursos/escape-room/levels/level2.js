@@ -48,7 +48,7 @@ levelLogics['atomic'] = {
         player.x = 400; player.y = 200;
 
         // Si el JSON no tiene desafíos (como en Psicopatología), creamos uno por defecto
-        const challenges = base.challenges || [{ prompt: base.pistaLibrero || "Encuentra la clave.", items: [], targetValue: base.claveCIE }];
+        const challenges = base.challenges || [{ prompt: base.pistaLibrero || "Encuentra la clave.", items: [], targetValue: base.password || base.claveCIE }];
         
         // Elegir un desafío aleatorio si hay múltiples
         const currentChallenge = challenges[Math.floor(Math.random() * challenges.length)];

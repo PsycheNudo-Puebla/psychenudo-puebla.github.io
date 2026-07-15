@@ -7,7 +7,7 @@
       "scenarios": [
         {
           "object": "Mapa de América",
-          "discoveryYear": 1492,
+          "password": "1492",
           "pistaLibrero": "REPORTE: El año en que se unieron dos mundos bajo el reinado de los Reyes Católicos.",
           "bookshelfHints": [
             "PISTA: Ocurrió a finales del siglo XV.",
@@ -17,7 +17,7 @@
         },
         {
           "object": "Módulo Lunar",
-          "discoveryYear": 1969,
+          "password": "1969",
           "pistaLibrero": "REPORTE: Un pequeño paso para el hombre, un gran salto para la humanidad.",
           "bookshelfHints": [
             "PISTA: Fue durante la Guerra Fría.",

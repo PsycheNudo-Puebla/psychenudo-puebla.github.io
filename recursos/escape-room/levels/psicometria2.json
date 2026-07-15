@@ -8,9 +8,7 @@
         {
           "object": "Reporte Cleaver",
           "pistaLibrero": "REPORTE: El perfil muestra una alta orientación a resultados bajo presión, pero un bajo apego a normas. ¿Qué combinación de factores (D, I, S, C) define este 'Empuje'?",
-          "claveCIE": "D-C", 
-          "discoveryYear": "D-C",
-          "longitudClave": 3,
+          "password": "D-C",
           "bookshelfHints": [
             "PISTA: La Dominancia (D) mide el empuje para obtener resultados en situaciones de oposición.",
             "PISTA: El Cumplimiento (C) mide la evitación de riesgos y el apego a estándares.",
@@ -20,9 +18,7 @@
         {
           "object": "Perfil de Ventas Cleaver",
           "pistaLibrero": "REPORTE: El candidato es altamente sociable y persuasivo, pero muestra impaciencia por terminar tareas rutinarias. ¿Qué combinación (I, S) define este perfil?",
-          "claveCIE": "I-S",
-          "discoveryYear": "I-S",
-          "longitudClave": 3,
+          "password": "I-S",
           "bookshelfHints": [
             "PISTA: La Influencia (I) se asocia con la persuasión y el optimismo.",
             "PISTA: La Constancia (S) baja indica necesidad de cambio y ritmo rápido.",
