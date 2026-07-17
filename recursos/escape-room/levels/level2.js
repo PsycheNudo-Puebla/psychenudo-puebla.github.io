@@ -150,9 +150,15 @@ levelLogics['atomic'] = {
             }
         }
 
-        // Mostrar el prompt inicial una vez
+        // Mostrar el prompt inicial una vez, incluyendo la lista de objetos
+        // con su valor para que el alumno pueda resolver el acertijo.
         if (!currentLevelData.initialPromptShown) {
-            ui.innerHTML = currentLevelData.prompt;
+            const objList = (currentLevelData.furniture || [])
+                .filter(f => f.id === 'chem')
+                .map(f => `<strong>${f.name || '?'}</strong> = ${f.val != null ? f.val : '?'}`)
+                .join('  ·  ');
+            ui.innerHTML = `<strong>${currentLevelData.prompt || ''}</strong>` +
+                (objList ? `<br><span style="color:#f8b800">Objetos: ${objList}</span>` : '');
             currentLevelData.initialPromptShown = true;
         }
     },
@@ -207,13 +213,15 @@ levelLogics['atomic'] = {
         currentLevelData.furniture.forEach(f => {
             if (f.id === 'chem') {
                 levelLogics['atomic'].drawChem(f);
-                // Mostrar nombre al acercarse
-                if (checkProximity(f)) {
-                    ctx.fillStyle = NES_PALETTE.black;
-                    ctx.font = "14px 'Press Start 2P'";
-                    ctx.font = "18px 'Press Start 2P'";
-                    ctx.fillText(f.name, f.x, f.y - 10);
-                }
+                // Nombre y valor SIEMPRE visibles sobre el objeto, con fondo
+                // legible, para que el alumno pueda resolver el acertijo.
+                const label = (f.name || '?') + '  (' + (f.val != null ? f.val : '?') + ')';
+                ctx.font = "10px 'Press Start 2P', monospace";
+                const tw = Math.max(ctx.measureText(label).width, 30);
+                ctx.fillStyle = 'rgba(0,0,0,0.65)';
+                ctx.fillRect(f.x - 3, f.y - 26, tw + 6, 18);
+                ctx.fillStyle = NES_PALETTE.gold;
+                ctx.fillText(label, f.x, f.y - 12);
             }
             // No dibujamos el pedestal aquí, se dibuja como tileObject
         });
@@ -222,18 +230,22 @@ levelLogics['atomic'] = {
         // correcto o incorrecto, hasta que el jugador lo retire)
         const ansPed = currentLevelData.tileObjects.find(o => o.id === 'main_pedestal');
         if (ansPed && ansPed.placed) {
+            const placed = ansPed.placed;
             levelLogics['atomic'].drawChem({
                 x: ansPed.x,
                 y: ansPed.y - 20, // Igual que los químicos sobre sus pedestales
-                color: ansPed.placed.color,
-                shape: ansPed.placed.shape,
-                name: ansPed.placed.name
+                color: placed.color,
+                shape: placed.shape,
+                name: placed.name
             });
-            if (checkProximity(ansPed)) {
-                ctx.fillStyle = NES_PALETTE.black;
-                ctx.font = "18px 'Press Start 2P'";
-                ctx.fillText(ansPed.placed.name, ansPed.x, ansPed.y - 30);
-            }
+            // Nombre y valor SIEMPRE visibles sobre el objeto en el pedestal
+            const label = (placed.name || '?') + '  (' + (placed.val != null ? placed.val : '?') + ')';
+            ctx.font = "10px 'Press Start 2P', monospace";
+            const tw = Math.max(ctx.measureText(label).width, 30);
+            ctx.fillStyle = 'rgba(0,0,0,0.65)';
+            ctx.fillRect(ansPed.x - 3, ansPed.y - 46, tw + 6, 18);
+            ctx.fillStyle = NES_PALETTE.gold;
+            ctx.fillText(label, ansPed.x, ansPed.y - 32);
         }
 
         // --- Fuego mejorado: capas de llama + resplandor + brasas ---

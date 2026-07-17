@@ -726,9 +726,13 @@ function checkCollision(nx, ny) {
             const pL = nx + 6, pR = nx + 58, pT = ny + 46, pB = ny + 62;
             for (let obj of currentLevelData.tileObjects) {
                 if (!obj.collidable) continue;
-                const ox = obj.tileX * TILE_SIZE;
-                const oy = obj.tileY * TILE_SIZE + MAP_OFFSET_Y;
-                if (pL < ox + TILE_SIZE && pR > ox && pT < oy + TILE_SIZE && pB > oy) {
+                // Ancho/alto de colisión personalizados (si el objeto los define),
+                // centrados en el tile. Por defecto ocupa el tile completo (32px).
+                const ow = obj.w || TILE_SIZE;
+                const oh = obj.h || TILE_SIZE;
+                const ox = obj.tileX * TILE_SIZE + (TILE_SIZE - ow) / 2;
+                const oy = obj.tileY * TILE_SIZE + MAP_OFFSET_Y + (TILE_SIZE - oh) / 2;
+                if (pL < ox + ow && pR > ox && pT < oy + oh && pB > oy) {
                     return true;
                 }
             }

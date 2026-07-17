@@ -70,9 +70,10 @@
             base.pedestals.push({ id: i, x: startX + (i * spacing), y: 470, tower: null });
         }
 
-        // Barajar hasta asegurar que NO empiece resuelto
-        let availableIndices = Array.from({length: numPedestals}, (_, i) => i);
-        
+        // Barajar hasta asegurar que NO empiece ordenado de menor a mayor
+        // (el reto real exige que el alumno tenga que reordenar los bloques).
+        let availableIndices = Array.from({ length: numPedestals }, (_, i) => i);
+
         // Barajado robusto (Fisher-Yates)
         const shuffle = (array) => {
             for (let i = array.length - 1; i > 0; i--) {
@@ -82,16 +83,31 @@
             return array;
         };
 
-        shuffle(availableIndices);
+        // Devuelve el orden de tamaños resultante en los pedestales
+        const orderFrom = (idx) => {
+            const testOrder = new Array(numPedestals).fill(0);
+            jsonItems.forEach((item, k) => { testOrder[idx[k]] = item.size; });
+            return testOrder;
+        };
+        // ¿Está estrictamente ordenado de menor a mayor (con el vacío al inicio)?
+        const isAscending = (order) => {
+            for (let i = 1; i < order.length; i++) {
+                if (order[i] <= order[i - 1]) return false;
+            }
+            return true;
+        };
 
-        // Verificar si por azar quedó resuelto (muy improbable, pero posible)
-        const testOrder = new Array(numPedestals).fill(0);
-        jsonItems.forEach((item, idx) => { testOrder[availableIndices[idx]] = item.size; });
-        
-        const isSolved = testOrder.every((v, i) => v === base.winOrder[i]);
-        if (isSolved && numPedestals > 1) {
-            // Si está resuelto, simplemente intercambiamos los dos primeros índices
-            [availableIndices[0], availableIndices[1]] = [availableIndices[1], availableIndices[0]];
+        // Re-barajamos hasta que el arreglo inicial NO quede ascendente.
+        let guard = 0;
+        do {
+            shuffle(availableIndices);
+            guard++;
+        } while (isAscending(orderFrom(availableIndices)) && guard < 50);
+
+        // Doble seguridad: si tras muchos intentos aún quedó ascendente
+        // (poco probable), intercambiamos los dos primeros bloques.
+        if (isAscending(orderFrom(availableIndices)) && numPedestals > 2) {
+            [availableIndices[1], availableIndices[2]] = [availableIndices[2], availableIndices[1]];
         }
 
         jsonItems.forEach((item, idx) => {

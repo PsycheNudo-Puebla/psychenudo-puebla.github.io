@@ -1,0 +1,66 @@
+{
+  "levels": [
+    {
+      "id": 1,
+      "type": "date",
+      "title": "Mi nivel de prueba",
+      "object": "Mi Objeto Secreto",
+      "pistaLibrero": "¿Cuál es la capital de México?",
+      "password": "CDMX",
+      "bookshelfHints": [
+        "Pista: Se encuentra en el centro del país",
+        "Pista: Su nombre significa \"lugar del ombligo de la luna\""
+      ]
+    },
+    {
+      "id": 2,
+      "type": "atomic",
+      "title": "Nivel 2: El Objeto Correcto",
+      "challenges": [
+        {
+          "prompt": "¿Cuál es el número de planetas del sistema solar?",
+          "targetValue": 8,
+          "items": [
+            {
+              "name": "Mercurio",
+              "val": 8,
+              "shape": "statue",
+              "color": "#3cbcfc"
+            },
+            {
+              "name": "Venus",
+              "val": 3,
+              "shape": "statue",
+              "color": "#3cbcfc"
+            },
+            {
+              "name": "Tierra",
+              "val": 1,
+              "shape": "statue",
+              "color": "#3cbcfc"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "art",
+      "title": "Nivel 3: El Intruso",
+      "targetStyle": "Renacimiento",
+      "description": "Encuentra el cuadro que no es de estilo Renacimiento",
+      "paintings": [
+        {
+          "name": "La Mona Lisa",
+          "description": "Cuadro de Leonardo da Vinci",
+          "style": "Renacimiento"
+        },
+        {
+          "name": "",
+          "description": "",
+          "style": ""
+        }
+      ]
+    }
+  ]
+}

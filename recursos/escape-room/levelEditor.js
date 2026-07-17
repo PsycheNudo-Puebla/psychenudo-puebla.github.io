@@ -23,7 +23,7 @@
     // Explicación corta de cómo juega el alumno y qué debe escribir el docente.
     const TYPE_HELP = {
         date: 'El alumno lee un OBJETO y una PREGUNTA CLAVE, recoge PISTAS en el librero y escribe la CONTRASEÑA en la puerta. La contraseña puede ser una palabra, un acrónimo, una fecha o una clave (ej. "D-C", "6A70", "2024"). Se recomienda una sola palabra sin espacios; su longitud se calcula automáticamente.',
-        atomic: 'El escenario plantea una pregunta con un VALOR CORRECTO. El alumno elige la estatua cuyo valor numérico coincide. Escribe el enunciado, el valor objetivo y las estatuas con su valor.',
+        atomic: 'El escenario plantea una pregunta con un VALOR CORRECTO. El alumno elige el objeto cuyo valor numérico coincide. Escribe el enunciado, el valor objetivo y los objetos con su valor. La FORMA de cada objeto se asigna automáticamente (no la elijas).',
         art: 'Hay varios cuadros, cada uno con un ESTILO. El alumno debe elegir el cuadro cuyo estilo NO coincide con el ESTILO CORRECTO (el "intruso"). Marca el estilo buscado y describe cada cuadro.',
         tower: 'Los bloques aparecen en ORDEN ALEATORIO (no por tamaño). El alumno debe ordenarlos para formar la secuencia. Indica en "Orden correcto" la posición de cada bloque (1 = primero).',
         snakes: 'Dos salas (A y B). En CADA sala el alumno elige UN objeto correcto (marca la casilla). Usa entre 2 y 4 opciones por sala. Al acertar ambas, avanza.',
@@ -39,6 +39,9 @@
         snakes: { roomOptionsMin: 2, roomOptionsMax: 4 },
         maze: { questions: 8 }
     };
+    // Formas que dibuja el nivel 2. Se asignan automáticamente (por índice) para que
+    // cada objeto sea visualmente distinto sin que el docente deba elegirla.
+    const ATOMIC_SHAPES = ['statue', 'vase', 'trophy'];
 
     let editorData = { name: 'Mis Niveles', levels: [] };
     let overlay, levelsRoot;
@@ -61,7 +64,7 @@
                     challenges: [{
                         prompt: '',
                         targetValue: 0,
-                        items: [{ name: '', val: 0, shape: 'statue', color: '#3cbcfc' }]
+                        items: ATOMIC_SHAPES.map((s, i) => ({ name: '', val: 0, shape: s, color: '#3cbcfc' }))
                     }]
                 });
             case 'art':
@@ -79,8 +82,11 @@
                     title: '',
                     description: '',
                     items: [
-                        { id: 1, name: '', color: '#3cbcfc', size: 2 },
-                        { id: 2, name: '', color: '#f8b800', size: 4 }
+                        { id: 1, name: '', color: '#3cbcfc', size: 1 },
+                        { id: 2, name: '', color: '#f8b800', size: 2 },
+                        { id: 3, name: '', color: '#a80020', size: 3 },
+                        { id: 4, name: '', color: '#00a800', size: 4 },
+                        { id: 5, name: '', color: '#8e44ad', size: 5 }
                     ]
                 });
             case 'snakes':
@@ -229,13 +235,13 @@
                 break;
             case 'atomic':
                 arrayBlock(card, {
-                    title: 'Reto', items: lvl.challenges, makeDefault: () => ({ prompt: '', targetValue: 0, items: [{ name: '', val: 0, shape: 'statue', color: '#3cbcfc' }] }), addLabel: '+ Añadir reto',
+                    title: 'Reto', items: lvl.challenges, makeDefault: () => ({ prompt: '', targetValue: 0, items: [{ name: '', val: 0, shape: ATOMIC_SHAPES[0], color: '#3cbcfc' }] }), addLabel: '+ Añadir reto',
                     rowRenderer: (row, ch) => {
                         const ci = lvl.challenges.indexOf(ch);
                         field(row, 'Enunciado de la pregunta', 'text', ch.prompt, v => lvl.challenges[ci].prompt = v, { placeholder: 'Ej: ¿Qué estatua representa la estabilidad?' });
                         field(row, 'Valor correcto (número objetivo)', 'number', ch.targetValue, v => lvl.challenges[ci].targetValue = parseInt(v, 10) || 0);
                         arrayBlock(row, {
-                            title: 'Estatuas', items: ch.items, makeDefault: () => ({ name: '', val: 0, shape: 'statue', color: '#3cbcfc' }), addLabel: '+ Añadir estatua', max: 6, maxMsg: 'Máx 6 estatuas',
+                            title: 'Objetos (la forma se asigna automáticamente)', items: ch.items, makeDefault: () => ({ name: '', val: 0, shape: ATOMIC_SHAPES[ch.items.length % ATOMIC_SHAPES.length], color: '#3cbcfc' }), addLabel: '+ Añadir objeto', max: 6, maxMsg: 'Máx 6 objetos',
                             rowRenderer: (r2, it) => {
                                 const ii = ch.items.indexOf(it);
                                 field(r2, 'Nombre del objeto', 'text', it.name, v => ch.items[ii].name = v, { placeholder: 'Ej: Neuroticismo' });
@@ -262,7 +268,11 @@
             case 'tower':
                 field(card, 'Instrucción para el alumno', 'text', lvl.description, v => lvl.description = v, { placeholder: 'Ej: Ordena para formar el acrónimo OCEAN' });
                 arrayBlock(card, {
-                    title: 'Bloques', items: lvl.items, makeDefault: () => ({ id: lvl.items.length + 1, name: '', color: '#3cbcfc', size: 1 }), addLabel: '+ Añadir bloque', max: 8, maxMsg: 'Máx 8 bloques',
+                    title: 'Bloques', items: lvl.items, makeDefault: () => {
+                        const TOWER_COLORS = ['#3cbcfc', '#f8b800', '#a80020', '#00a800', '#8e44ad', '#e0b84b', '#d98c4a', '#525d6b'];
+                        const n = lvl.items.length;
+                        return { id: n + 1, name: '', color: TOWER_COLORS[n % TOWER_COLORS.length], size: (n % 8) + 1 };
+                    }, addLabel: '+ Añadir bloque', max: 8, maxMsg: 'Máx 8 bloques',
                     rowRenderer: (row, it) => {
                         const ii = lvl.items.indexOf(it);
                         field(row, 'Etiqueta del bloque', 'text', it.name, v => lvl.items[ii].name = v, { placeholder: 'Ej: O - Apertura' });
@@ -414,6 +424,17 @@
         const levels = editorData.levels.map((lvl, i) => {
             const copy = JSON.parse(JSON.stringify(lvl));
             copy.id = i + 1;
+            // Nivel 2: asignar forma y color distintos a cada objeto de forma
+            // automática, para que nunca salgan idénticos.
+            if (copy.type === 'atomic' && copy.challenges) {
+                const ATOMIC_COLORS = ['#3cbcfc', '#f8b800', '#a80020', '#00a800', '#8e44ad', '#e0b84b'];
+                copy.challenges.forEach(ch => {
+                    if (ch.items) ch.items.forEach((it, idx) => {
+                        it.shape = ATOMIC_SHAPES[idx % ATOMIC_SHAPES.length];
+                        it.color = ATOMIC_COLORS[idx % ATOMIC_COLORS.length];
+                    });
+                });
+            }
             return copy;
         });
         return { levels: levels };

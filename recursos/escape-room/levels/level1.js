@@ -1,8 +1,11 @@
 levelLogics['date'] = {
     init: (levelData) => {
         // 🧹 LIMPIEZA total de estado de ejecuciones anteriores
-        // Los tileObjects son referencia al JSON original y acumulan propiedades
+        // Los tileObjects son referencia al JSON original y acumulan propiedades.
+        // También descartamos las colisiones auxiliares de librero que este mismo
+        // init genera (type 'bookshelf_collide'), para no duplicarlas al re-ejecutar.
         if (levelData.tileObjects) {
+            levelData.tileObjects = levelData.tileObjects.filter(o => o.type !== 'bookshelf_collide');
             levelData.tileObjects.forEach(obj => {
                 delete obj.hasWinningObject;
                 delete obj.foundHint;
@@ -21,26 +24,47 @@ levelLogics['date'] = {
             title: levelData.title,
             map: levelData.map || [
                 [1,1,1,1,1,1,1,1,1,1,1,1,5,1,1,1,1,1,1,1,1,1,1,1,1],
-                [1,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,4,1,1],
+                [1,0,0,0,0,0,0,0,0,0,0,6,6,6,0,0,0,0,0,0,0,0,0,0,1],
                 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                [1,0,0,0,0,0,0,0,0,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,1],
-                [1,0,0,0,0,0,0,0,0,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,1],
                 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                [1,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,4,1,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
             ],
             tileObjects: levelData.tileObjects || [
-                { "id": "t1", "type": "table", "tileX": 10, "tileY": 4, "interactive": true },
-                { "id": "t2", "type": "table", "tileX": 13, "tileY": 4, "interactive": true },
-                { "id": "s1", "type": "bookshelf", "tileX": 2, "tileY": 1, "interactive": true },
-                { "id": "s2", "type": "bookshelf", "tileX": 20, "tileY": 1, "interactive": true },
-                { "id": "s3", "type": "bookshelf", "tileX": 2, "tileY": 8, "interactive": true },
-                { "id": "s4", "type": "bookshelf", "tileX": 20, "tileY": 8, "interactive": true },
-                { "id": "locked_door", "type": "door", "tileX": 12, "tileY": 0, "interactive": true }
+                { "id": "t1", "type": "table", "tileX": 11, "tileY": 5, "interactive": true },
+                { "id": "t2", "type": "table", "tileX": 12, "tileY": 5, "interactive": true },
+                { "id": "t3", "type": "table", "tileX": 13, "tileY": 5, "interactive": true },
+                { "id": "t4", "type": "table", "tileX": 11, "tileY": 6, "interactive": true },
+                { "id": "t5", "type": "table", "tileX": 12, "tileY": 6, "interactive": true },
+                { "id": "t6", "type": "table", "tileX": 13, "tileY": 6, "interactive": true },
+                { "id": "s1", "type": "bookshelf", "tileX": 1, "tileY": 3, "interactive": true },
+                { "id": "s2", "type": "bookshelf", "tileX": 4, "tileY": 3, "interactive": true },
+                { "id": "s3", "type": "bookshelf", "tileX": 20, "tileY": 3, "interactive": true },
+                { "id": "s4", "type": "bookshelf", "tileX": 23, "tileY": 3, "interactive": true },
+                { "id": "s5", "type": "bookshelf", "tileX": 1, "tileY": 9, "interactive": true },
+                { "id": "s6", "type": "bookshelf", "tileX": 4, "tileY": 9, "interactive": true },
+                { "id": "s7", "type": "bookshelf", "tileX": 20, "tileY": 9, "interactive": true },
+                { "id": "s8", "type": "bookshelf", "tileX": 23, "tileY": 9, "interactive": true },
+                { "id": "locked_door", "type": "door", "tileX": 12, "tileY": 0, "interactive": true },
+                { "id": "p1", "type": "plant", "tileX": 1, "tileY": 1 },
+                { "id": "p2", "type": "plant", "tileX": 23, "tileY": 1 },
+                { "id": "p3", "type": "plant", "tileX": 1, "tileY": 14 },
+                { "id": "p4", "type": "plant", "tileX": 23, "tileY": 14 },
+                { "id": "c1", "type": "chair", "tileX": 10, "tileY": 6, "interactive": true },
+                { "id": "c2", "type": "chair", "tileX": 14, "tileY": 6, "interactive": true },
+                { "id": "r1", "type": "rug", "tileX": 11, "tileY": 1 },
+                { "id": "r2", "type": "rug", "tileX": 12, "tileY": 1 },
+                { "id": "r3", "type": "rug", "tileX": 13, "tileY": 1 }
             ],
             foundObject: false,
             object: activeScenario.object, // Asegurar que el objeto se pase
@@ -50,15 +74,41 @@ levelLogics['date'] = {
             doorAnimY: 0
         };
         
-        // Spawn seguro dentro del Archivo (frente a la mesa central)
-        player.x = 400; player.y = 380;
+        // Spawn seguro dentro del Archivo (frente a la mesa central, sobre piso)
+        // y=300 deja los pies en la fila 9 (piso); la fila 11 es el muro inferior.
+        player.x = 400; player.y = 300;
         
-        // Activar colisiones en muebles sólidos (plantas, sillas)
+        // PLANTAS de esquina, MESA central, SILLAS y LIBREROS son colisionables:
+        // el jugador NO debe atravesarlos. La mesa ocupa cols 11-13 (rows 6-7) y las
+        // sillas están a sus costados (col 10 y col 14, row 6). Los libreros se
+        // dibujan como piezas de 4 cuadros de alto, así que su colisión se expande
+        // a esos 4 tiles para que el jugador no atraviese la parte baja del mueble.
+        const bookshelfCollisions = [];
         base.tileObjects.forEach(obj => {
-            if (obj.type === 'plant' || obj.type === 'chair') {
+            if (obj.type === 'plant' || obj.type === 'table' || obj.type === 'chair') obj.collidable = true;
+            // Plantas: colisión más estrecha que el tile (w=24), igual que los
+            // libreros, para que el personaje pase más pegado a ellas.
+            if (obj.type === 'plant') obj.w = 24;
+            if (obj.type === 'bookshelf') {
                 obj.collidable = true;
+                // Colisión más estrecha que el tile: el dibujo del librero tiene
+                // postes de 4px en los bordes, así que dejamos ~4px libres a cada
+                // lado (w=24). El personaje se detiene justo al tocar el cuerpo
+                // del mueble y no "antes", sin reducir el pasillo entre libreros.
+                obj.w = 24;
+                for (let k = 1; k < 4; k++) {
+                    bookshelfCollisions.push({
+                        id: obj.id + '_col' + k,
+                        type: 'bookshelf_collide',
+                        tileX: obj.tileX,
+                        tileY: obj.tileY + k,
+                        collidable: true,
+                        w: 24
+                    });
+                }
             }
         });
+        base.tileObjects.push(...bookshelfCollisions);
 
         // Todos los muebles (excepto la puerta) son revisables: muestran "?"
         // hasta que el jugador los revise; tras revisarlos ya no aparece el signo.
@@ -94,10 +144,12 @@ levelLogics['date'] = {
         return base;
     },
     draw: () => {
-        // ⭐ Gran mesa central (cols 10-13, rows 7-8) dibujada como pieza única
-        const tbx = 10 * TILE_SIZE;
-        const tby = 7 * TILE_SIZE + MAP_OFFSET_Y;
-        const tbw = 4 * TILE_SIZE;
+        // ⭐ Gran mesa central (cols 11-13, rows 6-7) dibujada como pieza única.
+        // Alineada con sus tileObjects (t1,t2,t3 en tileY 6) para que lo visual
+        // coincida con la lógica y no haya desfase.
+        const tbx = 11 * TILE_SIZE;
+        const tby = 5 * TILE_SIZE + MAP_OFFSET_Y;
+        const tbw = 3 * TILE_SIZE;
         const tbh = 2 * TILE_SIZE;
         // Sombra en el suelo
         ctx.fillStyle = 'rgba(0,0,0,0.30)';
