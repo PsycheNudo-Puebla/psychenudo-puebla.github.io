@@ -49,83 +49,80 @@
         switch (type) {
             case 'date':
                 return Object.assign(base, {
-                    title: 'Nivel 1: Contraseña',
-                    object: 'Reporte del caso',
-                    pistaLibrero: 'Lee el reporte: ¿qué combinación de factores define el perfil? Escribe la contraseña en la puerta.',
-                    password: 'D-C',
-                    bookshelfHints: [
-                        'Pista 1: La Dominancia (D) mide el empuje para obtener resultados.',
-                        'Pista 2: El Cumplimiento (C) mide el apego a normas y estándares.'
-                    ]
+                    title: '',
+                    object: '',
+                    pistaLibrero: '',
+                    password: '',
+                    bookshelfHints: ['']
                 });
             case 'atomic':
                 return Object.assign(base, {
-                    title: 'Nivel 2: El rasgo correcto',
+                    title: '',
                     challenges: [{
-                        prompt: '¿Cuál de estas estatuas representa el factor que evalúa la estabilidad emocional?',
-                        targetValue: 6,
-                        items: [{ name: 'Neuroticismo', val: 6, shape: 'statue', color: '#a80020' }]
+                        prompt: '',
+                        targetValue: 0,
+                        items: [{ name: '', val: 0, shape: 'statue', color: '#3cbcfc' }]
                     }]
                 });
             case 'art':
                 return Object.assign(base, {
-                    title: 'Nivel 3: El intruso',
-                    targetStyle: 'Baron',
-                    description: 'Elige el cuadro cuyo estilo NO coincide con el estilo correcto.',
+                    title: '',
+                    targetStyle: '',
+                    description: '',
                     paintings: [
-                        { name: 'Prueba de Realidad', description: 'Evalúa la capacidad de validar el pensamiento.', style: 'Baron' },
-                        { name: 'Sentido Común', description: 'Evalúa el juicio en situaciones sociales.', style: 'Moss' }
+                        { name: '', description: '', style: '' },
+                        { name: '', description: '', style: '' }
                     ]
                 });
             case 'tower':
                 return Object.assign(base, {
-                    title: 'Nivel 4: Forma el acrónimo',
-                    description: 'Ordena los bloques para formar la palabra OCEAN.',
+                    title: '',
+                    description: '',
                     items: [
-                        { id: 1, name: 'O - Apertura', color: '#3cbcfc', size: 2 },
-                        { id: 2, name: 'C - Responsabilidad', color: '#f8b800', size: 4 }
+                        { id: 1, name: '', color: '#3cbcfc', size: 2 },
+                        { id: 2, name: '', color: '#f8b800', size: 4 }
                     ]
                 });
             case 'snakes':
                 return Object.assign(base, {
-                    title: 'Nivel 5: Equivalencias',
-                    description: 'En cada sala elige el objeto correcto para avanzar.',
+                    title: '',
+                    description: '',
                     roomA: [
-                        { name: 'D (Dominancia)', desc: 'Equivale a Asertividad en Baron.', correct: true },
-                        { name: 'C (Cumplimiento)', desc: 'Equivale a Empatía en Baron.', correct: false }
+                        { name: '', desc: '', correct: false },
+                        { name: '', desc: '', correct: false }
                     ],
                     roomB: [
-                        { name: 'I (Influencia)', desc: 'Equivale a Relaciones Interpersonales.', correct: true },
-                        { name: 'S (Constancia)', desc: 'Equivale a Solución de Problemas.', correct: false }
+                        { name: '', desc: '', correct: false },
+                        { name: '', desc: '', correct: false }
                     ]
                 });
             case 'bridge':
                 return Object.assign(base, {
-                    title: 'Nivel 6: El puente de la certeza',
-                    questions: [{ prompt: '¿La prueba de MOSS evalúa la adaptabilidad social?', correct: 'V' }]
+                    title: '',
+                    questions: [{ prompt: '', correct: 'V' }]
                 });
             case 'dragon':
                 return Object.assign(base, {
-                    title: 'Nivel 7: El guardián',
+                    title: '',
                     questions: [{
-                        question: '¿Qué combinación define un perfil audaz e independiente?',
-                        options: ['Alta Dominancia y Bajo Cumplimiento (D+ C-)', 'Alta Constancia e Influencia (S+ I+)', 'Bajo Empuje y Alto Cumplimiento (D- C+)'],
+                        question: '',
+                        options: ['', '', ''],
                         correct: 0
                     }]
                 });
             case 'tennis':
                 return Object.assign(base, {
-                    title: 'Nivel 8: Duelo final',
+                    title: '',
                     questions: [{
-                        question: '¿Cuál es el mejor predictor de éxito laboral general?',
-                        options: ['Neuroticismo', 'Responsabilidad', 'Amabilidad'],
-                        correct: 1
+                        question: '',
+                        options: ['', '', ''],
+                        correct: 0
                     }]
                 });
             case 'maze':
                 return Object.assign(base, {
-                    title: 'Nivel 9: Escape',
-                    questions: [{ prompt: '¿El modelo OCEAN postula cinco dimensiones de la personalidad?', correct: 'V' }]
+                    title: '',
+                    questions: [{ prompt: '', correct: 'V' }]
                 });
         }
         return base;
