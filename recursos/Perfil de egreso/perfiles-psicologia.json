@@ -1,0 +1,122 @@
+[
+  {
+    "id": "psi_trastornos_adulto",
+    "nombre": "Diagnóstico: Trastornos Psicológicos del Adulto",
+    "descripcion": "Evalúa conocimientos sobre clasificación de disfuncionalidad, características clínicas y diagnóstico de trastornos en adultos.",
+    "curso": {
+      "nombre": "Trastornos Psicológicos del Adulto (PS176P)",
+      "descripcion": "Materia: evaluación, diagnóstico e intervención de trastornos psicológicos en la adultez.",
+      "perfilLicenciatura": "Formar profesionales en Psicología que analicen las problemáticas sociales contemporáneas e intervengan en el área social, educativa, laboral y clínica mediante la evaluación, diagnóstico, tratamiento y prevención en las diferentes etapas del desarrollo del ser humano para el fortalecimiento de la salud mental en diversos contextos culturales con un sentido ético y de responsabilidad social.",
+      "competenciasLicenciatura": "Analiza problemáticas sociales contemporáneas desde un enfoque psicológico multidisciplinario.\nEvalúa, diagnostica e interviene en las áreas social, educativa, laboral y clínica.\nDiseña planes de tratamiento y prevención en las diferentes etapas del desarrollo humano.\nActúa con sentido ético y responsabilidad social en contextos culturales diversos.",
+      "alumno": ""
+    },
+    "competencias": [
+      {
+        "id": "c1",
+        "nombre": "Conocimientos en evaluación psicológica",
+        "descripcion": "Clasifica factores personales, interpersonales y ambientales que influyen en el aprendizaje mediante instrumentos de evaluación estandarizados.",
+        "peso": 5,
+        "esperadoInicio": 1,
+        "esperadoFinal": 5
+      },
+      {
+        "id": "c2",
+        "nombre": "Habilidades de diagnóstico diferencial",
+        "descripcion": "Analiza el comportamiento de personas, grupos u organizaciones para detectar afecciones mentales mediante manuales de estándares internacionales.",
+        "peso": 5,
+        "esperadoInicio": 1,
+        "esperadoFinal": 5
+      },
+      {
+        "id": "c3",
+        "nombre": "Intervención terapéutica",
+        "descripcion": "Diseña estrategias de intervención basadas en la valoración de características clínicas del adulto.",
+        "peso": 4,
+        "esperadoInicio": 1,
+        "esperadoFinal": 4.5
+      },
+      {
+        "id": "c4",
+        "nombre": "Ética y responsabilidad profesional",
+        "descripcion": "Aplica principios éticos en la evaluación, diagnóstico e intervención de trastornos psicológicos.",
+        "peso": 3,
+        "esperadoInicio": 1.5,
+        "esperadoFinal": 4
+      }
+    ],
+    "preguntas": [
+      {
+        "id": "p1",
+        "tipo": "opcion_multiple",
+        "competenciaId": "c1",
+        "texto": "¿Cuál de los siguientes instrumentos es el más utilizado para la evaluación de la personalidad en adultos?",
+        "opciones": ["Test de Bender", "MMPI-3", "Test de la figura humana", "Test de Raven"],
+        "respuestaCorrecta": 1
+      },
+      {
+        "id": "p2",
+        "tipo": "opcion_multiple",
+        "competenciaId": "c2",
+        "texto": "El DSM-5-TR clasifica los trastornos de ansiedad en:\nA) Trastorno de ansiedad generalizada, fobia específica, trastorno de pánico\nB) Solo trastorno de ansiedad generalizada\nC) Trastorno bipolar y depresión mayor\nD) Esquizofrenia y trastornos psicóticos",
+        "opciones": [
+          "Trastorno de ansiedad generalizada, fobia específica, trastorno de pánico",
+          "Solo trastorno de ansiedad generalizada",
+          "Trastorno bipolar y depresión mayor",
+          "Esquizofrenia y trastornos psicóticos"
+        ],
+        "respuestaCorrecta": 0
+      },
+      {
+        "id": "p3",
+        "tipo": "likert",
+        "competenciaId": "c1",
+        "texto": "Soy capaz de identificar los factores personales, interpersonales y ambientales que influyen en el aprendizaje de un adulto."
+      },
+      {
+        "id": "p4",
+        "tipo": "likert",
+        "competenciaId": "c2",
+        "texto": "Puedo analizar el comportamiento de una persona y contrastarlo con manuales clínicos estandarizados para detectar posibles afecciones."
+      },
+      {
+        "id": "p5",
+        "tipo": "seleccion_multiple",
+        "competenciaId": "c1",
+        "texto": "Selecciona TODOS los factores que influyen en el aprendizaje de una persona adulta:",
+        "opciones": [
+          "Estilos de aprendizaje",
+          "Factores demográficos",
+          "Tipo de sangre",
+          "Aspectos vocacionales"
+        ],
+        "respuestaCorrecta": [0, 1, 3]
+      },
+      {
+        "id": "p6",
+        "tipo": "seleccion_multiple",
+        "competenciaId": "c4",
+        "texto": "Selecciona TODOS los principios éticos que deben regir la práctica profesional del psicólogo:",
+        "opciones": [
+          "Confidencialidad",
+          "Consentimiento informado",
+          "Diagnóstico sin evaluación previa",
+          "Competencia profesional"
+        ],
+        "respuestaCorrecta": [0, 1, 3]
+      },
+      {
+        "id": "p7",
+        "tipo": "caso",
+        "competenciaId": "c3",
+        "contexto": "Un adulto de 45 años acude a consulta refiriendo dificultades para conciliar el sueño, irritabilidad constante, preocupación excesiva por temas laborales y evitación de reuniones sociales. Estos síntomas han persistido durante los últimos 6 meses, afectando su rendimiento en el trabajo y sus relaciones familiares.",
+        "texto": "Con base en el caso presentado: 1) ¿Qué posibles trastornos podrían estar presentes según la clasificación del DSM-5-TR? 2) ¿Qué instrumentos de evaluación utilizarías para confirmar tu hipótesis diagnóstica? 3) Propón un plan de intervención inicial."
+      },
+      {
+        "id": "p8",
+        "tipo": "abierta",
+        "competenciaId": "c2",
+        "texto": "Describe el proceso que seguirías para realizar un diagnóstico diferencial entre un trastorno de ansiedad generalizada y un trastorno depresivo mayor. ¿Qué criterios del DSM-5-TR utilizarías para diferenciarlos?"
+      }
+    ]
+  }
+]

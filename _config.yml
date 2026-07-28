@@ -28,4 +28,6 @@ exclude:
   - .sass-cache/
   - .jekyll-cache/
   - gemfiles/
+  - recursos/asistencia-qr/node_modules/
+  - node_modules/
   - .bundle
