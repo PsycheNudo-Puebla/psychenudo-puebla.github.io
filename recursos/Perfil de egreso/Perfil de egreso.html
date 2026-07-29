@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <title>Diagnóstico ABP — Perfil de Egreso</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -12,11 +14,14 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: 'Segoe UI', Tahoma, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     padding: 20px;
     color: #333;
+    line-height: 1.5;
+    -webkit-overflow-scrolling: touch;
+    -webkit-tap-highlight-color: transparent;
   }
   .container {
     max-width: 1000px;
@@ -47,10 +52,11 @@
     padding: 10px 12px;
     border: 2px solid #e0e4ea;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 16px;
     transition: border 0.2s;
     font-family: inherit;
   }
+  /* En Mac/iOS Safari, inputs con font-size < 16px hacen zoom al enfocar */
   input:focus, textarea:focus, select:focus { outline: none; border-color: #4facfe; }
   textarea { resize: vertical; min-height: 70px; }
 
@@ -63,6 +69,7 @@
     cursor: pointer;
     transition: all 0.2s;
     margin: 5px;
+    touch-action: manipulation;
   }
   .btn-primary { background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; }
   .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(79,172,254,0.4); }
@@ -103,14 +110,18 @@
   .likert-option, .opcion-item {
     flex: 1;
     min-width: 80px;
-    padding: 10px;
+    padding: 12px 10px;
     text-align: center;
     background: #fff;
     border: 2px solid #e0e4ea;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s;
-    font-size: 13px;
+    font-size: 14px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
   }
   .opcion-item { text-align: left; min-width: 100%; }
   .likert-option:hover, .opcion-item:hover { border-color: #4facfe; }
@@ -134,6 +145,7 @@
     text-align: center;
     cursor: pointer;
     transition: all 0.3s;
+    touch-action: manipulation;
   }
   .home-card:hover {
     transform: translateY(-5px);
@@ -154,6 +166,7 @@
     margin: 10px 0;
     cursor: pointer;
     transition: all 0.2s;
+    touch-action: manipulation;
   }
   .prueba-item:hover { background: #e7f3ff; transform: translateX(3px); }
   .prueba-item h4 { color: #2c3e50; margin-bottom: 5px; }
@@ -185,6 +198,11 @@
     border-left-color: #43e97b;
     color: #1b5e20;
   }
+  .hint.info {
+    background: #f3e8ff;
+    border-left-color: #9b59b6;
+    color: #4a1a6b;
+  }
 
   .empty-state {
     text-align: center;
@@ -214,6 +232,12 @@
     background: #fff;
     padding: 15px;
     border-radius: 8px;
+  }
+  @media (max-width: 600px) {
+    .chart-container { height: 350px; padding: 10px; }
+  }
+  @media (max-width: 400px) {
+    .chart-container { height: 300px; padding: 5px; }
   }
 
   .caso-box {
@@ -287,6 +311,87 @@
     min-height: 60px;
   }
 
+  .rubric-options {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .rubric-option {
+    flex: 1;
+    min-width: 100px;
+    padding: 10px 14px;
+    text-align: center;
+    background: #fff;
+    border: 2px solid #e0e4ea;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    font-weight: 600;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .rubric-option:hover { border-color: #4facfe; }
+  .rubric-option.selected-cumple {
+    background: linear-gradient(135deg, #43e97b, #38f9d7);
+    color: white;
+    border-color: transparent;
+  }
+  .rubric-option.selected-parcial {
+    background: linear-gradient(135deg, #f5a623, #f7d94e);
+    color: white;
+    border-color: transparent;
+  }
+  .rubric-option.selected-no {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    color: white;
+    border-color: transparent;
+  }
+  .rubric-option input[type="radio"] {
+    display: none;
+  }
+
+  .mapeo-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    background: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1.5px solid #e0e4ea;
+    cursor: pointer;
+    transition: all 0.2s;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .mapeo-chip:hover { border-color: #4facfe; background: #f0f4ff; }
+  .mapeo-chip-active {
+    border-color: #43e97b;
+    background: #f0fdf4;
+  }
+  .mapeo-chip-active:hover { border-color: #43e97b; background: #e6f9ed; }
+  .criterios-docente {
+    background: #f0f7ff;
+    border: 1px solid #b3d4fc;
+    padding: 12px;
+    border-radius: 6px;
+    margin: 10px 0;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #1a3a5c;
+  }
+  .criterios-docente h4 {
+    color: #1565c0;
+    margin-bottom: 6px;
+    font-size: 14px;
+  }
+
   .rubrica-box {
     background: #f0f7ff;
     border: 1px solid #b3d4fc;
@@ -355,7 +460,10 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    user-select: none;
+    -webkit-user-select: none;
   }
+  .leyenda-item:hover { opacity: 0.8 !important; }
   .leyenda-color {
     width: 20px;
     height: 4px;
@@ -537,26 +645,23 @@
     <h2>📋 Paso 1 de 3: Define los perfiles</h2>
     <div class="hint">💡 Aquí defines el perfil de la <strong>licenciatura</strong> y el de la <strong>materia</strong> que impartes.</div>
 
-    <div class="card" style="border-left-color:#764ba2;">
+<div class="card" style="border-left-color:#764ba2;">
       <h3>🎓 Perfil de licenciatura</h3>
       <label>Descripción del perfil de egreso</label>
       <textarea id="perfilLicenciatura" placeholder="Ej. El egresado aplicará principios, teorías y métodos psicológicos para evaluar, diagnosticar e intervenir en contextos educativos, clínicos y organizacionales, con compromiso ético y social." style="min-height:60px;"></textarea>
       <label>Competencias específicas de la licenciatura (una por línea)</label>
       <textarea id="competenciasLicenciatura" placeholder="Ej. Evalúa procesos cognitivos, emocionales y sociales mediante instrumentos psicológicos validados.
-Diseña e implementa planes de intervención psicológica basados en evidencia.
-Actúa con ética profesional y responsabilidad social en su práctica." style="min-height:80px;"></textarea>
+ Diseña e implementa planes de intervención psicológica basados en evidencia.
+ Actúa con ética profesional y responsabilidad social en su práctica." style="min-height:80px;"></textarea>
     </div>
 
-    <div class="card" style="border-left-color:#43e97b;">
+<div class="card" style="border-left-color:#43e97b;">
       <h3>📘 Perfil de la materia</h3>
       <label>Nombre de la materia *</label>
       <input type="text" id="cursoNombre" placeholder="Ej. Psicología Educativa">
       <label>Descripción de la materia</label>
       <textarea id="perfilDescripcion" placeholder="Describe brevemente el contenido y objetivo de la materia..."></textarea>
     </div>
-
-    <label>Nombre del alumno (opcional)</label>
-    <input type="text" id="alumnoNombre" placeholder="Ej. María Pérez">
 
     <div class="actions">
       <button class="btn btn-secondary" onclick="irA('home')">← Cancelar</button>
@@ -573,6 +678,9 @@ Actúa con ética profesional y responsabilidad social en su práctica." style="
     </div>
     <h2>🎯 Paso 2 de 3: Competencias de la materia</h2>
     <div class="hint">💡 Estas son las competencias que el alumno desarrollará <strong>en esta materia</strong>. Define su nivel esperado al inicio y la meta al finalizar.</div>
+    <div class="hint info">
+      📌 <strong>Peso (1-5):</strong> Indica qué tan importante es esta competencia frente a las demás. Una competencia con peso 5 tiene el <strong>máximo impacto</strong> en la calificación final; una con peso 1 impacta <strong>mínimamente</strong>. Todas las competencias deben tener al menos 1 pregunta asociada para que su peso se refleje.
+    </div>
 
     <div id="listaCompetencias"></div>
 
@@ -586,6 +694,7 @@ Actúa con ética profesional y responsabilidad social en su práctica." style="
         <div>
           <label>Peso (1-5)</label>
           <input type="number" id="nuevaCompetenciaPeso" min="1" max="5" value="3">
+          <div style="font-size:11px; color:#888; margin-top:2px;">Importancia relativa (5=máxima)</div>
         </div>
         <div>
           <label>Nivel esperado al inicio (0-5)</label>
@@ -648,6 +757,11 @@ Actúa con ética profesional y responsabilidad social en su práctica." style="
   <div class="screen" data-screen="examen">
     <h2 id="examenTitulo">📝 Examen diagnóstico</h2>
     <div class="hint" id="examenHint">💡 Responde con sinceridad. No hay respuestas "malas".</div>
+    <div class="card" style="border-left-color:#43e97b; margin-bottom:15px;">
+      <label style="margin-top:0;">👤 Nombre del alumno *</label>
+      <input type="text" id="examenAlumnoNombre" placeholder="Escribe tu nombre completo" style="max-width:400px;">
+      <p style="font-size:12px; color:#666; margin-top:5px;">* Requerido para guardar y enviar respuestas al docente</p>
+    </div>
     <div id="examenContenido"></div>
     <div class="actions">
       <button class="btn btn-secondary" onclick="irA('home')">← Cancelar</button>
@@ -661,16 +775,20 @@ Actúa con ética profesional y responsabilidad social en su práctica." style="
     <div class="hint warning">
       ⚠️ <strong>Importante:</strong> Estos resultados son preliminares. Las preguntas abiertas y casos ABP están pendientes de calificación por el docente.
     </div>
+    <div class="hint" style="background:#e8f0fe; border-left-color:#4285f4;">
+      <strong>🎯 Filtro de competencias:</strong>
+      <div style="display:flex; gap:10px; margin-top:8px; flex-wrap:wrap;">
+        <button class="btn btn-primary" id="filtroMateria" onclick="filtrarCompetencias('materia')">📘 Materia</button>
+        <button class="btn btn-secondary" id="filtroLicenciatura" onclick="filtrarCompetencias('licenciatura')">🎓 Licenciatura</button>
+        <button class="btn btn-secondary" id="filtroAmbas" onclick="filtrarCompetencias('ambas')">📊 Ambas</button>
+      </div>
+    </div>
     <div id="resultadoMensaje"></div>
     <div id="pdfCapture">
       <h3 style="text-align:center; color:#2c3e50;" id="pdfTitulo"></h3>
       <p style="text-align:center; color:#666;" id="pdfSubtitulo"></p>
       <div id="perfilLicenciaturaInfo" style="text-align:center; background:#f0f0ff; border-radius:8px; padding:12px; margin:10px 0; font-size:13px; color:#4a4a8a;"></div>
-      <div class="leyenda-grafica">
-        <div class="leyenda-item"><div class="leyenda-color" style="background:#f5a623;"></div> Nivel esperado al inicio</div>
-        <div class="leyenda-item"><div class="leyenda-color" style="background:#43e97b;"></div> Meta al finalizar la materia</div>
-        <div class="leyenda-item"><div class="leyenda-color" style="background:#4facfe;"></div> Tu nivel actual</div>
-      </div>
+      <div class="leyenda-grafica" id="leyendaResultados"></div>
       <div class="chart-container">
         <canvas id="chartRadar"></canvas>
       </div>
@@ -721,16 +839,20 @@ Actúa con ética profesional y responsabilidad social en su práctica." style="
     <div class="hint success">
       ✅ <strong>Calificación completa:</strong> Todos los resultados incluyen la revisión del docente.
     </div>
+    <div class="hint" style="background:#e8f0fe; border-left-color:#4285f4;">
+      <strong>🎯 Filtro de competencias:</strong>
+      <div style="display:flex; gap:10px; margin-top:8px; flex-wrap:wrap;">
+        <button class="btn btn-primary" id="filtroMateriaFinal" onclick="filtrarCompetenciasFinal('materia')">📘 Materia</button>
+        <button class="btn btn-secondary" id="filtroLicenciaturaFinal" onclick="filtrarCompetenciasFinal('licenciatura')">🎓 Licenciatura</button>
+        <button class="btn btn-secondary" id="filtroAmbasFinal" onclick="filtrarCompetenciasFinal('ambas')">📊 Ambas</button>
+      </div>
+    </div>
     <div id="resultadoMensajeFinal"></div>
     <div id="pdfCaptureFinal">
       <h3 style="text-align:center; color:#2c3e50;" id="pdfTituloFinal"></h3>
       <p style="text-align:center; color:#666;" id="pdfSubtituloFinal"></p>
       <div id="perfilLicenciaturaInfoFinal" style="text-align:center; background:#f0f0ff; border-radius:8px; padding:12px; margin:10px 0; font-size:13px; color:#4a4a8a;"></div>
-      <div class="leyenda-grafica">
-        <div class="leyenda-item"><div class="leyenda-color" style="background:#f5a623;"></div> Nivel esperado al inicio</div>
-        <div class="leyenda-item"><div class="leyenda-color" style="background:#43e97b;"></div> Meta al finalizar la materia</div>
-        <div class="leyenda-item"><div class="leyenda-color" style="background:#4facfe;"></div> Tu nivel actual</div>
-      </div>
+      <div class="leyenda-grafica" id="leyendaResultadosFinal"></div>
       <div class="chart-container">
         <canvas id="chartRadarFinal"></canvas>
       </div>
@@ -759,6 +881,8 @@ let datos = {
 };
 let chartInstance = null;
 let chartInstanceFinal = null;
+let filtroCompetencias = 'materia'; // 'materia', 'licenciatura', 'ambas'
+let lineVisibility = { inicio: true, meta: true, actual: true };
 
 // ============ TOGGLE FLUJO DE TRABAJO ============
 function toggleFlujo() {
@@ -777,9 +901,9 @@ const PRUEBAS_PRECARGADAS = [
     descripcion: 'Evalúa conocimientos sobre desarrollo cognitivo, estrategias de aprendizaje y evaluación psicopedagógica.',
     curso: { nombre: 'Psicología Educativa', descripcion: 'Materia: teorías del aprendizaje, desarrollo en el aula y herramientas de evaluación educativa.', perfilLicenciatura: 'El egresado aplicará principios psicológicos para optimizar procesos de enseñanza-aprendizaje.', competenciasLicenciatura: 'Evalúa procesos de aprendizaje mediante instrumentos psicopedagógicos.\nDiseña estrategias educativas basadas en teorías del desarrollo.\nInterviene en problemas de aprendizaje con enfoque inclusivo.', alumno: '' },
     competencias: [
-      { id: 'c1', nombre: 'Desarrollo cognitivo', descripcion: 'Comprende teorías del desarrollo y su aplicación en el aula', peso: 5, esperadoInicio: 1.5, esperadoFinal: 5 },
-      { id: 'c2', nombre: 'Estrategias de aprendizaje', descripcion: 'Identifica y aplica técnicas de enseñanza-aprendizaje', peso: 4, esperadoInicio: 1, esperadoFinal: 4.5 },
-      { id: 'c3', nombre: 'Evaluación psicopedagógica', descripcion: 'Analiza instrumentos de evaluación educativa', peso: 3, esperadoInicio: 1, esperadoFinal: 4 }
+      { id: 'c1', nombre: 'Desarrollo cognitivo', descripcion: 'Comprende teorías del desarrollo y su aplicación en el aula', peso: 5, esperadoInicio: 1.5, esperadoFinal: 5, mapeoLicenciatura: [0] },
+      { id: 'c2', nombre: 'Estrategias de aprendizaje', descripcion: 'Identifica y aplica técnicas de enseñanza-aprendizaje', peso: 4, esperadoInicio: 1, esperadoFinal: 4.5, mapeoLicenciatura: [1] },
+      { id: 'c3', nombre: 'Evaluación psicopedagógica', descripcion: 'Analiza instrumentos de evaluación educativa', peso: 3, esperadoInicio: 1, esperadoFinal: 4, mapeoLicenciatura: [0, 2] }
     ],
     preguntas: [
       { id: 'p1', tipo: 'opcion_multiple', competenciaId: 'c1',
@@ -801,9 +925,9 @@ const PRUEBAS_PRECARGADAS = [
     descripcion: 'Evalúa conocimientos sobre evaluación diagnóstica, modelos terapéuticos y ética profesional.',
     curso: { nombre: 'Psicología Clínica', descripcion: 'Materia: diagnóstico, intervención y ética en el ámbito clínico.', perfilLicenciatura: 'El egresado realizará evaluaciones e intervenciones psicológicas con rigor ético y clínico.', competenciasLicenciatura: 'Diagnostica trastornos mentales utilizando manuales clínicos estandarizados.\nDiseña planes de intervención terapéutica con enfoque multidisciplinario.\nActúa con ética profesional y responsabilidad social.', alumno: '' },
     competencias: [
-      { id: 'c1', nombre: 'Evaluación diagnóstica', descripcion: 'Aplica y valora instrumentos de diagnóstico clínico', peso: 5, esperadoInicio: 1, esperadoFinal: 5 },
-      { id: 'c2', nombre: 'Modelos terapéuticos', descripcion: 'Conoce los principales enfoques de intervención psicológica', peso: 4, esperadoInicio: 1.5, esperadoFinal: 4.5 },
-      { id: 'c3', nombre: 'Ética profesional', descripcion: 'Aplica principios éticos en el ejercicio clínico', peso: 3, esperadoInicio: 2, esperadoFinal: 4 }
+      { id: 'c1', nombre: 'Evaluación diagnóstica', descripcion: 'Aplica y valora instrumentos de diagnóstico clínico', peso: 5, esperadoInicio: 1, esperadoFinal: 5, mapeoLicenciatura: [0] },
+      { id: 'c2', nombre: 'Modelos terapéuticos', descripcion: 'Conoce los principales enfoques de intervención psicológica', peso: 4, esperadoInicio: 1.5, esperadoFinal: 4.5, mapeoLicenciatura: [1] },
+      { id: 'c3', nombre: 'Ética profesional', descripcion: 'Aplica principios éticos en el ejercicio clínico', peso: 3, esperadoInicio: 2, esperadoFinal: 4, mapeoLicenciatura: [2] }
     ],
     preguntas: [
       { id: 'p1', tipo: 'opcion_multiple', competenciaId: 'c1',
@@ -825,9 +949,9 @@ const PRUEBAS_PRECARGADAS = [
     descripcion: 'Evalúa conocimientos sobre gestión del talento, comportamiento organizacional y bienestar laboral.',
     curso: { nombre: 'Psicología Organizacional', descripcion: 'Materia: selección, liderazgo, clima laboral y factores psicosociales en el trabajo.', perfilLicenciatura: 'El egresado gestionará procesos de talento humano y bienestar laboral en organizaciones.', competenciasLicenciatura: 'Gestiona procesos de selección y evaluación del desempeño en organizaciones.\nAnaliza el clima y la cultura organizacional para proponer mejoras.\nImplementa programas de bienestar laboral y prevención de riesgos psicosociales.', alumno: '' },
     competencias: [
-      { id: 'c1', nombre: 'Gestión del talento', descripcion: 'Comprende procesos de selección y evaluación del desempeño', peso: 4, esperadoInicio: 1, esperadoFinal: 4.5 },
-      { id: 'c2', nombre: 'Comportamiento organizacional', descripcion: 'Analiza dinámicas grupales y estilos de liderazgo', peso: 5, esperadoInicio: 1.5, esperadoFinal: 5 },
-      { id: 'c3', nombre: 'Bienestar laboral', descripcion: 'Identifica factores de riesgo psicosocial y estrategias de intervención', peso: 4, esperadoInicio: 1, esperadoFinal: 4 }
+      { id: 'c1', nombre: 'Gestión del talento', descripcion: 'Comprende procesos de selección y evaluación del desempeño', peso: 4, esperadoInicio: 1, esperadoFinal: 4.5, mapeoLicenciatura: [0] },
+      { id: 'c2', nombre: 'Comportamiento organizacional', descripcion: 'Analiza dinámicas grupales y estilos de liderazgo', peso: 5, esperadoInicio: 1.5, esperadoFinal: 5, mapeoLicenciatura: [1] },
+      { id: 'c3', nombre: 'Bienestar laboral', descripcion: 'Identifica factores de riesgo psicosocial y estrategias de intervención', peso: 4, esperadoInicio: 1, esperadoFinal: 4, mapeoLicenciatura: [2] }
     ],
     preguntas: [
       { id: 'p1', tipo: 'opcion_multiple', competenciaId: 'c1',
@@ -849,10 +973,10 @@ const PRUEBAS_PRECARGADAS = [
     descripcion: 'Evalúa conocimientos sobre clasificación de disfuncionalidad, características clínicas y diagnóstico de trastornos en adultos.',
     curso: { nombre: 'Trastornos Psicológicos del Adulto (PS176P)', descripcion: 'Materia: evaluación, diagnóstico e intervención de trastornos psicológicos en la adultez.', perfilLicenciatura: 'Formar profesionales en Psicología que analicen las problemáticas sociales contemporáneas e intervengan en el área social, educativa, laboral y clínica mediante la evaluación, diagnóstico, tratamiento y prevención en las diferentes etapas del desarrollo del ser humano para el fortalecimiento de la salud mental en diversos contextos culturales con un sentido ético y de responsabilidad social.', competenciasLicenciatura: 'Analiza problemáticas sociales contemporáneas desde un enfoque psicológico multidisciplinario.\nEvalúa, diagnostica e interviene en las áreas social, educativa, laboral y clínica.\nDiseña planes de tratamiento y prevención en las diferentes etapas del desarrollo humano.\nActúa con sentido ético y responsabilidad social en contextos culturales diversos.', alumno: '' },
     competencias: [
-      { id: 'c1', nombre: 'Conocimientos en evaluación psicológica', descripcion: 'Clasifica factores personales, interpersonales y ambientales que influyen en el aprendizaje mediante instrumentos de evaluación estandarizados.', peso: 5, esperadoInicio: 1, esperadoFinal: 5 },
-      { id: 'c2', nombre: 'Habilidades de diagnóstico diferencial', descripcion: 'Analiza el comportamiento de personas, grupos u organizaciones para detectar afecciones mentales mediante manuales de estándares internacionales.', peso: 5, esperadoInicio: 1, esperadoFinal: 5 },
-      { id: 'c3', nombre: 'Intervención terapéutica', descripcion: 'Diseña estrategias de intervención basadas en la valoración de características clínicas del adulto.', peso: 4, esperadoInicio: 1, esperadoFinal: 4.5 },
-      { id: 'c4', nombre: 'Ética y responsabilidad profesional', descripcion: 'Aplica principios éticos en la evaluación, diagnóstico e intervención de trastornos psicológicos.', peso: 3, esperadoInicio: 1.5, esperadoFinal: 4 }
+      { id: 'c1', nombre: 'Conocimientos en evaluación psicológica', descripcion: 'Clasifica factores personales, interpersonales y ambientales que influyen en el aprendizaje mediante instrumentos de evaluación estandarizados.', peso: 5, esperadoInicio: 1, esperadoFinal: 5, mapeoLicenciatura: [1] },
+      { id: 'c2', nombre: 'Habilidades de diagnóstico diferencial', descripcion: 'Analiza el comportamiento de personas, grupos u organizaciones para detectar afecciones mentales mediante manuales de estándares internacionales.', peso: 5, esperadoInicio: 1, esperadoFinal: 5, mapeoLicenciatura: [1] },
+      { id: 'c3', nombre: 'Intervención terapéutica', descripcion: 'Diseña estrategias de intervención basadas en la valoración de características clínicas del adulto.', peso: 4, esperadoInicio: 1, esperadoFinal: 4.5, mapeoLicenciatura: [1, 2] },
+      { id: 'c4', nombre: 'Ética y responsabilidad profesional', descripcion: 'Aplica principios éticos en la evaluación, diagnóstico e intervención de trastornos psicológicos.', peso: 3, esperadoInicio: 1.5, esperadoFinal: 4, mapeoLicenciatura: [3] }
     ],
     preguntas: [
       { id: 'p1', tipo: 'opcion_multiple', competenciaId: 'c1',
@@ -902,7 +1026,6 @@ function iniciarCreador() {
   document.getElementById('perfilDescripcion').value = '';
   document.getElementById('perfilLicenciatura').value = '';
   document.getElementById('competenciasLicenciatura').value = '';
-  document.getElementById('alumnoNombre').value = '';
   irA('creador-paso1');
 }
 
@@ -927,6 +1050,34 @@ function cargarPrecargada(id) {
   datos.respuestas = {};
   datos.calificacionesManuales = {};
   datos.modoPrueba = false;
+  // Todas las competencias de pruebas precargadas son de la materia
+  datos.competencias.forEach(c => { c.esMateria = true; });
+  // Parsear competencias de licenciatura del texto a objetos individuales
+  if (datos.curso.competenciasLicenciatura) {
+    const compsLic = datos.curso.competenciasLicenciatura.split('\n').filter(s => s.trim());
+    compsLic.forEach((comp, i) => {
+      datos.competencias.push({
+        id: 'clic' + Date.now() + i,
+        nombre: comp.trim(),
+        descripcion: '',
+        peso: 3,
+        esperadoInicio: 1,
+        esperadoFinal: 5,
+        esLicenciatura: true
+      });
+    });
+    // Resolver mapeoLicenciatura por índice (0-based) a ID real
+    const licComps = datos.competencias.filter(c => c.esLicenciatura);
+    datos.competencias.filter(c => c.esMateria).forEach(c => {
+      if (c.mapeoLicenciatura && c.mapeoLicenciatura.length > 0) {
+        c.mapeoLicenciatura = c.mapeoLicenciatura
+          .map(idx => licComps[idx]?.id)
+          .filter(Boolean);
+      } else {
+        c.mapeoLicenciatura = [];
+      }
+    });
+  }
   iniciarExamen();
 }
 
@@ -944,7 +1095,9 @@ function abrirPruebaGuardada() {
       obj.competencias = obj.competencias.map(c => ({
         ...c,
         esperadoInicio: c.esperadoInicio !== undefined ? c.esperadoInicio : 1,
-        esperadoFinal: c.esperadoFinal !== undefined ? c.esperadoFinal : 5
+        esperadoFinal: c.esperadoFinal !== undefined ? c.esperadoFinal : 5,
+        // Si no tiene flag explícito, asumir materia a menos que sea de licenciatura
+        esMateria: c.esMateria !== undefined ? c.esMateria : !c.esLicenciatura
       }));
       datos = {
         curso: obj.curso,
@@ -974,6 +1127,11 @@ function abrirRespuestasAlumno() {
         alert('❌ El archivo no tiene la estructura esperada (curso, competencias, preguntas, respuestas).');
         return;
       }
+      // Asegurar que las competencias tengan el flag de materia si no tienen uno específico
+      obj.competencias = obj.competencias.map(c => ({
+        ...c,
+        esMateria: c.esMateria !== undefined ? c.esMateria : !c.esLicenciatura
+      }));
       datos = {
         curso: obj.curso,
         competencias: obj.competencias,
@@ -998,6 +1156,7 @@ function irACorreccionDesdeHome() {
 
 function iniciarExamen() {
   document.getElementById('examenTitulo').textContent = `📝 ${datos.curso.nombre}`;
+  document.getElementById('examenAlumnoNombre').value = datos.curso.alumno || '';
   const hint = document.getElementById('examenHint');
   if (datos.curso.perfilLicenciatura) {
     hint.textContent = `🎓 Perfil de licenciatura: ${datos.curso.perfilLicenciatura}`;
@@ -1028,7 +1187,24 @@ function creadorIrPaso2() {
   datos.curso.descripcion = document.getElementById('perfilDescripcion').value;
   datos.curso.perfilLicenciatura = document.getElementById('perfilLicenciatura').value;
   datos.curso.competenciasLicenciatura = document.getElementById('competenciasLicenciatura').value;
-  datos.curso.alumno = document.getElementById('alumnoNombre').value;
+
+  // Limpiar competencias de licenciatura previas para evitar duplicados al regresar
+  datos.competencias = datos.competencias.filter(c => !c.esLicenciatura);
+
+  // Parsear competencias de licenciatura del textarea
+  const compsLic = datos.curso.competenciasLicenciatura.split('\n').filter(s => s.trim());
+  compsLic.forEach((comp, i) => {
+    datos.competencias.push({
+      id: 'clic' + Date.now() + i,
+      nombre: comp.trim(),
+      descripcion: '',
+      peso: 3,
+      esperadoInicio: 1,
+      esperadoFinal: 5,
+      esLicenciatura: true
+    });
+  });
+
   renderCompetencias();
   irA('creador-paso2');
 }
@@ -1055,7 +1231,9 @@ function agregarCompetencia() {
     id: 'c' + Date.now(),
     nombre, descripcion: desc, peso,
     esperadoInicio: inicio,
-    esperadoFinal: meta
+    esperadoFinal: meta,
+    esMateria: true,
+    mapeoLicenciatura: []
   });
   document.getElementById('nuevaCompetenciaNombre').value = '';
   document.getElementById('nuevaCompetenciaDesc').value = '';
@@ -1074,24 +1252,65 @@ function eliminarCompetencia(id) {
 
 function renderCompetencias() {
   const cont = document.getElementById('listaCompetencias');
-  if (datos.competencias.length === 0) {
-    cont.innerHTML = '<div class="empty-state">Aún no hay competencias. Añade la primera abajo.</div>';
+  const licComps = datos.competencias.filter(c => c.esLicenciatura);
+  const matComps = datos.competencias.filter(c => c.esMateria && !c.esLicenciatura);
+
+  if (matComps.length === 0) {
+    cont.innerHTML = '<div class="empty-state">Aún no hay competencias de la materia. Añade la primera abajo.</div>';
     return;
   }
-  cont.innerHTML = datos.competencias.map(c => `
-    <div class="card competencia-card">
-      <div class="item-header">
-        <div class="item-title">🎯 ${c.nombre}</div>
-        <button class="btn btn-danger" onclick="eliminarCompetencia('${c.id}')">✕</button>
-      </div>
-      <div style="color:#666; font-size:13px; margin-bottom:8px;">${c.descripcion || '<em>Sin descripción</em>'}</div>
-      <div style="display:flex; gap:15px; font-size:12px; flex-wrap:wrap;">
-        <span><strong>Peso:</strong> ${c.peso}/5</span>
-        <span><strong>Inicio esperado:</strong> ${c.esperadoInicio}/5</span>
-        <span><strong>Meta de la materia:</strong> ${c.esperadoFinal}/5</span>
-      </div>
+
+  const mappingSection = licComps.length > 0 ? `
+    <div class="hint success" style="margin-bottom:15px;">
+      <strong>🔗 Mapeo al perfil de egreso:</strong>
+      <p style="margin-top:8px; font-size:13px;">Por cada competencia de la materia, selecciona qué competencias del perfil de egreso (licenciatura) trabaja. El puntaje del perfil de egreso se derivará automáticamente.</p>
     </div>
-  `).join('');
+  ` : '';
+
+  cont.innerHTML = mappingSection + matComps.map(c => {
+    const mapeo = c.mapeoLicenciatura || [];
+    const checkboxes = licComps.length > 0 ? `
+      <div style="margin-top:12px; padding-top:10px; border-top:1px solid #d0d8e0;">
+        <label style="font-size:13px; font-weight:600; color:#555;">🔗 Esta competencia trabaja las siguientes del perfil de egreso:</label>
+        <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;">
+          ${licComps.map(lc => `
+            <div class="mapeo-chip ${mapeo.includes(lc.id) ? 'mapeo-chip-active' : ''}"
+                 onclick="toggleMapeo('${c.id}', '${lc.id}')">
+              <span style="font-size:14px; line-height:1;">${mapeo.includes(lc.id) ? '✅' : '⬜'}</span>
+              ${lc.nombre.length > 40 ? lc.nombre.substring(0, 40) + '...' : lc.nombre}
+            </div>
+          `).join('')}
+        </div>
+        ${mapeo.length === 0 ? '<div style="font-size:11px; color:#999; margin-top:6px;">⚠️ Ninguna — esta competencia no se reflejará en el perfil de egreso</div>' : ''}
+      </div>
+    ` : '';
+
+    return `
+      <div class="card competencia-card">
+        <div class="item-header">
+          <div class="item-title">🎯 ${c.nombre}</div>
+          <button class="btn btn-danger" onclick="eliminarCompetencia('${c.id}')">✕</button>
+        </div>
+        <div style="color:#666; font-size:13px; margin-bottom:8px;">${c.descripcion || '<em>Sin descripción</em>'}</div>
+        <div style="display:flex; gap:15px; font-size:12px; flex-wrap:wrap;">
+          <span><strong>Peso:</strong> ${c.peso}/5</span>
+          <span><strong>Inicio esperado:</strong> ${c.esperadoInicio}/5</span>
+          <span><strong>Meta de la materia:</strong> ${c.esperadoFinal}/5</span>
+        </div>
+        ${checkboxes}
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleMapeo(compId, licId) {
+  const comp = datos.competencias.find(c => c.id === compId);
+  if (!comp) return;
+  if (!comp.mapeoLicenciatura) comp.mapeoLicenciatura = [];
+  const idx = comp.mapeoLicenciatura.indexOf(licId);
+  if (idx >= 0) comp.mapeoLicenciatura.splice(idx, 1);
+  else comp.mapeoLicenciatura.push(licId);
+  renderCompetencias();
 }
 
 // ============ PREGUNTAS (CREADOR) ============
@@ -1103,6 +1322,18 @@ function actualizarFormPregunta() {
     datos.competencias.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
 
   let html = '';
+  if (tipo === 'abierta') {
+    html = `
+      <label>📋 Criterios de evaluación (¿qué esperas en la respuesta?)</label>
+      <textarea id="nuevaPreguntaCriterios" placeholder="Describe los elementos que debe contener una respuesta correcta. Esto servirá como guía al calificar.
+
+Ejemplo para una pregunta sobre desarrollo cognitivo:
+- Menciona la teoría de Piaget
+- Identifica la etapa de desarrollo correspondiente
+- Propone estrategias pedagógicas acordes
+- Fundamenta con al menos un autor" style="min-height:80px;"></textarea>
+    `;
+  }
   if (tipo === 'opcion_multiple' || tipo === 'seleccion_multiple') {
     html = `
       <label>Opciones (una por línea). Marca la(s) correcta(s) con [OK] al inicio.</label>
@@ -1113,8 +1344,16 @@ function actualizarFormPregunta() {
   }
   if (tipo === 'caso') {
     html = `
-      <label>Contexto / Escenario del caso *</label>
+      <label>📖 Contexto / Escenario del caso *</label>
       <textarea id="nuevaPreguntaContexto" placeholder="Describe la situación o problema que el alumno debe analizar..." style="min-height:100px;"></textarea>
+      <label>📋 Criterios de evaluación (¿qué esperas en la respuesta?)</label>
+      <textarea id="nuevaPreguntaCriterios" placeholder="Describe los elementos clave que debe contener una respuesta sólida. Servirá como guía para calificar.
+
+Ejemplo:
+- Identifica el trastorno principal según DSM-5-TR
+- Propone instrumentos de evaluación pertinentes
+- Diseña un plan de intervención estructurado
+- Justifica con base en evidencia" style="min-height:80px;"></textarea>
     ` + html;
   }
   cont.innerHTML = html;
@@ -1156,6 +1395,11 @@ function agregarPregunta() {
     p.contexto = document.getElementById('nuevaPreguntaContexto').value.trim();
     if (!p.contexto) { alert('Añade el contexto del caso.'); return; }
   }
+  // Guardar criterios de evaluación para preguntas abiertas y casos
+  if (tipo === 'abierta' || tipo === 'caso') {
+    const criterios = document.getElementById('nuevaPreguntaCriterios')?.value.trim();
+    if (criterios) p.criterios = criterios;
+  }
 
   datos.preguntas.push(p);
   document.getElementById('nuevaPreguntaTexto').value = '';
@@ -1185,12 +1429,13 @@ function renderPreguntas() {
     html += `<h3 style="margin-top:20px;">🎯 ${c.nombre}</h3>`;
     preguntas.forEach(p => {
       const badgeManual = manuales.includes(p.tipo) ? '<span class="badge-manual">Manual</span>' : '';
+      const badgeCriterios = p.criterios ? '<span class="badge-manual" style="background:#1565c0;">📋 Rúbrica</span>' : '';
       html += `
         <div class="card pregunta-card">
           <div class="item-header">
             <div class="item-title">
               <span class="tipo-badge tipo-${p.tipo}">${etiquetas[p.tipo]}</span>
-              ${badgeManual}
+              ${badgeManual}${badgeCriterios}
               ${p.texto.substring(0, 80)}${p.texto.length > 80 ? '...' : ''}
             </div>
             <button class="btn btn-danger" onclick="eliminarPregunta('${p.id}')">✕</button>
@@ -1299,6 +1544,17 @@ function renderExamen() {
 }
 
 function finalizarExamen() {
+  // Solo pedir nombre si no estamos en modo prueba (docente probando)
+  if (!datos.modoPrueba) {
+    const alumnoNombre = document.getElementById('examenAlumnoNombre').value.trim();
+    if (!alumnoNombre) {
+      alert('❌ Debes ingresar tu nombre para continuar.');
+      document.getElementById('examenAlumnoNombre').focus();
+      return;
+    }
+    datos.curso.alumno = alumnoNombre;
+  }
+
   const sinResponder = datos.preguntas.filter(p => {
     const r = datos.respuestas[p.id];
     if (p.tipo === 'seleccion_multiple') return !r || r.length === 0;
@@ -1334,7 +1590,44 @@ function calcularScorePregunta(p) {
 }
 
 function calcularResultadosComunes() {
-  const resultados = datos.competencias.map(c => {
+  // Filtrar competencias según el filtro activo
+  let competenciasFiltradas = datos.competencias;
+  if (filtroCompetencias === 'materia') {
+    competenciasFiltradas = datos.competencias.filter(c => c.esMateria && !c.esLicenciatura);
+  } else if (filtroCompetencias === 'licenciatura') {
+    competenciasFiltradas = datos.competencias.filter(c => c.esLicenciatura);
+  }
+  // 'ambas' no filtra, muestra todas
+
+  const resultados = competenciasFiltradas.map(c => {
+    if (c.esLicenciatura) {
+      // Las competencias de licenciatura DERIVAN su score de las de materia que las mapean
+      const materiaMapeadas = datos.competencias.filter(mc =>
+        mc.esMateria && !mc.esLicenciatura && (mc.mapeoLicenciatura || []).includes(c.id)
+      );
+      const materiaScores = materiaMapeadas.map(mc => {
+        const preguntas = datos.preguntas.filter(p => p.competenciaId === mc.id);
+        const scores = preguntas.map(p => calcularScorePregunta(p)).filter(s => s !== null);
+        return scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : null;
+      }).filter(s => s !== null);
+      const alcanzado = materiaScores.length > 0
+        ? materiaScores.reduce((a, b) => a + b, 0) / materiaScores.length
+        : 0;
+      return {
+        ...c,
+        alcanzado,
+        esperadoInicio: c.esperadoInicio || 1,
+        esperadoFinal: c.esperadoFinal || 5,
+        porcentaje: (alcanzado / 5) * 100,
+        tieneManuales: false,
+        manualesPendientes: 0,
+        derivadoDe: materiaMapeadas.map(mc => mc.nombre),
+        derivadoIds: materiaMapeadas.map(mc => mc.id),
+        esDerivado: true
+      };
+    }
+
+    // Competencias de materia: cálculo directo desde sus preguntas
     const preguntas = datos.preguntas.filter(p => p.competenciaId === c.id);
     const scores = preguntas.map(p => calcularScorePregunta(p)).filter(s => s !== null);
     const promedio = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
@@ -1349,7 +1642,8 @@ function calcularResultadosComunes() {
       esperadoFinal: c.esperadoFinal || 5,
       porcentaje: (promedio / 5) * 100,
       tieneManuales,
-      manualesPendientes
+      manualesPendientes,
+      esDerivado: false
     };
   });
 
@@ -1386,6 +1680,7 @@ function generarMensajeMotivador(porcentaje) {
 }
 
 function mostrarResultadosPreliminares() {
+  filtroCompetencias = 'materia'; // Reiniciar filtro al mostrar resultados
   const { resultados, promedioGlobal, porcentajeGlobal } = calcularResultadosComunes();
   const mensaje = generarMensajeMotivador(porcentajeGlobal);
 
@@ -1393,19 +1688,80 @@ function mostrarResultadosPreliminares() {
     <div class="resultado-box ${porcentajeGlobal >= 60 ? 'positivo' : ''}">
       <strong>${mensaje.titulo}</strong><br>${mensaje.texto}
     </div>
+    <div class="hint" style="margin-top:15px;">
+      <strong>🔍 Filtrar competencias:</strong>
+      <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+        <button class="btn btn-secondary" onclick="filtrarCompetencias('materia')" id="filtroMateria">📘 Competencias de la materia</button>
+        <button class="btn btn-secondary" onclick="filtrarCompetencias('licenciatura')" id="filtroLicenciatura">🎓 Competencias de licenciatura</button>
+        <button class="btn btn-secondary" onclick="filtrarCompetencias('ambas')" id="filtroAmbas">📋 Ambas</button>
+      </div>
+    </div>
   `;
 
   document.getElementById('pdfTitulo').textContent = `Diagnóstico: ${datos.curso.nombre}`;
   const alumnoTxt = datos.curso.alumno ? ` — Alumno: ${datos.curso.alumno}` : '';
   const perfilTxt = datos.curso.perfilLicenciatura ? ` — Perfil de licenciatura: ${datos.curso.perfilLicenciatura}` : '';
   document.getElementById('pdfSubtitulo').textContent = `Materia: ${datos.curso.nombre}${perfilTxt} | Avance global: ${porcentajeGlobal.toFixed(1)}% (preliminar)${alumnoTxt}`;
+  document.getElementById('pdfSubtitulo').style.wordBreak = 'break-word';
 
   renderPerfilLicenciatura('perfilLicenciaturaInfo');
   renderRadar(resultados, 'chartRadar');
   renderDetalle(resultados, 'detalleCompetencias');
   renderPendientesCalificacion();
+  actualizarBotonesFiltro();
 
   irA('resultados');
+}
+
+function filtrarCompetencias(tipo) {
+  filtroCompetencias = tipo;
+  const { resultados, promedioGlobal, porcentajeGlobal } = calcularResultadosComunes();
+  const filtrados = filtrarResultados(resultados);
+  renderRadar(filtrados, 'chartRadar');
+  renderDetalle(filtrados, 'detalleCompetencias');
+  actualizarBotonesFiltro();
+}
+
+function filtrarCompetenciasFinal(tipo) {
+  filtroCompetencias = tipo;
+  const { resultados } = calcularResultadosComunes();
+  const filtrados = filtrarResultados(resultados);
+  renderRadar(filtrados, 'chartRadarFinal');
+  renderDetalle(filtrados, 'detalleCompetenciasFinal');
+  actualizarBotonesFiltroFinal();
+}
+
+function filtrarResultados(resultados) {
+  if (filtroCompetencias === 'materia') {
+    return resultados.filter(r => r.esMateria);
+  } else if (filtroCompetencias === 'licenciatura') {
+    return resultados.filter(r => r.esLicenciatura);
+  }
+  return resultados;
+}
+
+function actualizarBotonesFiltro() {
+  const btns = ['filtroMateria', 'filtroLicenciatura', 'filtroAmbas'];
+  btns.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      const tipo = id.replace('filtro', '').toLowerCase();
+      const map = { materia: 'materia', licenciatura: 'licenciatura', ambas: 'ambas' };
+      btn.className = filtroCompetencias === map[tipo] ? 'btn btn-primary' : 'btn btn-secondary';
+    }
+  });
+}
+
+function actualizarBotonesFiltroFinal() {
+  const btns = ['filtroMateriaFinal', 'filtroLicenciaturaFinal', 'filtroAmbasFinal'];
+  btns.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      const tipo = id.replace('filtro', '').replace('Final', '').toLowerCase();
+      const map = { materia: 'materia', licenciatura: 'licenciatura', ambas: 'ambas' };
+      btn.className = filtroCompetencias === map[tipo] ? 'btn btn-primary' : 'btn btn-secondary';
+    }
+  });
 }
 
 function renderPerfilLicenciatura(containerId) {
@@ -1424,40 +1780,72 @@ function renderPerfilLicenciatura(containerId) {
   cont.innerHTML = html || '';
 }
 
+function toggleLinea(key) {
+  lineVisibility[key] = !lineVisibility[key];
+  // Determinar qué pantalla está activa
+  const screen = document.querySelector('.screen.active');
+  if (!screen) return;
+  const esFinal = screen.dataset.screen === 'resultadosFinales';
+  const canvasId = esFinal ? 'chartRadarFinal' : 'chartRadar';
+  const detalleId = esFinal ? 'detalleCompetenciasFinal' : 'detalleCompetencias';
+  const { resultados } = calcularResultadosComunes();
+  const filtrados = filtrarResultados(resultados);
+  renderRadar(filtrados, canvasId);
+  renderDetalle(filtrados, detalleId);
+}
+
 function renderRadar(resultados, canvasId) {
+  // Destruir la gráfica anterior ANTES de crear una nueva en el mismo canvas
+  if (canvasId === 'chartRadar') {
+    if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+  } else {
+    if (chartInstanceFinal) { chartInstanceFinal.destroy(); chartInstanceFinal = null; }
+  }
+
+  const esTodoDerivado = resultados.length > 0 && resultados.every(r => r.esDerivado);
+  const datasets = [];
+
+  // Solo añadir línea de inicio si está visible y no es vista derivada
+  if (lineVisibility.inicio && !esTodoDerivado) {
+    datasets.push({
+      label: 'Nivel esperado al inicio',
+      data: resultados.map(r => r.esperadoInicio),
+      borderColor: '#f5a623',
+      backgroundColor: 'rgba(245, 166, 35, 0.1)',
+      borderWidth: 2,
+      borderDash: [5, 5],
+      pointRadius: 3
+    });
+  }
+
+  // Solo añadir línea de meta si está visible y no es vista derivada
+  if (lineVisibility.meta && !esTodoDerivado) {
+    datasets.push({
+      label: 'Meta al finalizar la materia',
+      data: resultados.map(r => r.esperadoFinal),
+      borderColor: '#43e97b',
+      backgroundColor: 'rgba(67, 233, 123, 0.1)',
+      borderWidth: 2,
+      pointRadius: 3
+    });
+  }
+
+  // Línea actual — siempre se muestra si está visible (es la principal)
+  if (lineVisibility.actual) {
+    datasets.push({
+      label: esTodoDerivado ? 'Nivel actual (derivado del perfil de materia)' : 'Tu nivel actual',
+      data: resultados.map(r => r.alcanzado),
+      borderColor: esTodoDerivado ? '#764ba2' : '#4facfe',
+      backgroundColor: esTodoDerivado ? 'rgba(118, 75, 162, 0.2)' : 'rgba(79, 172, 254, 0.25)',
+      borderWidth: 3,
+      pointRadius: 5
+    });
+  }
+
   const ctx = document.getElementById(canvasId).getContext('2d');
   const chart = new Chart(ctx, {
     type: 'radar',
-    data: {
-      labels: resultados.map(r => r.nombre),
-      datasets: [
-        {
-          label: 'Nivel esperado al inicio',
-          data: resultados.map(r => r.esperadoInicio),
-          borderColor: '#f5a623',
-          backgroundColor: 'rgba(245, 166, 35, 0.1)',
-          borderWidth: 2,
-          borderDash: [5, 5],
-          pointRadius: 3
-        },
-        {
-          label: 'Meta al finalizar la materia',
-          data: resultados.map(r => r.esperadoFinal),
-          borderColor: '#43e97b',
-          backgroundColor: 'rgba(67, 233, 123, 0.1)',
-          borderWidth: 2,
-          pointRadius: 3
-        },
-        {
-          label: 'Tu nivel actual',
-          data: resultados.map(r => r.alcanzado),
-          borderColor: '#4facfe',
-          backgroundColor: 'rgba(79, 172, 254, 0.25)',
-          borderWidth: 3,
-          pointRadius: 5
-        }
-      ]
-    },
+    data: { labels: resultados.map(r => r.nombre), datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
@@ -1465,14 +1853,60 @@ function renderRadar(resultados, canvasId) {
         r: {
           beginAtZero: true, max: 5,
           ticks: { stepSize: 1, font: { size: 11 } },
-          pointLabels: { font: { size: 12, weight: '600' } }
+          pointLabels: {
+            font: { size: 12, weight: '600' },
+            padding: 20
+          }
         }
       },
-      plugins: { legend: { display: false } }
+      plugins: { legend: { display: false } },
+      layout: {
+        padding: {
+          top: 30,
+          bottom: 10,
+          left: 10,
+          right: 10
+        }
+      }
     }
   });
-  if (canvasId === 'chartRadar') { if (chartInstance) chartInstance.destroy(); chartInstance = chart; }
-  else { if (chartInstanceFinal) chartInstanceFinal.destroy(); chartInstanceFinal = chart; }
+  if (canvasId === 'chartRadar') { chartInstance = chart; }
+  else { chartInstanceFinal = chart; }
+
+  // Renderizar leyenda interactiva con checkboxes
+  const leyendaId = canvasId === 'chartRadar' ? 'leyendaResultados' : 'leyendaResultadosFinal';
+  const leyendaCont = document.getElementById(leyendaId);
+  if (!leyendaCont) return;
+
+  const items = [];
+  if (!esTodoDerivado) {
+    items.push({
+      key: 'inicio',
+      label: 'Nivel esperado al inicio',
+      color: '#f5a623',
+      visible: lineVisibility.inicio
+    });
+    items.push({
+      key: 'meta',
+      label: 'Meta al finalizar la materia',
+      color: '#43e97b',
+      visible: lineVisibility.meta
+    });
+  }
+  items.push({
+    key: 'actual',
+    label: esTodoDerivado ? 'Nivel actual (perfil de egreso)' : 'Tu nivel actual',
+    color: esTodoDerivado ? '#764ba2' : '#4facfe',
+    visible: lineVisibility.actual
+  });
+
+  leyendaCont.innerHTML = items.map(item => `
+    <div class="leyenda-item" onclick="toggleLinea('${item.key}')" style="cursor:pointer; opacity:${item.visible ? 1 : 0.35}; transition:opacity 0.2s;">
+      <input type="checkbox" ${item.visible ? 'checked' : ''} style="pointer-events:none; accent-color:${item.color}; cursor:pointer;">
+      <div class="leyenda-color" style="background:${item.color};"></div>
+      ${item.label}
+    </div>
+  `).join('');
 }
 
 function renderDetalle(resultados, contId) {
@@ -1483,22 +1917,51 @@ function renderDetalle(resultados, contId) {
     const color = r.porcentaje >= 70 ? '#43e97b' : r.porcentaje >= 40 ? '#f5a623' : '#ff6b6b';
     const emoji = r.porcentaje >= 70 ? '🌟' : r.porcentaje >= 40 ? '🌱' : '🗺️';
     const badgeManual = r.manualesPendientes > 0 ? `<span class="badge-manual">${r.manualesPendientes} pendiente(s)</span>` : '';
-    html += `
-      <div class="card" style="border-left-color:${color};">
-        <div class="item-header">
-          <div class="item-title">${emoji} ${r.nombre} ${badgeManual}</div>
-          <div><strong>${pct}%</strong> (${r.alcanzado.toFixed(2)}/5)</div>
+
+    if (r.esDerivado) {
+      // Competencia de licenciatura: score derivado de competencias de materia
+      html += `
+        <div class="card" style="border-left-color:${color};">
+          <div class="item-header">
+            <div class="item-title">🎓 ${r.nombre} ${badgeManual}</div>
+            <div><strong>${pct}%</strong> (${r.alcanzado.toFixed(2)}/5)</div>
+          </div>
+          <div style="background:#e0e4ea; height:8px; border-radius:4px; overflow:hidden; margin-top:8px;">
+            <div style="background:${color}; height:100%; width:${pct}%; transition:width 0.5s;"></div>
+          </div>
+          ${r.derivadoDe && r.derivadoDe.length > 0 ? `
+            <div class="hint" style="margin-top:8px; font-size:12px; padding:10px;">
+              <strong>🔗 Esta competencia del perfil de egreso se trabaja mediante:</strong>
+              <ul style="margin:5px 0 0 20px;">
+                ${r.derivadoDe.map(nombre => `<li>${nombre}</li>`).join('')}
+              </ul>
+            </div>
+          ` : `
+            <div class="hint warning" style="margin-top:8px; font-size:12px; padding:10px;">
+              ⚠️ Esta competencia del perfil de egreso no está vinculada a ninguna competencia de la materia.
+            </div>
+          `}
         </div>
-        <div style="background:#e0e4ea; height:8px; border-radius:4px; overflow:hidden; margin-top:8px;">
-          <div style="background:${color}; height:100%; width:${pct}%; transition:width 0.5s;"></div>
+      `;
+    } else {
+      // Competencia de materia: cálculo directo
+      html += `
+        <div class="card" style="border-left-color:${color};">
+          <div class="item-header">
+            <div class="item-title">${emoji} ${r.nombre} ${badgeManual}</div>
+            <div><strong>${pct}%</strong> (${r.alcanzado.toFixed(2)}/5)</div>
+          </div>
+          <div style="background:#e0e4ea; height:8px; border-radius:4px; overflow:hidden; margin-top:8px;">
+            <div style="background:${color}; height:100%; width:${pct}%; transition:width 0.5s;"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:11px; color:#888; margin-top:4px;">
+            <span>Inicio esperado: ${r.esperadoInicio}/5</span>
+            <span>Meta de la materia: ${r.esperadoFinal}/5</span>
+          </div>
+          ${r.descripcion ? `<div style="color:#666; font-size:12px; margin-top:6px;">${r.descripcion}</div>` : ''}
         </div>
-        <div style="display:flex; justify-content:space-between; font-size:11px; color:#888; margin-top:4px;">
-          <span>Inicio esperado: ${r.esperadoInicio}/5</span>
-          <span>Meta de la materia: ${r.esperadoFinal}/5</span>
-        </div>
-        ${r.descripcion ? `<div style="color:#666; font-size:12px; margin-top:6px;">${r.descripcion}</div>` : ''}
-      </div>
-    `;
+      `;
+    }
   });
   cont.innerHTML = html;
 }
@@ -1515,12 +1978,23 @@ function renderPendientesCalificacion() {
   html += `<div class="hint warning">Hay <strong>${sinCal}</strong> de ${pendientes.length} preguntas abiertas/casos pendientes de revisión.</div>`;
   pendientes.forEach(p => {
     const cal = datos.calificacionesManuales[p.id];
-    const estado = cal ? `✓ Calificada: ${cal.score}/5` : '⏳ Pendiente';
+    let estado, colorEstado;
+    if (cal) {
+      const etiquetas = { cumple: 'Cumple ✅', parcial: 'Parcialmente ◐', no_cumple: 'No cumple ❌' };
+      const colores = { cumple: '#43e97b', parcial: '#f5a623', no_cumple: '#ff6b6b' };
+      const key = cal.criterioAplicado || (cal.score >= 4 ? 'cumple' : cal.score >= 2 ? 'parcial' : 'no_cumple');
+      estado = `✓ ${etiquetas[key] || cal.score + '/5'}`;
+      colorEstado = colores[key] || '#43e97b';
+    } else {
+      estado = '⏳ Pendiente';
+      colorEstado = '#f5a623';
+    }
+    const badgeRubric = p.criterios ? '<span class="badge-manual" style="background:#1565c0; margin-left:8px;">📋 Rúbrica</span>' : '';
     html += `
       <div class="card correccion-card">
         <div class="item-header">
-          <div class="item-title">${p.texto.substring(0, 100)}${p.texto.length > 100 ? '...' : ''}</div>
-          <div style="font-size:13px; color:${cal ? '#43e97b' : '#f5a623'}; font-weight:600;">${estado}</div>
+          <div class="item-title">${p.texto.substring(0, 100)}${p.texto.length > 100 ? '...' : ''}${badgeRubric}</div>
+          <div style="font-size:13px; color:${colorEstado}; font-weight:600;">${estado}</div>
         </div>
       </div>
     `;
@@ -1557,7 +2031,7 @@ function renderListaCorreccion() {
   pendientes.forEach(p => {
     const comp = datos.competencias.find(c => c.id === p.competenciaId);
     const cal = datos.calificacionesManuales[p.id];
-    const score = cal ? cal.score : '';
+    const selected = cal ? cal.criterioAplicado || '' : '';
     const comentario = cal ? cal.comentario || '' : '';
 
     html += `
@@ -1567,49 +2041,96 @@ function renderListaCorreccion() {
         </div>
         <div class="item-title">${p.texto}</div>
         ${p.contexto ? `<div class="caso-box"><strong>📖 Contexto:</strong> ${p.contexto}</div>` : ''}
+        ${p.criterios ? `<div class="criterios-docente">
+          <h4>📋 Criterios que debe cumplir la respuesta:</h4>
+          ${p.criterios.replace(/\n/g, '<br>')}
+        </div>` : ''}
         <div class="respuesta-alumno">
           <strong>💬 Respuesta del alumno:</strong><br>
           ${datos.respuestas[p.id] || '<em style="color:#999;">Sin respuesta</em>'}
         </div>
-        <div class="calificacion-input">
-          <label>Calificación (0-5):</label>
-          <input type="number" id="cal_${p.id}" min="0" max="5" step="0.5" value="${score}" placeholder="0-5">
-          <label style="margin-left:15px;">Comentario:</label>
+        <div style="margin-top:12px;">
+          <label style="font-weight:600; font-size:14px; color:#555; margin-bottom:8px; display:block;">🎯 ¿La respuesta cumple con lo esperado?</label>
+          <div class="rubric-options">
+            <label class="rubric-option ${selected === 'cumple' ? 'selected-cumple' : ''}" onclick="seleccionarRubrica('${p.id}', 'cumple', this)">
+              <input type="radio" name="rubric_${p.id}" value="cumple" ${selected === 'cumple' ? 'checked' : ''}> ✅ Cumple
+            </label>
+            <label class="rubric-option ${selected === 'parcial' ? 'selected-parcial' : ''}" onclick="seleccionarRubrica('${p.id}', 'parcial', this)">
+              <input type="radio" name="rubric_${p.id}" value="parcial" ${selected === 'parcial' ? 'checked' : ''}> ◐ Parcialmente
+            </label>
+            <label class="rubric-option ${selected === 'no_cumple' ? 'selected-no' : ''}" onclick="seleccionarRubrica('${p.id}', 'no_cumple', this)">
+              <input type="radio" name="rubric_${p.id}" value="no_cumple" ${selected === 'no_cumple' ? 'checked' : ''}> ❌ No cumple
+            </label>
+          </div>
+          <p style="font-size:12px; color:#888; margin-top:6px;">
+            ${selected === 'cumple' ? '✔️ 5/5 — Cumple totalmente con los criterios esperados' : ''}
+            ${selected === 'parcial' ? '◐ 2.5/5 — Cumple parcialmente, faltan elementos importantes' : ''}
+            ${selected === 'no_cumple' ? '❌ 0/5 — No cumple con lo esperado' : ''}
+          </p>
         </div>
-        <textarea id="com_${p.id}" placeholder="Retroalimentación para el alumno (opcional)..." style="margin-top:8px;">${comentario}</textarea>
+        <div class="calificacion-input" style="margin-top:10px;">
+          <label>✏️ Comentario para el alumno:</label>
+        </div>
+        <textarea id="com_${p.id}" placeholder="Retroalimentación para el alumno (opcional)..." style="margin-top:4px;">${comentario}</textarea>
       </div>
     `;
   });
   cont.innerHTML = html;
 }
 
+function seleccionarRubrica(pregId, valor, el) {
+  // Limpiar selección previa en el mismo grupo
+  const parent = el.closest('.rubric-options');
+  if (parent) {
+    parent.querySelectorAll('.rubric-option').forEach(o => {
+      o.className = 'rubric-option';
+      o.querySelector('input[type="radio"]').checked = false;
+    });
+  }
+  // Marcar el seleccionado
+  el.className = valor === 'cumple' ? 'rubric-option selected-cumple' :
+                  valor === 'parcial' ? 'rubric-option selected-parcial' :
+                  'rubric-option selected-no';
+  el.querySelector('input[type="radio"]').checked = true;
+  // Mostrar el puntaje asociado
+  const hint = el.closest('.correccion-card')?.querySelector('p[style*="font-size:12px"]');
+  if (hint) {
+    const textos = {
+      cumple: '✔️ 5/5 — Cumple totalmente con los criterios esperados',
+      parcial: '◐ 2.5/5 — Cumple parcialmente, faltan elementos importantes',
+      no_cumple: '❌ 0/5 — No cumple con lo esperado'
+    };
+    hint.textContent = textos[valor] || '';
+  }
+}
+
 function guardarCorreccion() {
   const pendientes = datos.preguntas.filter(p => ['abierta', 'caso'].includes(p.tipo));
   let faltantes = 0;
+  const mapaScore = { cumple: 5, parcial: 2.5, no_cumple: 0 };
   pendientes.forEach(p => {
-    const input = document.getElementById(`cal_${p.id}`);
+    const rubrica = document.querySelector(`input[name="rubric_${p.id}"]:checked`);
     const comInput = document.getElementById(`com_${p.id}`);
-    const val = parseFloat(input.value);
-    if (!isNaN(val) && val >= 0 && val <= 5) {
+    if (rubrica) {
       datos.calificacionesManuales[p.id] = {
-        score: val,
-        comentario: comInput.value.trim()
+        score: mapaScore[rubrica.value],
+        criterioAplicado: rubrica.value,
+        comentario: comInput ? comInput.value.trim() : ''
       };
-    } else if (input.value !== '') {
-      faltantes++;
     } else {
       faltantes++;
     }
   });
 
   if (faltantes > 0) {
-    if (!confirm(`Faltan ${faltantes} preguntas por calificar. ¿Continuar de todos modos?`)) return;
+    if (!confirm(`❌ Hay ${faltantes} preguntas sin calificar. Debes seleccionar Cumple, Parcialmente o No cumple para cada una. ¿Continuar de todos modos?`)) return;
   }
 
   mostrarResultadosFinales();
 }
 
 function mostrarResultadosFinales() {
+  filtroCompetencias = 'materia'; // Reiniciar filtro al mostrar resultados finales
   const { resultados, promedioGlobal, porcentajeGlobal } = calcularResultadosComunes();
   const mensaje = generarMensajeMotivador(porcentajeGlobal);
 
@@ -1623,42 +2144,50 @@ function mostrarResultadosFinales() {
   const alumnoTxt = datos.curso.alumno ? ` — Alumno: ${datos.curso.alumno}` : '';
   const perfilTxt = datos.curso.perfilLicenciatura ? ` — Perfil de licenciatura: ${datos.curso.perfilLicenciatura}` : '';
   document.getElementById('pdfSubtituloFinal').textContent = `Materia: ${datos.curso.nombre}${perfilTxt} | Avance global: ${porcentajeGlobal.toFixed(1)}% (final)${alumnoTxt}`;
+  document.getElementById('pdfSubtituloFinal').style.wordBreak = 'break-word';
 
   renderPerfilLicenciatura('perfilLicenciaturaInfoFinal');
   renderRadar(resultados, 'chartRadarFinal');
   renderDetalle(resultados, 'detalleCompetenciasFinal');
   renderComentariosDocente();
+  actualizarBotonesFiltroFinal();
 
   irA('resultadosFinales');
 }
 
 function renderComentariosDocente() {
   const cont = document.getElementById('comentariosDocente');
-  const comentarios = Object.entries(datos.calificacionesManuales)
-    .filter(([_, cal]) => cal.comentario && cal.comentario.trim())
+  const calificaciones = Object.entries(datos.calificacionesManuales)
     .map(([pregId, cal]) => {
       const p = datos.preguntas.find(pr => pr.id === pregId);
       return { pregunta: p, cal };
-    });
+    }).filter(({ pregunta }) => pregunta);
 
-  if (comentarios.length === 0) {
+  if (calificaciones.length === 0) {
     cont.innerHTML = '';
     return;
   }
 
-  let html = '<h3 style="margin-top:20px;">💬 Retroalimentación del docente</h3>';
-  comentarios.forEach(({ pregunta, cal }) => {
+  const etiquetas = { cumple: '✅ Cumple', parcial: '◐ Parcialmente', no_cumple: '❌ No cumple' };
+  const colores = { cumple: '#43e97b', parcial: '#f5a623', no_cumple: '#ff6b6b' };
+  const badgeRubric = p => p.criterios ? ' <span class="badge-manual" style="background:#1565c0;">📋 Rúbrica</span>' : '';
+
+  let html = '<h3 style="margin-top:20px;">📋 Evaluación del docente por pregunta</h3>';
+  calificaciones.forEach(({ pregunta: p, cal }) => {
+    const key = cal.criterioAplicado || (cal.score >= 4 ? 'cumple' : cal.score >= 2 ? 'parcial' : 'no_cumple');
     html += `
-      <div class="card" style="border-left-color:#4facfe;">
-        <div style="font-size:13px; color:#666; margin-bottom:5px;">
-          <strong>Pregunta:</strong> ${pregunta.texto.substring(0, 100)}${pregunta.texto.length > 100 ? '...' : ''}
+      <div class="card" style="border-left-color:${colores[key]};">
+        <div class="item-header">
+          <div class="item-title" style="font-size:13px;">
+            ${p.texto.substring(0, 120)}${p.texto.length > 120 ? '...' : ''}${badgeRubric(p)}
+          </div>
+          <div style="font-size:14px; font-weight:700; color:${colores[key]};">${etiquetas[key]} (${cal.score}/5)</div>
         </div>
-        <div style="font-size:13px; color:#2c3e50; line-height:1.6;">
-          <strong>Comentario:</strong> ${cal.comentario}
+        ${cal.comentario ? `
+        <div style="font-size:13px; color:#2c3e50; line-height:1.6; margin-top:6px; background:#f8f9fb; padding:10px; border-radius:6px;">
+          <strong>💬 Comentario:</strong> ${cal.comentario}
         </div>
-        <div style="font-size:12px; color:#888; margin-top:5px;">
-          Calificación: ${cal.score}/5
-        </div>
+        ` : ''}
       </div>
     `;
   });
@@ -1712,8 +2241,14 @@ function descargarArchivo(nombre, contenido) {
   const blob = new Blob([contenido], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = nombre; a.click();
-  URL.revokeObjectURL(url);
+  a.href = url; a.download = nombre;
+  document.body.appendChild(a);
+  a.click();
+  // Safari necesita un pequeño retardo antes de revocar el objeto URL
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 100);
 }
 
 // ============ PDF ============
@@ -1723,7 +2258,20 @@ async function descargarPDFFinal() { await generarPDF('pdfCaptureFinal', 'diagno
 async function generarPDF(captureId, baseName) {
   const { jsPDF } = window.jspdf;
   const elemento = document.getElementById(captureId);
-  const canvas = await html2canvas(elemento, { scale: 2, backgroundColor: '#ffffff' });
+  const canvas = await html2canvas(elemento, {
+    scale: 2,
+    backgroundColor: '#ffffff',
+    useCORS: true,
+    logging: false,
+    allowTaint: false,
+    // Opciones para mejor compatibilidad con Safari (Mac/iOS)
+    onclone: doc => {
+      doc.querySelectorAll('canvas').forEach(c => {
+        c.style.maxWidth = '100%';
+        c.style.height = 'auto';
+      });
+    }
+  });
   const imgData = canvas.toDataURL('image/png');
   const pdf = new jsPDF('p', 'mm', 'a4');
   const pageWidth = pdf.internal.pageSize.getWidth();
