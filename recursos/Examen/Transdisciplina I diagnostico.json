@@ -1,6 +1,6 @@
 {
   "titulo": "Examen Diagnóstico: Transdisciplina I",
-  "tiempo_limite_minutos": 25,
+  "tiempo_limite_minutos": 15,
   "maximo_salidas": 2,
   "clave_recuperacion": "TD2026",
   "puntos_distribucion": {
