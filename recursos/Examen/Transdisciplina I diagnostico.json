@@ -1,0 +1,248 @@
+{
+  "titulo": "Examen Diagnóstico: Transdisciplina I",
+  "tiempo_limite_minutos": 25,
+  "maximo_salidas": 2,
+  "clave_recuperacion": "TD2026",
+  "puntos_distribucion": {
+    "opcion_multiple": 1,
+    "vf": 0,
+    "relacionar": 2,
+    "abierta": 0,
+    "matematica": 0
+  },
+  "distribucion": {
+    "opcion_multiple": 8,
+    "vf": 0,
+    "relacionar": 2,
+    "abierta": 0,
+    "matematica": 0
+  },
+  "tareas": [
+    {
+      "id": "tarea_base_diagnostica",
+      "nombre": "Tarea Base Diagnóstica: Reflexión sobre Transdisciplina I",
+      "descripcion": "Elaborar un texto reflexivo (1-2 cuartillas) donde el alumno: 1. Identifique los temas que mejor recuerda de Transdisciplina I. 2. Identifique los temas que peor recuerda o más difíciles le resultaron. 3. Explique cómo esos temas se relacionan con su formación como psicólogo. 4. Proponga una estrategia personal para reforzar sus áreas débiles durante el semestre.",
+      "tipo": "investigacion",
+      "fecha_entrega": "2026-08-17",
+      "instrucciones": "Extensión: 1-2 cuartillas. Formato: texto reflexivo con estructura libre. Criterios: claridad en la identificación de fortalezas y debilidades, coherencia en la relación con la formación psicológica, propuesta realista y viable de mejora."
+    },
+    {
+      "id": "tarea_adicional_d1",
+      "nombre": "TA D1: Resumen de autor",
+      "descripcion": "Elegir al autor de Transdisciplina I que más se le haya complicado y elaborar un resumen de su propuesta principal (1-2 cuartillas).",
+      "tipo": "lectura",
+      "fecha_entrega": "2026-08-17",
+      "instrucciones": "Debe incluir: 1. ¿Quién es el autor y cuál es su propuesta principal? 2. ¿Qué conceptos clave trabaja? 3. ¿Cómo se relaciona con la psicología? 4. ¿Qué fue lo que más se le dificultó de este autor? El alumno usa sus apuntes y bibliografía de Transdisciplina I."
+    },
+    {
+      "id": "tarea_adicional_d2",
+      "nombre": "TA D2: Glosario de conceptos",
+      "descripcion": "Elaborar un glosario con los conceptos fundamentales de Transdisciplina I. El alumno decide qué conceptos incluir (mínimo 8-10 conceptos).",
+      "tipo": "ejercicio",
+      "fecha_entrega": "2026-08-17",
+      "instrucciones": "Cada concepto debe incluir: 1. Definición, 2. Ejemplo en psicología. El alumno usa sus apuntes y bibliografía de Transdisciplina I."
+    },
+    {
+      "id": "tarea_adicional_d3",
+      "nombre": "TA D3: Mapa conceptual",
+      "descripcion": "Elaborar un mapa conceptual que integre los temas vistos en Transdisciplina I. El alumno decide cómo organizarlo y qué conceptos incluir.",
+      "tipo": "investigacion",
+      "fecha_entrega": "2026-08-17",
+      "instrucciones": "El mapa debe incluir al menos 8 conceptos con sus conexiones y jerarquías bien definidas. Formato libre (digital o dibujado). El alumno usa sus apuntes y bibliografía de Transdisciplina I."
+    }
+  ],
+  "reglas_asignacion": [
+    {
+      "id": "regla_excelente",
+      "nombre": "Rendimiento excelente (global ≥ 9.0)",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": ">=",
+          "valor": 9.0,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": ["tarea_base_diagnostica"]
+    },
+    {
+      "id": "regla_alto",
+      "nombre": "Rendimiento alto (global 7.5 - 8.9)",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": ">=",
+          "valor": 7.5,
+          "unidad": "porcentaje"
+        },
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": "<",
+          "valor": 9.0,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": ["tarea_base_diagnostica", "tarea_adicional_d1"]
+    },
+    {
+      "id": "regla_medio",
+      "nombre": "Rendimiento medio (global 6.0 - 7.4)",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": ">=",
+          "valor": 6.0,
+          "unidad": "porcentaje"
+        },
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": "<",
+          "valor": 7.5,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": ["tarea_base_diagnostica", "tarea_adicional_d1", "tarea_adicional_d2"]
+    },
+    {
+      "id": "regla_bajo",
+      "nombre": "Rendimiento bajo (global < 6.0)",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": "<",
+          "valor": 6.0,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": ["tarea_base_diagnostica", "tarea_adicional_d1", "tarea_adicional_d2", "tarea_adicional_d3"]
+    }
+  ],
+  "preguntas": [
+    {
+      "id": "om_01",
+      "tipo": "opcion_multiple",
+      "pregunta": "¿Qué concepto de Henri Bergson se refiere a la experiencia subjetiva del tiempo, opuesta al tiempo mensurable y cuantificable?",
+      "opciones": [
+        "Élan vital",
+        "Intuición",
+        "Duración",
+        "Pregnancia"
+      ],
+      "respuesta_correcta": "Duración"
+    },
+    {
+      "id": "om_02",
+      "tipo": "opcion_multiple",
+      "pregunta": "Según Maurice Merleau-Ponty, ¿cómo se denomina el concepto que describe al cuerpo como centro de la experiencia perceptiva y condición de toda experiencia?",
+      "opciones": [
+        "Cuerpo mecanizado",
+        "Cuerpo vivido",
+        "Cuerpo como objeto",
+        "Cuerpo reflejo"
+      ],
+      "respuesta_correcta": "Cuerpo vivido"
+    },
+    {
+      "id": "om_03",
+      "tipo": "opcion_multiple",
+      "pregunta": "Ernst Cassirer propuso que la cultura humana se organiza a través de sistemas simbólicos. ¿Cuál de las siguientes NO es una forma simbólica según Cassirer?",
+      "opciones": [
+        "Mito",
+        "Lenguaje",
+        "Instinto",
+        "Arte"
+      ],
+      "respuesta_correcta": "Instinto"
+    },
+    {
+      "id": "om_04",
+      "tipo": "opcion_multiple",
+      "pregunta": "En la historia de las mentalidades, Jacques Le Goff propone que el historiador debe estudiar:",
+      "opciones": [
+        "Los grandes personajes y sus hazañas",
+        "Las representaciones colectivas, imaginarios y valores compartidos por una sociedad",
+        "Los eventos políticos y militares",
+        "Las condiciones climáticas y geográficas"
+      ],
+      "respuesta_correcta": "Las representaciones colectivas, imaginarios y valores compartidos por una sociedad"
+    },
+    {
+      "id": "om_05",
+      "tipo": "opcion_multiple",
+      "pregunta": "Según Michel de Certeau, el concepto de 'operación historiográfica' se refiere a:",
+      "opciones": [
+        "La recopilación objetiva de datos históricos",
+        "La construcción del conocimiento histórico como una práctica situada que combina lugar social, métodos y escritura",
+        "La búsqueda de leyes universales de la historia",
+        "La narración cronológica de eventos"
+      ],
+      "respuesta_correcta": "La construcción del conocimiento histórico como una práctica situada que combina lugar social, métodos y escritura"
+    },
+    {
+      "id": "om_06",
+      "tipo": "opcion_multiple",
+      "pregunta": "En la obra de John Dewey, ¿qué caracteriza a una experiencia estética frente a una experiencia ordinaria?",
+      "opciones": [
+        "Su duración en el tiempo",
+        "Su belleza objetiva",
+        "Su carácter de totalidad, intensidad y consumación",
+        "Su utilidad práctica"
+      ],
+      "respuesta_correcta": "Su carácter de totalidad, intensidad y consumación"
+    },
+    {
+      "id": "om_07",
+      "tipo": "opcion_multiple",
+      "pregunta": "Según Rudolf Arnheim, la percepción visual es:",
+      "opciones": [
+        "Un registro pasivo de estímulos sensoriales",
+        "Una actividad cognitiva que organiza, selecciona y da significado a lo que se ve",
+        "Un proceso exclusivamente biológico",
+        "Una copia fiel de la realidad externa"
+      ],
+      "respuesta_correcta": "Una actividad cognitiva que organiza, selecciona y da significado a lo que se ve"
+    },
+    {
+      "id": "om_08",
+      "tipo": "opcion_multiple",
+      "pregunta": "La transdisciplinariedad se diferencia de la multidisciplinariedad porque:",
+      "opciones": [
+        "La transdisciplinariedad suma conocimientos sin integrarlos",
+        "La transdisciplinariedad trasciende las fronteras disciplinarias para abordar problemas complejos",
+        "La transdisciplinariedad se limita a una sola disciplina",
+        "La transdisciplinariedad solo se aplica en ciencias naturales"
+      ],
+      "respuesta_correcta": "La transdisciplinariedad trasciende las fronteras disciplinarias para abordar problemas complejos"
+    },
+    {
+      "id": "rel_01",
+      "tipo": "relacionar",
+      "pregunta": "Relaciona cada autor con su concepto o aportación principal.",
+      "opciones": {
+        "Henri Bergson": "Duración como experiencia subjetiva del tiempo",
+        "Maurice Merleau-Ponty": "Cuerpo vivido como centro de la percepción",
+        "Ernst Cassirer": "Formas simbólicas de la cultura",
+        "R.G. Collingwood": "Re-enactment (recreación del pensamiento pasado)",
+        "John Dewey": "Experiencia estética como totalidad significativa"
+      }
+    },
+    {
+      "id": "rel_02",
+      "tipo": "relacionar",
+      "pregunta": "Relaciona cada concepto con su definición correcta.",
+      "opciones": {
+        "Mentalidad": "Representaciones colectivas inconscientes que estructuran la experiencia cotidiana",
+        "Pregnancia": "Principio gestáltico que describe la tendencia a percibir la forma más simple y estable",
+        "Práctica cotidiana": "Formas de resistencia y creatividad de los sectores subalternos en la vida diaria",
+        "Re-enactment": "Recreación del pensamiento pasado en la mente del historiador o terapeuta",
+        "Pensamiento visual": "La percepción como actividad cognitiva que organiza y da significado"
+      }
+    }
+  ]
+}

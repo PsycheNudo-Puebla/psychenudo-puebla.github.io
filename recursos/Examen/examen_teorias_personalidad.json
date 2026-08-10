@@ -1,0 +1,219 @@
+{
+  "titulo": "Teorías de la Personalidad",
+  "tiempo_limite_minutos": 25,
+  "maximo_salidas": 2,
+  "clave_recuperacion": "1275",
+  "puntos_distribucion": {
+    "opcion_multiple": 1,
+    "vf": 0,
+    "relacionar": 2,
+    "abierta": 0,
+    "matematica": 0
+  },
+  "distribucion": {
+    "opcion_multiple": 8,
+    "vf": 0,
+    "relacionar": 2,
+    "abierta": 0,
+    "matematica": 0
+  },
+  "tareas": [
+    {
+      "id": "tarea_analisis_comparativo",
+      "nombre": "Análisis comparativo: Teorías de la Personalidad",
+      "descripcion": "Elabora un análisis comparativo entre tres teorías de la personalidad (psicoanálisis, humanismo y conductismo social) aplicándolas a un caso hipotético.",
+      "tipo": "investigacion",
+      "fecha_entrega": "",
+      "instrucciones": "Extensión mínima de 2 cuartillas. Incluye: (1) cuadro comparativo con autor, concepto central y críticas; (2) aplicación de cada teoría a un mismo caso; (3) conclusión personal con postura argumentada."
+    },
+    {
+      "id": "tarea_lectura_mapa",
+      "nombre": "Lectura complementaria y mapa conceptual",
+      "descripcion": "Realiza la lectura recomendada sobre teorías de la personalidad y elabora un mapa conceptual que integre los autores y conceptos clave.",
+      "tipo": "lectura",
+      "fecha_entrega": "",
+      "instrucciones": "Lectura: capítulo 'Teorías de la Personalidad' (bibliografía sugerida por el docente). El mapa debe incluir al menos 8 conceptos con sus conexiones y jerarquías bien definidas."
+    },
+    {
+      "id": "tarea_recuperacion_refuerzo",
+      "nombre": "Ejercicio de refuerzo y recuperación",
+      "descripcion": "Repasa los temas del examen resolviendo una serie de ejercicios de opción múltiple y relación de conceptos, y entrega un resumen de tus aprendizajes.",
+      "tipo": "ejercicio",
+      "fecha_entrega": "",
+      "instrucciones": "Resuelve los 10 ejercicios de refuerzo de la plataforma (obtén al menos 7/10). Además, escribe un resumen de 1 cuartilla explicando con tus propias palabras: psicoanálisis, jerarquía de necesidades, enfoque centrado en la persona, aprendizaje social y teoría de los rasgos."
+    }
+  ],
+  "reglas_asignacion": [
+    {
+      "id": "regla_alto_rendimiento",
+      "nombre": "Alto rendimiento (global ≥ 8)",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": ">=",
+          "valor": 8,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": ["tarea_analisis_comparativo"]
+    },
+    {
+      "id": "regla_rendimiento_medio",
+      "nombre": "Rendimiento medio (global 6-7.9)",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": ">=",
+          "valor": 6,
+          "unidad": "porcentaje"
+        },
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": "<",
+          "valor": 8,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": ["tarea_lectura_mapa"]
+    },
+    {
+      "id": "regla_bajo_rendimiento",
+      "nombre": "Bajo rendimiento (global < 6)",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": "<",
+          "valor": 6,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": ["tarea_recuperacion_refuerzo"]
+    }
+  ],
+  "preguntas": [
+    {
+      "id": "om_01",
+      "tipo": "opcion_multiple",
+      "pregunta": "¿Quién es considerado el padre del psicoanálisis?",
+      "opciones": [
+        "Carl Rogers",
+        "Sigmund Freud",
+        "Abraham Maslow",
+        "Albert Bandura"
+      ],
+      "respuesta_correcta": "Sigmund Freud"
+    },
+    {
+      "id": "om_02",
+      "tipo": "opcion_multiple",
+      "pregunta": "Según Freud, ¿qué instancia de la personalidad opera bajo el principio de realidad?",
+      "opciones": [
+        "El ello",
+        "El superyó",
+        "El yo",
+        "El inconsciente"
+      ],
+      "respuesta_correcta": "El yo"
+    },
+    {
+      "id": "om_03",
+      "tipo": "opcion_multiple",
+      "pregunta": "En la jerarquía de necesidades de Maslow, ¿cuál se encuentra en la cúspide de la pirámide?",
+      "opciones": [
+        "Necesidades fisiológicas",
+        "Necesidad de seguridad",
+        "Necesidad de estima",
+        "Autorrealización"
+      ],
+      "respuesta_correcta": "Autorrealización"
+    },
+    {
+      "id": "om_04",
+      "tipo": "opcion_multiple",
+      "pregunta": "Según Carl Rogers, ¿qué condición del terapeuta favorece el desarrollo sano de la personalidad del cliente?",
+      "opciones": [
+        "La evaluación y el juicio constante",
+        "La consideración positiva incondicional",
+        "La interpretación de los sueños",
+        "El condicionamiento operante"
+      ],
+      "respuesta_correcta": "La consideración positiva incondicional"
+    },
+    {
+      "id": "om_05",
+      "tipo": "opcion_multiple",
+      "pregunta": "En la teoría de los rasgos de Gordon Allport, ¿qué es un rasgo cardinal?",
+      "opciones": [
+        "Un rasgo que domina casi todas las conductas de la persona",
+        "Un rasgo presente en todas las personas por igual",
+        "Un rasgo que solo aparece en situaciones de estrés",
+        "Un rasgo determinado exclusivamente por la genética"
+      ],
+      "respuesta_correcta": "Un rasgo que domina casi todas las conductas de la persona"
+    },
+    {
+      "id": "om_06",
+      "tipo": "opcion_multiple",
+      "pregunta": "En la teoría de Eysenck, ¿con qué se relaciona principalmente la dimensión introversión-extraversión?",
+      "opciones": [
+        "Con el nivel de activación cortical del sistema nervioso",
+        "Con la cantidad de experiencias traumáticas infantiles",
+        "Con la estructura familiar del individuo",
+        "Con el nivel socioeconómico"
+      ],
+      "respuesta_correcta": "Con el nivel de activación cortical del sistema nervioso"
+    },
+    {
+      "id": "om_07",
+      "tipo": "opcion_multiple",
+      "pregunta": "Según Albert Bandura, ¿cómo se llama el aprendizaje de conductas mediante la observación de modelos?",
+      "opciones": [
+        "Condicionamiento clásico",
+        "Aprendizaje vicario o modelamiento",
+        "Reforzamiento negativo",
+        "Insight"
+      ],
+      "respuesta_correcta": "Aprendizaje vicario o modelamiento"
+    },
+    {
+      "id": "om_08",
+      "tipo": "opcion_multiple",
+      "pregunta": "En el psicoanálisis, ¿qué mecanismo de defensa consiste en atribuir a otros los propios impulsos o sentimientos inaceptables?",
+      "opciones": [
+        "La sublimación",
+        "La negación",
+        "La proyección",
+        "La racionalización"
+      ],
+      "respuesta_correcta": "La proyección"
+    },
+    {
+      "id": "rel_01",
+      "tipo": "relacionar",
+      "pregunta": "Relaciona cada autor con su teoría o aportación principal.",
+      "opciones": {
+        "Sigmund Freud": "Psicoanálisis",
+        "Abraham Maslow": "Jerarquía de necesidades",
+        "Carl Rogers": "Enfoque centrado en la persona",
+        "Albert Bandura": "Teoría del aprendizaje social",
+        "Gordon Allport": "Psicología de los rasgos"
+      }
+    },
+    {
+      "id": "rel_02",
+      "tipo": "relacionar",
+      "pregunta": "Relaciona cada concepto psicoanalítico con su definición.",
+      "opciones": {
+        "Ello": "Instancia que opera según el principio del placer",
+        "Yo": "Instancia que media entre el ello y la realidad",
+        "Superyó": "Interiorización de las normas y valores",
+        "Inconsciente": "Contenidos psíquicos no accesibles a la conciencia",
+        "Complejo de inferioridad": "Sentimiento de insuficiencia que impulsa la superación (Adler)"
+      }
+    }
+  ]
+}
