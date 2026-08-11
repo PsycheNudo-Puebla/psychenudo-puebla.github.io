@@ -12,6 +12,19 @@ permalink: /adrian-gonzalez/
     <meta name="author" content="Mtro. Alfredo Adrián González Lazcano">
     <title>Mtro. Alfredo Adrián González Lazcano | Psicólogo Clínico</title>
     <link rel="icon" type="image/png" href="{{ '/assets/logo-adrian.png' | relative_url }}">
+    <!-- Open Graph para compartir en redes -->
+    <meta property="og:type" content="profile">
+    <meta property="og:site_name" content="PsycheNudo Puebla">
+    <meta property="og:title" content="Mtro. Alfredo Adrián González Lazcano | Psicólogo Clínico en Puebla">
+    <meta property="og:description" content="Psicólogo clínico especialista en Psicoanálisis y Cultura. Terapia individual en Puebla. Agenda tu sesión en línea o presencial.">
+    <meta property="og:url" content="{{ '/adrian-gonzalez/' | absolute_url }}">
+    <meta property="og:image" content="{{ '/assets/foto-adrian.jpeg' | absolute_url }}">
+    <meta property="og:image:alt" content="Mtro. Alfredo Adrián González Lazcano, psicólogo clínico en Puebla">
+    <meta property="og:locale" content="es_MX">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Mtro. Alfredo Adrián González Lazcano | Psicólogo Clínico en Puebla">
+    <meta name="twitter:description" content="Psicólogo clínico especialista en Psicoanálisis y Cultura. Terapia individual en Puebla.">
+    <meta name="twitter:image" content="{{ '/assets/foto-adrian.jpeg' | absolute_url }}">
     <style>
         :root {
             /* Paleta profesional cálida - psicología del color */
@@ -69,7 +82,7 @@ permalink: /adrian-gonzalez/
         a:hover::after { width: 100%; }
 
         .container { 
-            max-width: 1040px; 
+            max-width: 1200px; 
             margin: 0 auto; 
             padding: 0 28px; 
         }
@@ -135,10 +148,73 @@ permalink: /adrian-gonzalez/
             display: flex;
             flex-wrap: wrap;
             align-items: center;
-            gap: 3rem;
+            gap: 3.5rem;
             padding: 4.5rem 0 3.5rem;
             position: relative;
         }
+        .hero-cta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1.8rem;
+        }
+        .btn-cta {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 0.9rem 1.8rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+        .btn-cta.primary {
+            background: linear-gradient(135deg, var(--accent), #b8964b);
+            color: var(--primary-dark);
+            box-shadow: 0 4px 15px rgba(201, 169, 97, 0.3);
+        }
+        .btn-cta.primary:hover {
+            background: var(--bg-card);
+            color: var(--accent);
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(201, 169, 97, 0.4);
+        }
+        .btn-cta.secondary {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 3px 10px rgba(93, 46, 70, 0.15);
+        }
+        .btn-cta.secondary:hover {
+            background: var(--bg-card);
+            color: var(--primary);
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(93, 46, 70, 0.2);
+        }
+        /* Botón Agendar en el header */
+        .btn-nav-agendar {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.3rem;
+            background: linear-gradient(135deg, var(--accent), #b8964b);
+            color: var(--primary-dark);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 3px 10px rgba(201, 169, 97, 0.25);
+            transition: var(--transition);
+        }
+        .btn-nav-agendar:hover {
+            background: var(--primary);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(93, 46, 70, 0.25);
+        }
+        .btn-nav-agendar::after { display: none; }
         .hero::before {
             content: '';
             position: absolute;
@@ -153,10 +229,13 @@ permalink: /adrian-gonzalez/
         }
         
         .profile-photo {
-            flex: 0 0 260px;
+            flex: 0 0 300px;
             text-align: center;
             position: relative;
             z-index: 1;
+        }
+        @media (min-width: 1200px) {
+            .profile-photo { flex-basis: 320px; }
         }
         .profile-photo::before {
             content: '';
@@ -176,13 +255,16 @@ permalink: /adrian-gonzalez/
         
         .profile-photo img {
             width: 100%;
-            max-width: 260px;
+            max-width: 300px;
             aspect-ratio: 1/1;
             object-fit: cover;
             border-radius: 50%;
             border: 5px solid var(--bg-card);
             box-shadow: var(--shadow-hover);
             transition: var(--transition);
+        }
+        @media (min-width: 1200px) {
+            .profile-photo img { max-width: 320px; }
         }
         .profile-photo img:hover {
             transform: scale(1.03) rotate(1deg);
@@ -197,6 +279,9 @@ permalink: /adrian-gonzalez/
             line-height: 1.15;
             position: relative;
             display: inline-block;
+        }
+        @media (min-width: 1200px) {
+            .hero-text h1 { font-size: 2.7rem; }
         }
         .hero-text h1::after {
             content: '';
@@ -616,6 +701,17 @@ permalink: /adrian-gonzalez/
                 align-items: center;
                 justify-content: center;
             }
+            .btn-nav-agendar {
+                min-height: 44px;
+            }
+            .hero-cta {
+                justify-content: center;
+            }
+            .btn-cta {
+                min-height: 44px;
+                font-size: 0.95rem;
+                padding: 0.75rem 1.2rem;
+            }
             nav { 
                 justify-content: center; 
                 flex-direction: column;
@@ -654,6 +750,7 @@ permalink: /adrian-gonzalez/
                     <a href="#experiencia">Experiencia</a>
                     <a href="#ubicacion">Ubicación</a>
                     <a href="#redes">Contacto</a>
+                    <a href="https://cal.com/adrian-gonzalez-mh0bym/sesion" class="btn-nav-agendar" target="_blank" rel="noopener noreferrer">📅 Agendar</a>
                 </div>
             </nav>
         </div>
@@ -670,7 +767,12 @@ permalink: /adrian-gonzalez/
             <div class="hero-text">
                 <h1>Mtro. Alfredo Adrián González Lazcano</h1>
                 <h2>Psicólogo Clínico | Especialista en Psicoanálisis y Cultura</h2>
-                
+
+                <div class="hero-cta">
+                    <a href="https://cal.com/adrian-gonzalez-mh0bym/sesion" class="btn-cta primary" target="_blank" rel="noopener noreferrer">📅 Agenda tu sesión</a>
+                    <a href="https://wa.me/522221348932" class="btn-cta secondary" target="_blank" rel="noopener noreferrer">💬 WhatsApp</a>
+                </div>
+
                 <h3>Formación Académica</h3>
                 <ul>
                     <li><strong>Licenciatura en Psicología General</strong> — Universidad Popular Autónoma del Estado de Puebla (UPAEP).</li>
