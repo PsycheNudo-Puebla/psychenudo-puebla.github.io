@@ -33,7 +33,7 @@ permalink: /adrian-gonzalez/
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
+        html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
         
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -306,43 +306,18 @@ permalink: /adrian-gonzalez/
             grid-template-columns: 1fr 1fr; 
             gap: 2.2rem; 
         }
-        @media (max-width: 768px) { 
-            .grid-2 { grid-template-columns: 1fr; } 
-            .hero { 
-                flex-direction: column; 
-                text-align: center; 
-                padding: 3rem 0 2rem;
+        /* Fallback para iOS < 15 (sin soporte de aspect-ratio) */
+        @supports not (aspect-ratio: 1 / 1) {
+            .profile-photo img {
+                height: 260px;
             }
-            .hero-text h1::after { left: 50%; transform: translateX(-50%); }
-            .hero-text h2 {
-                border-left: none;
-                border-bottom: 4px solid var(--accent);
-                padding-left: 0;
-                padding-bottom: 1rem;
-                display: inline-block;
-            }
-            .logo-brand {
-                flex-direction: column;
-                gap: 0.4rem;
-            }
-            .logo-brand img {
-                height: 80px;
-            }
-            .logo-text .name {
-                font-size: 0.7rem;
-                text-align: center;
-            }
-            .nav-links { 
-                gap: 1.2rem; 
-                font-size: 0.9rem;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            nav { 
-                justify-content: center; 
-                flex-direction: column;
-                gap: 1rem;
-            }
+        }
+
+        /* Respetar usuarios con movimiento reducido */
+        @media (prefers-reduced-motion: reduce) {
+            section, .grid-2 { animation: none !important; opacity: 1 !important; }
+            * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+            html { scroll-behavior: auto; }
         }
 
         /* Location Box con estilo cálido */
@@ -597,6 +572,67 @@ permalink: /adrian-gonzalez/
             justify-content: center;
             flex-wrap: wrap;
         }
+
+        /* ====== Ajustes móviles (al final para prioridad sobre reglas base) ====== */
+        @media (max-width: 768px) { 
+            .grid-2 { grid-template-columns: 1fr; gap: 1.4rem; } 
+            section {
+                padding: 1.6rem;
+            }
+            .hero { 
+                flex-direction: column; 
+                text-align: center; 
+                padding: 2.5rem 1.6rem 2rem;
+            }
+            .hero-text h1::after { left: 50%; transform: translateX(-50%); }
+            .hero-text h2 {
+                border-left: none;
+                border-bottom: 4px solid var(--accent);
+                padding-left: 0;
+                padding-bottom: 1rem;
+                display: inline-block;
+            }
+            .logo-brand {
+                flex-direction: column;
+                gap: 0.4rem;
+            }
+            .logo-brand img {
+                height: 80px;
+            }
+            .logo-text .name {
+                font-size: 0.7rem;
+                text-align: center;
+            }
+            .nav-links { 
+                gap: 0.8rem; 
+                font-size: 0.9rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .nav-links a {
+                min-height: 44px;
+                min-width: 44px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+            nav { 
+                justify-content: center; 
+                flex-direction: column;
+                gap: 0.6rem;
+            }
+            .social-btn,
+            .btn-map,
+            .boton-verificacion {
+                min-height: 44px;
+            }
+            .social-btn {
+                justify-content: center;
+                font-size: 0.95rem;
+                padding: 0.75rem 1.1rem;
+            }
+            .calendar-embed { height: 520px; }
+        }
     </style>
 </head>
 <body>
@@ -710,7 +746,7 @@ permalink: /adrian-gonzalez/
                 
                 <!-- Cal.com Embebido -->
                 <div class="calendar-embed">
-                    <div style="width:100%;height:100%;overflow:scroll" id="my-cal-inline-sesion"></div>
+                    <div style="width:100%;height:100%;overflow:auto" id="my-cal-inline-sesion"></div>
                 </div>
                 <script type="text/javascript">
                     (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if(typeof namespace === "string"){cal.ns[namespace] = cal.ns[namespace] || api;p(cal.ns[namespace], ar);p(cal, ["initNamespace", namespace]);} else p(cal, ar); return;} p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
