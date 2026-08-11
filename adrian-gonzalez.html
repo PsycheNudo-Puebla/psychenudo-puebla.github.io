@@ -18,13 +18,13 @@ permalink: /adrian-gonzalez/
     <meta property="og:title" content="Mtro. Alfredo Adrián González Lazcano | Psicólogo Clínico en Puebla">
     <meta property="og:description" content="Psicólogo clínico especialista en Psicoanálisis y Cultura. Terapia individual en Puebla. Agenda tu sesión en línea o presencial.">
     <meta property="og:url" content="{{ '/adrian-gonzalez/' | absolute_url }}">
-    <meta property="og:image" content="{{ '/assets/foto-adrian.jpeg' | absolute_url }}">
-    <meta property="og:image:alt" content="Mtro. Alfredo Adrián González Lazcano, psicólogo clínico en Puebla">
+    <meta property="og:image" content="{{ '/assets/logo-adrian.png' | absolute_url }}">
+    <meta property="og:image:alt" content="Logo Adrian González - Psicólogo Clínico en Puebla">
     <meta property="og:locale" content="es_MX">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Mtro. Alfredo Adrián González Lazcano | Psicólogo Clínico en Puebla">
     <meta name="twitter:description" content="Psicólogo clínico especialista en Psicoanálisis y Cultura. Terapia individual en Puebla.">
-    <meta name="twitter:image" content="{{ '/assets/foto-adrian.jpeg' | absolute_url }}">
+    <meta name="twitter:image" content="{{ '/assets/logo-adrian.png' | absolute_url }}">
     <style>
         :root {
             /* Paleta profesional cálida - psicología del color */
@@ -82,9 +82,9 @@ permalink: /adrian-gonzalez/
         a:hover::after { width: 100%; }
 
         .container { 
-            max-width: 1200px; 
+            width: min(94%, 1600px);
             margin: 0 auto; 
-            padding: 0 28px; 
+            padding: 0 32px; 
         }
 
         /* Header sin efecto glass */
@@ -659,7 +659,20 @@ permalink: /adrian-gonzalez/
         }
 
         /* ====== Ajustes móviles (al final para prioridad sobre reglas base) ====== */
-        @media (max-width: 768px) { 
+        /* Texto legible en tarjetas anchas (desktop) */
+        @media (min-width: 1200px) {
+            section:not(.hero) > h3,
+            section:not(.hero) > p,
+            section:not(.hero) > ul {
+                max-width: 980px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            section:not(.hero) > .verificacion-enlaces {
+                justify-content: center;
+            }
+        }
+        @media (max-width: 768px) {
             .grid-2 { grid-template-columns: 1fr; gap: 1.4rem; } 
             section {
                 padding: 1.6rem;
