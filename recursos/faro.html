@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FARO — Guía de acompañamiento ante un ataque de ansiedad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --pine:#0d2f2a; --pine2:#123f38; --sea:#175048; --sea2:#1e5f53;
+  --mist:#f4f0e6; --paper:#fcfaf3; --ink:#132b27; --ink-soft:#4a625d;
+  --coral:#f25c3d; --coral-deep:#d94a2e; --amber:#f0a24f;
+  --aqua:#5fc4ae; --aqua-deep:#2e8b7a;
+  --line:#dcd6c6; --line-dark:#274b44;
+  --ff-display:"Fraunces",Georgia,serif;
+  --ff-body:"Instrument Sans",system-ui,sans-serif;
+  --sh:0 14px 40px -18px rgba(13,47,42,.35);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--ff-body); color:var(--ink); background:var(--mist);
+  background-image:
+    radial-gradient(900px 500px at 8% -5%, rgba(95,196,174,.16), transparent 60%),
+    radial-gradient(800px 600px at 100% 30%, rgba(240,162,79,.12), transparent 55%);
+  background-attachment:fixed;
+  line-height:1.6; overflow-x:hidden;
+}
+::selection{background:var(--coral);color:#fff}
+h1,h2,h3{font-family:var(--ff-display);font-weight:600;line-height:1.08;letter-spacing:-.01em}
+img,svg{display:block}
+a{color:var(--aqua-deep)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(18px,4vw,44px)}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:10px;
+  font-size:.72rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--aqua-deep);
+}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--coral);border-radius:2px}
+.dark .eyebrow{color:var(--aqua)}
+
+/* grain */
+.grain{position:fixed;inset:0;z-index:80;pointer-events:none;opacity:.05;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='0.7'/></svg>");}
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--coral),var(--amber));z-index:120}
+
+/* ============ DISCLAIMER BAR ============ */
+.disclaimer-bar{
+  background:var(--pine);color:#cfe6df;font-size:.8rem;text-align:center;
+  padding:9px 44px 9px 16px;position:relative;z-index:110;
+}
+.disclaimer-bar strong{color:var(--amber);font-weight:700}
+.disclaimer-bar button{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  background:none;border:1px solid rgba(255,255,255,.3);color:#cfe6df;
+  width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:.7rem;line-height:1;
+}
+.disclaimer-bar button:hover{background:rgba(255,255,255,.12)}
+
+/* ============ HEADER ============ */
+header{
+  position:sticky;top:0;z-index:100;background:rgba(244,240,230,.85);
+  backdrop-filter:blur(10px);border-bottom:1px solid transparent;
+  transition:box-shadow .3s,border-color .3s;
+}
+header.scrolled{box-shadow:0 8px 30px -18px rgba(13,47,42,.4);border-color:var(--line)}
+.nav{display:flex;align-items:center;gap:26px;padding:14px 0}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--pine);
+  font-family:var(--ff-display);font-weight:800;font-size:1.35rem;letter-spacing:.04em}
+.logo .beam{width:30px;height:30px}
+.nav-links{display:flex;gap:26px;margin-left:auto}
+.nav-links a{
+  text-decoration:none;color:var(--ink-soft);font-weight:600;font-size:.9rem;
+  position:relative;padding:4px 0;transition:color .2s;
+}
+.nav-links a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:2px;
+  background:var(--coral);transition:width .25s}
+.nav-links a:hover{color:var(--pine)}
+.nav-links a:hover::after{width:100%}
+.btn{
+  display:inline-flex;align-items:center;gap:9px;border:none;cursor:pointer;
+  font-family:var(--ff-body);font-weight:700;font-size:.92rem;text-decoration:none;
+  padding:13px 24px;border-radius:999px;transition:transform .2s,box-shadow .2s,background .2s;
+}
+.btn-coral{background:var(--coral);color:#fff;box-shadow:0 10px 24px -12px rgba(242,92,61,.7)}
+.btn-coral:hover{background:var(--coral-deep);transform:translateY(-2px)}
+.btn-ghost{background:transparent;color:var(--pine);border:1.5px solid var(--pine)}
+.btn-ghost:hover{background:var(--pine);color:var(--mist);transform:translateY(-2px)}
+.btn-dark-ghost{background:transparent;color:var(--mist);border:1.5px solid rgba(252,250,243,.5)}
+.btn-dark-ghost:hover{background:rgba(252,250,243,.12)}
+.nav .btn-coral{margin-left:8px;padding:10px 20px;animation:pulse-soft 3s infinite}
+@keyframes pulse-soft{0%,100%{box-shadow:0 0 0 0 rgba(242,92,61,.45)}55%{box-shadow:0 0 0 12px rgba(242,92,61,0)}}
+:focus-visible{outline:3px solid var(--amber);outline-offset:3px;border-radius:6px}
+
+/* ============ HERO ============ */
+.hero{padding:clamp(48px,7vw,90px) 0 clamp(40px,6vw,70px)}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,5vw,64px);align-items:center}
+.hero h1{font-size:clamp(2.4rem,5.4vw,4.3rem);color:var(--pine);margin:18px 0 20px}
+.hero h1 em{font-style:italic;color:var(--coral);font-weight:500}
+.hero p.lead{font-size:clamp(1rem,1.4vw,1.18rem);color:var(--ink-soft);max-width:52ch;margin-bottom:28px}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:36px}
+.stat-strip{display:flex;gap:clamp(18px,3vw,40px);flex-wrap:wrap;border-top:1px solid var(--line);padding-top:22px}
+.stat b{display:block;font-family:var(--ff-display);font-size:clamp(1.5rem,2.4vw,2.1rem);color:var(--pine);font-weight:800}
+.stat span{font-size:.78rem;color:var(--ink-soft);max-width:150px;line-height:1.35;display:block}
+
+/* hero orb */
+.orb-stage{position:relative;display:grid;place-items:center;min-height:420px}
+.ripples span{
+  position:absolute;left:50%;top:50%;border-radius:50%;
+  border:1.5px solid rgba(46,139,122,.4);transform:translate(-50%,-50%);
+  animation:ripple 6s ease-out infinite;
+}
+.ripples span:nth-child(1){width:230px;height:230px;animation-delay:0s}
+.ripples span:nth-child(2){width:320px;height:320px;animation-delay:1.5s}
+.ripples span:nth-child(3){width:410px;height:410px;animation-delay:3s}
+@keyframes ripple{0%{opacity:0;transform:translate(-50%,-50%) scale(.55)}25%{opacity:.7}100%{opacity:0;transform:translate(-50%,-50%) scale(1.25)}}
+.preview-orb{
+  width:230px;height:230px;border-radius:50%;position:relative;z-index:2;
+  background:radial-gradient(circle at 32% 28%, #a9ecd9, var(--aqua) 42%, var(--sea) 88%);
+  box-shadow:0 0 70px rgba(95,196,174,.55), inset 0 -18px 40px rgba(13,47,42,.45);
+  animation:breathe-preview 8s ease-in-out infinite;
+  display:grid;place-items:center;color:#f2fffb;text-align:center;
+}
+.preview-orb small{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;opacity:.85}
+.preview-orb b{font-family:var(--ff-display);font-size:1.6rem;font-style:italic}
+@keyframes breathe-preview{0%,100%{transform:scale(.86)}45%,55%{transform:scale(1.08)}}
+.chip-float{
+  position:absolute;background:var(--paper);border:1px solid var(--line);border-radius:14px;
+  padding:10px 16px;font-size:.82rem;font-weight:600;color:var(--pine);box-shadow:var(--sh);
+  animation:floaty 6s ease-in-out infinite alternate;z-index:3;
+}
+.chip-float i{font-style:normal;color:var(--coral);font-weight:800}
+.cf1{top:8%;left:-4%}
+.cf2{top:52%;right:-6%;animation-delay:1.4s}
+.cf3{bottom:2%;left:8%;animation-delay:2.6s}
+@keyframes floaty{from{transform:translateY(-6px)}to{transform:translateY(8px)}}
+
+/* wave divider */
+.wave{height:70px;width:100%;overflow:hidden;line-height:0}
+.wave svg{width:100%;height:70px}
+.wave path{animation:drift 14s ease-in-out infinite alternate}
+@keyframes drift{from{transform:translateX(0)}to{transform:translateX(-60px)}}
+
+/* ============ SECTIONS ============ */
+section{padding:clamp(56px,8vw,104px) 0}
+.sec-head{max-width:720px;margin-bottom:clamp(30px,4vw,52px)}
+.sec-head h2{font-size:clamp(1.9rem,3.6vw,3rem);color:var(--pine);margin:14px 0 12px}
+.dark .sec-head h2{color:var(--mist)}
+.sec-head p{color:var(--ink-soft);font-size:1.02rem}
+.dark .sec-head p{color:#a9c7bf}
+
+/* Entiende */
+.ent-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(20px,3vw,36px)}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:clamp(22px,3vw,34px);box-shadow:var(--sh)}
+.panel h3{font-size:1.3rem;color:var(--pine);margin-bottom:14px}
+.alarm-duo{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
+.alarm{border-radius:14px;padding:16px 18px;font-size:.9rem}
+.alarm.real{background:#e8f3ee;border:1px solid #bcd9cd}
+.alarm.false{background:#fdece5;border:1px solid #f3c4b3}
+.alarm b{display:block;font-family:var(--ff-display);font-size:1rem;margin-bottom:6px;color:var(--pine)}
+.sym-group{margin-bottom:18px}
+.sym-group h4{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--coral);margin-bottom:10px}
+.sym-chips{display:flex;flex-wrap:wrap;gap:8px}
+.sym{
+  background:var(--mist);border:1px solid var(--line);border-radius:999px;
+  padding:6px 14px;font-size:.84rem;font-weight:600;color:var(--ink);
+  transition:transform .2s,background .2s,border-color .2s;cursor:default;
+}
+.sym:hover{transform:translateY(-2px);background:#fff;border-color:var(--aqua-deep)}
+
+/* ola / timeline */
+.wave-timeline{margin-top:clamp(28px,4vw,44px);background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:clamp(22px,3vw,34px);box-shadow:var(--sh)}
+.wave-timeline h3{font-size:1.25rem;color:var(--pine);margin-bottom:6px}
+.wave-timeline>p{font-size:.9rem;color:var(--ink-soft);margin-bottom:22px}
+.tl-track{position:relative;height:56px}
+.tl-bar{position:absolute;bottom:14px;left:0;right:0;height:10px;border-radius:99px;
+  background:linear-gradient(90deg,var(--aqua) 0%,var(--amber) 33%,var(--coral) 45%,var(--amber) 62%,var(--aqua) 100%)}
+.tl-dot{position:absolute;bottom:10px;left:44%;width:18px;height:18px;border-radius:50%;
+  background:var(--coral);border:3px solid var(--paper);box-shadow:0 0 0 0 rgba(242,92,61,.5);animation:pulse-soft 2.2s infinite}
+.tl-marks{display:flex;justify-content:space-between;margin-top:14px;font-size:.78rem;color:var(--ink-soft)}
+.tl-marks b{display:block;color:var(--pine);font-size:.9rem}
+.caution-card{
+  margin-top:clamp(24px,3vw,36px);display:flex;gap:18px;align-items:flex-start;
+  background:var(--pine);color:#d7ebe4;border-radius:20px;padding:clamp(20px,3vw,30px);
+}
+.caution-card .ico{font-size:1.7rem;flex-shrink:0}
+.caution-card b{color:var(--amber)}
+.caution-card p{font-size:.92rem}
+
+/* ============ PROTOCOLO ============ */
+#actua{background:linear-gradient(180deg,transparent,rgba(95,196,174,.07))}
+.acoge{display:grid;gap:14px;max-width:860px}
+.paso{
+  display:grid;grid-template-columns:64px 1fr;gap:20px;align-items:start;
+  background:var(--paper);border:1px solid var(--line);border-radius:18px;
+  padding:20px 24px;transition:transform .25s,box-shadow .25s,border-color .25s;
+}
+.paso:hover{transform:translateX(8px);box-shadow:var(--sh);border-color:var(--aqua)}
+.paso .num{
+  width:52px;height:52px;border-radius:16px;display:grid;place-items:center;
+  font-family:var(--ff-display);font-size:1.7rem;font-weight:800;color:#fff;
+  background:var(--coral);box-shadow:0 8px 18px -8px rgba(242,92,61,.7);
+}
+.paso:nth-child(2) .num{background:var(--aqua-deep);box-shadow:0 8px 18px -8px rgba(46,139,122,.7)}
+.paso:nth-child(3) .num{background:var(--amber);box-shadow:0 8px 18px -8px rgba(240,162,79,.7)}
+.paso:nth-child(4) .num{background:var(--sea);box-shadow:0 8px 18px -8px rgba(23,80,72,.7)}
+.paso:nth-child(5) .num{background:var(--pine);box-shadow:0 8px 18px -8px rgba(13,47,42,.7)}
+.paso h3{font-size:1.2rem;color:var(--pine)}
+.paso h3 span{color:var(--coral);font-style:italic}
+.paso p{font-size:.92rem;color:var(--ink-soft);margin-top:5px}
+.paso .tip{display:inline-block;margin-top:10px;font-size:.78rem;font-weight:700;color:var(--aqua-deep);
+  background:#e8f3ee;border-radius:8px;padding:4px 10px}
+
+/* frases */
+.frases{display:grid;grid-template-columns:1fr 1fr;gap:clamp(18px,3vw,28px);margin-top:clamp(34px,5vw,54px)}
+.fr-col{border-radius:20px;padding:clamp(22px,3vw,32px)}
+.fr-col.si{background:#eaf5ef;border:1.5px solid #b9dcc9}
+.fr-col.no{background:#fbeeea;border:1.5px solid #f0c2b2}
+.fr-col h3{font-size:1.25rem;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.fr-col.si h3{color:#1c6b4f}.fr-col.no h3{color:#b03a1e}
+.fr-col ul{list-style:none;display:grid;gap:10px}
+.fr-col li{
+  display:flex;gap:12px;align-items:flex-start;font-size:.94rem;background:rgba(255,255,255,.75);
+  border-radius:12px;padding:11px 14px;transition:transform .2s;
+}
+.fr-col li:hover{transform:translateX(5px)}
+.fr-col .mk{flex-shrink:0;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;
+  font-size:.75rem;font-weight:800;color:#fff}
+.si .mk{background:#2e8b7a}.no .mk{background:#d94a2e}
+.fr-col .alt{display:block;font-size:.78rem;color:var(--ink-soft);font-style:italic}
+
+/* ============ LAB DE RESPIRACIÓN (oscuro) ============ */
+#respira{background:radial-gradient(1100px 600px at 70% 20%, rgba(95,196,174,.14), transparent 60%),var(--pine);position:relative;overflow:hidden}
+#respira::before,#respira::after{
+  content:"";position:absolute;border-radius:50%;filter:blur(2px);
+  border:1px solid rgba(95,196,174,.12);pointer-events:none;
+}
+#respira::before{width:520px;height:520px;left:-180px;bottom:-200px;animation:spin 60s linear infinite}
+#respira::after{width:380px;height:380px;right:-120px;top:-140px;animation:spin 45s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lab{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,60px);align-items:center}
+.lab-copy p{color:#a9c7bf;font-size:.98rem;margin-bottom:16px}
+.lab-copy .why{border-left:3px solid var(--amber);padding-left:16px;margin:20px 0;font-size:.92rem;color:#cfe6df}
+.evidence{font-size:.78rem;color:#7fa79d;margin-top:18px;line-height:1.7}
+.evidence b{color:var(--amber)}
+.modes{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0 6px}
+.mode-btn{
+  border:1.5px solid var(--line-dark);background:transparent;color:#9fc3ba;cursor:pointer;
+  font-family:var(--ff-body);font-weight:700;font-size:.85rem;border-radius:999px;
+  padding:10px 18px;transition:all .2s;
+}
+.mode-btn:hover{border-color:var(--aqua);color:#fff;transform:translateY(-2px)}
+.mode-btn.active{background:var(--aqua);border-color:var(--aqua);color:var(--pine)}
+.lab-controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:18px}
+.sound-toggle{display:inline-flex;align-items:center;gap:8px;color:#9fc3ba;font-size:.85rem;cursor:pointer;user-select:none}
+.sound-toggle input{accent-color:var(--coral);width:17px;height:17px;cursor:pointer}
+
+/* ORB widget (compartido) */
+.breath-stage{display:grid;place-items:center;position:relative;padding:20px 0}
+.orb-wrap{position:relative;width:min(360px,78vw);aspect-ratio:1;display:grid;place-items:center}
+.orb-wrap.big{width:min(430px,80vw)}
+.ring-svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:rgba(255,255,255,.1);stroke-width:3}
+.ring-fg{fill:none;stroke:var(--amber);stroke-width:3;stroke-linecap:round;transition:stroke .4s}
+.orb-halo{position:absolute;width:62%;aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle,rgba(95,196,174,.5),transparent 70%);filter:blur(24px)}
+.orb-core{
+  position:relative;width:58%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;text-align:center;
+  background:radial-gradient(circle at 32% 28%, #b8f0e0, var(--aqua) 45%, var(--sea2) 92%);
+  box-shadow:0 0 60px rgba(95,196,174,.5), inset 0 -16px 36px rgba(13,47,42,.5);
+  will-change:transform;transition:transform .1s linear;
+}
+.ph-block{color:#f2fffb;padding:12%}
+.ph-label{display:block;font-family:var(--ff-display);font-style:italic;font-size:clamp(1.2rem,3vw,1.7rem);font-weight:600}
+.ph-sub{display:block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;opacity:.85;margin-top:2px;min-height:1em}
+.ph-count{display:block;font-family:var(--ff-display);font-size:clamp(2rem,5vw,3rem);font-weight:800;margin-top:4px}
+.breath-meta{text-align:center;color:#9fc3ba;font-size:.85rem;margin-top:14px;min-height:1.4em}
+.breath-meta b{color:var(--amber)}
+
+/* ============ ANCLAJE + EMERGENCIAS ============ */
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,3vw,32px)}
+.sense{
+  display:flex;gap:16px;align-items:center;background:var(--mist);border:1.5px solid var(--line);
+  border-radius:14px;padding:14px 18px;cursor:pointer;transition:all .2s;user-select:none;margin-bottom:10px;
+}
+.sense:hover{border-color:var(--aqua-deep);transform:translateX(5px)}
+.sense .cnt{font-family:var(--ff-display);font-size:1.9rem;font-weight:800;color:var(--coral);width:36px;text-align:center;flex-shrink:0}
+.sense b{display:block;color:var(--pine);font-size:.98rem}
+.sense span{font-size:.8rem;color:var(--ink-soft)}
+.sense .check{margin-left:auto;width:26px;height:26px;border-radius:50%;border:2px solid var(--line);
+  display:grid;place-items:center;color:transparent;font-weight:800;transition:all .25s;flex-shrink:0}
+.sense.done{background:#e8f3ee;border-color:#2e8b7a}
+.sense.done .check{background:#2e8b7a;border-color:#2e8b7a;color:#fff}
+.sense.done .cnt{color:#2e8b7a}
+.sense-progress{font-size:.85rem;font-weight:700;color:var(--aqua-deep);margin-top:8px}
+.emerg-list{list-style:none;display:grid;gap:12px;margin:18px 0 22px}
+.emerg-list li{display:flex;gap:12px;font-size:.93rem;color:var(--ink);align-items:flex-start;
+  background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 16px;transition:transform .2s}
+.emerg-list li:hover{transform:translateX(5px)}
+.emerg-list .dot{color:var(--coral);font-weight:800}
+
+/* ============ LÍNEAS DE AYUDA ============ */
+#ayuda{background:linear-gradient(180deg,rgba(95,196,174,.08),transparent)}
+.tel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.tel-card{
+  background:var(--paper);border:1px solid var(--line);border-left:5px solid var(--coral);
+  border-radius:16px;padding:20px 22px;text-decoration:none;color:var(--ink);
+  transition:transform .25s,box-shadow .25s;display:block;
+}
+.tel-card:nth-child(2){border-left-color:var(--aqua-deep)}
+.tel-card:nth-child(3){border-left-color:var(--amber)}
+.tel-card:nth-child(4){border-left-color:var(--sea)}
+.tel-card:nth-child(5){border-left-color:var(--coral-deep)}
+.tel-card:nth-child(6){border-left-color:var(--aqua)}
+.tel-card:hover{transform:translateY(-5px);box-shadow:var(--sh)}
+.tel-card .flag{font-size:.7rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft)}
+.tel-card b{display:block;font-family:var(--ff-display);font-size:1.15rem;color:var(--pine);margin:6px 0 2px}
+.tel-card .num{font-family:var(--ff-display);font-size:1.7rem;font-weight:800;color:var(--coral);font-variant-numeric:tabular-nums}
+.tel-card small{display:block;font-size:.78rem;color:var(--ink-soft);margin-top:6px}
+.tel-note{margin-top:20px;font-size:.82rem;color:var(--ink-soft);font-style:italic}
+
+/* ============ FOOTER ============ */
+footer{background:var(--pine);color:#a9c7bf;padding:clamp(50px,7vw,80px) 0 34px;position:relative;overflow:hidden}
+footer .fquote{font-family:var(--ff-display);font-style:italic;font-size:clamp(1.5rem,3vw,2.3rem);color:var(--mist);max-width:22ch;line-height:1.2;margin-bottom:28px}
+footer .fquote em{color:var(--coral)}
+.disclaimer-box{
+  border:1.5px solid var(--amber);border-radius:18px;padding:clamp(18px,3vw,28px);
+  background:rgba(240,162,79,.08);max-width:860px;margin-bottom:34px;
+}
+.disclaimer-box h4{color:var(--amber);font-family:var(--ff-display);font-size:1.1rem;margin-bottom:8px}
+.disclaimer-box p{font-size:.88rem;line-height:1.7}
+.sources{font-size:.78rem;line-height:1.9;max-width:860px;border-top:1px solid var(--line-dark);padding-top:22px}
+.sources b{color:var(--mist)}
+.credit{margin-top:24px;font-size:.78rem;color:#6e948b;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+/* ============ SOS + OVERLAY ============ */
+.sos{
+  position:fixed;right:22px;bottom:22px;z-index:130;display:flex;align-items:center;gap:10px;
+  background:var(--coral);color:#fff;border:none;cursor:pointer;border-radius:999px;
+  padding:14px 22px;font-family:var(--ff-body);font-weight:800;font-size:.95rem;
+  box-shadow:0 12px 30px -10px rgba(242,92,61,.8);animation:pulse-soft 2.6s infinite;
+  transform:translateY(110px);opacity:0;transition:transform .4s,opacity .4s;
+}
+.sos.show{transform:translateY(0);opacity:1}
+.sos:hover{background:var(--coral-deep)}
+.sos .beat{width:10px;height:10px;border-radius:50%;background:#fff;animation:beat 1.2s infinite}
+@keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.5)}}
+
+#crisis{
+  position:fixed;inset:0;z-index:200;display:grid;place-items:center;
+  background:radial-gradient(1000px 700px at 50% 0%, rgba(95,196,174,.12), transparent 60%), var(--pine);
+  opacity:0;pointer-events:none;transition:opacity .4s;overflow-y:auto;padding:40px 18px;
+}
+#crisis.open{opacity:1;pointer-events:auto}
+.crisis-inner{max-width:640px;width:100%;text-align:center;color:#cfe6df}
+.crisis-inner .close{
+  position:fixed;top:18px;right:22px;background:transparent;border:1.5px solid rgba(255,255,255,.35);
+  color:#cfe6df;width:42px;height:42px;border-radius:50%;cursor:pointer;font-size:1.1rem;transition:all .2s;
+}
+.crisis-inner .close:hover{background:rgba(255,255,255,.12);transform:rotate(90deg)}
+.crisis-inner h2{color:var(--mist);font-size:clamp(1.6rem,4vw,2.4rem);margin:10px 0 6px}
+.crisis-inner h2 em{color:var(--coral);font-style:italic}
+.crisis-sub{font-size:.95rem;color:#9fc3ba;max-width:46ch;margin:0 auto 8px}
+.crisis-phrase{
+  font-family:var(--ff-display);font-style:italic;font-size:clamp(1.05rem,2.5vw,1.35rem);
+  color:var(--amber);min-height:2.2em;margin:16px auto 4px;transition:opacity .5s;
+}
+.crisis-controls{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:18px;align-items:center}
+.crisis-foot{margin-top:26px;font-size:.78rem;color:#7fa79d;line-height:1.7}
+.crisis-foot a{color:var(--amber)}
+
+/* ============ REVEAL ============ */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}
+
+/* ============ RESPONSIVE ============ */
+@media(max-width:960px){
+  .hero-grid,.ent-grid,.lab,.tools{grid-template-columns:1fr}
+  .orb-stage{min-height:380px;margin-top:10px}
+  .frases{grid-template-columns:1fr}
+  .nav-links{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.15s!important}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+<div id="progress" aria-hidden="true"></div>
+
+<!-- DISCLAIMER SUPERIOR -->
+<div class="disclaimer-bar" id="discBar" role="note">
+  <strong>⚕ Aviso:</strong> esta herramienta es educativa y de orientación; <strong>no sustituye</strong> atención médica o psicológica profesional. Ante una emergencia, llama al 911 (o al número de tu país).
+  <button onclick="document.getElementById('discBar').style.display='none'" aria-label="Cerrar aviso">✕</button>
+</div>
+
+<!-- HEADER -->
+<header id="header">
+  <div class="wrap nav">
+    <a class="logo" href="#top" aria-label="FARO inicio">
+      <svg class="beam" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <circle cx="16" cy="16" r="6" fill="#f25c3d"/>
+        <circle cx="16" cy="16" r="10.5" stroke="#2e8b7a" stroke-width="1.6" opacity=".7"/>
+        <circle cx="16" cy="16" r="15" stroke="#2e8b7a" stroke-width="1.2" opacity=".35"/>
+      </svg>
+      FARO
+    </a>
+    <nav class="nav-links" aria-label="Secciones">
+      <a href="#entiende">Entiende</a>
+      <a href="#actua">Actúa</a>
+      <a href="#respira">Respira</a>
+      <a href="#ayuda">Líneas de ayuda</a>
+    </nav>
+    <button class="btn btn-coral" onclick="openCrisis()" style="margin-left:auto">● Modo crisis</button>
+  </div>
+</header>
+
+<!-- HERO -->
+<main id="top">
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="reveal in">
+      <span class="eyebrow">Guía de acompañamiento · Crisis de ansiedad</span>
+      <h1>Cuando alguien que amas no puede respirar, tú puedes ser <em>su ancla.</em></h1>
+      <p class="lead">FARO explica, paso a paso, qué es un ataque de ansiedad y cómo acompañar a tu hijo, amiga o pareja durante uno — con un ejercicio de respiración guiado y con sustento científico que pueden hacer juntos.</p>
+      <div class="hero-cta">
+        <button class="btn btn-coral" onclick="openCrisis()">Abrir Modo Crisis ahora →</button>
+        <a class="btn btn-ghost" href="#entiende">Primero, entender qué pasa</a>
+      </div>
+      <div class="stat-strip">
+        <div class="stat"><b>~10 min</b><span>es cuando el ataque suele llegar a su pico</span></div>
+        <div class="stat"><b>1 de 4</b><span>personas vivirá un ataque de pánico alguna vez</span></div>
+        <div class="stat"><b>4–6</b><span>respiraciones por minuto: el ritmo que calma el sistema nervioso</span></div>
+      </div>
+    </div>
+    <div class="orb-stage reveal in d1" aria-hidden="true">
+      <div class="ripples"><span></span><span></span><span></span></div>
+      <div class="preview-orb">
+        <div><small>respira</small><br><b>conmigo</b></div>
+      </div>
+      <div class="chip-float cf1"><i>→</i> El pico dura ~10 min: <b>va a pasar</b></div>
+      <div class="chip-float cf2"><i>→</i> Se siente peligroso, <b>no lo es</b></div>
+      <div class="chip-float cf3"><i>→</i> Exhalar largo = <b>freno de la alarma</b></div>
+    </div>
+  </div>
+</section>
+
+<div class="wave" aria-hidden="true">
+  <svg viewBox="0 0 1200 70" preserveAspectRatio="none"><path d="M0,40 C150,70 300,10 450,35 C600,60 750,15 900,38 C1050,60 1150,25 1200,38 L1200,70 L0,70 Z" fill="rgba(95,196,174,.18)"/></svg>
+</div>
+
+<!-- ============ 1. ENTIENDE ============ -->
+<section id="entiende">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Paso 1 · Psicoeducación</span>
+      <h2>¿Qué es, realmente, un ataque de ansiedad?</h2>
+      <p>Un ataque de pánico es una oleada repentina de miedo o malestar intenso que alcanza su punto máximo en minutos. No es "estar loco" ni un capricho: es el sistema de alarma del cuerpo activándose sin que haya un peligro real.</p>
+    </div>
+
+    <div class="ent-grid">
+      <div class="panel reveal">
+        <h3>La alarma del cuerpo</h3>
+        <p style="font-size:.92rem;color:var(--ink-soft)">El cerebro activa la respuesta de <b>lucha o huida</b>: descarga adrenalina, el corazón acelera y la respiración se vuelve rápida y superficial. Es perfecto ante un peligro real… pero en un ataque de ansiedad esa alarma suena <b>sin incendio</b>.</p>
+        <div class="alarm-duo">
+          <div class="alarm real"><b>🔥 Peligro real</b>La alarma te salva: corres, actúas, y luego el cuerpo se calma solo.</div>
+          <div class="alarm false"><b>🚨 Falsa alarma (pánico)</b>Mismos síntomas intensos, sin peligro. La respiración lenta "le avisa" al cuerpo que puede apagarla.</div>
+        </div>
+        <p style="font-size:.85rem;color:var(--ink-soft);margin-top:16px"><b>¿Por qué hormigueo y mareo?</b> Al hiperventilar se exhala demasiado CO₂: eso produce mareo, cosquilleo y presión en el pecho — sensaciones que asustan y alimentan el círculo, pero que <b>no son dañinas</b>.</p>
+      </div>
+
+      <div class="panel reveal d1">
+        <h3>Señales típicas</h3>
+        <div class="sym-group">
+          <h4>En el cuerpo</h4>
+          <div class="sym-chips">
+            <span class="sym">Corazón acelerado</span><span class="sym">Falta de aire</span>
+            <span class="sym">Presión en el pecho</span><span class="sym">Hormigueo en manos/cara</span>
+            <span class="sym">Sudoración o escalofríos</span><span class="sym">Mareo o temblor</span><span class="sym">Náusea</span>
+          </div>
+        </div>
+        <div class="sym-group">
+          <h4>En la mente</h4>
+          <div class="sym-chips">
+            <span class="sym">Miedo a morir</span><span class="sym">"Me estoy volviendo loco/a"</span>
+            <span class="sym">Sensación de irrealidad</span><span class="sym">Sentirse fuera del cuerpo</span>
+          </div>
+        </div>
+        <div class="sym-group" style="margin-bottom:0">
+          <h4>En la conducta</h4>
+          <div class="sym-chips">
+            <span class="sym">Necesidad de huir</span><span class="sym">Buscar apoyo</span><span class="sym">Quedarse inmóvil</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wave-timeline reveal">
+      <h3>La ola del ataque: sube, llega al pico y baja sola</h3>
+      <p>Saber esto cambia todo: un ataque tiene forma de ola. Tu trabajo no es "apagarlo", es acompañar mientras baja.</p>
+      <div class="tl-track" aria-hidden="true">
+        <div class="tl-bar"></div>
+        <div class="tl-dot"></div>
+      </div>
+      <div class="tl-marks">
+        <div><b>0–2 min</b>Aparece de golpe</div>
+        <div><b>~10 min</b>Pico de máxima intensidad</div>
+        <div><b>15–30 min</b>Baja gradualmente</div>
+        <div><b>Después</b>Cansancio: es normal</div>
+      </div>
+    </div>
+
+    <div class="caution-card reveal">
+      <div class="ico" aria-hidden="true">🩺</div>
+      <p><b>¿Pánico o algo médico?</b> La mayoría de los ataques no son peligrosos. Pero si es la <b>primera vez</b> que ocurre, si el dolor de pecho <b>se irradia a brazo o mandíbula</b>, aparece con esfuerzo físico, hay desmayo, o existen antecedentes cardíacos: consulta a un servicio médico. <b>Ante la duda, siempre busca atención profesional.</b></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. ACTÚA ============ -->
+<section id="actua">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Paso 2 · Protocolo para acompañantes</span>
+      <h2>Cinco movimientos: el método A·C·O·G·E</h2>
+      <p>Para padres, amigos y parejas. No necesitas decir la frase perfecta; necesitas presencia y calma.</p>
+    </div>
+
+    <div class="acoge">
+      <div class="paso reveal">
+        <div class="num">A</div>
+        <div><h3><span>Ancla</span> tu propia calma primero</h3>
+        <p>La persona en crisis lee tu estado. Respira hondo, suelta hombros, planta los pies. Si tú te desbordas, el ataque se alimenta.</p>
+        <span class="tip">Tu calma es contagiosa — para bien y para mal.</span></div>
+      </div>
+      <div class="paso reveal d1">
+        <div class="num">C</div>
+        <div><h3><span>Comunica</span> con voz suave y frases cortas</h3>
+        <p>Habla lento, en pocas palabras: "Estoy aquí", "Esto va a pasar", "Estás a salvo". Menos es más.</p>
+        <span class="tip">No hagas preguntas largas ni pidas explicaciones en pleno pico.</span></div>
+      </div>
+      <div class="paso reveal d1">
+        <div class="num">O</div>
+        <div><h3><span>Observa</span> y pregunta antes de suponer</h3>
+        <p>"¿Te ha pasado antes?", "¿Qué te ayuda?". Algunos quieren contacto, otros espacio. Pregunta — no asumas.</p>
+        <span class="tip">Valida sin dramatizar: "Tiene sentido que te asuste, yo me quedo contigo".</span></div>
+      </div>
+      <div class="paso reveal d2">
+        <div class="num">G</div>
+        <div><h3><span>Guía</span> la respiración, hazla con ella/él</h3>
+        <p>Propón, no impongas: "¿Respiramos juntos?". Marca el ritmo con tu mano y tu voz. El ejercicio de abajo está diseñado exactamente para esto.</p>
+        <span class="tip">Si la persona no puede seguir el ritmo, solo respira tú a su lado: igual regula.</span></div>
+      </div>
+      <div class="paso reveal d2">
+        <div class="num">E</div>
+        <div><h3><span>Espacio</span> seguro hasta que baje la ola</h3>
+        <p>Baja el ruido, abre una ventana, aleja a los curiosos. Quédate hasta que pase y ofrece agua. Después, pregunta cómo se siente — no pidas que "haga como si nada".</p>
+        <span class="tip">Post-ataque: descanso y cero reproches. Es el momento de la confianza.</span></div>
+      </div>
+    </div>
+
+    <div class="frases">
+      <div class="fr-col si reveal">
+        <h3>✓ Frases que ayudan</h3>
+        <ul>
+          <li><span class="mk">✓</span><div>"Estoy aquí contigo, no te voy a dejar solo/a."</div></li>
+          <li><span class="mk">✓</span><div>"Es tu cuerpo dando una falsa alarma. Va a pasar."</div></li>
+          <li><span class="mk">✓</span><div>"Respira conmigo, yo marco el ritmo."</div></li>
+          <li><span class="mk">✓</span><div>"Ya estás haciendo lo más difícil: quedarte y respirar."</div></li>
+          <li><span class="mk">✓</span><div>"¿Qué te ha funcionado otras veces?"</div></li>
+        </ul>
+      </div>
+      <div class="fr-col no reveal d1">
+        <h3>✕ Frases que empeoran</h3>
+        <ul>
+          <li><span class="mk">✕</span><div>"¡Cálmate!" <span class="alt">→ Suena a orden imposible y genera culpa.</span></div></li>
+          <li><span class="mk">✕</span><div>"No es para tanto / estás exagerando." <span class="alt">→ Invalida lo que siente.</span></div></li>
+          <li><span class="mk">✕</span><div>"¿Otra vez?" <span class="alt">→ Avergonzar multiplica la ansiedad.</span></div></li>
+          <li><span class="mk">✕</span><div>"Respira bien, lo estás haciendo mal." <span class="alt">→ Suena a regaño en plena crisis.</span></div></li>
+          <li><span class="mk">✕</span><div>"Piensa en otra cosa." <span class="alt">→ Minimiza; mejor acompaña la sensación.</span></div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. RESPIRA ============ -->
+<section id="respira" class="dark">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Paso 3 · Ejercicio con sustento</span>
+      <h2>El freno de emergencia: respirar lento, exhalar largo</h2>
+      <p>Hazlo junto a la persona. La pantalla marca el ritmo; tú pones la voz.</p>
+    </div>
+
+    <div class="lab">
+      <div class="lab-copy reveal">
+        <div class="modes" role="tablist" aria-label="Técnicas de respiración">
+          <button class="mode-btn active" data-mode="calma">Calma 4·4·6</button>
+          <button class="mode-btn" data-mode="suspiro">Suspiro fisiológico</button>
+          <button class="mode-btn" data-mode="caja">Caja 4·4·4·4</button>
+        </div>
+        <p id="modeDesc">Inhala 4 segundos por la nariz, sostén 4 y exhala 6 por la boca, como empañando un espejo. Es la técnica principal recomendada: la exhalación larga es la llave que activa la calma.</p>
+        <div class="why">
+          <b>¿Por qué funciona?</b> La exhalación prolongada estimula el nervio vago y activa el sistema nervioso parasimpático — el freno natural del cuerpo —, reduce la frecuencia cardíaca y revierte la hiperventilación. La respiración lenta (4–6 ciclos/min) aumenta la variabilidad de la frecuencia cardíaca, un marcador de regulación emocional.
+        </div>
+        <div class="lab-controls">
+          <button class="btn btn-coral" id="labToggle">▶ Iniciar ejercicio</button>
+          <label class="sound-toggle"><input type="checkbox" id="labSound"> Sonido guía</label>
+        </div>
+        <p class="evidence"><b>Sustento:</b> Zaccaro et al. (2018), <i>Frontiers in Human Neuroscience</i> — revisión sistemática sobre respiración lenta y regulación. · Balban et al. (2023), <i>Cell Reports Medicine</i> — el suspiro cíclico mejoró ánimo y ansiedad en ensayo controlado. · La respiración en caja se utiliza en programas de control de estrés de cuerpos de alto rendimiento.</p>
+      </div>
+
+      <div class="breath-stage reveal d1">
+        <div class="orb-wrap" id="labOrb">
+          <svg class="ring-svg" viewBox="0 0 200 200" aria-hidden="true">
+            <circle class="ring-bg" cx="100" cy="100" r="92"/>
+            <circle class="ring-fg" cx="100" cy="100" r="92"/>
+          </svg>
+          <div class="orb-halo" aria-hidden="true"></div>
+          <div class="orb-core">
+            <div class="ph-block">
+              <span class="ph-label">Listo</span>
+              <span class="ph-sub">pulsa iniciar</span>
+              <span class="ph-count">·</span>
+            </div>
+          </div>
+        </div>
+        <p class="breath-meta" id="labMeta">Elige una técnica y presiona <b>Iniciar</b> · ideal: 3–5 minutos juntos</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. ANCLAJE + EMERGENCIAS ============ -->
+<section id="herramientas">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Paso 4 · Caja de herramientas extra</span>
+      <h2>Cuando la respiración no basta</h2>
+    </div>
+    <div class="tools">
+      <div class="panel reveal">
+        <h3>Anclaje sensorial 5·4·3·2·1</h3>
+        <p style="font-size:.9rem;color:var(--ink-soft);margin-bottom:16px">Devuelve la atención al presente usando los sentidos. Guíalo en voz alta y toquen cada casilla al completar un sentido.</p>
+        <div id="senseList">
+          <div class="sense" tabindex="0"><div class="cnt">5</div><div><b>Cosas que puedas VER</b><span>nombrándolas en voz alta y con detalle</span></div><div class="check">✓</div></div>
+          <div class="sense" tabindex="0"><div class="cnt">4</div><div><b>Cosas que puedas TOCAR</b><span>la tela, la pared, el suelo bajo los pies</span></div><div class="check">✓</div></div>
+          <div class="sense" tabindex="0"><div class="cnt">3</div><div><b>Cosas que puedas OÍR</b><span>sonidos lejanos y cercanos</span></div><div class="check">✓</div></div>
+          <div class="sense" tabindex="0"><div class="cnt">2</div><div><b>Cosas que puedas OLER</b><span>o dos olores que te gusten</span></div><div class="check">✓</div></div>
+          <div class="sense" tabindex="0"><div class="cnt">1</div><div><b>Cosa que puedas SABOREAR</b><span>un sorbo de agua, una pastilla de menta</span></div><div class="check">✓</div></div>
+        </div>
+        <p class="sense-progress" id="senseProgress">Anclaje: 0 de 5 sentidos completados</p>
+      </div>
+
+      <div class="panel reveal d1">
+        <h3>¿Cuándo llamar a emergencias?</h3>
+        <p style="font-size:.9rem;color:var(--ink-soft)">Un ataque de ansiedad no es una emergencia médica… salvo estas señales:</p>
+        <ul class="emerg-list">
+          <li><span class="dot">●</span>Es el <b>primer episodio</b> de su vida y no hay diagnóstico previo.</li>
+          <li><span class="dot">●</span>Dolor de pecho que se irradia a brazo/mandíbula, o aparece con esfuerzo.</li>
+          <li><span class="dot">●</span>Pérdida de conocimiento o coloración azulada en labios.</li>
+          <li><span class="dot">●</span>Los síntomas intensos no ceden tras ~30 minutos de acompañamiento.</li>
+          <li><span class="dot">●</span>Expresa ideas de hacerse daño o de no querer vivir: contiene y busca ayuda profesional de inmediato.</li>
+        </ul>
+        <a class="btn btn-coral" href="tel:911">📞 Llamar al 911</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5. LÍNEAS DE AYUDA ============ -->
+<section id="ayuda">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Paso 5 · Red de apoyo</span>
+      <h2>Números que conviene tener a la mano</h2>
+      <p>Toca cualquier tarjeta para llamar. Guarda esta página en la pantalla de inicio.</p>
+    </div>
+    <div class="tel-grid">
+      <a class="tel-card reveal" href="tel:911"><span class="flag">Emergencias</span><b>Servicios de emergencia</b><span class="num">911 / 112</span><small>México y gran parte de Latinoamérica · España y UE: 112</small></a>
+      <a class="tel-card reveal d1" href="tel:+528009112000"><span class="flag">🇲🇽 México</span><b>Línea de la Vida</b><span class="num">800 911 2000</span><small>Atención en crisis emocional 24/7 · SAPTEL: 55 5259 8121</small></a>
+      <a class="tel-card reveal d2" href="tel:024"><span class="flag">🇪🇸 España</span><b>Línea 024</b><span class="num">024</span><small>Atención a la conducta suicida 24/7 · Tel. de la Esperanza: 717 003 717</small></a>
+      <a class="tel-card reveal" href="tel:135"><span class="flag">🇦🇷 Argentina</span><b>CAS — Centro de Asistencia al Suicida</b><span class="num">135</span><small>Desde CABA y GBA · desde el interior: (011) 5275-1135</small></a>
+      <a class="tel-card reveal d1" href="tel:106"><span class="flag">🇨🇴 Colombia</span><b>Línea 106</b><span class="num">106</span><small>Escucha y orientación en salud mental · Emergencias: 123</small></a>
+      <a class="tel-card reveal d2" href="tel:6003607777"><span class="flag">🇨🇱 Chile</span><b>Salud Responde</b><span class="num">600 360 7777</span><small>Opción 1: salud mental 24/7, gratuita</small></a>
+    </div>
+    <p class="tel-note">* Números de referencia al momento de publicar; verifica la línea vigente de tu país y adáptala antes de distribuir la app.</p>
+  </div>
+</section>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <p class="fquote reveal">"Informar y orientar <em>no es diagnosticar.</em> Acompañar no es curar: es no dejar a nadie solo en la tormenta."</p>
+    <div class="disclaimer-box reveal">
+      <h4>⚕ Disclaimer</h4>
+      <p>El propósito de FARO es exclusivamente <b>informar y orientar</b> a familiares y personas cercanas sobre los ataques de ansiedad. Esta aplicación <b>no sustituye la evaluación, el diagnóstico ni el tratamiento</b> de un profesional de la salud física o mental. Si los síntomas son frecuentes, intensos o interfieren con la vida diaria, consulta con psicología o medicina. Ante cualquier emergencia, contacta de inmediato a los servicios de emergencia de tu país.</p>
+    </div>
+    <div class="sources">
+      <b>Fuentes del ejercicio de respiración:</b><br>
+      · Zaccaro, A. et al. (2018). <i>How Breath-Control Can Change Your Life: A Systematic Review on Psycho-Physiological Correlates of Slow Breathing.</i> Frontiers in Human Neuroscience.<br>
+      · Balban, M. Y. et al. (2023). <i>Brief structured respiration practices enhance mood and reduce physiological arousal.</i> Cell Reports Medicine.<br>
+      · Guías clínicas de práctica para el trastorno de pánico: psicoeducación + entrenamiento respiratorio como componentes de primera línea.
+    </div>
+    <div class="credit">
+      <span>FARO · Prototipo educativo v0.1 — hecho con cuidado para quienes cuidan.</span>
+      <span>Viernes, 14 de agosto de 2026 · No distribuir como herramienta clínica sin revisión profesional.</span>
+      <span>Creado por Alfredo Adrián González Lazcano</span>
+    </div>
+  </div>
+</footer>
+
+<!-- SOS FLOTANTE -->
+<button class="sos" id="sosBtn" onclick="openCrisis()"><span class="beat"></span> SOS · Crisis ahora</button>
+
+<!-- ============ MODO CRISIS (OVERLAY) ============ -->
+<div id="crisis" role="dialog" aria-modal="true" aria-label="Modo crisis guiado">
+  <div class="crisis-inner">
+    <button class="close" onclick="closeCrisis()" aria-label="Cerrar modo crisis">✕</button>
+    <span class="eyebrow" style="justify-content:center;display:inline-flex">Modo crisis · respiración guiada</span>
+    <h2>Estás a salvo. <em>Va a pasar.</em></h2>
+    <p class="crisis-sub">Sigue el círculo con tu respiración. Si acompañas a alguien, pon la pantalla frente a él/ella y respira a su lado con voz suave.</p>
+    <p class="crisis-phrase" id="crisisPhrase">Cuando quieras, presiona comenzar.</p>
+
+    <div class="breath-stage">
+      <div class="orb-wrap big" id="crisisOrb">
+        <svg class="ring-svg" viewBox="0 0 200 200" aria-hidden="true">
+          <circle class="ring-bg" cx="100" cy="100" r="92"/>
+          <circle class="ring-fg" cx="100" cy="100" r="92"/>
+        </svg>
+        <div class="orb-halo" aria-hidden="true"></div>
+        <div class="orb-core">
+          <div class="ph-block">
+            <span class="ph-label">Respira</span>
+            <span class="ph-sub">con el círculo</span>
+            <span class="ph-count">·</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modes" style="justify-content:center">
+      <button class="mode-btn active" data-cmode="calma">Calma 4·4·6</button>
+      <button class="mode-btn" data-cmode="suspiro">Suspiro fisiológico</button>
+    </div>
+
+    <div class="crisis-controls">
+      <button class="btn btn-coral" id="crisisToggle">▶ Comenzar a respirar</button>
+      <label class="sound-toggle"><input type="checkbox" id="crisisSound"> Sonido guía</label>
+    </div>
+
+    <p class="crisis-foot">
+      Si sospechas de una emergencia médica, llama al <a href="tel:911">911</a>. · Esta herramienta orienta, no sustituye atención profesional.<br>
+      <a href="#" onclick="closeCrisis();return false">Volver a la guía completa</a>
+    </p>
+  </div>
+</div>
+
+<script>
+/* ================= DATOS ================= */
+const MODES = {
+  calma:{
+    name:'Calma 4·4·6',
+    desc:'Inhala 4 segundos por la nariz, sostén 4 y exhala 6 por la boca, como empañando un espejo. Es la técnica principal recomendada: la exhalación larga es la llave que activa la calma.',
+    phases:[
+      {label:'Inhala', sub:'por la nariz', s:4, from:.72, to:1.16, tone:392},
+      {label:'Sostén', sub:'sin tensión', s:4, from:1.16, to:1.16, tone:330},
+      {label:'Exhala', sub:'lento por la boca', s:6, from:1.16, to:.72, tone:262}
+    ]
+  },
+  suspiro:{
+    name:'Suspiro fisiológico',
+    desc:'Dos inhalaciones por la nariz (una larga y un "top up" corto) y una exhalación larga por la boca. Es la técnica con reducción de ansiedad más rápida reportada en el ensayo de Stanford (Balban et al., 2023).',
+    phases:[
+      {label:'Inhala', sub:'por la nariz', s:4, from:.72, to:1.0, tone:392},
+      {label:'Un poco más', sub:'otro sorbo de aire', s:2, from:1.0, to:1.18, tone:370},
+      {label:'Exhala largo', sub:'por la boca, hasta vaciar', s:6, from:1.18, to:.72, tone:262}
+    ]
+  },
+  caja:{
+    name:'Caja 4·4·4·4',
+    desc:'Cuatro tiempos iguales: inhala, sostén, exhala, sostén. Útil cuando la mente va a mil por hora y necesita una estructura simple y predecible.',
+    phases:[
+      {label:'Inhala', sub:'4 tiempos', s:4, from:.72, to:1.14, tone:392},
+      {label:'Sostén', sub:'4 tiempos', s:4, from:1.14, to:1.14, tone:330},
+      {label:'Exhala', sub:'4 tiempos', s:4, from:1.14, to:.74, tone:262},
+      {label:'Pausa', sub:'4 tiempos', s:4, from:.74, to:.74, tone:247}
+    ]
+  }
+};
+const PHRASES = [
+  'Estoy aquí contigo.',
+  'Esto va a pasar; tu cuerpo ya sabe volver a la calma.',
+  'Respira conmigo, yo marco el ritmo.',
+  'No tienes que hacer nada más que respirar.',
+  'Cada exhalación te acerca a la calma.',
+  'Va bajando. Lo estás haciendo muy bien.'
+];
+
+/* ================= MOTOR DE RESPIRACIÓN ================= */
+class BreathEngine{
+  constructor(root){
+    this.core = root.querySelector('.orb-core');
+    this.label = root.querySelector('.ph-label');
+    this.sub = root.querySelector('.ph-sub');
+    this.count = root.querySelector('.ph-count');
+    this.ring = root.querySelector('.ring-fg');
+    this.C = 2*Math.PI*this.ring.r.baseVal.value;
+    this.ring.style.strokeDasharray = this.C;
+    this.soundOn = false; this.running = false; this.onCycle = null;
+    this.setMode('calma', true);
+  }
+  setMode(key, silent){
+    this.mode = MODES[key]; this.pause();
+    this.pi=0; this.t=0; this.cycles=0;
+    this.label.textContent='Listo'; this.sub.textContent=this.mode.name; this.count.textContent='·';
+    this.core.style.transform='scale(.72)'; this.ring.style.strokeDashoffset=this.C;
+    if(this.onCycle) this.onCycle(0);
+  }
+  start(){
+    if(this.running) return;
+    this.running = true; this.last = performance.now();
+    this.blip(this.mode.phases[this.pi].tone);
+    this.loop();
+  }
+  pause(){ this.running=false; if(this.raf) cancelAnimationFrame(this.raf); }
+  loop(){
+    this.raf = requestAnimationFrame(now=>{
+      if(!this.running) return;
+      const dt = Math.min(now-this.last, 100); this.last = now; this.t += dt;
+      let ph = this.mode.phases[this.pi];
+      if(this.t >= ph.s*1000){
+        this.t -= ph.s*1000; this.pi++;
+        if(this.pi >= this.mode.phases.length){
+          this.pi = 0; this.cycles++;
+          if(this.onCycle) this.onCycle(this.cycles);
+        }
+        this.blip(this.mode.phases[this.pi].tone);
+      }
+      this.paint(); this.loop();
+    });
+  }
+  paint(){
+    const ph = this.mode.phases[this.pi];
+    const p = Math.min(this.t/(ph.s*1000), 1);
+    const e = p<.5 ? 2*p*p : 1-Math.pow(-2*p+2,2)/2; // easeInOutQuad
+    const sc = ph.from + (ph.to-ph.from)*e;
+    this.core.style.transform = `scale(${sc.toFixed(4)})`;
+    this.label.textContent = ph.label;
+    this.sub.textContent = ph.sub || '';
+    this.count.textContent = Math.max(1, Math.ceil((ph.s*1000-this.t)/1000));
+    this.ring.style.strokeDashoffset = this.C*(1-p);
+  }
+  blip(freq){
+    if(!this.soundOn || !freq) return;
+    try{
+      this.ac = this.ac || new (window.AudioContext||window.webkitAudioContext)();
+      const o=this.ac.createOscillator(), g=this.ac.createGain();
+      o.type='sine'; o.frequency.value=freq;
+      g.gain.setValueAtTime(.0001,this.ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(.07,this.ac.currentTime+.03);
+      g.gain.exponentialRampToValueAtTime(.0001,this.ac.currentTime+.4);
+      o.connect(g).connect(this.ac.destination);
+      o.start(); o.stop(this.ac.currentTime+.45);
+    }catch(e){}
+  }
+}
+
+/* ====== Widget del laboratorio ====== */
+const lab = new BreathEngine(document.getElementById('labOrb'));
+const labToggle = document.getElementById('labToggle');
+const labMeta = document.getElementById('labMeta');
+const modeDesc = document.getElementById('modeDesc');
+lab.onCycle = c=>{ if(c>0) labMeta.innerHTML = `Ciclo <b>${c}</b> · sigue el ritmo ~4.5 respiraciones/min` };
+
+labToggle.addEventListener('click', ()=>{
+  if(lab.running){ lab.pause(); labToggle.textContent='▶ Continuar'; }
+  else{ lab.start(); labToggle.textContent='⏸ Pausar'; }
+});
+document.getElementById('labSound').addEventListener('change', e=> lab.soundOn = e.target.checked);
+document.querySelectorAll('[data-mode]').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('[data-mode]').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    lab.setMode(b.dataset.mode);
+    modeDesc.textContent = MODES[b.dataset.mode].desc;
+    labMeta.innerHTML = `Elige una técnica y presiona <b>Iniciar</b> · ideal: 3–5 minutos juntos`;
+    labToggle.textContent='▶ Iniciar ejercicio';
+  });
+});
+
+/* ====== Modo crisis (overlay) ====== */
+const crisis = new BreathEngine(document.getElementById('crisisOrb'));
+const crisisToggle = document.getElementById('crisisToggle');
+const crisisPhrase = document.getElementById('crisisPhrase');
+const overlay = document.getElementById('crisis');
+crisis.onCycle = c=>{
+  crisisPhrase.style.opacity = 0;
+  setTimeout(()=>{
+    crisisPhrase.textContent = PHRASES[c % PHRASES.length];
+    crisisPhrase.style.opacity = 1;
+  }, 300);
+};
+function openCrisis(){
+  overlay.classList.add('open');
+  document.body.style.overflow='hidden';
+  crisis.setMode('calma');
+  crisisToggle.textContent='▶ Comenzar a respirar';
+  crisisPhrase.textContent='Cuando quieras, presiona comenzar.';
+}
+function closeCrisis(){
+  overlay.classList.remove('open');
+  document.body.style.overflow='';
+  crisis.pause();
+}
+crisisToggle.addEventListener('click', ()=>{
+  if(crisis.running){ crisis.pause(); crisisToggle.textContent='▶ Continuar'; }
+  else{
+    crisis.start(); crisisToggle.textContent='⏸ Pausar';
+    crisisPhrase.textContent = PHRASES[0];
+  }
+});
+document.getElementById('crisisSound').addEventListener('change', e=> crisis.soundOn = e.target.checked);
+document.querySelectorAll('[data-cmode]').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('[data-cmode]').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    crisis.setMode(b.dataset.cmode);
+    crisisToggle.textContent='▶ Comenzar a respirar';
+  });
+});
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeCrisis(); });
+
+/* ====== Anclaje 5·4·3·2·1 ====== */
+const senses = document.querySelectorAll('.sense');
+const senseProgress = document.getElementById('senseProgress');
+senses.forEach(s=>{
+  const toggle = ()=>{
+    s.classList.toggle('done');
+    const done = document.querySelectorAll('.sense.done').length;
+    senseProgress.textContent = done===5
+      ? '🌿 Anclaje completo. ¿Cómo está la respiración ahora?'
+      : `Anclaje: ${done} de 5 sentidos completados`;
+  };
+  s.addEventListener('click', toggle);
+  s.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); }});
+});
+
+/* ====== UI general ====== */
+const header = document.getElementById('header');
+const progress = document.getElementById('progress');
+const sosBtn = document.getElementById('sosBtn');
+window.addEventListener('scroll', ()=>{
+  const y = window.scrollY;
+  header.classList.toggle('scrolled', y>10);
+  sosBtn.classList.toggle('show', y>500);
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  progress.style.width = (y/h*100)+'%';
+}, {passive:true});
+
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }});
+}, {threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
