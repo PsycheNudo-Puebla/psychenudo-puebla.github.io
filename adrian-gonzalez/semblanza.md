@@ -781,7 +781,9 @@ permalink: /adrian-gonzalez/semblanza/
 
             <h3>Una formación entre la psicología y el psicoanálisis</h3>
             <p>Es Licenciado en Psicología General por la Universidad Popular Autónoma del Estado de Puebla (UPAEP) y Maestro en Psicoanálisis y Cultura por la Escuela Libre de Psicología. Esa doble raíz —el rigor universitario y la profundidad crítica del psicoanálisis— marca su manera de entender el malestar psíquico: no como un síntoma a eliminar, sino como un mensaje a descifrar.</p>
-            <p>Cuenta con certificación por la Organización Panamericana de la Salud (OPS) en Prevención de Autolesión y Suicidio, y participa activamente en congresos de salud mental del Instituto Nacional de Psiquiatría Ramón de la Fuente Muñiz (INPRFM).</p>
+            <p>Cuenta con capacitación por la Organización Panamericana de la Salud (OPS) en Prevención de Autolesión y Suicidio, y mantiene una constante actualización profesional mediante su asistencia regular a los congresos de salud mental organizados por el Instituto Nacional de Psiquiatría Ramón de la Fuente Muñiz (INPRFM).</p>
+            <h3>Divulgación y proyecto digital</h3>
+            <p>Actualmente dirige y desarrolla el espacio <strong>Psychenudo</strong>, un proyecto digital enfocado en la divulgación, la reflexión clínica y la creación de recursos para la comunidad de la salud mental, donde articula la clínica de orientación psicoanalítica con herramientas tecnológicas aplicadas a la educación y la práctica profesional.</p>
             
             <div class="section-divider"></div>
 
