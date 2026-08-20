@@ -941,203 +941,77 @@ function toggleFlujo() {
   btn.title = box.classList.contains('hidden') ? 'Ver flujo de trabajo' : 'Ocultar flujo de trabajo';
 }
 
-// ============ PRUEBAS PRECARGADAS ============
-const PRUEBAS_PRECARGADAS = [
-  {
-    id: 'psi_edu',
-    nombre: 'Diagnóstico: Psicología Educativa',
-    descripcion: 'Evalúa conocimientos sobre desarrollo cognitivo, estrategias de aprendizaje y evaluación psicopedagógica.',
-    curso: { nombre: 'Psicología Educativa', descripcion: 'Materia: teorías del aprendizaje, desarrollo en el aula y herramientas de evaluación educativa.', perfilLicenciatura: 'El egresado aplicará principios psicológicos para optimizar procesos de enseñanza-aprendizaje.', competenciasLicenciatura: 'Evalúa procesos de aprendizaje mediante instrumentos psicopedagógicos.\nDiseña estrategias educativas basadas en teorías del desarrollo.\nInterviene en problemas de aprendizaje con enfoque inclusivo.', alumno: '' },
-    competencias: [
-      { id: 'c1', nombre: 'Desarrollo cognitivo', descripcion: 'Comprende teorías del desarrollo y su aplicación en el aula', peso: 5, esperadoInicio: 1.5, esperadoFinal: 5, mapeoLicenciatura: [0] },
-      { id: 'c2', nombre: 'Estrategias de aprendizaje', descripcion: 'Identifica y aplica técnicas de enseñanza-aprendizaje', peso: 4, esperadoInicio: 1, esperadoFinal: 4.5, mapeoLicenciatura: [1] },
-      { id: 'c3', nombre: 'Evaluación psicopedagógica', descripcion: 'Analiza instrumentos de evaluación educativa', peso: 3, esperadoInicio: 1, esperadoFinal: 4, mapeoLicenciatura: [0, 2] }
-    ],
-    preguntas: [
-      { id: 'p1', tipo: 'opcion_multiple', competenciaId: 'c1',
-        texto: '¿Cuál de los siguientes autores es reconocido principalemente por su teoría del desarrollo cognitivo?',
-        opciones: ['Sigmund Freud', 'Jean Piaget', 'B.F. Skinner', 'Abraham Maslow'], respuestaCorrecta: 1 },
-      { id: 'p2', tipo: 'likert', competenciaId: 'c2', texto: 'Me siento capaz de diseñar una secuencia didáctica considerando diferentes estilos de aprendizaje.' },
-      { id: 'p3', tipo: 'seleccion_multiple', competenciaId: 'c3',
-        texto: 'Selecciona TODOS los instrumentos propios de la evaluación psicopedagógica:',
-        opciones: ['Test de inteligencia WISC-V', 'Radiografía de cráneo', 'Entrevista pedagógica', 'Observación sistemática en aula'], respuestaCorrecta: [0, 2, 3] },
-      { id: 'p4', tipo: 'caso', competenciaId: 'c1',
-        contexto: 'Un alumno de 8 años presenta dificultades para conservar la noción de cantidad: no reconoce que la misma cantidad de agua sigue siendo igual al verterla en un recipiente más alto y delgado.',
-        texto: 'Desde la teoría de Piaget, ¿en qué etapa del desarrollo se encuentra este alumno? ¿Qué estrategias pedagógicas recomendarías para apoyar su desarrollo cognitivo?' },
-      { id: 'p5', tipo: 'abierta', competenciaId: 'c2', texto: 'Describe cómo adaptarías una clase para atender a estudiantes con estilos de aprendizaje visual, auditivo y kinestésico.' }
-    ]
-  },
-  {
-    id: 'psi_clin',
-    nombre: 'Diagnóstico: Psicología Clínica',
-    descripcion: 'Evalúa conocimientos sobre evaluación diagnóstica, modelos terapéuticos y ética profesional.',
-    curso: { nombre: 'Psicología Clínica', descripcion: 'Materia: diagnóstico, intervención y ética en el ámbito clínico.', perfilLicenciatura: 'El egresado realizará evaluaciones e intervenciones psicológicas con rigor ético y clínico.', competenciasLicenciatura: 'Diagnostica trastornos mentales utilizando manuales clínicos estandarizados.\nDiseña planes de intervención terapéutica con enfoque multidisciplinario.\nActúa con ética profesional y responsabilidad social.', alumno: '' },
-    competencias: [
-      { id: 'c1', nombre: 'Evaluación diagnóstica', descripcion: 'Aplica y valora instrumentos de diagnóstico clínico', peso: 5, esperadoInicio: 1, esperadoFinal: 5, mapeoLicenciatura: [0] },
-      { id: 'c2', nombre: 'Modelos terapéuticos', descripcion: 'Conoce los principales enfoques de intervención psicológica', peso: 4, esperadoInicio: 1.5, esperadoFinal: 4.5, mapeoLicenciatura: [1] },
-      { id: 'c3', nombre: 'Ética profesional', descripcion: 'Aplica principios éticos en el ejercicio clínico', peso: 3, esperadoInicio: 2, esperadoFinal: 4, mapeoLicenciatura: [2] }
-    ],
-    preguntas: [
-      { id: 'p1', tipo: 'opcion_multiple', competenciaId: 'c1',
-        texto: 'El DSM-5-TR es utilizado principalmente para:',
-        opciones: ['Diagnosticar trastornos mentales', 'Medir el coeficiente intelectual', 'Evaluar el rendimiento académico', 'Determinar estilos de personalidad'], respuestaCorrecta: 0 },
-      { id: 'p2', tipo: 'likert', competenciaId: 'c2', texto: 'Comprendo las diferencias fundamentales entre el enfoque cognitivo-conductual y el psicoanalítico.' },
-      { id: 'p3', tipo: 'seleccion_multiple', competenciaId: 'c3',
-        texto: 'Selecciona TODOS los principios éticos fundamentales en la práctica clínica:',
-        opciones: ['Confidencialidad', 'Consentimiento informado', 'Publicidad engañosa de resultados', 'Competencia profesional'], respuestaCorrecta: [0, 1, 3] },
-      { id: 'p4', tipo: 'caso', competenciaId: 'c2',
-        contexto: 'Un paciente de 32 años acude a consulta con síntomas de ansiedad generalizada: preocupación constante, tensión muscular, dificultad para conciliar el sueño y evitación de situaciones sociales. Ha estado así durante los últimos 8 meses.',
-        texto: 'Describe qué elementos considerarías en la evaluación inicial. ¿Qué enfoque terapéutico elegirías y por qué? Menciona al menos dos técnicas específicas que aplicarías.' },
-      { id: 'p5', tipo: 'abierta', competenciaId: 'c1', texto: '¿Qué elementos considerarías esenciales en una primera entrevista clínica? ¿Qué información no puede faltar?' }
-    ]
-  },
-  {
-  "id": "psi_historia_unam_1101",
-  "nombre": "Diagnóstico: Historia de la Psicología (UNAM)",
-  "descripcion": "Evalúa conocimientos sobre el surgimiento, tradiciones de pensamiento y perspectiva de género en la historia de la psicología, con enfoque crítico y rigor académico.",
-  "curso": {
-    "nombre": "Historia de la Psicología (1101)",
-    "descripcion": "Adquisición de conocimientos sobre el surgimiento y devenir histórico de las principales tradiciones de pensamiento psicológico contemporáneas, analizando sus conceptos, presupuestos y marcos interpretativos desde una mirada crítica, contextualizada y con perspectiva de género.",
-    "perfilLicenciatura": "Formar profesionales en Psicología capaces de analizar críticamente el desarrollo histórico y las tradiciones de pensamiento de la disciplina, comprendiendo sus antecedentes filosóficos y fisiológicos, y aplicando una perspectiva de género e inclusión para cuestionar sesgos androcéntricos y visibilizar aportaciones históricamente marginadas, con un firme sentido ético y de responsabilidad social.",
-    "competenciasLicenciatura": "Analiza críticamente el desarrollo histórico y las tradiciones de pensamiento de la psicología, reconociendo sus disputas y tensiones teóricas.\nIdentifica los antecedentes filosóficos, fisiológicos y físicos que permitieron el surgimiento de la psicología como ciencia experimental.\nAplica una perspectiva de género y epistemología feminista para deconstruir la supuesta neutralidad de las teorías clásicas.\nValora la diversidad teórica con una actitud relativista, reflexiva y libre de dogmatismos.",
-    "alumno": ""
-  },
-  "competencias": [
-    {
-      "id": "c1",
-      "nombre": "Antecedentes y surgimiento",
-      "descripcion": "Identifica las corrientes filosóficas y fisiológicas que permitieron la transición de la psicología especulativa a la psicología experimental del siglo XIX.",
-      "peso": 4,
-      "esperadoInicio": 1,
-      "esperadoFinal": 4,
-      "mapeoLicenciatura": [1]
-    },
-    {
-      "id": "c2",
-      "nombre": "Tradiciones de pensamiento",
-      "descripcion": "Distingue con precisión los objetos de estudio, métodos y postulados de las tradiciones conductista, cognoscitiva, psicodinámica y psicosocial.",
-      "peso": 5,
-      "esperadoInicio": 1,
-      "esperadoFinal": 4.5,
-      "mapeoLicenciatura": [0]
-    },
-    {
-      "id": "c3",
-      "nombre": "Perspectiva de género e historia",
-      "descripcion": "Analiza críticamente la historia de la psicología, visibilizando aportaciones de mujeres y cuestionando el androcentrismo epistemológico de las teorías clásicas.",
-      "peso": 3,
-      "esperadoInicio": 1,
-      "esperadoFinal": 4,
-      "mapeoLicenciatura": [2]
-    },
-    {
-      "id": "c4",
-      "nombre": "Ética, humanismo y diversidad",
-      "descripcion": "Valora la diversidad teórica como una riqueza para abordar la complejidad humana, evitando posturas dogmáticas o lineales sobre el progreso científico.",
-      "peso": 3,
-      "esperadoInicio": 1,
-      "esperadoFinal": 4,
-      "mapeoLicenciatura": [3]
+// ============ PRUEBAS PRECARGADAS (cargadas dinámicamente desde tests-manifest.json) ============
+let PRUEBAS_PRECARGADAS = [];
+let pruebasManifest = null;
+
+// Cargar manifest y pruebas al inicio
+async function cargarPruebasPrecargadas() {
+  try {
+    const response = await fetch('tests-manifest.json');
+    if (!response.ok) throw new Error('No se pudo cargar el manifest');
+    pruebasManifest = await response.json();
+    
+    // Cargar cada prueba referenciada en el manifest
+    const loadPromises = pruebasManifest.tests.map(async (testInfo) => {
+      try {
+        const testResponse = await fetch(testInfo.file);
+        if (!testResponse.ok) throw new Error(`No se pudo cargar ${testInfo.file}`);
+        const testData = await testResponse.json();
+        
+        // El archivo puede ser un array (perfiles-psicologia.json) o un objeto
+        const tests = Array.isArray(testData) ? testData : [testData];
+        
+        return tests.map(t => ({
+          ...t,
+          id: t.id || testInfo.id,
+          nombre: t.nombre || testInfo.nombre,
+          descripcion: t.descripcion || testInfo.descripcion
+        }));
+      } catch (e) {
+        console.warn(`Error cargando ${testInfo.file}:`, e);
+        return [];
+      }
+    });
+    
+    const results = await Promise.all(loadPromises);
+    PRUEBAS_PRECARGADAS = results.flat();
+    
+    // Renderizar lista si estamos en la pantalla de selector
+    if (document.querySelector('.screen[data-screen="selectorPrecargadas"].active')) {
+      renderizarListaPrecargadas();
     }
-  ],
-  "preguntas": [
-    {
-      "id": "p1",
-      "tipo": "opcion_multiple",
-      "competenciaId": "c1",
-      "texto": "¿Cuál de las siguientes corrientes filosóficas, junto con los avances en fisiología sensorial, fue fundamental para que la psicología se planteara como una ciencia experimental en el siglo XIX, rompiendo con el introspeccionismo especulativo?",
-      "opciones": [
-        "El empirismo y el asociacionismo, que proponían que los procesos mentales podían estudiarse mediante la observación de la experiencia y las leyes de asociación.",
-        "El racionalismo cartesiano, que defendía que la mente era una sustancia inmaterial e inobservable, sentando las bases directas del método experimental.",
-        "El positivismo lógico del Círculo de Viena, que fue la base fundacional de los primeros laboratorios de psicología en Leipzig.",
-        "La fenomenología husserliana, que priorizó la medición cuantitativa de los actos de conciencia sobre la introspección controlada."
-      ],
-      "respuestaCorrecta": 0
-    },
-    {
-      "id": "p2",
-      "tipo": "opcion_multiple",
-      "competenciaId": "c1",
-      "texto": "Respecto a la fundación del primer laboratorio de psicología experimental por Wilhelm Wundt en 1879, ¿cuál de las siguientes afirmaciones describe con mayor precisión su objeto de estudio y método principal?",
-      "opciones": [
-        "El estudio de la conciencia inmediata a través de la introspección experimental controlada, buscando identificar los elementos básicos de la experiencia.",
-        "El estudio de la conducta observable y medible, rechazando cualquier referencia a procesos mentales internos o estados de conciencia.",
-        "El estudio del inconsciente y los procesos psíquicos superiores mediante el análisis de los sueños y la asociación libre.",
-        "El estudio de la adaptación del organismo al medio ambiente, utilizando principalmente tests de inteligencia y medición de diferencias individuales."
-      ],
-      "respuestaCorrecta": 0
-    },
-    {
-      "id": "p3",
-      "tipo": "seleccion_multiple",
-      "competenciaId": "c2",
-      "texto": "Selecciona los enunciados que describen correctamente los postulados de la tradición de pensamiento conductista en sus inicios (Watson y Skinner):",
-      "opciones": [
-        "La psicología debe ser una ciencia puramente objetiva, cuyo objeto de estudio sea la conducta observable y medible.",
-        "El aprendizaje se explica fundamentalmente a través de los principios de condicionamiento y el refuerzo.",
-        "Los procesos cognitivos como la memoria y el razonamiento son el objeto central de estudio, ya que son la causa directa de la conducta.",
-        "La introspección es el método más válido para comprender cómo el ambiente moldea la experiencia subjetiva del individuo."
-      ],
-      "respuestaCorrecta": [0, 1]
-    },
-    {
-      "id": "p4",
-      "tipo": "opcion_multiple",
-      "competenciaId": "c2",
-      "texto": "Los trabajos de Francis Galton, James McKeen Cattell y Alfred Binet a finales del siglo XIX y principios del XX sentaron las bases de la psicometría. ¿Cuál fue una de las principales críticas históricas a estos primeros enfoques de medición?",
-      "opciones": [
-        "Tendencia a confundir las diferencias individuales con jerarquías de valor, lo que en algunos casos derivó en posturas eugenésicas o deterministas.",
-        "Su incapacidad total para medir procesos cognitivos, limitándose exclusivamente a la medición de tiempos de reacción sensorial.",
-        "El rechazo absoluto de la comunidad científica de la época, que consideraba que la medición de la mente era imposible y anticientífica.",
-        "Su enfoque exclusivo en el estudio del inconsciente, ignorando por completo las capacidades intelectuales conscientes."
-      ],
-      "respuestaCorrecta": 0
-    },
-    {
-      "id": "p5",
-      "tipo": "opcion_multiple",
-      "competenciaId": "c3",
-      "texto": "Desde una perspectiva de género y epistemología feminista, ¿cuál representa el aporte crítico principal al revisar la historia de la psicología experimental y psicoanalítica clásica?",
-      "opciones": [
-        "Cuestionar la supuesta neutralidad y universalidad de las teorías clásicas, evidenciando cómo tomaron la experiencia masculina como norma y construyeron categorías que patologizaban o subordinaban lo femenino.",
-        "Incorporar las biografías de mujeres psicólogas al relato histórico tradicional sin modificar los conceptos, métodos o marcos teóricos fundamentales establecidos por los autores clásicos.",
-        "Demostrar que las mujeres poseen una psique femenina inherentemente superior en capacidades emocionales y de cuidado, invirtiendo así la jerarquía de valor establecida por el psicoanálisis freudiano.",
-        "Validar que los métodos experimentales del siglo XIX eran completamente objetivos y que las diferencias observadas entre géneros en esas pruebas reflejaban variaciones biológicas puras, libres de sesgo cultural."
-      ],
-      "respuestaCorrecta": 0
-    },
-    {
-      "id": "p6",
-      "tipo": "seleccion_multiple",
-      "competenciaId": "c3",
-      "texto": "Selecciona las aportaciones históricas reales de mujeres psicólogas que, a pesar de las barreras institucionales de su época, desafiaron los paradigmas dominantes con contribuciones teóricas o metodológicas específicas:",
-      "opciones": [
-        "Mary Whiton Calkins, quien desarrolló la psicología del yo y la técnica de pares asociados, a pesar de que la Universidad de Harvard se negó a otorgarle el título de doctorado que había ganado académicamente.",
-        "Karen Horney, quien cuestionó el concepto freudiano de envidia del pene proponiendo la envidia del útero y enfatizando los factores culturales y sociales en la neurosis femenina.",
-        "Leta Stetter Hollingworth, cuyos estudios empíricos desmintieron la teoría de la variabilidad de su época, la cual afirmaba falsamente que los hombres eran intelectualmente más variables y por tanto más propensos al genio que las mujeres.",
-        "Anna Freud, quien rechazó por completo las teorías de su padre para fundar la psicología del yo desde una perspectiva exclusivamente femenina, rompiendo con toda la tradición psicoanalítica.",
-        "Leta Stetter Hollingworth, quien demostró que el ciclo menstrual afecta negativamente de forma universal e invariable el rendimiento intelectual de todas las mujeres."
-      ],
-      "respuestaCorrecta": [0, 1, 2]
-    },
-    {
-      "id": "p7",
-      "tipo": "likert",
-      "competenciaId": "c4",
-      "texto": "Reconozco que la historia de la psicología no es una acumulación lineal de verdades, sino un campo de disputas teóricas influenciado por el contexto social, político y cultural de cada época."
-    },
-    {
-      "id": "p8",
-      "tipo": "likert",
-      "competenciaId": "c4",
-      "texto": "Soy capaz de identificar cómo los sesgos de género, clase o cultura en las teorías psicológicas clásicas han influido en la construcción del conocimiento y en la práctica profesional actual."
-    },
-    {
-      "id": "p9",
-      "tipo": "seleccion_multiple",
-      "competenciaId": "c4",
-      "texto": "De acuerdo con los objetivos actitudinales del programa de Historia de la Psicología, ¿cómo debe abordar un estudiante la coexistencia de tradiciones teóricas contradictorias (ej. conductismo radical vs. psicoanálisis vs. psicología humanista)?",
-      "opciones": [
+  } catch (e) {
+    console.error('Error cargando pruebas precargadas:', e);
+    // Fallback: mostrar mensaje de error en la UI
+    const container = document.getElementById('listaPrecargadas');
+    if (container) {
+      container.innerHTML = '<div class="hint warning">⚠️ No se pudieron cargar las pruebas precargadas. Verifica que tests-manifest.json existe y los archivos referenciados están disponibles.</div>';
+    }
+  }
+}
+
+// Renderizar lista de pruebas precargadas en la UI
+function renderizarListaPrecargadas() {
+  const container = document.getElementById('listaPrecargadas');
+  if (!container) return;
+  
+  if (PRUEBAS_PRECARGADAS.length === 0) {
+    container.innerHTML = '<div class="empty-state">No hay pruebas disponibles. Agrega archivos JSON y actualiza tests-manifest.json</div>';
+    return;
+  }
+  
+  container.innerHTML = PRUEBAS_PRECARGADAS.map(prueba => `
+    <div class="prueba-item" onclick="cargarPruebaPrecargada('${prueba.id}')">
+      <h4>${prueba.nombre}</h4>
+      <p>${prueba.descripcion}</p>
+      <div class="meta">
+        <span>📝 ${prueba.preguntas?.length || 0} preguntas</span>
+        <span>🎯 ${prueba.competencias?.filter(c => !c.esLicenciatura).length || 0} competencias</span>
+      </div>
+    </div>
+  `).join('');
+}
         "Con una actitud relativista y crítica, comprendiendo que cada tradición responde a un contexto histórico, filosófico y social específico, sin que una posea la verdad absoluta y excluyente sobre la mente humana.",
         "Valorando la diversidad teórica como una riqueza que permite abordar la complejidad del comportamiento humano desde múltiples ángulos, reconociendo que diferentes marcos explican distintos aspectos de la experiencia.",
         "Adoptando el paradigma que el docente o el manual presente como el más científico, descartando las demás tradiciones como meras creencias pseudocientíficas sin valor histórico ni utilidad clínica.",
@@ -1270,7 +1144,7 @@ function irA(screen) {
   document.querySelector(`.screen[data-screen="${screen}"]`).classList.add('active');
   window.scrollTo(0, 0);
 
-  if (screen === 'selectorPrecargadas') renderPrecargadas();
+  if (screen === 'selectorPrecargadas') renderizarListaPrecargadas();
 }
 
 function iniciarCreador() {
@@ -1289,21 +1163,7 @@ function iniciarCreador() {
   irA('creador-paso1');
 }
 
-function renderPrecargadas() {
-  const cont = document.getElementById('listaPrecargadas');
-  cont.innerHTML = PRUEBAS_PRECARGADAS.map(p => `
-    <div class="prueba-item" onclick="cargarPrecargada('${p.id}')">
-      <h4>📘 ${p.nombre}</h4>
-      <p>${p.descripcion}</p>
-      <div class="meta">
-        <span>🎯 ${p.competencias.length} competencias</span>
-        <span>❓ ${p.preguntas.length} preguntas</span>
-      </div>
-    </div>
-  `).join('');
-}
-
-function cargarPrecargada(id) {
+function cargarPruebaPrecargada(id) {
   const prueba = PRUEBAS_PRECARGADAS.find(p => p.id === id);
   if (!prueba) return;
   datos = JSON.parse(JSON.stringify(prueba));
@@ -2551,6 +2411,11 @@ async function generarPDF(captureId, baseName) {
   const nombre = (datos.curso.alumno || 'alumno').replace(/\s+/g, '_');
   pdf.save(`${baseName}_${nombre}_${Date.now()}.pdf`);
 }
+
+// Inicializar: cargar pruebas precargadas al cargar la página
+document.addEventListener('DOMContentLoaded', () => {
+  cargarPruebasPrecargadas();
+});
 </script>
 
 </body>
