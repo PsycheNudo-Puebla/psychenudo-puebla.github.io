@@ -2,7 +2,7 @@
   "tests": [
     {
       "id": "psi_edu",
-      "file": "perfiles-psicologia.json",
+      "file": "psicologia-educativa.json",
       "nombre": "Diagnóstico: Psicología Educativa",
       "descripcion": "Evalúa conocimientos sobre desarrollo cognitivo, estrategias de aprendizaje y evaluación psicopedagógica."
     },
@@ -11,6 +11,12 @@
       "file": "historia-psicologia-unam.json",
       "nombre": "Diagnóstico: Historia de la Psicología (UNAM)",
       "descripcion": "Evalúa conocimientos sobre el surgimiento, tradiciones de pensamiento y perspectiva de género en la historia de la psicología."
+    },
+    {
+      "id": "psi_trastornos_adulto",
+      "file": "perfiles-psicologia.json",
+      "nombre": "Diagnóstico: Trastornos Psicológicos del Adulto",
+      "descripcion": "Evalúa conocimientos sobre clasificación de disfuncionalidad, características clínicas y diagnóstico de trastornos en adultos."
     }
   ]
 }

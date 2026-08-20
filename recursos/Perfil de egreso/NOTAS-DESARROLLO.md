@@ -75,7 +75,71 @@ Aplicación web de una sola página (HTML+CSS+JS) para diagnóstico por competen
 ## 📁 Estructura del proyecto
 ```
 recursos/Perfil de egreso/
-├── Perfil de egreso.html   ← Aplicación completa (single-file)
-├── perfiles-psicologia.json  ← Ejemplo de prueba exportada
-└── NOTAS-DESARROLLO.md     ← Este archivo
+├── Perfil de egreso.html       ← Aplicación completa (single-file)
+├── tests-manifest.json         ← Manifiesto de pruebas precargadas
+├── perfiles-psicologia.json    ← Pruebas de ejemplo (Psicología Educativa + Trastornos Adulto)
+├── historia-psicologia-unam.json  ← Prueba: Historia de la Psicología (UNAM)
+├── trastornos-psicologicos-adulto.json  ← Prueba standalone (respaldada en perfiles-psicologia.json)
+└── NOTAS-DESARROLLO.md         ← Este archivo
 ```
+
+## 📦 Cómo agregar una nueva prueba precargada
+
+**Sin tocar `Perfil de egreso.html`** — solo agregando archivos:
+
+### 1. Crea tu archivo JSON (ej: `mi-nueva-prueba.json`)
+```json
+{
+  "id": "mi_prueba_unica",
+  "nombre": "Diagnóstico: Mi Nueva Prueba",
+  "descripcion": "Descripción breve para el alumno",
+  "curso": {
+    "nombre": "Nombre de la Materia",
+    "descripcion": "Descripción de la materia",
+    "perfilLicenciatura": "Perfil de egreso de la licenciatura",
+    "competenciasLicenciatura": "Competencia 1\nCompetencia 2\nCompetencia 3",
+    "alumno": ""
+  },
+  "competencias": [
+    { "id": "c1", "nombre": "Competencia 1", "descripcion": "...", "peso": 5, "esperadoInicio": 1, "esperadoFinal": 5, "mapeoLicenciatura": [0] },
+    { "id": "c2", "nombre": "Competencia 2", "descripcion": "...", "peso": 4, "esperadoInicio": 1, "esperadoFinal": 4, "mapeoLicenciatura": [1] }
+  ],
+  "preguntas": [
+    { "id": "p1", "tipo": "opcion_multiple", "competenciaId": "c1", "texto": "¿Pregunta?", "opciones": ["A", "B", "C"], "respuestaCorrecta": 1 },
+    { "id": "p2", "tipo": "likert", "competenciaId": "c2", "texto": "Afirmación para autoevaluar" }
+  ]
+}
+```
+**Tipos válidos:** `opcion_multiple`, `seleccion_multiple`, `likert`, `abierta`, `caso`
+
+### 2. Registra en `tests-manifest.json`
+```json
+{
+  "tests": [
+    { "id": "psi_edu", "file": "perfiles-psicologia.json", "nombre": "...", "descripcion": "..." },
+    { "id": "psi_historia_unam", "file": "historia-psicologia-unam.json", "nombre": "...", "descripcion": "..." },
+    { "id": "mi_prueba_unica", "file": "mi-nueva-prueba.json", "nombre": "Diagnóstico: Mi Nueva Prueba", "descripcion": "Descripción breve" }
+  ]
+}
+```
+
+### 3. Listo
+Recarga la página. La prueba aparece en **"Tomar prueba precargada"**.
+
+**Notas:**
+- El `id` en el manifest debe coincidir con el `id` interno del JSON (fallback al del manifest)
+- `mapeoLicenciatura` usa índices 0-based que apuntan a líneas de `competenciasLicenciatura`
+- El archivo JSON puede ser un **objeto único** o un **array** `[{...}, {...}]` (como `perfiles-psicologia.json`)
+
+---
+
+## 📄 ¿Qué es `perfiles-psicologia.json`?
+
+Es un **archivo contenedor** con **2 pruebas completas en un array**:
+
+1. **`psi_educativa`** — Diagnóstico: Psicología Educativa (5 preguntas, 3 competencias)
+2. **`psi_trastornos_adulto`** — Diagnóstico: Trastornos Psicológicos del Adulto (16 preguntas, 4 competencias)
+
+**Función:** Sirve como **ejemplo de exportación** del modo creador y como **fuente de pruebas precargadas**. El manifest lo referencia una sola vez (`"file": "perfiles-psicologia.json"`) y el cargador detecta automáticamente que es un array y extrae ambas pruebas.
+
+El archivo `trastornos-psicologicos-adulto.json` es la **versión standalone** de la segunda prueba (mismo contenido, distinto formato). Se mantiene solo como respaldo histórico.

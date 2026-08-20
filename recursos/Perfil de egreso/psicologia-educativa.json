@@ -1,0 +1,24 @@
+{
+  "id": "psi_educativa",
+  "nombre": "Diagnóstico: Psicología Educativa",
+  "descripcion": "Evalúa conocimientos sobre desarrollo cognitivo, estrategias de aprendizaje y evaluación psicopedagógica.",
+  "curso": {
+    "nombre": "Psicología Educativa",
+    "descripcion": "Materia: teorías del aprendizaje, desarrollo en el aula y herramientas de evaluación educativa.",
+    "perfilLicenciatura": "El egresado aplicará principios psicológicos para optimizar procesos de enseñanza-aprendizaje.",
+    "competenciasLicenciatura": "Evalúa procesos de aprendizaje mediante instrumentos psicopedagógicos.\nDiseña estrategias educativas basadas en teorías del desarrollo.\nInterviene en problemas de aprendizaje con enfoque inclusivo.",
+    "alumno": ""
+  },
+  "competencias": [
+    { "id": "c1", "nombre": "Desarrollo cognitivo", "descripcion": "Comprende teorías del desarrollo y su aplicación en el aula", "peso": 5, "esperadoInicio": 1.5, "esperadoFinal": 5, "mapeoLicenciatura": [0] },
+    { "id": "c2", "nombre": "Estrategias de aprendizaje", "descripcion": "Identifica y aplica técnicas de enseñanza-aprendizaje", "peso": 4, "esperadoInicio": 1, "esperadoFinal": 4.5, "mapeoLicenciatura": [1] },
+    { "id": "c3", "nombre": "Evaluación psicopedagógica", "descripcion": "Analiza instrumentos de evaluación educativa", "peso": 3, "esperadoInicio": 1, "esperadoFinal": 4, "mapeoLicenciatura": [0, 2] }
+  ],
+  "preguntas": [
+    { "id": "p1", "tipo": "opcion_multiple", "competenciaId": "c1", "texto": "¿Cuál de los siguientes autores es reconocido principalemente por su teoría del desarrollo cognitivo?", "opciones": ["Sigmund Freud", "Jean Piaget", "B.F. Skinner", "Abraham Maslow"], "respuestaCorrecta": 1 },
+    { "id": "p2", "tipo": "likert", "competenciaId": "c2", "texto": "Me siento capaz de diseñar una secuencia didáctica considerando diferentes estilos de aprendizaje." },
+    { "id": "p3", "tipo": "seleccion_multiple", "competenciaId": "c3", "texto": "Selecciona TODOS los instrumentos propios de la evaluación psicopedagógica:", "opciones": ["Test de inteligencia WISC-V", "Radiografía de cráneo", "Entrevista pedagógica", "Observación sistemática en aula"], "respuestaCorrecta": [0, 2, 3] },
+    { "id": "p4", "tipo": "caso", "competenciaId": "c1", "contexto": "Un alumno de 8 años presenta dificultades para conservar la noción de cantidad: no reconoce que la misma cantidad de agua sigue siendo igual al verterla en un recipiente más alto y delgado.", "texto": "Desde la teoría de Piaget, ¿en qué etapa del desarrollo se encuentra este alumno? ¿Qué estrategias pedagógicas recomendarías para apoyar su desarrollo cognitivo?" },
+    { "id": "p5", "tipo": "abierta", "competenciaId": "c2", "texto": "Describe cómo adaptarías una clase para atender a estudiantes con estilos de aprendizaje visual, auditivo y kinestésico." }
+  ]
+}
