@@ -1,0 +1,281 @@
+{
+  "titulo": "Examen en Línea 2 - Transdisciplina II",
+  "tiempo_limite_minutos": 30,
+  "maximo_salidas": 2,
+  "clave_recuperacion": "TD2026",
+  "puntos_distribucion": {
+    "opcion_multiple": 1,
+    "vf": 0,
+    "relacionar": 2,
+    "abierta": 0,
+    "matematica": 0
+  },
+  "distribucion": {
+    "opcion_multiple": 10,
+    "vf": 0,
+    "relacionar": 3,
+    "abierta": 0,
+    "matematica": 0
+  },
+  "tareas": [
+    {
+      "id": "tarea_base_2",
+      "nombre": "TB2: Pregunta de investigación sobre el fin de los grandes relatos",
+      "descripcion": "Formular una pregunta de investigación sobre el fin de los grandes relatos y su impacto en la psicología, con una breve justificación teórica.",
+      "tipo": "investigacion",
+      "fecha_entrega": "2026-09-02",
+      "instrucciones": "Extensión: 1-2 cuartillas. Debe incluir: 1. Pregunta de investigación clara y delimitada. 2. Justificación de por qué es relevante para la psicología. 3. Referencia a al menos un autor de la Unidad 2 (Wittgenstein o Rorty). 4. Posibles implicaciones para la práctica psicológica."
+    },
+    {
+      "id": "tarea_adicional_ta1",
+      "nombre": "TA1: Resumen a mano de Wittgenstein y Rorty",
+      "descripcion": "Elaborar un resumen escrito a mano (mínimo 2 cuartillas) que integre los conceptos clave de Wittgenstein y Rorty.",
+      "tipo": "lectura",
+      "fecha_entrega": "2026-09-09",
+      "instrucciones": "Debe incluir: 1. Contexto y principales ideas de cada autor. 2. Relación entre ambos autores (¿qué los une? ¿qué los diferencia?). 3. Implicaciones para la psicología (diagnóstico, terapia, comprensión del sufrimiento). 4. Comentario personal. Formato: escrito a mano en hojas blancas o de cuaderno. Entregar en formato digital (foto o escaneo) o físico según indicación."
+    },
+    {
+      "id": "tarea_adicional_ta2",
+      "nombre": "TA2: Glosario de conceptos - Unidades 1-3",
+      "descripcion": "Elaborar un glosario con los conceptos clave de las unidades 1-3 (Interdisciplina, transdisciplina, desdisciplinarización, giro lingüístico, juegos del lenguaje, parecidos de familia, grandes relatos, contingencia del lenguaje, psicología como conversación).",
+      "tipo": "ejercicio",
+      "fecha_entrega": "2026-09-09",
+      "instrucciones": "Mínimo 12 conceptos. Cada concepto debe incluir: 1. Definición clara. 2. Autor o corriente asociada. 3. Relación con la psicología. 4. Ejemplo concreto."
+    },
+    {
+      "id": "tarea_adicional_ta3",
+      "nombre": "TA3: Mapa conceptual - Giro lingüístico y psicología",
+      "descripcion": "Elaborar un mapa conceptual que integre los conceptos del giro lingüístico (Wittgenstein, Rorty) y su relación con la psicología.",
+      "tipo": "investigacion",
+      "fecha_entrega": "2026-09-09",
+      "instrucciones": "El mapa debe incluir: 1. Conceptos principales (juegos del lenguaje, formas de vida, parecidos de familia, contingencia, grandes relatos, ironía, solidaridad, psicología como conversación). 2. Conexiones entre conceptos con palabras enlace. 3. Implicaciones para la psicología. 4. Ejemplos concretos de aplicación. Formato libre (digital o dibujado)."
+    }
+  ],
+  "reglas_asignacion": [
+    {
+      "id": "regla_excelente",
+      "nombre": "Rendimiento excelente (global ≥ 9.0)",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": ">=",
+          "valor": 9.0,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": ["tarea_base_2"]
+    },
+    {
+      "id": "regla_alto",
+      "nombre": "Rendimiento alto (global 7.5 - 8.9)",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": ">=",
+          "valor": 7.5,
+          "unidad": "porcentaje"
+        },
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": "<",
+          "valor": 9.0,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": ["tarea_base_2", "tarea_adicional_ta1"]
+    },
+    {
+      "id": "regla_medio",
+      "nombre": "Rendimiento medio (global 6.0 - 7.4)",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": ">=",
+          "valor": 6.0,
+          "unidad": "porcentaje"
+        },
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": "<",
+          "valor": 7.5,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": ["tarea_base_2", "tarea_adicional_ta1", "tarea_adicional_ta2"]
+    },
+    {
+      "id": "regla_bajo",
+      "nombre": "Rendimiento bajo (global < 6.0)",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": "<",
+          "valor": 6.0,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": ["tarea_base_2", "tarea_adicional_ta1", "tarea_adicional_ta2", "tarea_adicional_ta3"]
+    }
+  ],
+  "preguntas": [
+    {
+      "id": "om_01",
+      "tipo": "opcion_multiple",
+      "pregunta": "Según la clasificación presentada en la unidad 1, ¿cuál es la diferencia fundamental entre interdisciplinariedad y transdisciplinariedad?",
+      "opciones": [
+        "La interdisciplina suma conocimientos sin integración, mientras que la transdisciplina trasciende las fronteras disciplinares.",
+        "La interdisciplina mantiene la identidad disciplinaria pero establece puentes, mientras que la transdisciplina supera los límites disciplinares generando nuevos marcos conceptuales.",
+        "La interdisciplina se aplica solo a ciencias sociales, mientras que la transdisciplina se aplica a ciencias naturales.",
+        "La interdisciplina es un proceso histórico, mientras que la transdisciplina es un método de investigación."
+      ],
+      "respuesta_correcta": "La interdisciplina mantiene la identidad disciplinaria pero establece puentes, mientras que la transdisciplina supera los límites disciplinares generando nuevos marcos conceptuales."
+    },
+    {
+      "id": "om_02",
+      "tipo": "opcion_multiple",
+      "pregunta": "González Casanova sostiene que la desdisciplinarización es impulsada por múltiples factores. ¿Cuál de los siguientes NO es uno de ellos según lo visto en clase?",
+      "opciones": [
+        "La complejidad de los problemas contemporáneos como el cambio climático y la desigualdad.",
+        "Los avances tecnológicos como la inteligencia artificial y el big data.",
+        "La necesidad de mantener fronteras estrictas entre disciplinas para preservar su identidad.",
+        "El cuestionamiento de los paradigmas tradicionales por parte del pensamiento crítico y la posmodernidad."
+      ],
+      "respuesta_correcta": "La necesidad de mantener fronteras estrictas entre disciplinas para preservar su identidad."
+    },
+    {
+      "id": "om_03",
+      "tipo": "opcion_multiple",
+      "pregunta": "En el contexto de la Unidad 1, ¿qué significa que la transdisciplina 'genera nuevos marcos conceptuales'?",
+      "opciones": [
+        "Que la transdisciplina descarta por completo las disciplinas tradicionales.",
+        "Que la transdisciplina crea categorías y enfoques que no existían previamente en ninguna disciplina aislada.",
+        "Que la transdisciplina se limita a traducir conceptos de una disciplina a otra.",
+        "Que la transdisciplina reduce todos los problemas a una sola disciplina explicativa."
+      ],
+      "respuesta_correcta": "Que la transdisciplina crea categorías y enfoques que no existían previamente en ninguna disciplina aislada."
+    },
+    {
+      "id": "om_04",
+      "tipo": "opcion_multiple",
+      "pregunta": "Wittgenstein introduce el concepto de 'juegos del lenguaje' para referirse a:",
+      "opciones": [
+        "Un conjunto de reglas gramaticales universales que subyacen a todos los idiomas.",
+        "Actividades sociales que combinan lenguaje y acciones con reglas convencionales y contextuales.",
+        "Un método para analizar la estructura lógica del pensamiento.",
+        "La dimensión lúdica del lenguaje infantil."
+      ],
+      "respuesta_correcta": "Actividades sociales que combinan lenguaje y acciones con reglas convencionales y contextuales."
+    },
+    {
+      "id": "om_05",
+      "tipo": "opcion_multiple",
+      "pregunta": "¿Cuál es la implicación más profunda del concepto de 'parecidos de familia' de Wittgenstein para la psicopatología?",
+      "opciones": [
+        "Que todos los trastornos mentales comparten una esencia común que debemos identificar.",
+        "Que los conceptos psicológicos como 'depresión' o 'ansiedad' no tienen una esencia única, sino múltiples manifestaciones que se asemejan pero no comparten un rasgo común a todas.",
+        "Que los trastornos mentales son categorías naturales que existen independientemente del lenguaje.",
+        "Que todos los pacientes con el mismo diagnóstico deben recibir el mismo tratamiento."
+      ],
+      "respuesta_correcta": "Que los conceptos psicológicos como 'depresión' o 'ansiedad' no tienen una esencia única, sino múltiples manifestaciones que se asemejan pero no comparten un rasgo común a todas."
+    },
+    {
+      "id": "om_06",
+      "tipo": "opcion_multiple",
+      "pregunta": "Para Wittgenstein, la 'imposibilidad del lenguaje privado' significa que:",
+      "opciones": [
+        "No podemos tener pensamientos que no sean compartidos con otros.",
+        "El lenguaje es inherentemente social y no puede ser puramente interno, ya que las reglas del lenguaje requieren de una comunidad de usuarios.",
+        "No existe el pensamiento sin lenguaje.",
+        "Todas las personas hablan el mismo idioma universal."
+      ],
+      "respuesta_correcta": "El lenguaje es inherentemente social y no puede ser puramente interno, ya que las reglas del lenguaje requieren de una comunidad de usuarios."
+    },
+    {
+      "id": "om_07",
+      "tipo": "opcion_multiple",
+      "pregunta": "Según la propuesta de Rorty, ¿qué implica que la psicología se entienda como una 'conversación' en lugar de una ciencia que descubre verdades?",
+      "opciones": [
+        "Que la psicología debe abandonar el método científico y basarse solo en la opinión personal.",
+        "Que la psicología puede mantener el diálogo con otras disciplinas sin pretender tener la última palabra, reconociendo la contingencia de sus categorías.",
+        "Que la psicología debe limitarse a describir experiencias sin buscar explicaciones causales.",
+        "Que la psicología debe convertirse en una disciplina exclusivamente filosófica."
+      ],
+      "respuesta_correcta": "Que la psicología puede mantener el diálogo con otras disciplinas sin pretender tener la última palabra, reconociendo la contingencia de sus categorías."
+    },
+    {
+      "id": "om_08",
+      "tipo": "opcion_multiple",
+      "pregunta": "Rorty retoma el concepto de 'grandes relatos' de Lyotard. ¿Qué son los grandes relatos según esta perspectiva?",
+      "opciones": [
+        "Narrativas personales que cada individuo construye para dar sentido a su vida.",
+        "Narrativas totalizantes que pretenden legitimar y unificar el conocimiento, ofreciendo una explicación universal de la realidad.",
+        "Teorías científicas que han sido verificadas empíricamente.",
+        "Historias populares que varían según la cultura y la época."
+      ],
+      "respuesta_correcta": "Narrativas totalizantes que pretenden legitimar y unificar el conocimiento, ofreciendo una explicación universal de la realidad."
+    },
+    {
+      "id": "om_09",
+      "tipo": "opcion_multiple",
+      "pregunta": "¿Cuál es la crítica principal de Rorty a los grandes relatos en psicología?",
+      "opciones": [
+        "Que los grandes relatos son útiles pero deben actualizarse constantemente.",
+        "Que los grandes relatos psicológicos (como el DSM o las etapas del desarrollo universal) pretenden ser verdades objetivas cuando en realidad son construcciones históricas y culturales.",
+        "Que los grandes relatos no existen en psicología porque la disciplina es demasiado joven.",
+        "Que los grandes relatos son necesarios para la práctica clínica porque proporcionan certeza a los pacientes."
+      ],
+      "respuesta_correcta": "Que los grandes relatos psicológicos (como el DSM o las etapas del desarrollo universal) pretenden ser verdades objetivas cuando en realidad son construcciones históricas y culturales."
+    },
+    {
+      "id": "om_10",
+      "tipo": "opcion_multiple",
+      "pregunta": "¿Qué relación establece Rorty entre la 'contingencia del lenguaje' y la práctica terapéutica?",
+      "opciones": [
+        "El lenguaje del paciente no es importante para la terapia; lo importante son los síntomas observables.",
+        "El lenguaje del paciente constituye su experiencia; cambiando el lenguaje que usa para describir su sufrimiento, la terapia puede abrir nuevas posibilidades de significado.",
+        "El lenguaje del paciente debe ser corregido para que se ajuste a los términos científicos correctos.",
+        "El lenguaje del paciente es irrelevante porque la terapia se basa en técnicas conductuales."
+      ],
+      "respuesta_correcta": "El lenguaje del paciente constituye su experiencia; cambiando el lenguaje que usa para describir su sufrimiento, la terapia puede abrir nuevas posibilidades de significado."
+    },
+    {
+      "id": "rel_01",
+      "tipo": "relacionar",
+      "pregunta": "Relaciona cada autor con su concepto o aportación principal.",
+      "opciones": {
+        "Ludwig Wittgenstein": "Juegos del lenguaje y parecidos de familia",
+        "Richard Rorty": "Fin de los grandes relatos y psicología como conversación",
+        "Jean-François Lyotard": "Incredulidad hacia los grandes relatos",
+        "Pablo González Casanova": "Desdisciplinarización y nuevas ciencias"
+      }
+    },
+    {
+      "id": "rel_02",
+      "tipo": "relacionar",
+      "pregunta": "Relaciona cada concepto con su definición correcta.",
+      "opciones": {
+        "Juegos del lenguaje": "Actividades sociales que combinan lenguaje y acciones con reglas contextuales.",
+        "Parecidos de familia": "Conjunto de similitudes que conectan diferentes usos de un concepto sin una esencia común.",
+        "Grandes relatos": "Narrativas totalizantes que pretenden legitimar y unificar el conocimiento.",
+        "Contingencia del lenguaje": "El lenguaje es una construcción humana, no un reflejo de la realidad."
+      }
+    },
+    {
+      "id": "rel_03",
+      "tipo": "relacionar",
+      "pregunta": "Relaciona cada nivel de integración del conocimiento con su característica principal.",
+      "opciones": {
+        "Multidisciplina": "Suma de conocimientos de diferentes disciplinas sin integración.",
+        "Interdisciplina": "Diálogo y cooperación entre disciplinas con intercambio de métodos y conceptos.",
+        "Transdisciplina": "Integración que trasciende las fronteras disciplinarias para abordar problemas complejos.",
+        "Desdisciplinarización": "Proceso de disolución de las fronteras disciplinarias en el conocimiento contemporáneo."
+      }
+    }
+  ]
+}
