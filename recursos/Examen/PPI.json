@@ -1,0 +1,73 @@
+{
+  "titulo": "Examen de Licenciatura: Trastornos y Ética en la Atención al Adulto Mayor",
+  "tiempo_limite_minutos": 45,
+  "maximo_salidas": 3,
+  "clave_recuperacion": "1275",
+  "distribucion": {
+    "abierta": 3,
+    "opcion_multiple": 2,
+    "relacionar": 1
+  },
+  "puntos_distribucion": {
+    "abierta": 3,
+    "opcion_multiple": 1,
+    "relacionar": 2
+  },
+  "tareas": [],
+  "reglas_asignacion": [],
+  "preguntas": [
+    {
+      "id": "ab_01",
+      "tipo": "abierta",
+      "pregunta": "CASO 1: Don Roberto, de 78 años con deterioro cognitivo leve, menciona en sesión que su cuidadora familiar 'toma prestado' dinero de su cartera para 'gastos de la casa' sin preguntarle, y que a veces le oculta sus gafas. Le suplica al psicólogo: 'Por favor, no se lo diga a mis hijos, ellos la despedirían y yo no puedo quedarme solo'.\n\nPregunta: ¿Se puede o se debe romper la confidencialidad en este caso? Fundamente su respuesta en el código de ética y la normatividad mexicana, y especifique qué información o acciones debe priorizar el psicólogo.",
+      "respuesta_correcta": "Sí, la confidencialidad debe limitarse o romperse. Existe una sospecha fundada de maltrato financiero y psicológico (abuso al adulto mayor), lo cual prevalece sobre el secreto profesional al haber un riesgo para la integridad de una persona en situación de vulnerabilidad. El psicólogo debe priorizar la seguridad del paciente, documentar los hallazgos y, conforme a la Ley de los Derechos de las Personas Adultas Mayores, realizar el reporte a las autoridades competentes o al Ministerio Público, informando al paciente de manera empática sobre este deber legal."
+    },
+    {
+      "id": "ab_02",
+      "tipo": "abierta",
+      "pregunta": "CASO 2: La hija de una paciente de 82 años con diagnóstico de demencia tipo Alzheimer en fase moderada solicita al psicólogo 'una copia de todas las notas de las sesiones de los últimos 6 meses' para entender por qué su madre llora tanto. La paciente firmó un consentimiento informado general para el tratamiento al inicio, pero no un aviso de privacidad que autorizara expresamente compartir información con familiares.\n\nPregunta: ¿Qué aclaración debe hacer el psicólogo respecto a los derechos ARCO y el consentimiento informado en este escenario? ¿Qué información específica se le puede y no se le puede entregar a la hija?",
+      "respuesta_correcta": "El psicólogo debe aclarar que el consentimiento general para tratamiento no equivale a una autorización para liberar información clínica detallada (especialmente notas de psicoterapia) a terceros. Aunque la hija sea el representante legal, el secreto profesional se mantiene. Se le puede entregar un resumen clínico o informe de evolución (si es legalmente requerido por la tutela), pero no las notas de proceso terapéutico crudas, a menos que exista una autorización expresa, por escrito y específica, o una orden judicial, protegiendo siempre el interés superior del adulto mayor."
+    },
+    {
+      "id": "ab_03",
+      "tipo": "abierta",
+      "pregunta": "CASO 3: Un médico geriatra solicita al psicólogo que evalúe si una paciente de 75 años tiene la capacidad mental para firmar un testamento. Durante la evaluación, la paciente muestra lucidez intermitente y fatiga.\n\nPregunta: ¿Qué información básica debe recopilar y documentar el psicólogo en su informe para que este tenga validez ética y legal, más allá del simple puntaje de una prueba psicométrica?",
+      "respuesta_correcta": "El psicólogo debe documentar: 1) El contexto y condiciones de la evaluación (hora, nivel de fatiga, medicación que pueda afectar el rendimiento). 2) La capacidad funcional específica para la tarea (capacidad para entender la naturaleza del testamento, sus bienes y las consecuencias de su decisión), no solo la capacidad cognitiva global. 3) La consistencia de las respuestas y los momentos de lucidez. 4) Que se utilizó lenguaje comprensible y se verificó la comprensión. El informe debe centrarse en la 'capacidad para la decisión específica'."
+    },
+    {
+      "id": "om_01",
+      "tipo": "opcion_multiple",
+      "pregunta": "En la evaluación de un adulto mayor que presenta quejas subjetivas de memoria, apatía y lentitud psicomotora, ¿cuál de los siguientes elementos es crucial para diferenciar una depresión geriátrica (pseudodemencia) de un trastorno neurocognitivo mayor (demencia)?",
+      "opciones": [
+        "La edad exacta de inicio de los síntomas.",
+        "La presencia de quejas de memoria detalladas por el paciente y un esfuerzo variable o nulo en las pruebas, versus la ocultación de déficits y esfuerzo constante en la demencia.",
+        "El resultado aislado del Mini-Mental State Examination (MMSE).",
+        "La respuesta inmediata a un solo fármaco antidepresivo."
+      ],
+      "respuesta_correcta": "La presencia de quejas de memoria detalladas por el paciente y un esfuerzo variable o nulo en las pruebas, versus la ocultación de déficits y esfuerzo constante en la demencia."
+    },
+    {
+      "id": "om_02",
+      "tipo": "opcion_multiple",
+      "pregunta": "Según la Ley de los Derechos de las Personas Adultas Mayores en México, ¿cuál de las siguientes acciones se considera explícitamente una forma de maltrato que el profesional de la salud está obligado a reportar?",
+      "opciones": [
+        "Negarse a administrar un medicamento no prescrito que el adulto mayor solicita.",
+        "La sujeción física o química sin justificación médica documentada y como medida de castigo o conveniencia del cuidador.",
+        "Sugerir la reducción de actividades sociales por riesgo de caídas.",
+        "Recomendar la institucionalización cuando el entorno familiar es inseguro."
+      ],
+      "respuesta_correcta": "La sujeción física o química sin justificación médica documentada y como medida de castigo o conveniencia del cuidador."
+    },
+    {
+      "id": "rel_01",
+      "tipo": "relacionar",
+      "pregunta": "Relaciona el tipo de maltrato al adulto mayor con el caso práctico que lo ejemplifica:",
+      "opciones": {
+        "Maltrato financiero": "Un hijo utiliza la tarjeta de débito de su madre con demencia para comprar artículos personales sin su conocimiento ni beneficio para ella.",
+        "Maltrato psicológico": "El cuidador amenaza constantemente con abandonar al adulto mayor en un asilo si no se come toda la comida.",
+        "Negligencia": "No proporcionar los lentes o audífonos necesarios al adulto mayor, aislándolo sensorialmente de forma intencional.",
+        "Abandono": "El familiar responsable deja al adulto mayor solo en la vivienda por periodos prolongados sin asegurar alimentos o supervisión."
+      }
+    }
+  ]
+}
