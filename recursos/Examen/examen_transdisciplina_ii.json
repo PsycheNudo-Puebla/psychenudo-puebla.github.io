@@ -1,8 +1,8 @@
 {
-  "titulo": "Examen en Línea 2 - Transdisciplina II",
-  "tiempo_limite_minutos": 30,
+  "titulo": "Examen en Línea 2 - Transdisciplina II (Extemporáneo)",
+  "tiempo_limite_minutos": 15,
   "maximo_salidas": 2,
-  "clave_recuperacion": "TD2026",
+  "clave_recuperacion": "TD2026EXT",
   "puntos_distribucion": {
     "opcion_multiple": 1,
     "vf": 0,
@@ -64,7 +64,9 @@
           "unidad": "porcentaje"
         }
       ],
-      "tareas_asignadas": ["tarea_base_2"]
+      "tareas_asignadas": [
+        "tarea_base_2"
+      ]
     },
     {
       "id": "regla_alto",
@@ -85,7 +87,10 @@
           "unidad": "porcentaje"
         }
       ],
-      "tareas_asignadas": ["tarea_base_2", "tarea_adicional_ta1"]
+      "tareas_asignadas": [
+        "tarea_base_2",
+        "tarea_adicional_ta1"
+      ]
     },
     {
       "id": "regla_medio",
@@ -106,7 +111,11 @@
           "unidad": "porcentaje"
         }
       ],
-      "tareas_asignadas": ["tarea_base_2", "tarea_adicional_ta1", "tarea_adicional_ta2"]
+      "tareas_asignadas": [
+        "tarea_base_2",
+        "tarea_adicional_ta1",
+        "tarea_adicional_ta2"
+      ]
     },
     {
       "id": "regla_bajo",
@@ -120,129 +129,134 @@
           "unidad": "porcentaje"
         }
       ],
-      "tareas_asignadas": ["tarea_base_2", "tarea_adicional_ta1", "tarea_adicional_ta2", "tarea_adicional_ta3"]
+      "tareas_asignadas": [
+        "tarea_base_2",
+        "tarea_adicional_ta1",
+        "tarea_adicional_ta2",
+        "tarea_adicional_ta3"
+      ]
     }
   ],
   "preguntas": [
     {
       "id": "om_01",
       "tipo": "opcion_multiple",
-      "pregunta": "Según la clasificación presentada en la unidad 1, ¿cuál es la diferencia fundamental entre interdisciplinariedad y transdisciplinariedad?",
+      "pregunta": "¿Cómo se distingue la transdisciplinariedad de la interdisciplinariedad en el abordaje del conocimiento?",
       "opciones": [
-        "La interdisciplina suma conocimientos sin integración, mientras que la transdisciplina trasciende las fronteras disciplinares.",
-        "La interdisciplina mantiene la identidad disciplinaria pero establece puentes, mientras que la transdisciplina supera los límites disciplinares generando nuevos marcos conceptuales.",
-        "La interdisciplina se aplica solo a ciencias sociales, mientras que la transdisciplina se aplica a ciencias naturales.",
-        "La interdisciplina es un proceso histórico, mientras que la transdisciplina es un método de investigación."
+        "La interdisciplina fusiona las disciplinas en una sola, mientras la transdisciplina las mantiene separadas.",
+        "La interdisciplina es exclusiva de las humanidades y la transdisciplina de las ciencias exactas.",
+        "Mientras la interdisciplina articula saberes conservando sus límites, la transdisciplina los trasciende creando nuevas perspectivas integradoras.",
+        "La interdisciplina es un método cuantitativo y la transdisciplina uno cualitativo."
       ],
-      "respuesta_correcta": "La interdisciplina mantiene la identidad disciplinaria pero establece puentes, mientras que la transdisciplina supera los límites disciplinares generando nuevos marcos conceptuales."
+      "respuesta_correcta": "Mientras la interdisciplina articula saberes conservando sus límites, la transdisciplina los trasciende creando nuevas perspectivas integradoras."
     },
     {
       "id": "om_02",
       "tipo": "opcion_multiple",
-      "pregunta": "González Casanova sostiene que la desdisciplinarización es impulsada por múltiples factores. ¿Cuál de los siguientes NO es uno de ellos según lo visto en clase?",
+      "pregunta": "De acuerdo con González Casanova, ¿cuál de las siguientes opciones NO representa un detonante de la desdisciplinarización?",
       "opciones": [
-        "La complejidad de los problemas contemporáneos como el cambio climático y la desigualdad.",
-        "Los avances tecnológicos como la inteligencia artificial y el big data.",
-        "La necesidad de mantener fronteras estrictas entre disciplinas para preservar su identidad.",
-        "El cuestionamiento de los paradigmas tradicionales por parte del pensamiento crítico y la posmodernidad."
+        "Los retos globales complejos como el cambio climático y las crisis sociales.",
+        "La exigencia de blindar y aislar las disciplinas para proteger su pureza epistemológica.",
+        "La irrupción de tecnologías disruptivas como la inteligencia artificial y el análisis masivo de datos.",
+        "La crítica posmoderna a los paradigmas tradicionales de la ciencia."
       ],
-      "respuesta_correcta": "La necesidad de mantener fronteras estrictas entre disciplinas para preservar su identidad."
+      "respuesta_correcta": "La exigencia de blindar y aislar las disciplinas para proteger su pureza epistemológica."
     },
     {
       "id": "om_03",
       "tipo": "opcion_multiple",
-      "pregunta": "En el contexto de la Unidad 1, ¿qué significa que la transdisciplina 'genera nuevos marcos conceptuales'?",
+      "pregunta": "Cuando se afirma que la transdisciplina 'genera nuevos marcos conceptuales', se quiere decir que:",
       "opciones": [
-        "Que la transdisciplina descarta por completo las disciplinas tradicionales.",
-        "Que la transdisciplina crea categorías y enfoques que no existían previamente en ninguna disciplina aislada.",
-        "Que la transdisciplina se limita a traducir conceptos de una disciplina a otra.",
-        "Que la transdisciplina reduce todos los problemas a una sola disciplina explicativa."
+        "Elimina las ciencias tradicionales para reemplazarlas por un saber único.",
+        "Se dedica únicamente a traducir terminología de un campo a otro.",
+        "Simplifica los fenómenos complejos reduciéndolos a una sola variable disciplinaria.",
+        "Produce categorías y métodos de análisis que emergen de la integración y que no existen en las disciplinas por separado."
       ],
-      "respuesta_correcta": "Que la transdisciplina crea categorías y enfoques que no existían previamente en ninguna disciplina aislada."
+      "respuesta_correcta": "Produce categorías y métodos de análisis que emergen de la integración y que no existen en las disciplinas por separado."
     },
     {
       "id": "om_04",
       "tipo": "opcion_multiple",
-      "pregunta": "Wittgenstein introduce el concepto de 'juegos del lenguaje' para referirse a:",
+      "pregunta": "En la filosofía de Wittgenstein, la noción de 'juegos del lenguaje' alude a:",
       "opciones": [
-        "Un conjunto de reglas gramaticales universales que subyacen a todos los idiomas.",
-        "Actividades sociales que combinan lenguaje y acciones con reglas convencionales y contextuales.",
-        "Un método para analizar la estructura lógica del pensamiento.",
-        "La dimensión lúdica del lenguaje infantil."
+        "Leyes gramaticales innatas y universales de la mente humana.",
+        "Prácticas sociales donde el lenguaje y la acción se entrelazan bajo reglas que dependen del contexto.",
+        "Una técnica de lógica formal para descomponer el pensamiento.",
+        "La etapa lúdica de adquisición del lenguaje en la infancia."
       ],
-      "respuesta_correcta": "Actividades sociales que combinan lenguaje y acciones con reglas convencionales y contextuales."
+      "respuesta_correcta": "Prácticas sociales donde el lenguaje y la acción se entrelazan bajo reglas que dependen del contexto."
     },
     {
       "id": "om_05",
       "tipo": "opcion_multiple",
-      "pregunta": "¿Cuál es la implicación más profunda del concepto de 'parecidos de familia' de Wittgenstein para la psicopatología?",
+      "pregunta": "¿Qué consecuencia tiene el concepto wittgensteiniano de 'parecidos de familia' para la comprensión de los trastornos psicológicos?",
       "opciones": [
-        "Que todos los trastornos mentales comparten una esencia común que debemos identificar.",
-        "Que los conceptos psicológicos como 'depresión' o 'ansiedad' no tienen una esencia única, sino múltiples manifestaciones que se asemejan pero no comparten un rasgo común a todas.",
-        "Que los trastornos mentales son categorías naturales que existen independientemente del lenguaje.",
-        "Que todos los pacientes con el mismo diagnóstico deben recibir el mismo tratamiento."
+        "Todos los padecimientos mentales comparten un núcleo biológico idéntico.",
+        "Las enfermedades mentales son entidades naturales independientes de cómo las nombramos.",
+        "Categorías como 'depresión' carecen de una esencia única; son un conjunto de manifestaciones que se superponen sin un rasgo común a todas.",
+        "El tratamiento debe ser estandarizado para todos los pacientes con la misma etiqueta diagnóstica."
       ],
-      "respuesta_correcta": "Que los conceptos psicológicos como 'depresión' o 'ansiedad' no tienen una esencia única, sino múltiples manifestaciones que se asemejan pero no comparten un rasgo común a todas."
+      "respuesta_correcta": "Categorías como 'depresión' carecen de una esencia única; son un conjunto de manifestaciones que se superponen sin un rasgo común a todas."
     },
     {
       "id": "om_06",
       "tipo": "opcion_multiple",
-      "pregunta": "Para Wittgenstein, la 'imposibilidad del lenguaje privado' significa que:",
+      "pregunta": "El argumento de Wittgenstein contra la 'posibilidad de un lenguaje privado' establece que:",
       "opciones": [
-        "No podemos tener pensamientos que no sean compartidos con otros.",
-        "El lenguaje es inherentemente social y no puede ser puramente interno, ya que las reglas del lenguaje requieren de una comunidad de usuarios.",
-        "No existe el pensamiento sin lenguaje.",
-        "Todas las personas hablan el mismo idioma universal."
+        "Los pensamientos íntimos deben ser expresados forzosamente a otros seres humanos.",
+        "Es imposible pensar si no se cuenta con un vocabulario estructurado.",
+        "Existe un idioma universal subyacente a todas las culturas.",
+        "El lenguaje requiere de un uso público y comunitario; las reglas no pueden ser fijadas por un individuo en aislamiento."
       ],
-      "respuesta_correcta": "El lenguaje es inherentemente social y no puede ser puramente interno, ya que las reglas del lenguaje requieren de una comunidad de usuarios."
+      "respuesta_correcta": "El lenguaje requiere de un uso público y comunitario; las reglas no pueden ser fijadas por un individuo en aislamiento."
     },
     {
       "id": "om_07",
       "tipo": "opcion_multiple",
-      "pregunta": "Según la propuesta de Rorty, ¿qué implica que la psicología se entienda como una 'conversación' en lugar de una ciencia que descubre verdades?",
+      "pregunta": "Para Richard Rorty, concebir la psicología como una 'conversación' en vez de una ciencia reveladora de verdades absolutas implica que:",
       "opciones": [
-        "Que la psicología debe abandonar el método científico y basarse solo en la opinión personal.",
-        "Que la psicología puede mantener el diálogo con otras disciplinas sin pretender tener la última palabra, reconociendo la contingencia de sus categorías.",
-        "Que la psicología debe limitarse a describir experiencias sin buscar explicaciones causales.",
-        "Que la psicología debe convertirse en una disciplina exclusivamente filosófica."
+        "La disciplina dialoga con otros saberes sin reclamar un privilegio epistemológico, asumiendo que sus categorías son contingentes.",
+        "La psicología debe descartar el rigor y basarse en el sentido común y la charla casual.",
+        "Su único fin es narrar experiencias, prohibiéndose cualquier intento de explicación.",
+        "La psicología debe fusionarse con la filosofía y abandonar la práctica clínica."
       ],
-      "respuesta_correcta": "Que la psicología puede mantener el diálogo con otras disciplinas sin pretender tener la última palabra, reconociendo la contingencia de sus categorías."
+      "respuesta_correcta": "La disciplina dialoga con otros saberes sin reclamar un privilegio epistemológico, asumiendo que sus categorías son contingentes."
     },
     {
       "id": "om_08",
       "tipo": "opcion_multiple",
-      "pregunta": "Rorty retoma el concepto de 'grandes relatos' de Lyotard. ¿Qué son los grandes relatos según esta perspectiva?",
+      "pregunta": "Retomando a Lyotard y Rorty, ¿cómo se definen los 'grandes relatos' o metarrelatos?",
       "opciones": [
-        "Narrativas personales que cada individuo construye para dar sentido a su vida.",
-        "Narrativas totalizantes que pretenden legitimar y unificar el conocimiento, ofreciendo una explicación universal de la realidad.",
-        "Teorías científicas que han sido verificadas empíricamente.",
-        "Historias populares que varían según la cultura y la época."
+        "Son las historias de vida que los pacientes construyen en terapia.",
+        "Son discursos totalizadores que buscan dar coherencia absoluta y legitimar el conocimiento bajo una única visión del mundo.",
+        "Son teorías científicas que han superado estrictas pruebas de laboratorio.",
+        "Son mitos culturales que cambian de forma aleatoria sin impacto en la ciencia."
       ],
-      "respuesta_correcta": "Narrativas totalizantes que pretenden legitimar y unificar el conocimiento, ofreciendo una explicación universal de la realidad."
+      "respuesta_correcta": "Son discursos totalizadores que buscan dar coherencia absoluta y legitimar el conocimiento bajo una única visión del mundo."
     },
     {
       "id": "om_09",
       "tipo": "opcion_multiple",
-      "pregunta": "¿Cuál es la crítica principal de Rorty a los grandes relatos en psicología?",
+      "pregunta": "¿En qué consiste la objeción central de Rorty frente a los grandes relatos aplicados a la psicología?",
       "opciones": [
-        "Que los grandes relatos son útiles pero deben actualizarse constantemente.",
-        "Que los grandes relatos psicológicos (como el DSM o las etapas del desarrollo universal) pretenden ser verdades objetivas cuando en realidad son construcciones históricas y culturales.",
-        "Que los grandes relatos no existen en psicología porque la disciplina es demasiado joven.",
-        "Que los grandes relatos son necesarios para la práctica clínica porque proporcionan certeza a los pacientes."
+        "Son herramientas útiles que simplemente necesitan ser modernizadas con nuevos datos.",
+        "La psicología es una ciencia tan reciente que aún no ha logrado construir ninguno.",
+        "Sistemas como el DSM o las teorías del desarrollo universal se disfrazan de verdades objetivas, pero son productos históricos y culturales.",
+        "Son indispensables en la clínica porque brindan seguridad y certeza al paciente."
       ],
-      "respuesta_correcta": "Que los grandes relatos psicológicos (como el DSM o las etapas del desarrollo universal) pretenden ser verdades objetivas cuando en realidad son construcciones históricas y culturales."
+      "respuesta_correcta": "Sistemas como el DSM o las teorías del desarrollo universal se disfrazan de verdades objetivas, pero son productos históricos y culturales."
     },
     {
       "id": "om_10",
       "tipo": "opcion_multiple",
-      "pregunta": "¿Qué relación establece Rorty entre la 'contingencia del lenguaje' y la práctica terapéutica?",
+      "pregunta": "Desde la perspectiva de Rorty, ¿cómo impacta la 'contingencia del lenguaje' en el proceso terapéutico?",
       "opciones": [
-        "El lenguaje del paciente no es importante para la terapia; lo importante son los síntomas observables.",
-        "El lenguaje del paciente constituye su experiencia; cambiando el lenguaje que usa para describir su sufrimiento, la terapia puede abrir nuevas posibilidades de significado.",
-        "El lenguaje del paciente debe ser corregido para que se ajuste a los términos científicos correctos.",
-        "El lenguaje del paciente es irrelevante porque la terapia se basa en técnicas conductuales."
+        "Las palabras del paciente son irrelevantes; solo importan las conductas medibles.",
+        "El terapeuta debe imponer el lenguaje técnico correcto para corregir los errores del paciente.",
+        "La terapia conductual demuestra que el lenguaje no tiene ningún efecto en la mente.",
+        "El vocabulario del paciente moldea su realidad; al ofrecer nuevos vocabularios, la terapia expande sus horizontes de sentido."
       ],
-      "respuesta_correcta": "El lenguaje del paciente constituye su experiencia; cambiando el lenguaje que usa para describir su sufrimiento, la terapia puede abrir nuevas posibilidades de significado."
+      "respuesta_correcta": "El vocabulario del paciente moldea su realidad; al ofrecer nuevos vocabularios, la terapia expande sus horizontes de sentido."
     },
     {
       "id": "rel_01",
@@ -250,9 +264,9 @@
       "pregunta": "Relaciona cada autor con su concepto o aportación principal.",
       "opciones": {
         "Ludwig Wittgenstein": "Juegos del lenguaje y parecidos de familia",
-        "Richard Rorty": "Fin de los grandes relatos y psicología como conversación",
-        "Jean-François Lyotard": "Incredulidad hacia los grandes relatos",
-        "Pablo González Casanova": "Desdisciplinarización y nuevas ciencias"
+        "Richard Rorty": "Psicología como conversación y fin de los metarrelatos",
+        "Jean-François Lyotard": "Incredulidad frente a los grandes relatos",
+        "Pablo González Casanova": "Nuevas ciencias y desdisciplinarización"
       }
     },
     {
@@ -260,10 +274,10 @@
       "tipo": "relacionar",
       "pregunta": "Relaciona cada concepto con su definición correcta.",
       "opciones": {
-        "Juegos del lenguaje": "Actividades sociales que combinan lenguaje y acciones con reglas contextuales.",
-        "Parecidos de familia": "Conjunto de similitudes que conectan diferentes usos de un concepto sin una esencia común.",
-        "Grandes relatos": "Narrativas totalizantes que pretenden legitimar y unificar el conocimiento.",
-        "Contingencia del lenguaje": "El lenguaje es una construcción humana, no un reflejo de la realidad."
+        "Juegos del lenguaje": "Prácticas sociales donde lenguaje y acción siguen reglas contextuales.",
+        "Parecidos de familia": "Similitudes superpuestas que conectan usos de un concepto sin esencia única.",
+        "Grandes relatos": "Discursos totalizadores que buscan legitimar el conocimiento de forma absoluta.",
+        "Contingencia del lenguaje": "El lenguaje es una construcción humana y no un espejo de la realidad."
       }
     },
     {
@@ -271,10 +285,10 @@
       "tipo": "relacionar",
       "pregunta": "Relaciona cada nivel de integración del conocimiento con su característica principal.",
       "opciones": {
-        "Multidisciplina": "Suma de conocimientos de diferentes disciplinas sin integración.",
-        "Interdisciplina": "Diálogo y cooperación entre disciplinas con intercambio de métodos y conceptos.",
-        "Transdisciplina": "Integración que trasciende las fronteras disciplinarias para abordar problemas complejos.",
-        "Desdisciplinarización": "Proceso de disolución de las fronteras disciplinarias en el conocimiento contemporáneo."
+        "Multidisciplina": "Yuxtaposición de saberes disciplinares sin integración real.",
+        "Interdisciplina": "Cooperación y diálogo que permite intercambiar métodos y conceptos.",
+        "Transdisciplina": "Superación de fronteras para integrar y abordar problemas complejos.",
+        "Desdisciplinarización": "Disolución progresiva de los límites tradicionales entre disciplinas."
       }
     }
   ]
