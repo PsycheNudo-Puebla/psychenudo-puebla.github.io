@@ -318,10 +318,66 @@ CREATE INDEX IF NOT EXISTS idx_log_salidas_asistencia
 
 -- =============================================================
 -- 🔄 MIGRACIÓN: Soporte múltiples clases por día
+-- (una asistencia por SESIÓN; el día ya no es clave única)
 -- =============================================================
-ALTER TABLE public.asistencia DROP CONSTRAINT IF EXISTS asistencia_alumno_grupo_fecha_key;
-ALTER TABLE public.asistencia DROP CONSTRAINT IF EXISTS unique_alumno_grupo_fecha;
-ALTER TABLE public.asistencia ADD CONSTRAINT unique_alumno_sesion UNIQUE(alumno_id, sesion_codigo);
+DO $$
+DECLARE
+  c RECORD;
+BEGIN
+  -- Quitar cualquier UNIQUE que incluya "fecha"
+  -- (incluye el nombre real en producción: asistencia_alumno_id_grupo_id_fecha_key)
+  FOR c IN
+    SELECT con.conname
+    FROM pg_constraint con
+    JOIN pg_class rel ON rel.oid = con.conrelid
+    JOIN pg_namespace nsp ON nsp.oid = rel.relnamespace
+    WHERE nsp.nspname = 'public'
+      AND rel.relname = 'asistencia'
+      AND con.contype = 'u'
+      AND EXISTS (
+        SELECT 1
+        FROM unnest(con.conkey) k
+        JOIN pg_attribute a ON a.attrelid = con.conrelid AND a.attnum = k
+        WHERE a.attname = 'fecha'
+      )
+  LOOP
+    EXECUTE format('ALTER TABLE public.asistencia DROP CONSTRAINT %I', c.conname);
+  END LOOP;
+
+  -- Quitar posibles ÍNDICES únicos que incluyan "fecha"
+  FOR c IN
+    SELECT i.relname AS idxname
+    FROM pg_index ix
+    JOIN pg_class i ON i.oid = ix.indexrelid
+    JOIN pg_class t ON t.oid = ix.indrelid
+    JOIN pg_namespace nsp ON nsp.oid = t.relnamespace
+    WHERE nsp.nspname = 'public'
+      AND t.relname = 'asistencia'
+      AND ix.indisunique
+      AND EXISTS (
+        SELECT 1
+        FROM unnest(ix.indkey) WITH ORDINALITY AS k(attnum, ord)
+        JOIN pg_attribute a ON a.attrelid = t.oid AND a.attnum = k.attnum
+        WHERE a.attname = 'fecha'
+      )
+  LOOP
+    EXECUTE format('DROP INDEX IF EXISTS %I', c.idxname);
+  END LOOP;
+
+  -- Garantizar la única por (alumno_id, sesion_codigo): permite 2+ clases el mismo día
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint con
+    JOIN pg_class rel ON rel.oid = con.conrelid
+    JOIN pg_namespace nsp ON nsp.oid = rel.relnamespace
+    WHERE nsp.nspname = 'public'
+      AND rel.relname = 'asistencia'
+      AND con.conname = 'unique_alumno_sesion'
+  ) THEN
+    ALTER TABLE public.asistencia
+      ADD CONSTRAINT unique_alumno_sesion UNIQUE (alumno_id, sesion_codigo);
+  END IF;
+END $$;
 
 -- =============================================================
 -- ✅ VERIFICACIÓN: debe mostrar 25 políticas (tras limpiar fantasmas)

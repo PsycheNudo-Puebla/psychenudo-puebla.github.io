@@ -634,13 +634,22 @@ export function iniciarMonitoreo(
   const hoy = new Date().getDay();
   supabase
     .from('horarios')
-    .select('hora_fin')
+    .select('hora_inicio, hora_fin')
     .eq('grupo_id', grupoId)
     .eq('dia_semana', hoy)
     .eq('activo', true)
     .then(({ data: horarios }) => {
       if (horarios && horarios.length > 0) {
-        const horaFin = horarios[0].hora_fin.substring(0, 5);
+        // Con VARIAS clases el mismo día, usar el horario EN CURSO (si hay)
+        // y si no, el que termina más tarde (para no cerrar prematuramente).
+        const ahora = new Date();
+        const horaAhora = `${ahora.getHours().toString().padStart(2, '0')}:${ahora.getMinutes().toString().padStart(2, '0')}`;
+        const enCurso = horarios.find(h =>
+          horaAhora >= (h.hora_inicio || '').substring(0, 5) && horaAhora <= (h.hora_fin || '').substring(0, 5));
+        const horarioSel = enCurso || horarios.reduce((latest, h) =>
+          (h.hora_fin || '') > (latest.hora_fin || '') ? h : latest, horarios[0]);
+
+        const horaFin = horarioSel.hora_fin.substring(0, 5);
         const [hf, mf] = horaFin.split(':').map(Number);
         const finDate = new Date();
         finDate.setHours(hf, mf, 0, 0);
@@ -1027,61 +1036,63 @@ async function cargarContadorExistente(): Promise<void> {
 }
 
 // ====== MANEJADORES DE EVENTOS ======
+/**
+ * Las salidas de pantalla se detectan con blur, visibilitychange y pagehide.
+ * En iOS/Android estos eventos NO llegan juntos: blur puede dispararse al
+ * instante y visibilitychange/pagehide llegan SEGUNDOS después. Por eso se
+ * usa _paginaVisible como ÚNICA fuente de verdad: el primer evento del
+ * episodio marca la app como oculta y cuenta 1 cambio; los eventos tardíos
+ * del mismo episodio se ignoran (evita falsos positivos al bloquear pantalla).
+ */
 function manejarVisibilidad(): void {
-  if (monitoreoActivo) {
-    if (document.visibilityState === 'hidden') {
-      const ahora = Date.now();
-      if (ahora - _ultimoEventoSalida < 1000) return;
-      _ultimoEventoSalida = ahora;
-      _paginaVisible = false;
-      // Cada ocultamiento (bloqueo, minimizar, cambiar app) = +1 cambio
-      incrementarCambio();
-    } else if (document.visibilityState === 'visible' && _paginaVisible === false) {
-      _paginaVisible = true;
-      verificarActividadTemprana();
-    }
+  if (!monitoreoActivo) return;
+  if (document.visibilityState === 'hidden') {
+    marcarAppOculta();
+  } else if (document.visibilityState === 'visible' && _paginaVisible === false) {
+    marcarAppVisible();
   }
 }
 
 function manejarBlur(): void {
-  if (monitoreoActivo) {
-    const ahora = Date.now();
-    if (ahora - _ultimoEventoSalida < 1000) return;
-    _ultimoEventoSalida = ahora;
-    _paginaVisible = false;
-    // Cada pérdida de foco (alt-tab, Win+L) = +1 cambio
-    incrementarCambio();
-  }
+  if (monitoreoActivo) marcarAppOculta();
 }
 
 function manejarFocus(): void {
-  if (monitoreoActivo) {
-    const estabaInactivo = !_paginaVisible;
-    _paginaVisible = true;
-    if (estabaInactivo) verificarActividadTemprana();
-  }
+  if (monitoreoActivo && _paginaVisible === false) marcarAppVisible();
 }
 
 /**
  * pagehide se dispara al cerrar pestaña/navegador o navegar a otra página.
- * En móvil también ocurre al bloquear pantalla. Es best-effort porque
- * la página se está descargando; si no alcanza, no pasa nada, el contador
- * de cambios_pantalla ya se incrementó con blur/visibility.
+ * En móvil también ocurre al bloquear pantalla (puede llegar tarde).
  */
 function manejarPageHide(): void {
   if (monitoreoActivo) {
-    const ahora = Date.now();
-    if (ahora - ultimoCambioTimestamp < 2000) return;
     registrarEvento('salida_pantalla', 'Cerró la página/navegador');
-    incrementarCambio();
+    marcarAppOculta();
   }
+}
+
+/** Marca la app como oculta y cuenta 1 cambio SOLO si aún no estaba oculta. */
+function marcarAppOculta(): void {
+  if (_paginaVisible === false) return; // mismo episodio ya contado
+  _paginaVisible = false;
+  _ultimoEventoSalida = Date.now();
+  incrementarCambio();
+}
+
+/** Marca la app como visible al regresar. */
+function marcarAppVisible(): void {
+  _paginaVisible = true;
+  verificarActividadTemprana();
 }
 
 // ====== INCREMENTAR CAMBIO ======
 async function incrementarCambio(): Promise<void> {
   if (!asistenciaActualId || cambiosContador >= cambiosLimite) return;
   const ahora = Date.now();
-  if (ahora - ultimoCambioTimestamp < 2000) return;
+  // Deduplicación amplia (10s): los episodios de bloqueo/ocultamiento que
+  // llegan muy juntos (blur+visibility+pagehide en iOS) cuentan UNA sola vez.
+  if (ahora - ultimoCambioTimestamp < 10000) return;
   if (cambioEnProgreso) return; // ya hay un incremento en curso
   ultimoCambioTimestamp = ahora;
   cambioEnProgreso = true;

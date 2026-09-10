@@ -12,6 +12,11 @@ export let html5QrCode: any = null;
 export let escaneando = false;
 let _intentosRotacion = 0;
 
+// Detección de iOS (Safari/Chrome). En iPhone la cámara ya viene orientada
+// correctamente y la rotación manual rompe el escaneo, así que no se aplica.
+const esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
 // ====== INICIAR / DETENER ESCANEO ======
 export async function iniciarEscaneo(): Promise<void> {
   const Html5Qrcode = (await import('html5-qrcode')).Html5Qrcode;
@@ -39,14 +44,18 @@ export async function iniciarEscaneo(): Promise<void> {
   try {
     html5QrCode = new Html5Qrcode("qr-reader");
 
-    const size = Math.min(window.innerWidth * 0.85, 380);
+    const size = Math.min(window.innerWidth * 0.85, esIOS ? 320 : 380);
     await html5QrCode.start(
       { facingMode: "environment" },
       {
-        fps: 35,
+        // fps altos saturan el pipeline de iOS y retrasan la lectura.
+        fps: esIOS ? 8 : 10,
         qrbox: { width: size, height: size },
         formatsToSupport: [0], // solo QR_CODE
-        disableFlip: true,
+        disableFlip: false,
+        // Safari/iOS no soporta BarcodeDetector de forma confiable; usamos
+        // el decodificador por canvas de la librería siempre.
+        experimentalFeatures: { useBarCodeDetectorIfSupported: false },
       },
       async (decodedText: string) => {
         await html5QrCode.stop();
@@ -100,29 +109,43 @@ function corregirRotacionCamara(): void {
   }
   _intentosRotacion = 0;
 
+  const container = document.getElementById('qr-reader');
+  if (!container) return;
+
+  // Encuadre cuadrado para que el área de escaneo coincida con la cámara.
+  container.style.aspectRatio = '1 / 1';
+  container.style.maxHeight = '70vh';
+  container.style.overflow = 'hidden';
+  video.style.objectFit = 'cover';
+  video.style.width = '100%';
+  video.style.height = '100%';
+
+  // En iOS la cámara ya sale orientada; NO rotar (rompe el escaneo).
+  if (esIOS) {
+    video.style.position = '';
+    video.style.top = '';
+    video.style.left = '';
+    video.style.transform = 'none';
+    video.style.minWidth = 'auto';
+    video.style.minHeight = 'auto';
+    video.style.maxWidth = 'none';
+    video.style.maxHeight = 'none';
+    return;
+  }
+
   const esPortrait = window.innerHeight > window.innerWidth;
   if (!esPortrait) return;
   if (video.videoWidth <= video.videoHeight) return;
 
   console.log(`📷 Corrigiendo rotación — video ${video.videoWidth}x${video.videoHeight}`);
 
-  const container = document.getElementById('qr-reader');
-  if (!container) return;
-
-  container.style.aspectRatio = '1 / 1';
-  container.style.maxHeight = '70vh';
-  container.style.overflow = 'hidden';
-
   video.style.position = 'absolute';
   video.style.top = '50%';
   video.style.left = '50%';
-  video.style.width = '100%';
-  video.style.height = '100%';
   video.style.minWidth = 'auto';
   video.style.minHeight = 'auto';
   video.style.maxWidth = 'none';
   video.style.maxHeight = 'none';
-  video.style.objectFit = 'cover';
   video.style.transform = 'translate(-50%, -50%) rotate(90deg)';
   video.style.transformOrigin = 'center center';
 }
@@ -159,13 +182,14 @@ async function procesarQR(qrData: string, resultadoDiv: HTMLElement): Promise<vo
       return;
     }
 
-    // Validación de timestamp (anti-screenshot)
+    // Validación de timestamp (anti-replay ligero).
+    // El QR del profe se regenera cada ~10s; al escanear puede haber pasado
+    // un poco más (enfoque de cámara lento, pestaña del profe en 2º plano).
+    // Por eso NO se bloquea aquí: la sesión activa con el codigo_sesion es la
+    // fuente real de verdad (validada más abajo). Esto solo guarda el caso
+    // de un QR visiblemente viejo.
     const ahora = Date.now();
-    const diffMs = Math.abs(ahora - ts);
-    if (ts > 0 && diffMs > 15000) {
-      resultadoDiv.textContent = '❌ QR expirado (timestamp inválido). Escanea directamente del profesor.';
-      return;
-    }
+    const tsViejo = ts > 0 && ahora - ts > 60000;
 
     // Verificar membresía
     const { data: inscripcion } = await supabase
@@ -232,12 +256,13 @@ async function procesarQR(qrData: string, resultadoDiv: HTMLElement): Promise<vo
 
     const limiteCambios = grupo?.limite_salidas ?? 3;
 
-    // Verificar sesión activa
+    // Verificar sesión activa (fuente real de verdad para saber si el QR es válido)
     const { data: sesiones } = await supabase
       .from('sesiones_clase')
       .select('*')
       .eq('grupo_id', grupoId)
-      .eq('activa', true);
+      .eq('activa', true)
+      .order('creado_en', { ascending: false });
     if (!sesiones || sesiones.length === 0) {
       resultadoDiv.textContent = '❌ No hay clase activa.';
       return;
@@ -245,7 +270,13 @@ async function procesarQR(qrData: string, resultadoDiv: HTMLElement): Promise<vo
     // Buscar sesión que coincida con el código del QR
     const sesion = sesiones.find(s => s.codigo_sesion === codigoSesion);
     if (!sesion) {
-      resultadoDiv.textContent = '❌ QR expirado.';
+      if (tsViejo) {
+        // QR con timestamp viejo y sin sesión activa que lo respalde:
+        // screenshot de una clase anterior o pestaña del profe en 2º plano.
+        resultadoDiv.textContent = '❌ QR expirado. Pide un QR nuevo a tu profesor, escaneado en vivo.';
+      } else {
+        resultadoDiv.textContent = '❌ QR no válido para la clase activa.';
+      }
       return;
     }
 
@@ -303,6 +334,49 @@ async function procesarQR(qrData: string, resultadoDiv: HTMLElement): Promise<vo
       })
       .select()
       .maybeSingle();
+
+    // 23505 = duplicate key: la BD aún tiene la restricción antigua
+    // "una asistencia por día" (alumno_id, grupo_id, fecha). Si existe un
+    // registro de OTRA sesión de hoy, lo reasignamos a la sesión actual
+    // para no bloquear la 2ª clase del mismo día (la migración
+    // sql/migracion_multiple_asistencia_dia.sql lo soluciona de raíz;
+    // aquí es el plan B mientras no se aplique).
+    if (asisError && asisError.code === '23505') {
+      const { data: existenteHoy } = await supabase
+        .from('asistencia')
+        .select('*')
+        .eq('alumno_id', alumno.id)
+        .eq('grupo_id', grupoId)
+        .eq('fecha', hoy)
+        .order('creado_en', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (existenteHoy && existenteHoy.sesion_codigo !== codigoSesion) {
+        const { data: reasignada, error: updErr } = await supabase
+          .from('asistencia')
+          .update({
+            sesion_codigo: codigoSesion,
+            estado: estadoAsistencia,
+            tipo_asistencia: tipoAsistencia,
+            cambios_pantalla: 0,
+            confirmada: false,
+            perdonada: false,
+            ultimo_latido: new Date().toISOString(),
+          })
+          .eq('id', existenteHoy.id)
+          .select()
+          .maybeSingle();
+
+        if (!updErr && reasignada) {
+          mostrarToast('✅ Registrado en la sesión actual', 'exito', 3000);
+          iniciarMonitoreo(reasignada.id, grupoId, nomGrupo, limiteCambios);
+          return;
+        }
+      }
+      resultadoDiv.textContent = '❌ Ya registraste asistencia hoy en esta clase.';
+      return;
+    }
 
     if (asisError || !nueva) {
       resultadoDiv.textContent = '❌ Error al registrar: ' + (asisError?.message || '');

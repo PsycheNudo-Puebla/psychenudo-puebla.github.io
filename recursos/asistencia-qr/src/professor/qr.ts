@@ -13,8 +13,54 @@ let qrGrupoId: string | null = null;
 // Constantes de QR
 const QR_REFRESH_MS = 10000; // 10 segundos
 
+// ---- Re-render inmediato del QR al volver a la pestaña ----
+// Los navegadores congelan setInterval en pestañas en segundo plano, dejando
+// un QR en pantalla con timestamp viejo → "QR expirado" masivo en vivo.
+// Al volver visible o dar foco se regenera el QR al instante.
+let _qrOnVisible: (() => void) | null = null;
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && _qrOnVisible) _qrOnVisible();
+});
+window.addEventListener('focus', () => {
+  if (_qrOnVisible) _qrOnVisible();
+});
+
+/** Registra la función que se ejecutará al volver a la pestaña (1 sola activa). */
+function registrarRefrescoQRVisible(fn: () => void): void {
+  _qrOnVisible = fn;
+}
+
+// ---- Elegir el horario correcto cuando hay VARIAS clases el mismo día ----
+// 1º se busca el horario cuya ventana CONTIENE la hora actual (clase real);
+// 2º si no, el inicio más cercano (antes de empezar o en el receso entre clases).
+function elegirHorarioActual(horarios: any[]): any {
+  const ahora = new Date();
+  const actualStr = `${ahora.getHours().toString().padStart(2, '0')}:${ahora.getMinutes().toString().padStart(2, '0')}`;
+  const actualMin = ahora.getHours() * 60 + ahora.getMinutes();
+
+  const enCurso = horarios.find(h =>
+    actualStr >= (h.hora_inicio || '').substring(0, 5) && actualStr <= (h.hora_fin || '').substring(0, 5));
+  if (enCurso) return enCurso;
+
+  let mejor = horarios[0];
+  let minDiff = Infinity;
+  for (const h of horarios) {
+    const [hh, mm] = (h.hora_inicio || '00:00').split(':').map(Number);
+    const inicioMin = hh * 60 + mm;
+    const diff = Math.abs(actualMin - inicioMin);
+    if (diff < minDiff) { minDiff = diff; mejor = h; }
+  }
+  return mejor;
+}
+
 export async function generarQR(grupoId: string, grupoNombre: string): Promise<void> {
   qrGrupoId = grupoId;
+
+  // Si el monitoreo tiene un QR vivo, cerrarlo: dos generadores de QR
+  // desactivarían sus sesiones entre sí y los alumnos verían "QR expirado".
+  detenerQRMonitoreo();
+
   const modal = document.getElementById('modal-qr')!;
   modal.classList.remove('hidden');
 
@@ -38,17 +84,7 @@ export async function generarQR(grupoId: string, grupoNombre: string): Promise<v
       .eq('dia_semana', hoy);
 
     if (horarios && horarios.length > 0) {
-      // Buscar el horario más cercano a la hora actual
-      const ahora = new Date();
-      const actualMin = ahora.getHours() * 60 + ahora.getMinutes();
-      let masCercano = horarios[0];
-      let minDiff = Infinity;
-      for (const h of horarios) {
-        const [hh, mm] = h.hora_inicio.split(':').map(Number);
-        const inicioMin = hh * 60 + mm;
-        const diff = Math.abs(actualMin - inicioMin);
-        if (diff < minDiff) { minDiff = diff; masCercano = h; }
-      }
+      const masCercano = elegirHorarioActual(horarios);
       tiempos = {
         inicio: masCercano.hora_inicio,
         fin: masCercano.hora_fin,
@@ -130,8 +166,8 @@ export async function generarQR(grupoId: string, grupoNombre: string): Promise<v
     try {
       new window.QRCode(container, {
         text: qrData,
-        width: 256,
-        height: 256,
+        width: 300,
+        height: 300,
         colorDark: '#1a1a2e',
         colorLight: '#ffffff',
         correctLevel: window.QRCode?.CorrectLevel?.H || 3,
@@ -172,10 +208,13 @@ export async function generarQR(grupoId: string, grupoNombre: string): Promise<v
   }
 
   actualizarQR();
+  registrarRefrescoQRVisible(actualizarQR); // anti-throttle: re-render al volver a la pestaña
   qrInterval = setInterval(actualizarQR, QR_REFRESH_MS);
 }
 
-export function cerrarQR(): void {
+/** Detiene el QR del modal. `ocultar=false` deja la vista visible (usado para
+ *  cederse el paso al QR del monitoreo sin dejar de mostrar el modal). */
+function detenerQRModal(ocultar: boolean): void {
   if (qrInterval) { clearInterval(qrInterval); qrInterval = null; }
   // Cerrar sesión en BD
   if (qrSesionId) {
@@ -183,7 +222,12 @@ export function cerrarQR(): void {
     qrSesionId = null;
   }
   qrGrupoId = null;
-  document.getElementById('modal-qr')!.classList.add('hidden');
+  if (_qrOnVisible) _qrOnVisible = null;
+  if (ocultar) document.getElementById('modal-qr')!.classList.add('hidden');
+}
+
+export function cerrarQR(): void {
+  detenerQRModal(true);
 }
 
 /** Detiene el auto-refresh del QR (llamado al cerrar sesión) */
@@ -202,6 +246,8 @@ export async function autoAbrirQRIfClaseActiva(): Promise<void> {
 
   // Si ya hay un QR abierto, no hacer nada
   if (qrSesionId || !document.getElementById('modal-qr')?.classList.contains('hidden')) return;
+  // Si el monitoreo en vivo ya tiene un QR activo, no pisar su sesión
+  if (_monitoreoqrSesionId || !document.getElementById('monitoreo-full-view')?.classList.contains('hidden')) return;
 
   const dashboardVisible = document.getElementById('dashboard-view')?.classList.contains('hidden') === false;
   if (!dashboardVisible) return;
@@ -280,16 +326,21 @@ export async function iniciarQRMonitoreo(
 ): Promise<() => void> {
   // Limpiar QR anterior de monitoreo si existe
   detenerQRMonitoreo();
+  // Ceder el paso: si el modal tenía un QR activo, detenerlo para no
+  // desactivarse mutuamente las sesiones (causa de "QR expirado" en vivo).
+  detenerQRModal(false);
 
   _monitoreoQrGrupoId = grupoId;
 
   const infoEl = document.getElementById(infoId);
   const estadoEl = document.getElementById(estadoId);
-  const container = document.getElementById(containerId);
-  if (!container) {
+  const contenedor = document.getElementById(containerId);
+  if (!contenedor) {
     console.warn('⚠️ No se encontró el contenedor del QR:', containerId);
     return () => {};
   }
+  // Alias no-nulo para usar dentro de closures (TS no conserva el narrowing)
+  const container: HTMLElement = contenedor;
 
   if (infoEl) infoEl.textContent = '⏳ Generando sesión...';
   if (estadoEl) estadoEl.innerHTML = '<span style="color:#999;">🔄 Iniciando...</span>';
@@ -305,16 +356,7 @@ export async function iniciarQRMonitoreo(
       .eq('dia_semana', hoy);
 
     if (horarios && horarios.length > 0) {
-      const ahora = new Date();
-      const actualMin = ahora.getHours() * 60 + ahora.getMinutes();
-      let masCercano = horarios[0];
-      let minDiff = Infinity;
-      for (const h of horarios) {
-        const [hh, mm] = h.hora_inicio.split(':').map(Number);
-        const inicioMin = hh * 60 + mm;
-        const diff = Math.abs(actualMin - inicioMin);
-        if (diff < minDiff) { minDiff = diff; masCercano = h; }
-      }
+      const masCercano = elegirHorarioActual(horarios);
       tiempos = {
         inicio: masCercano.hora_inicio,
         fin: masCercano.hora_fin,
@@ -386,8 +428,8 @@ export async function iniciarQRMonitoreo(
     try {
       new (window as any).QRCode(container, {
         text: qrData,
-        width: 160,
-        height: 160,
+        width: 200,
+        height: 200,
         colorDark: '#1a1a2e',
         colorLight: '#ffffff',
         correctLevel: (window as any).QRCode?.CorrectLevel?.H || 3,
@@ -419,6 +461,7 @@ export async function iniciarQRMonitoreo(
   }
 
   actualizarQR();
+  registrarRefrescoQRVisible(actualizarQR); // anti-throttle: re-render al volver a la pestaña
   _monitoreoQrInterval = setInterval(actualizarQR, 10000);
   return detenerQRMonitoreo;
 }
