@@ -1,8 +1,8 @@
 {
   "titulo": "Examen: Trastornos Psicológicos del Adulto (Semanas 1-6)",
-  "tiempo_limite_minutos": 120,
+  "tiempo_limite_minutos": 70,
   "maximo_salidas": 3,
-  "clave_recuperacion": "ADULTO_2026_V1",
+  "clave_recuperacion": "1275",
   "puntos_distribucion": {
     "opcion_multiple": 1,
     "relacionar": 1,
