@@ -1,0 +1,465 @@
+{
+  "titulo": "Examen: Trastornos Psicológicos del Adulto (Semanas 1-6)",
+  "tiempo_limite_minutos": 120,
+  "maximo_salidas": 3,
+  "clave_recuperacion": "ADULTO_2026_V1",
+  "puntos_distribucion": {
+    "opcion_multiple": 1,
+    "relacionar": 1,
+    "abierta": 5
+  },
+  "distribucion": {
+    "opcion_multiple": 10,
+    "relacionar": 1,
+    "abierta": 2
+  },
+  "preguntas": [
+    {
+      "id": "om_01",
+      "tipo": "opcion_multiple",
+      "pregunta": "Un adulto mayor de 72 años, tras jubilarse, decide voluntariamente reducir su círculo social a solo dos amigos de toda la vida, dedicando su tiempo a profundizar en esas relaciones y a actividades que le generan paz emocional, evitando nuevos conocidos. Según la teoría de la selectividad socioemocional de Carstensen, este comportamiento se interpreta como:",
+      "opciones": {
+        "A": "Un signo temprano de aislamiento social patológico y riesgo de depresión.",
+        "B": "Una adaptación normativa donde se priorizan metas emocionales significativas ante la percepción de un tiempo futuro limitado.",
+        "C": "Una manifestación de la teoría del desapego de Cumming y Henry, indicando un retiro mutuo inevitable.",
+        "D": "Un síntoma de deterioro en las funciones ejecutivas que limita la capacidad de gestionar redes amplias."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "om_02",
+      "tipo": "opcion_multiple",
+      "pregunta": "En la evaluación de un paciente de 68 años, se observa que olvida ocasionalmente nombres pero los recuerda horas después, mantiene su vocabulario y razonamiento, y no presenta interferencia en sus actividades instrumentales de la vida diaria (AIVD). Sin embargo, el paciente expresa gran angustia por estos olvidos. Según el material del curso, esta presentación corresponde a:",
+      "opciones": {
+        "A": "Trastorno Neurocognitivo Leve (CIE-11: 6D71), por la presencia de quejas subjetivas y angustia.",
+        "B": "Envejecimiento cognitivo normal, donde los fallos de recuperación de memoria no interfieren significativamente con el funcionamiento diario.",
+        "C": "Demencia por enfermedad de Alzheimer en fase prodrómica, dada la angustia del paciente.",
+        "D": "Pseudodemencia, ya que la angustia es el síntoma primario que simula un deterioro cognitivo."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "om_03",
+      "tipo": "opcion_multiple",
+      "pregunta": "Un hombre de 75 años con diagnóstico reciente de deterioro cognitivo presenta caídas frecuentes, alucinaciones visuales y fluctuaciones marcadas en su nivel de atención. Según la clasificación de la CIE-11 presentada en el curso, el código y diagnóstico más preciso para este cuadro es:",
+      "opciones": {
+        "A": "6D80: Demencia por enfermedad de Alzheimer.",
+        "B": "6D81: Demencia por enfermedad cerebrovascular.",
+        "C": "6D82: Demencia por enfermedad por cuerpos de Lewy.",
+        "D": "6D83: Demencia frontotemporal."
+      },
+      "respuesta_correcta": "C"
+    },
+    {
+      "id": "om_04",
+      "tipo": "opcion_multiple",
+      "pregunta": "La Sra. Elena, de 70 años, fue diagnosticada con depresión mayor. Presenta quejas intensas de memoria, responde 'no sé' a las pruebas cognitivas, su MMSE varía entre 21 y 25 en evaluaciones cercanas, y el inicio de los síntomas fue súbito tras la muerte de su esposo. ¿Cuál es la hipótesis clínica más sólida y su justificación?",
+      "opciones": {
+        "A": "Demencia vascular, debido a la fluctuación en el MMSE y la edad de la paciente.",
+        "B": "Pseudodemencia depresiva, por el inicio súbito, la actitud de abandono ('no sé'), la exageración de los déficits y el MMSE variable.",
+        "C": "Trastorno Neurocognitivo Leve (6D71), ya que existe un deterioro objetivo medible en el MMSE.",
+        "D": "Envejecimiento normal con duelo complicado, ya que los fallos de memoria son esperables a su edad."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "om_05",
+      "tipo": "opcion_multiple",
+      "pregunta": "Según el modelo de Selección, Optimización y Compensación (SOC) de Baltes, ¿cuál de las siguientes acciones representa claramente el componente de 'Compensación'?",
+      "opciones": {
+        "A": "Un pianista con artritis que decide dejar de tocar piezas rápidas para enfocarse solo en composiciones lentas.",
+        "B": "Un adulto mayor que practica diariamente ejercicios de memoria para mantener su agudeza cognitiva.",
+        "C": "Una persona con pérdida de visión que utiliza software de lectura de pantalla (texto a voz) para seguir leyendo libros.",
+        "D": "Un jubilado que mantiene sus mismos hobbies y rutinas que tenía cuando trabajaba."
+      },
+      "respuesta_correcta": "C"
+    },
+    {
+      "id": "om_06",
+      "tipo": "opcion_multiple",
+      "pregunta": "En el contexto del incremento de la esperanza de vida, la distinción entre 'esperanza de vida' y 'esperanza de vida saludable' es crucial para la salud pública porque:",
+      "opciones": {
+        "A": "La esperanza de vida saludable siempre ha crecido al mismo ritmo que la esperanza de vida total.",
+        "B": "Permite identificar que las personas viven más años, pero no necesariamente con mejor salud, aumentando los años vividos con discapacidad o enfermedades crónicas.",
+        "C": "La esperanza de vida saludable solo se aplica a poblaciones menores de 65 años.",
+        "D": "Elimina la necesidad de evaluar los factores socioeconómicos en el envejecimiento."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "om_07",
+      "tipo": "opcion_multiple",
+      "pregunta": "Un adulto mayor de 68 años es evaluado por tristeza, anhedonia y fatiga. Niega sentirse 'triste', pero se queja constantemente de dolores musculares, insomnio y falta de apetito. Los estudios médicos son normales. Este fenómeno clínico se conoce como:",
+      "opciones": {
+        "A": "Hipocondría psicótica.",
+        "B": "Depresión enmascarada, donde predominan las quejas somáticas sobre la expresión emocional directa.",
+        "C": "Trastorno de ansiedad generalizada con somatización secundaria.",
+        "D": "Deterioro cognitivo leve con síntomas conductuales."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "om_08",
+      "tipo": "opcion_multiple",
+      "pregunta": "Respecto a los trastornos de personalidad en el adulto mayor, ¿por qué el modelo dimensional de la CIE-11 se considera clínicamente más útil que el sistema categorial tradicional?",
+      "opciones": {
+        "A": "Porque elimina por completo la necesidad de evaluar la historia vital del paciente.",
+        "B": "Porque asume que los trastornos de personalidad desaparecen tras la jubilación.",
+        "C": "Porque permite graduar la severidad de la disfunción y evaluar rasgos prominentes sin forzar categorías rígidas que no captan las manifestaciones atípicas en la vejez.",
+        "D": "Porque los rasgos de personalidad se intensifican uniformemente con la edad, haciéndolos más fáciles de categorizar."
+      },
+      "respuesta_correcta": "C"
+    },
+    {
+      "id": "om_09",
+      "tipo": "opcion_multiple",
+      "pregunta": "En la evaluación integral del adulto mayor, ¿cuál de las siguientes actividades se clasifica correctamente como una Actividad Instrumental de la Vida Diaria (AIVD)?",
+      "opciones": {
+        "A": "Bañarse y vestirse de manera independiente.",
+        "B": "Mantener la continencia urinaria y fecal.",
+        "C": "Trasladarse de la cama a una silla.",
+        "D": "Manejar la medicación, las finanzas y el uso del teléfono."
+      },
+      "respuesta_correcta": "D"
+    },
+    {
+      "id": "om_10",
+      "tipo": "opcion_multiple",
+      "pregunta": "Un hombre de 65 años es despedido de su trabajo con el argumento de que 'la empresa necesita gente joven con nuevas ideas'. Esto le genera un profundo sentimiento de inutilidad y desesperanza. Este escenario ejemplifica principalmente:",
+      "opciones": {
+        "A": "Edadismo a nivel institucional, actuando como factor de riesgo psicosocial para un trastorno del estado de ánimo.",
+        "B": "Una crisis de Intimidad vs. Aislamiento según la teoría de Erikson.",
+        "C": "Un envejecimiento disfuncional de origen biológico primario.",
+        "D": "Una manifestación normal de la etapa de Integridad vs. Desesperación."
+      },
+      "respuesta_correcta": "A"
+    },
+    {
+      "id": "om_11",
+      "tipo": "opcion_multiple",
+      "pregunta": "Según la CIE-11, el criterio fundamental que diferencia al Trastorno Neurocognitivo Leve (6D71) de una Demencia (Trastorno Neurocognitivo Mayor) es:",
+      "opciones": {
+        "A": "La presencia de alucinaciones o delirios.",
+        "B": "Que el deterioro cognitivo no interfiere significativamente con la independencia en las actividades de la vida diaria.",
+        "C": "La edad de inicio del paciente (menor o mayor de 65 años).",
+        "D": "La respuesta positiva a los inhibidores de la colinesterasa."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "om_12",
+      "tipo": "opcion_multiple",
+      "pregunta": "La 'reserva cognitiva' se considera un factor protector en el envejecimiento porque:",
+      "opciones": {
+        "A": "Elimina por completo la posibilidad de desarrollar patologías neurodegenerativas.",
+        "B": "Se refiere exclusivamente a la genética del individuo, sin posibilidad de modificación ambiental.",
+        "C": "La estimulación mental a lo largo de la vida permite al cerebro compensar mejor los cambios estructurales y patológicos antes de que se manifiesten clínicamente.",
+        "D": "Garantiza que la memoria episódica no sufra ningún declive con la edad."
+      },
+      "respuesta_correcta": "C"
+    },
+    {
+      "id": "om_13",
+      "tipo": "opcion_multiple",
+      "pregunta": "En la teoría del desarrollo del ciclo vital de Baltes, el principio de 'multidireccionalidad' implica que:",
+      "opciones": {
+        "A": "El desarrollo solo ocurre en la infancia y la adolescencia.",
+        "B": "El desarrollo implica simultáneamente ganancias y pérdidas en diferentes dominios a lo largo de la vida.",
+        "C": "El deterioro biológico es el único factor que determina el envejecimiento psicológico.",
+        "D": "Todas las personas envejecen exactamente de la misma manera independientemente de su contexto."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "om_14",
+      "tipo": "opcion_multiple",
+      "pregunta": "¿Por qué la Escala de Depresión Geriátrica (GDS) de Yesavage es preferible al Inventario de Depresión de Beck (BDI) en la evaluación de un adulto mayor con múltiples enfermedades crónicas?",
+      "opciones": {
+        "A": "Porque la GDS es más larga y detallada que el BDI.",
+        "B": "Porque la GDS evita ítems somáticos (como fatiga o cambios de apetito) que podrían confundirse con síntomas de enfermedades médicas propias de la edad.",
+        "C": "Porque el BDI está validado exclusivamente para niños y adolescentes.",
+        "D": "Porque la GDS incluye ítems sobre síntomas psicóticos que son comunes en la vejez."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "om_15",
+      "tipo": "opcion_multiple",
+      "pregunta": "Un paciente de 78 años presenta un deterioro insidioso de la memoria, minimiza sus olvidos, se esfuerza por responder en las pruebas pero catastrofiza ante el error, y su MMSE se mantiene estable en 19/30 en tres evaluaciones. Este perfil es característico de:",
+      "opciones": {
+        "A": "Pseudodemencia depresiva.",
+        "B": "Demencia (Trastorno Neurocognitivo Mayor).",
+        "C": "Envejecimiento cognitivo normal con fatiga.",
+        "D": "Trastorno de ansiedad generalizada."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "om_16",
+      "tipo": "opcion_multiple",
+      "pregunta": "Según la etapa de 'Generatividad vs. Estancamiento' de Erikson, un adulto de 55 años que se siente 'vacío' e 'invisible' tras jubilarse, habiendo perdido su principal fuente de contribución social, está experimentando:",
+      "opciones": {
+        "A": "Una crisis de Integridad vs. Desesperación, propia de la adultez tardía.",
+        "B": "Un estancamiento, al no poder encontrar nuevas formas de contribuir al bienestar de las generaciones futuras o a la sociedad.",
+        "C": "Un aislamiento normativo, que es el objetivo final del desarrollo adulto.",
+        "D": "Un trastorno neurocognitivo leve por pérdida de rol."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "om_17",
+      "tipo": "opcion_multiple",
+      "pregunta": "El 'efecto de positividad' en el envejecimiento emocional se refiere a la tendencia de los adultos mayores a:",
+      "opciones": {
+        "A": "Negar cualquier emoción negativa debido al deterioro del lóbulo frontal.",
+        "B": "Recordar y prestar más atención a la información positiva que a la negativa, como parte de una regulación emocional adaptativa.",
+        "C": "Obligar a su entorno a mantener un ambiente siempre feliz, rechazando la realidad.",
+        "D": "Mejorar su memoria episódica específicamente para eventos traumáticos."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "om_18",
+      "tipo": "opcion_multiple",
+      "pregunta": "En el contexto de la comorbilidad entre depresión y demencia, la evidencia actual (Motta et al., 2023) señala que:",
+      "opciones": {
+        "A": "Son condiciones mutuamente excluyentes; si hay depresión, no puede haber demencia.",
+        "B": "La depresión puede actuar como factor de riesgo, pródromo o condición comórbida de la demencia, y ambas pueden coexistir.",
+        "C": "La pseudodemencia es una categoría diagnóstica formal y exclusiva en el DSM-5-TR.",
+        "D": "El tratamiento antidepresivo está contraindicado en pacientes con cualquier grado de deterioro cognitivo."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "om_19",
+      "tipo": "opcion_multiple",
+      "pregunta": "Un 'viejismo' o edadismo a nivel interpersonal se manifiesta cuando:",
+      "opciones": {
+        "A": "Una empresa establece una política de jubilación forzosa a los 60 años.",
+        "B": "Un familiar trata a un adulto mayor con paternalismo, infantilización o exclusión de las decisiones familiares.",
+        "C": "Los medios de comunicación representan a los ancianos exclusivamente como una carga social.",
+        "D": "El adulto mayor internaliza creencias negativas sobre su propia vejez."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "om_20",
+      "tipo": "opcion_multiple",
+      "pregunta": "La polifarmacia en el adulto mayor se considera un factor de riesgo biológico para la salud mental principalmente porque:",
+      "opciones": {
+        "A": "Garantiza un mejor control de las enfermedades crónicas, mejorando el estado de ánimo.",
+        "B": "Aumenta la probabilidad de interacciones medicamentosas y efectos adversos que pueden simular o exacerbar síntomas psiquiátricos (como confusión o depresión).",
+        "C": "Es un indicador directo de un trastorno neurocognitivo mayor.",
+        "D": "Solo afecta a pacientes con antecedentes de trastornos de personalidad."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "om_21",
+      "tipo": "opcion_multiple",
+      "pregunta": "Según el curso, el pensamiento postformal en la adultez se caracteriza por:",
+      "opciones": {
+        "A": "Un retorno al pensamiento concreto y operacional de la infancia.",
+        "B": "La aceptación de la contradicción, la paradoja y la integración de emociones y razonamiento en la resolución de problemas.",
+        "C": "Una disminución irreversible de la capacidad de abstracción.",
+        "D": "La dependencia total de reglas lógicas rígidas sin considerar el contexto."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "om_22",
+      "tipo": "opcion_multiple",
+      "pregunta": "En la evaluación de la Sra. Margarita (72 años), quien vive sola, ha perdido peso, descuida su aseo y se olvida de cerrar el gas, el principal factor de riesgo psicosocial identificado es:",
+      "opciones": {
+        "A": "La edad avanzada de 72 años.",
+        "B": "El aislamiento social y la falta de redes de apoyo cercanas.",
+        "C": "La dificultad para conciliar el sueño.",
+        "D": "La falta de diagnóstico médico previo."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "om_23",
+      "tipo": "opcion_multiple",
+      "pregunta": "La CIE-11 ubica las demencias en el capítulo de Trastornos Mentales, del Comportamiento y del Neurodesarrollo, abandonando el concepto de trastornos 'orgánicos' de la CIE-10. Esto implica que:",
+      "opciones": {
+        "A": "Las demencias ya no se consideran condiciones médicas reales.",
+        "B": "Se reconoce la estrecha interacción entre los factores biológicos cerebrales y las manifestaciones psicológicas/conductuales, sin dicotomizar mente y cuerpo.",
+        "C": "Solo los psiquiatras pueden diagnosticar demencias, excluyendo a los psicólogos.",
+        "D": "Se eliminan los códigos específicos para diferentes tipos de demencia."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "om_24",
+      "tipo": "opcion_multiple",
+      "pregunta": "Un adulto mayor presenta ansiedad que se manifiesta principalmente como preocupación excesiva por su salud, palpitaciones y agitación nocturna, sin estudios médicos que lo justifiquen. Según el material, esto es relevante porque:",
+      "opciones": {
+        "A": "La ansiedad es menos prevalente que la depresión en la población geriátrica.",
+        "B": "La ansiedad en el adulto mayor frecuentemente enmascara o acompaña a la depresión, y debe evaluarse sistemáticamente.",
+        "C": "Estos síntomas son siempre indicativos de un trastorno neurocognitivo mayor.",
+        "D": "La ansiedad en la vejez no responde a ningún tipo de intervención psicológica."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "om_25",
+      "tipo": "opcion_multiple",
+      "pregunta": "La 'plasticidad' en el envejecimiento neurológico se refiere a:",
+      "opciones": {
+        "A": "La capacidad del cerebro para reorganizarse, crear nuevas conexiones y compensar cambios estructurales, incluso a edades avanzadas.",
+        "B": "El endurecimiento de las arterias cerebrales que limita el flujo sanguíneo.",
+        "C": "La imposibilidad de aprender nuevas habilidades después de los 65 años.",
+        "D": "La acumulación inevitable de lipofuscina en todas las neuronas sin posibilidad de adaptación."
+      },
+      "respuesta_correcta": "A"
+    },
+    {
+      "id": "om_26",
+      "tipo": "opcion_multiple",
+      "pregunta": "En la teoría de Erikson, la crisis de 'Integridad vs. Desesperación' (adultez tardía) se resuelve favorablemente cuando el individuo:",
+      "opciones": {
+        "A": "Logra reflexionar sobre su vida con un sentido de aceptación, significado y coherencia, a pesar de las imperfecciones.",
+        "B": "Consigue acumular la mayor cantidad de bienes materiales posibles.",
+        "C": "Evita pensar en el pasado y se enfoca exclusivamente en el futuro.",
+        "D": "Mantiene la misma productividad laboral que tenía en la adultez media."
+      },
+      "respuesta_correcta": "A"
+    },
+    {
+      "id": "om_27",
+      "tipo": "opcion_multiple",
+      "pregunta": "Un paciente con demencia frontotemporal (CIE-11: 6D83) probablemente presentará en sus etapas iniciales:",
+      "opciones": {
+        "A": "Pérdida de memoria severa como primer y único síntoma.",
+        "B": "Cambios marcados en la personalidad, conducta social (desinhibición o apatía) y lenguaje, antes de que el deterioro de la memoria sea prominente.",
+        "C": "Alucinaciones visuales y síntomas parkinsonianos tempranos.",
+        "D": "Infartos cerebrales múltiples evidentes en la historia clínica."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "om_28",
+      "tipo": "opcion_multiple",
+      "pregunta": "La distinción entre envejecimiento funcional y disfuncional es fundamental porque:",
+      "opciones": {
+        "A": "El envejecimiento funcional garantiza la ausencia total de enfermedades físicas.",
+        "B": "Permite identificar que la autonomía, el bienestar emocional y la adaptación pueden mantenerse a pesar de la presencia de algunas condiciones crónicas controladas.",
+        "C": "El envejecimiento disfuncional es inevitable para todas las personas mayores de 80 años.",
+        "D": "Solo el envejecimiento disfuncional requiere intervención psicológica."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "om_29",
+      "tipo": "opcion_multiple",
+      "pregunta": "En el caso de Don Roberto (73 años), que se pierde en su barrio, repite preguntas y ha tenido caídas recientes, el concepto que mejor ejemplifica su cuadro es:",
+      "opciones": {
+        "A": "Envejecimiento exitoso con caídas accidentales.",
+        "B": "Síndrome de declive físico-cognitivo, dada la presencia simultánea de deterioro cognitivo y motor.",
+        "C": "Trastorno de ansiedad por separación.",
+        "D": "Pseudodemencia, ya que las caídas son un síntoma depresivo atípico."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "om_30",
+      "tipo": "opcion_multiple",
+      "pregunta": "Respecto a la evaluación ética en psicogerontología, cuando un adulto mayor con deterioro cognitivo leve rechaza una intervención necesaria, el psicólogo debe:",
+      "opciones": {
+        "A": "Ignorar su opinión e imponer el tratamiento por su propio bien.",
+        "B": "Evaluar su capacidad de consentimiento informado, buscando un equilibrio entre el respeto a su autonomía y la necesidad de protección, idealmente con apoyo interdisciplinario.",
+        "C": "Dar de alta al paciente inmediatamente por falta de colaboración.",
+        "D": "Solicitar que un familiar tome todas las decisiones sin consultar al paciente."
+      },
+      "respuesta_correcta": "B"
+    },
+    {
+      "id": "rel_teorias_desarrollo",
+      "tipo": "relacionar",
+      "pregunta": "Teorías del Desarrollo y Modelos (Bloque A): Relaciona el concepto o autor con su planteamiento central.",
+      "opciones": {
+        "Paul Baltes": "Desarrollo multidireccional y plástico a lo largo de todo el ciclo vital.",
+        "Erik Erikson (Adultez tardía)": "Crisis de Integridad vs. Desesperación.",
+        "Erik Erikson (Adultez media)": "Crisis de Generatividad vs. Estancamiento.",
+        "Laura Carstensen": "Teoría de la selectividad socioemocional (priorizar metas emocionales).",
+        "Modelo SOC (Baltes)": "Estrategias de Selección, Optimización y Compensación.",
+        "Teoría del desapego (Cumming y Henry)": "Retiro mutuo entre sociedad e individuo (actualmente criticada).",
+        "Teoría de la actividad (Havighurst)": "Mantener roles y actividades sociales favorece un envejecimiento exitoso.",
+        "Pensamiento postformal": "Aceptación de la contradicción y contextualización del conocimiento.",
+        "Envejecimiento funcional": "Mantenimiento de autonomía, bienestar emocional y adaptación.",
+        "Edadismo institucional": "Políticas de jubilación forzosa o falta de accesibilidad estructural."
+      }
+    },
+    {
+      "id": "rel_cie11_evaluacion",
+      "tipo": "relacionar",
+      "pregunta": "CIE-11, Diagnóstico Diferencial y Evaluación (Bloque B): Relaciona el término clínico con su definición o característica.",
+      "opciones": {
+        "CIE-11 6D71": "Trastorno Neurocognitivo Leve (deterioro objetivo sin pérdida significativa de autonomía).",
+        "CIE-11 6D80": "Demencia por enfermedad de Alzheimer.",
+        "CIE-11 6D82": "Demencia por enfermedad por cuerpos de Lewy.",
+        "CIE-11 6D83": "Demencia frontotemporal.",
+        "Pseudodemencia": "Inicio súbito, quejas exageradas, actitud de 'no sé', MMSE variable.",
+        "Demencia verdadera": "Inicio insidioso, minimización de déficits, MMSE estable y bajo.",
+        "Escala GDS (Yesavage)": "Tamizaje de depresión que evita ítems somáticos confusos en adultos mayores.",
+        "ABVD": "Actividades Básicas de la Vida Diaria (bañarse, vestirse, alimentarse).",
+        "AIVD": "Actividades Instrumentales de la Vida Diaria (manejar dinero, medicación, teléfono).",
+        "Modelo dimensional CIE-11 (Personalidad)": "Evalúa severidad de disfunción y rasgos, evitando categorías rígidas en la vejez."
+      }
+    },
+    {
+      "id": "rel_factores_riesgo_protectores",
+      "tipo": "relacionar",
+      "pregunta": "Factores de Riesgo, Protectores y Fenómenos Clínicos (Bloque C): Relaciona el fenómeno con su descripción.",
+      "opciones": {
+        "Reserva cognitiva": "Estimulación mental a lo largo de la vida que protege contra la manifestación clínica del declive.",
+        "Depresión enmascarada": "Predominio de síntomas somáticos (dolor, fatiga) sobre la tristeza declarada.",
+        "Efecto de positividad": "Tendencia a recordar y prestar más atención a la información positiva.",
+        "Polifarmacia": "Factor de riesgo biológico por posibles interacciones y efectos adversos medicamentosos.",
+        "Aislamiento social": "Factor de riesgo psicosocial que aumenta la vulnerabilidad a trastornos mentales.",
+        "Esperanza de vida saludable": "Años vividos sin discapacidad o enfermedad crónica.",
+        "Plasticidad cerebral": "Capacidad de reorganización y creación de nuevas conexiones sinápticas en la vejez.",
+        "Comorbilidad depresión-demencia": "La depresión puede actuar como factor de riesgo, pródromo o condición coexistente.",
+        "Viejismo internalizado": "Profecía autocumplida de deterioro debido a la internalización de creencias negativas propias.",
+        "Declive físico-cognitivo": "Interacción estrecha y bidireccional entre el deterioro motor (ej. caídas) y el deterioro cognitivo."
+      }
+    },
+    {
+      "id": "ab_01",
+      "tipo": "abierta",
+      "pregunta": "Caso 1 (Diagnóstico Diferencial Cognitivo/Anímico): Un hombre de 70 años, viudo desde hace 2 meses, es llevado a consulta por su hija. Él dice 'no sé' a casi todas las preguntas de memoria, se muestra apático y refiere que 'no sirve para nada'. El MMSE arroja 22/30, pero los errores son principalmente de atención y esfuerzo, no de almacenamiento real. La hija reporta que ha dejado de comer. \n\nPregunta: Diferencie entre Pseudodemencia y Demencia en este caso utilizando al menos 4 criterios de la tabla diferencial del curso (inicio, actitud ante la evaluación, conciencia del déficit, MMSE). Además, justifique por qué la Escala de Depresión Geriátrica (GDS) de Yesavage sería el instrumento de tamizaje emocional más adecuado aquí.",
+      "respuesta_correcta": "El caso sugiere fuertemente Pseudodemencia depresiva. 1) Inicio: Súbito (tras viudez reciente), no insidioso. 2) Actitud: Abandono, responde 'no sé', no colabora, a diferencia del paciente con demencia que se esfuerza o catastrofiza. 3) Conciencia del déficit: El paciente se queja y exagera sus fallos, mientras que en la demencia suelen minimizarse. 4) MMSE: Variable o afectado por falta de atención/esfuerzo, no por un deterioro de almacenamiento consistente. La GDS de Yesavage es la más adecuada porque evita ítems somáticos (como fatiga o cambios de sueño) que podrían confundirse con el duelo normal o condiciones médicas, enfocándose en el estado anímico y cognitivo subjetivo."
+    },
+    {
+      "id": "ab_02",
+      "tipo": "abierta",
+      "pregunta": "Caso 2 (Modelo SOC y Desarrollo): La Sra. Elena, de 68 años, fue una pianista profesional durante 40 años. Recientemente desarrolló artritis severa en ambas manos, lo que le impide tocar piezas rápidas. Sin embargo, ha decidido dejar de tocar conciertos (Selección), ha comenzado a dar clases teóricas de historia de la música donde su conocimiento es invaluable (Optimización), y utiliza software de notación musical con comandos de voz para seguir componiendo (Compensación). \n\nPregunta: Analice este caso utilizando el modelo de Selección, Optimización y Compensación (SOC) de Baltes. Identifique y explique claramente cómo cada una de las tres estrategias se manifiesta en la narrativa de la paciente para lograr un envejecimiento funcional.",
+      "respuesta_correcta": "El caso es un ejemplo paradigmático del modelo SOC. 1) Selección: La Sra. Elena enfoca sus recursos en metas prioritarias y realistas, abandonando la ejecución física de piezas rápidas que ya no puede realizar. 2) Optimización: Potencia y practica las habilidades que aún conserva, como su vasto conocimiento teórico, para mantenerse activa y productiva en un nuevo rol (profesora). 3) Compensación: Utiliza medios alternativos (software de comandos de voz) para suplir la pérdida funcional (artritis en las manos) y seguir componiendo, manteniendo así su identidad y propósito."
+    },
+    {
+      "id": "ab_03",
+      "tipo": "abierta",
+      "pregunta": "Caso 3 (CIE-11 y Evaluación Funcional): Don Roberto, de 75 años, presenta un deterioro progresivo de la memoria desde hace 2 años. Se pierde en su barrio, ha dejado de pagar sus facturas y su hija debe prepararle la comida porque 'se le quema todo'. Sin embargo, aún es capaz de bañarse y vestirse por sí mismo. Minimiza sus errores diciendo 'son cosas de la edad'. \n\nPregunta: Según la CIE-11, ¿corresponde este cuadro a un Trastorno Neurocognitivo Leve (6D71) o a una Demencia (Trastorno Neurocognitivo Mayor)? Justifique su respuesta basándose estrictamente en el criterio de interferencia funcional (ABVD vs. AIVD) mencionado en el curso.",
+      "respuesta_correcta": "Corresponde a una Demencia (Trastorno Neurocognitivo Mayor, ej. 6D80 o similar). La justificación radica en el criterio de interferencia funcional: aunque las ABVD (bañarse, vestirse) se conservan, existe una afectación clara y significativa de las AIVD (Actividades Instrumentales de la Vida Diaria), como manejar finanzas (no pagar facturas) y la seguridad en el hogar (quemar comida, perderse en el barrio). La CIE-11 establece que el Trastorno Neurocognitivo Leve (6D71) NO interfiere significativamente con la independencia en las AIVD. La minimización de los déficits también es congruente con la demencia, a diferencia de la pseudodemencia."
+    },
+    {
+      "id": "ab_04",
+      "tipo": "abierta",
+      "pregunta": "Caso 4 (Factores de Riesgo y Edadismo): Un hombre de 65 años es despedido de su empresa tras 30 años de servicio. El departamento de RRHH le indica que 'necesitan sangre joven y personas que dominen tecnologías que usted ya no puede aprender'. Tras esto, el paciente desarrolla insomnio, anhedonia, llanto frecuente y refiere 'ya no sirvo para nada'. \n\nPregunta: Identifique el tipo de edadismo presente en este escenario (nivel institucional/interpersonal) y analice cómo este evento actúa como un factor de riesgo psicosocial desencadenante de un trastorno del estado de ánimo. Proponga dos factores protectores que deberían potenciarse en la intervención psicológica.",
+      "respuesta_correcta": "El escenario muestra edadismo a nivel institucional (política de despido basada en estereotipos de edad y capacidad tecnológica) e interpersonal (mensaje directo de invalidez). Este evento actúa como un factor de riesgo psicosocial crítico (pérdida de rol significativo, estatus y redes sociales laborales), desencadenando una crisis de Generatividad vs. Estancamiento (Erikson) y un posible trastorno depresivo. Dos factores protectores a potenciar serían: 1) Redes de apoyo social (reconectar con pares, familia o grupos comunitarios) y 2) Sentido de propósito/Generatividad (encontrar nuevas formas de contribuir, como voluntariado o mentoría, que no dependan de la tecnología corporativa)."
+    },
+    {
+      "id": "ab_05",
+      "tipo": "abierta",
+      "pregunta": "Caso 5 (Depresión Enmascarada y Comorbilidad): La Sra. Carmen, de 72 años, acude a consulta por 'dolores en todo el cuerpo, cansancio extremo y mareos'. Los estudios médicos exhaustivos son normales. Ella niega rotundamente sentirse triste. Sin embargo, su hija reporta que la encuentra llorando a escondidas, que ha perdido 5 kg en un mes y que ha abandonado su grupo de tejido. \n\nPregunta: Explique el concepto de 'depresión enmascarada' en el adulto mayor. ¿Por qué el Inventario de Depresión de Beck (BDI) podría ser menos adecuado que la Escala de Depresión Geriátrica (GDS) de Yesavage para evaluar a la Sra. Carmen en este momento?",
+      "respuesta_correcta": "La 'depresión enmascarada' es un fenómeno donde el cuadro depresivo en el adulto mayor se presenta con predominio de síntomas somáticos (dolor, fatiga, alteraciones del apetito) y cognitivos, en lugar de tristeza declarada o llanto evidente, lo que dificulta su identificación. El BDI sería menos adecuado porque incluye múltiples ítems somáticos (cambios de peso, fatiga, alteraciones del sueño) que en la Sra. Carmen ya están presentes y podrían atribuirse erróneamente a causas médicas, inflando la puntuación sin medir el estado anímico real. La GDS de Yesavage está diseñada específicamente para evitar estos ítems somáticos, enfocándose en la vivencia emocional y cognitiva de la depresión, siendo más precisa en este contexto."
+    },
+    {
+      "id": "ab_06",
+      "tipo": "abierta",
+      "pregunta": "Caso 6 (Plasticidad y Perspectiva del Ciclo Vital): Un paciente de 80 años, recientemente diagnosticado con hipertensión, afirma durante la sesión: 'A mi edad ya no hay nada que hacer, el cerebro ya está acabado, solo se pierde memoria y espero el final'. \n\nPregunta: Refute esta afirmación utilizando los principios del desarrollo del ciclo vital de Baltes (específicamente multidireccionalidad y plasticidad) y el concepto de 'reserva cognitiva' como factor protector. Proponga una breve estrategia de intervención psicoeducativa basada en estos conceptos.",
+      "respuesta_correcta": "La afirmación del paciente refleja un viejismo internalizado y una visión obsoleta del desarrollo. Según Baltes, el desarrollo es 'multidireccional' (implica tanto ganancias, como sabiduría o regulación emocional, como pérdidas, pero no es un declive uniforme) y 'plástico' (el cerebro mantiene la capacidad de reorganizarse, crear nuevas conexiones y aprender hasta edades avanzadas). Además, el concepto de 'reserva cognitiva' demuestra que la estimulación mental continua protege contra la manifestación clínica del deterioro. Estrategia psicoeducativa: Validar su preocupación, pero psicoeducar sobre la plasticidad cerebral, proponiendo metas pequeñas y alcanzables de 'Optimización' (ej. aprender una nueva rutina de ejercicio suave o un juego de estrategia) para demostrarle empíricamente que su cerebro aún puede adaptarse y generar ganancias."
+    }
+  ]
+}

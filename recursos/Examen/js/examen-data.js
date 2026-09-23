@@ -50,7 +50,17 @@ function normalizeQuestion(question, index) {
     return { id: base.id || `q${index + 1}`, tipo, pregunta: base.pregunta || "", opciones };
   }
   if (tipo === "opcion_multiple") {
-    return { id: base.id || `q${index + 1}`, tipo, pregunta: base.pregunta || "", opciones: Array.isArray(base.opciones) ? base.opciones : [], respuesta_correcta: base.respuesta_correcta || "" };
+    const opts = base.opciones;
+    let opciones = Array.isArray(opts) ? opts : (opts && typeof opts === "object") ? Object.keys(opts).map((k) => opts[k]) : [];
+    let rc = base.respuesta_correcta || "";
+    if (!Array.isArray(opts) && opts && typeof opts === "object" && opciones.length) {
+      if (rc in opts) rc = opts[rc];
+      else {
+        const idx = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".indexOf(String(rc).trim().toUpperCase());
+        if (idx >= 0 && idx < opciones.length) rc = opciones[idx];
+      }
+    }
+    return { id: base.id || `q${index + 1}`, tipo, pregunta: base.pregunta || "", opciones, respuesta_correcta: rc };
   }
   if (tipo === "abierta") {
     return { id: base.id || `q${index + 1}`, tipo, pregunta: base.pregunta || "", respuesta_correcta: base.respuesta_correcta || "" };
