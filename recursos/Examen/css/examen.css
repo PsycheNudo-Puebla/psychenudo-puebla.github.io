@@ -828,6 +828,47 @@ body.theme-dark #recovery-section input {
 
 /* === Botones de acciones de resultados === */
 .result-q-feedback textarea.feedback-input { min-height: 70px; }
+
+/* === Desglose de relacionar en resultados === */
+.result-q-answer .result-rel-wrap {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+.result-rel-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin: 4px 0;
+}
+.result-rel-table th {
+  text-align: left;
+  padding: 6px 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.result-rel-table td {
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.result-rel-table td.rel-ok { color: #166534; }
+.result-rel-table td.rel-bad { color: #991b1b; }
+.result-rel-summary {
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-top: 6px;
+  color: var(--text);
+}
+body.theme-dark .result-rel-table th,
+body.theme-dark .result-rel-table td { background: #1a263d; border-color: #334155; }
+body.theme-dark .result-rel-table td.rel-ok { color: #86efac; }
+body.theme-dark .result-rel-table td.rel-bad { color: #fca5a5; }
+
 .results-actions {
   display: flex;
   gap: 12px;

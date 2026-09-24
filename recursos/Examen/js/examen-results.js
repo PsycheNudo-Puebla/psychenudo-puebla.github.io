@@ -62,7 +62,21 @@ function renderImportedResults(resultPayload) {
         <div class="result-q-text">${escapeHtml(q.question || "")}</div>
         <div class="result-q-answer">
           <label>Respuesta del alumno:</label>
-          <div>${q.studentAnswer || "Sin respuesta"}</div>
+          ${q.type === "relacionar" && Array.isArray(q.studentAnswerDetails) && q.studentAnswerDetails.length > 0 ? `
+          <div class="result-rel-wrap">
+            <table class="result-rel-table">
+              <thead><tr><th>Concepto</th><th>Respuesta del alumno</th><th>Resultado</th></tr></thead>
+              <tbody>
+                ${q.studentAnswerDetails.map((d) => `
+                <tr>
+                  <td>${escapeHtml(d.key)}</td>
+                  <td>${escapeHtml(d.studentValue || "Sin respuesta")}</td>
+                  <td class="${d.isSubCorrect ? "rel-ok" : "rel-bad"}">${d.isSubCorrect ? "✅ Correcta" : (d.correctValue ? `❌ — <em>${escapeHtml(d.correctValue)}</em>` : "❌ Incorrecta")}</td>
+                </tr>`).join("")}
+              </tbody>
+            </table>
+            <div class="result-rel-summary">Aciertos: ${q.correctCount ?? "?"} / ${q.totalPairs ?? q.studentAnswerDetails.length}</div>
+          </div>` : `<div>${q.studentAnswer || "Sin respuesta"}</div>`}
         </div>
         ${q.type !== "relacionar" ? `
         <div class="result-q-correct">
