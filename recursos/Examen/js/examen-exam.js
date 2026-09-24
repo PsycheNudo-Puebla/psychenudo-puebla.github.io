@@ -123,7 +123,13 @@ function renderExamQuestions() {
     
     html += `<div class="question-page ${isHidden}" data-page="${pageIndex}">`;
     const questionPoints = Number(currentExam.puntos_distribucion[question.tipo] || 0);
-    html += `<div class="question-panel tipo-${question.tipo}"><div class="question-header-row"><span class="question-points">${questionPoints} pts</span><strong>${index + 1}. ${escapeHtml(question.pregunta || "")}</strong></div>`;
+    let pointsLabel = `${questionPoints} pts`;
+    if (question.tipo === "relacionar") {
+      const pairsCount = Object.keys(question.opciones || {}).length;
+      const perPair = pairsCount > 0 ? Number((questionPoints / pairsCount).toFixed(2)) : 0;
+      pointsLabel = `${questionPoints} pts total · ${perPair} c/u`;
+    }
+    html += `<div class="question-panel tipo-${question.tipo}"><div class="question-header-row"><span class="question-points">${pointsLabel}</span><strong>${index + 1}. ${escapeHtml(question.pregunta || "")}</strong></div>`;
     
     if (question.tipo === "opcion_multiple") {
       const options = shuffleArray(question.opciones || []);
