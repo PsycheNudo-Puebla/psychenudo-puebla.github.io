@@ -73,6 +73,7 @@ let examStartTime = null;
 let focusTrackingElement = null;
 let focusTrackingTimeout = null;
 let eventLog = [];
+const relacionarOptionsCache = {};
 
 // --- Referencias a elementos del DOM ---
 const elements = {

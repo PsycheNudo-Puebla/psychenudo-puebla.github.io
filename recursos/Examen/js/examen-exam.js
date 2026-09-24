@@ -132,7 +132,9 @@ function renderExamQuestions() {
       html += `<div class="options-list"><label class="option-row"><input type="radio" name="q_${question.id}" value="Verdadero" onchange="updateProgressBar()"/><span>Verdadero</span></label><label class="option-row"><input type="radio" name="q_${question.id}" value="Falso" onchange="updateProgressBar()"/><span>Falso</span></label></div>`;
     } else if (question.tipo === "relacionar") {
       const entries = Object.entries(question.opciones || {});
-      html += `<div class="options-list">${entries.map(([key]) => `<label class="field"><span>${escapeHtml(key)}</span><select name="q_${question.id}_${key}" onchange="updateProgressBar()"><option value="">-- Selecciona --</option>${shuffleArray(Object.values(question.opciones || {})).map((option) => `<option value="${escapeAttribute(option)}">${escapeHtml(option)}</option>`).join("")}</select></label>`).join("")}</div>`;
+      const sharedValues = shuffleArray(Object.values(question.opciones || {}));
+      relacionarOptionsCache[question.id] = sharedValues;
+      html += `<div class="options-list">${entries.map(([key]) => `<label class="field"><span>${escapeHtml(key)}</span><select name="q_${question.id}_${key}" onchange="updateRelacionarSelects('${question.id}')"><option value="">-- Selecciona --</option>${sharedValues.map((option) => `<option value="${escapeAttribute(option)}">${escapeHtml(option)}</option>`).join("")}</select></label>`).join("")}</div>`;
     } else if (question.tipo === "abierta") {
       html += `<textarea name="q_${question.id}" placeholder="Escribe tu respuesta aquí..." oninput="updateProgressBar()"></textarea>`;
     } else if (question.tipo === "matematica") {
@@ -152,6 +154,20 @@ function renderExamQuestions() {
   });
   elements.questionsPreview.innerHTML = html;
   renderQuestionMap();
+  updateProgressBar();
+}
+
+function updateRelacionarSelects(questionId) {
+  const selects = Array.from(document.querySelectorAll(`select[name^="q_${questionId}_"]`));
+  if (!selects.length) return;
+  const allValues = relacionarOptionsCache[questionId] || [];
+  const chosen = new Set(selects.map(s => s.value).filter(Boolean));
+  selects.forEach((s) => {
+    const current = s.value;
+    const available = allValues.filter(v => v === current || !chosen.has(v));
+    s.innerHTML = `<option value="">-- Selecciona --</option>` +
+      available.map(v => `<option value="${escapeAttribute(v)}" ${v === current ? "selected" : ""}>${escapeHtml(v)}</option>`).join("");
+  });
   updateProgressBar();
 }
 
