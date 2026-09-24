@@ -74,6 +74,11 @@ function renderImportedResults(resultPayload) {
           <input type="number" class="grade-input" value="${q.earnedPoints ?? 0}" min="0" step="0.5" data-index="${index}" />
           <span> / ${q.points || 0}</span>
         </div>
+        ${q.type === "abierta" ? `
+        <div class="result-q-feedback">
+          <label>Retroalimentación para el alumno:</label>
+          <textarea class="feedback-input" data-index="${index}" rows="3" placeholder="Escribe aquí tu retroalimentación para esta respuesta...">${escapeAttribute(q.feedback || "")}</textarea>
+        </div>` : ""}
       </div>`;
   });
 
@@ -154,6 +159,13 @@ async function saveManualGrades() {
     const newVal = input.value;
     if (!isNaN(index) && newVal !== "") {
       latestResultPayload.questions[index].earnedPoints = parseFloat(newVal) || 0;
+    }
+  });
+  const feedbackInputs = document.querySelectorAll(".feedback-input");
+  feedbackInputs.forEach(input => {
+    const index = parseInt(input.dataset.index);
+    if (!isNaN(index)) {
+      latestResultPayload.questions[index].feedback = input.value.trim();
     }
   });
   // Recalcular total

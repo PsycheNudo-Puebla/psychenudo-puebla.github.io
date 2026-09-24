@@ -228,6 +228,15 @@ async function exportToPdf(filename) {
               padding: [10, 8],
               margin: [0, 5, 0, 5]
             }] : []),
+            ...(q.type === 'abierta' && q.feedback ? [{
+              fillColor: '#fbf7ff',
+              stack: [
+                { text: 'RETROALIMENTACIÓN DEL DOCENTE:', fontSize: 8, bold: true, color: '#8b5cf6', margin: [0, 0, 0, 2] },
+                { text: q.feedback, fontSize: 10, color: '#6d28d9' }
+              ],
+              padding: [10, 8],
+              margin: [0, 5, 0, 5]
+            }] : []),
             {
               text: `${cleanStatusText} (${q.earnedPoints} pts)`,
               alignment: 'right',
@@ -423,6 +432,11 @@ function buildPrintableReport(resultPayload) {
                             ${q.status}
                         </span>
                     </div>
+                    ${q.type === "abierta" && q.feedback ? `
+                    <div style="margin-top: 12px; padding: 10px 10px 15px 10px; background-color: #fbf7ff; border-radius: 6px; border-left: 3px solid #8b5cf6; page-break-inside: avoid; break-inside: avoid; overflow-wrap: anywhere; word-break: break-word; line-height: 1.5; min-height: 30px;">
+                        <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #8b5cf6; margin-bottom: 4px; font-weight: bold;">Retroalimentación del docente:</div>
+                        <div style="color: #6d28d9; overflow-wrap: anywhere; word-break: break-word;">${escapeHtml(q.feedback).replace(/\n/g, "<br>")}</div>
+                    </div>` : ""}
                 </div>
             `;
         }).join("")}

@@ -122,7 +122,8 @@ function renderExamQuestions() {
     const isHidden = pageIndex !== currentPage ? "hidden" : "";
     
     html += `<div class="question-page ${isHidden}" data-page="${pageIndex}">`;
-    html += `<div class="question-panel tipo-${question.tipo}"><strong>${index + 1}. ${escapeHtml(question.pregunta || "")}</strong>`;
+    const questionPoints = Number(currentExam.puntos_distribucion[question.tipo] || 0);
+    html += `<div class="question-panel tipo-${question.tipo}"><div class="question-header-row"><span class="question-points">${questionPoints} pts</span><strong>${index + 1}. ${escapeHtml(question.pregunta || "")}</strong></div>`;
     
     if (question.tipo === "opcion_multiple") {
       const options = shuffleArray(question.opciones || []);
