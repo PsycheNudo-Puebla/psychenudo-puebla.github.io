@@ -5,7 +5,7 @@
   "clave_recuperacion": "1275",
   "puntos_distribucion": {
     "opcion_multiple": 1,
-    "relacionar": 1,
+    "relacionar": 10,
     "abierta": 5
   },
   "distribucion": {
