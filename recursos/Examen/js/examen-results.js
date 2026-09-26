@@ -182,6 +182,16 @@ async function saveManualGrades() {
       latestResultPayload.questions[index].feedback = input.value.trim();
     }
   });
+  // Una vez calificadas manualmente, las preguntas abiertas dejan de estar en "Pendiente"
+  latestResultPayload.questions.forEach(q => {
+    if (q.type === "abierta" && (q.status || "").includes("⏳")) {
+      const earned = q.earnedPoints || 0;
+      const full = q.points || 1;
+      q.status = earned >= full ? "✅ Correcto" : (earned > 0 ? "🟡 Parcial" : "❌ Incorrecto");
+      q.isCorrect = earned >= full;
+      q.partial = earned > 0 && earned < full;
+    }
+  });
   // Recalcular total
   let total = 0;
   latestResultPayload.questions.forEach(q => { total += q.earnedPoints || 0; });
