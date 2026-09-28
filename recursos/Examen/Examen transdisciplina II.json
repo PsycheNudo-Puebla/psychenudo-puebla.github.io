@@ -1,0 +1,411 @@
+{
+  "titulo": "Examen: Transdisciplina II (Semanas 1-6)",
+  "tiempo_limite_minutos": 60,
+  "maximo_salidas": 3,
+  "clave_recuperacion": "TRANS_II_2026_V1",
+  "puntos_distribucion": {
+    "opcion_multiple": 2,
+    "vf": 0,
+    "relacionar": 10,
+    "abierta": 5,
+    "matematica": 0
+  },
+  "distribucion": {
+    "opcion_multiple": 5,
+    "vf": 0,
+    "relacionar": 1,
+    "abierta": 2,
+    "matematica": 0
+  },
+  "preguntas": [
+    {
+      "id": "rel_set_1",
+      "tipo": "relacionar",
+      "pregunta": "Set 1: Niveles de Integración del Conocimiento y Enfoques (Semana 1). Relaciona el concepto con su definición o característica central.",
+      "opciones": {
+        "Multidisciplinariedad": "Suma de conocimientos de diferentes disciplinas sin integración genuina.",
+        "Interdisciplinariedad": "Diálogo y cooperación entre disciplinas con intercambio de métodos, manteniendo su identidad.",
+        "Transdisciplinariedad": "Integración que trasciende las fronteras disciplinares para generar nuevos marcos conceptuales.",
+        "Desdisciplinarización": "Proceso histórico de disolución de las fronteras disciplinarias en el conocimiento contemporáneo.",
+        "Neuropsicología": "Ejemplo de campo interdisciplinario que combina psicología, neurología y neurociencias.",
+        "Salud mental comunitaria": "Aporte transdisciplinario que integra psicología, sociología y salud pública para comprender determinantes sociales.",
+        "Complejidad de problemas contemporáneos": "Factor que impulsa la desdisciplinarización (ej. cambio climático, violencia estructural).",
+        "Pensamiento postformal": "Aceptación de la contradicción, la paradoja y la integración de emociones y razonamiento.",
+        "Flexibilidad epistemológica": "Apertura a diferentes marcos teóricos y metodológicos en la práctica clínica.",
+        "González Casanova": "Autor que señala que la especialización ha generado un aislamiento que dificulta la comprensión de problemas complejos."
+      }
+    },
+    {
+      "id": "rel_set_2",
+      "tipo": "relacionar",
+      "pregunta": "Set 2: Giro Lingüístico: Wittgenstein, Rorty y Aplicaciones (Semanas 2-4). Relaciona el concepto o autor con su planteamiento.",
+      "opciones": {
+        "Juegos del lenguaje (Wittgenstein)": "Actividades sociales que involucran lenguaje y acción con reglas contextuales, no universales.",
+        "Parecidos de familia (Wittgenstein)": "Conceptos que no tienen una esencia única, sino un entramado de similitudes (ej. 'depresión').",
+        "Imposibilidad del lenguaje privado": "El lenguaje es inherentemente social; no existe un lenguaje puramente interno.",
+        "Fin de los grandes relatos (Lyotard/Rorty)": "Pérdida de credibilidad de las narrativas totalizantes que pretendían legitimar el conocimiento universal.",
+        "Neopragmatismo (Rorty)": "La verdad es una propiedad de las oraciones que funciona como instrumento para lograr ciertos fines.",
+        "Psicología como conversación (Rorty)": "Abandono de la búsqueda de leyes universales para abrazar el diálogo abierto y la solidaridad.",
+        "Terapia narrativa (White y Epston)": "Externalización del problema y re-escritura de la historia para separar a la persona de la narrativa opresiva.",
+        "Ironía y solidaridad (Rorty)": "Guía ética pragmática: ser consciente de que las propias narrativas son contingentes, pero actuar para reducir el sufrimiento.",
+        "Despatologización del lenguaje": "Cuestionar la tendencia a transformar el malestar cotidiano en categorías diagnósticas rígidas.",
+        "Análisis del discurso en el aula": "Comprensión del fracaso escolar no como déficit individual, sino como construcción en prácticas discursivas."
+      }
+    },
+    {
+      "id": "rel_set_3",
+      "tipo": "relacionar",
+      "pregunta": "Set 3: Cuestión Cuántica y Problema de la Conciencia (Semanas 5-6). Relaciona el principio o teoría con su descripción o implicación psicológica.",
+      "opciones": {
+        "Dualidad onda-partícula": "La realidad no es fija; depende de cómo se observe (se comporta como onda o como partícula).",
+        "Superposición cuántica": "Una partícula puede existir en múltiples estados simultáneamente antes de ser medida.",
+        "Colapso de la función de onda": "Al medir, la superposición se reduce a un estado definido; el observador participa en la creación de la realidad.",
+        "Entrelazamiento cuántico": "Partículas correlacionadas instantáneamente sin importar la distancia, sugiriendo interconexión no local.",
+        "Principio de incertidumbre (Heisenberg)": "No se pueden conocer simultáneamente la posición y el momento de una partícula con precisión absoluta.",
+        "Problema duro de la conciencia (Chalmers)": "¿Por qué la experiencia subjetiva se siente de una manera determinada? (el problema de los qualia).",
+        "Teoría Orch-OR (Penrose y Hameroff)": "La conciencia emerge de procesos cuánticos no computables en los microtúbulos neuronales.",
+        "Interpretación de Copenhague (Von Neumann/Wigner)": "La conciencia del observador es necesaria para el colapso de la función de onda.",
+        "Superposición de estados psicológicos": "Analogía clínica: una persona experimenta múltiples identidades o estados que se 'colapsan' según el contexto de observación.",
+        "Observador participante": "Implicación clínica: el terapeuta afecta la realidad psicológica del paciente; no hay 'observación neutral'."
+      }
+    },
+    {
+      "id": "om_01",
+      "tipo": "opcion_multiple",
+      "pregunta": "Un equipo de investigación aborda el burnout laboral integrando a un psicólogo organizacional, un sociólogo y un médico del trabajo. Cada uno aplica sus propios métodos por separado y luego se compilan los resultados en un informe final sin crear un marco teórico nuevo. Según las definiciones del curso, este enfoque es:",
+      "opciones": [
+        "Transdisciplinario, porque aborda un problema complejo.",
+        "Interdisciplinario, porque hay cooperación entre disciplinas.",
+        "Multidisciplinario, porque hay una suma de conocimientos sin integración genuina de métodos.",
+        "Desdisciplinario, porque se disuelven las fronteras del saber."
+      ],
+      "respuesta_correcta": "Multidisciplinario, porque hay una suma de conocimientos sin integración genuina de métodos."
+    },
+    {
+      "id": "om_02",
+      "tipo": "opcion_multiple",
+      "pregunta": "La desdisciplinarización en el conocimiento contemporáneo es impulsada principalmente por:",
+      "opciones": [
+        "El deseo de las universidades de crear departamentos más rígidos y especializados.",
+        "La complejidad de los problemas contemporáneos, los avances tecnológicos y el cuestionamiento de los paradigmas tradicionales.",
+        "La vuelta a los métodos de la Ilustración y la ciencia moderna clásica.",
+        "La necesidad de que la psicología se separe completamente de las neurociencias."
+      ],
+      "respuesta_correcta": "La complejidad de los problemas contemporáneos, los avances tecnológicos y el cuestionamiento de los paradigmas tradicionales."
+    },
+    {
+      "id": "om_03",
+      "tipo": "opcion_multiple",
+      "pregunta": "Según el segundo Wittgenstein (Investigaciones Filosóficas), el significado de una palabra como 'ansiedad' se determina por:",
+      "opciones": [
+        "Su correspondencia exacta con un objeto o entidad biológica en el cerebro.",
+        "Su uso en contextos sociales específicos dentro de diversos 'juegos del lenguaje'.",
+        "Una definición universal y esencialista que aplica a todas las culturas por igual.",
+        "La introspección privada e inefable del individuo que la experimenta."
+      ],
+      "respuesta_correcta": "Su uso en contextos sociales específicos dentro de diversos 'juegos del lenguaje'."
+    },
+    {
+      "id": "om_04",
+      "tipo": "opcion_multiple",
+      "pregunta": "El concepto de 'parecidos de familia' en la psicología clínica implica que:",
+      "opciones": [
+        "Todos los pacientes con el mismo diagnóstico comparten una esencia biológica idéntica.",
+        "Los trastornos psicológicos no tienen una esencia común, sino un entramado de similitudes y manifestaciones diversas según el contexto.",
+        "La terapia debe enfocarse exclusivamente en la dinámica familiar del paciente.",
+        "Los diagnósticos del DSM-5-TR son reflejos perfectos de la realidad natural."
+      ],
+      "respuesta_correcta": "Los trastornos psicológicos no tienen una esencia común, sino un entramado de similitudes y manifestaciones diversas según el contexto."
+    },
+    {
+      "id": "om_05",
+      "tipo": "opcion_multiple",
+      "pregunta": "Richard Rorty, desde el neopragmatismo, propone que la psicología debe abandonar la pretensión de ser una ciencia que descubre verdades objetivas y, en su lugar, entenderse como:",
+      "opciones": [
+        "Una conversación que ayuda a las personas a reinterpretar su experiencia y reducir el sufrimiento.",
+        "Una rama de la física aplicada que busca leyes universales de la conducta.",
+        "Un sistema de clasificación taxonómica rígida e incuestionable.",
+        "La búsqueda de fundamentos últimos y verdades 'allí fuera'."
+      ],
+      "respuesta_correcta": "Una conversación que ayuda a las personas a reinterpretar su experiencia y reducir el sufrimiento."
+    },
+    {
+      "id": "om_06",
+      "tipo": "opcion_multiple",
+      "pregunta": "En la terapia narrativa (White y Epston), la 'externalización del problema' tiene como objetivo principal:",
+      "opciones": [
+        "Culpar al entorno familiar por todos los síntomas del paciente.",
+        "Separar a la persona de las narrativas que la oprimen, entendiendo que 'la persona no es el problema, el problema es el problema'.",
+        "Identificar la causa biológica exacta del trastorno para medicarlo.",
+        "Imponer la narrativa del terapeuta sobre la experiencia del paciente."
+      ],
+      "respuesta_correcta": "Separar a la persona de las narrativas que la oprimen, entendiendo que 'la persona no es el problema, el problema es el problema'."
+    },
+    {
+      "id": "om_07",
+      "tipo": "opcion_multiple",
+      "pregunta": "Un desafío ético del giro lingüístico es el 'relativismo'. La posición pragmática de Rorty para enfrentar este desafío es:",
+      "opciones": [
+        "Afirmar que todo es válido y el terapeuta no debe intervenir.",
+        "Buscar fundamentos últimos en la neurobiología para justificar la intervención.",
+        "Guiarse por la solidaridad y la reducción del sufrimiento, manteniendo una actitud irónica sobre la contingencia de las propias narrativas.",
+        "Imponer los grandes relatos de la ciencia moderna como única verdad."
+      ],
+      "respuesta_correcta": "Guiarse por la solidaridad y la reducción del sufrimiento, manteniendo una actitud irónica sobre la contingencia de las propias narrativas."
+    },
+    {
+      "id": "om_08",
+      "tipo": "opcion_multiple",
+      "pregunta": "En la física cuántica, el 'principio de incertidumbre' de Heisenberg establece que:",
+      "opciones": [
+        "Es posible conocer con precisión absoluta la posición y el momento de una partícula simultáneamente.",
+        "No se pueden conocer simultáneamente la posición y el momento de una partícula con precisión absoluta, marcando un límite inherente al conocimiento.",
+        "El observador no tiene ningún efecto sobre el sistema medido.",
+        "La realidad es completamente determinista y predecible."
+      ],
+      "respuesta_correcta": "No se pueden conocer simultáneamente la posición y el momento de una partícula con precisión absoluta, marcando un límite inherente al conocimiento."
+    },
+    {
+      "id": "om_09",
+      "tipo": "opcion_multiple",
+      "pregunta": "La analogía entre la 'superposición cuántica' y la psicología clínica sugiere que:",
+      "opciones": [
+        "Los pacientes tienen una identidad fija y única que el terapeuta debe descubrir.",
+        "Las personas pueden experimentar múltiples estados o identidades psicológicas que se 'colapsan' o manifiestan de manera diferente según el contexto de observación.",
+        "La terapia debe eliminar todas las contradicciones en el pensamiento del paciente.",
+        "El comportamiento humano es 100% predecible si se tienen los datos suficientes."
+      ],
+      "respuesta_correcta": "Las personas pueden experimentar múltiples estados o identidades psicológicas que se 'colapsan' o manifiestan de manera diferente según el contexto de observación."
+    },
+    {
+      "id": "om_10",
+      "tipo": "opcion_multiple",
+      "pregunta": "El 'problema duro' de la conciencia, formulado por David Chalmers, se refiere a:",
+      "opciones": [
+        "Cómo el cerebro procesa la información sensorial y controla el comportamiento.",
+        "Por qué la experiencia subjetiva se siente de una manera determinada (los qualia), y no se reduce a procesos físicos sin dejar un residuo inexplicable.",
+        "La dificultad técnica de realizar resonancias magnéticas funcionales.",
+        "La imposibilidad de que la inteligencia artificial supere a los humanos en juegos de ajedrez."
+      ],
+      "respuesta_correcta": "Por qué la experiencia subjetiva se siente de una manera determinada (los qualia), y no se reduce a procesos físicos sin dejar un residuo inexplicable."
+    },
+    {
+      "id": "om_11",
+      "tipo": "opcion_multiple",
+      "pregunta": "Según la teoría Orch-OR de Penrose y Hameroff, la conciencia emerge de:",
+      "opciones": [
+        "La computación clásica de las neuronas en la corteza prefrontal.",
+        "Procesos cuánticos no computables que ocurren en los microtúbulos del citoesqueleto neuronal.",
+        "La interacción exclusiva con el entorno social, sin base biológica.",
+        "La acumulación de neurotransmisores en la sinapsis."
+      ],
+      "respuesta_correcta": "Procesos cuánticos no computables que ocurren en los microtúbulos del citoesqueleto neuronal."
+    },
+    {
+      "id": "om_12",
+      "tipo": "opcion_multiple",
+      "pregunta": "En la interpretación de Copenhague, extendida por Von Neumann y Wigner, se propone que:",
+      "opciones": [
+        "La función de onda colapsa independientemente de la presencia de un observador.",
+        "La conciencia del observador es necesaria o juega un papel constitutivo en el colapso de la función de onda.",
+        "El universo es una ilusión creada por la mente colectiva.",
+        "La mecánica cuántica no tiene ninguna relación con la filosofía de la mente."
+      ],
+      "respuesta_correcta": "La conciencia del observador es necesaria o juega un papel constitutivo en el colapso de la función de onda."
+    },
+    {
+      "id": "om_13",
+      "tipo": "opcion_multiple",
+      "pregunta": "Un psicólogo que adopta el giro lingüístico en la práctica clínica deja de preguntar '¿qué trastorno tiene el paciente?' para preguntar:",
+      "opciones": [
+        "¿Qué desequilibrio químico está causando este comportamiento?",
+        "¿Cómo se experimenta y se nombra el sufrimiento en este contexto, y qué juegos del lenguaje lo mantienen?",
+        "¿Cuál es el puntaje exacto del paciente en el MMSE?",
+        "¿Qué medicamento es el más indicado según el DSM-5-TR?"
+      ],
+      "respuesta_correcta": "¿Cómo se experimenta y se nombra el sufrimiento en este contexto, y qué juegos del lenguaje lo mantienen?"
+    },
+    {
+      "id": "om_14",
+      "tipo": "opcion_multiple",
+      "pregunta": "La 'transdisciplinariedad' se diferencia de la 'interdisciplinariedad' en que la primera:",
+      "opciones": [
+        "Mantiene rígidas las fronteras de cada disciplina.",
+        "Solo suma los conocimientos sin crear nada nuevo.",
+        "Trasciende los límites disciplinares para generar nuevos marcos conceptuales y metodológicos que aborden problemas complejos.",
+        "Es un método exclusivo de las ciencias exactas, no de la psicología."
+      ],
+      "respuesta_correcta": "Trasciende los límites disciplinares para generar nuevos marcos conceptuales y metodológicos que aborden problemas complejos."
+    },
+    {
+      "id": "om_15",
+      "tipo": "opcion_multiple",
+      "pregunta": "En el contexto del giro lingüístico, considerar el diagnóstico psiquiátrico como un 'gran relato' implica reconocer que:",
+      "opciones": [
+        "Es una verdad universal, objetiva y libre de valores culturales.",
+        "Es una construcción histórica y cultural que organiza la experiencia, pero que no debe naturalizarse ni imponerse sin considerar sus efectos en la identidad del paciente.",
+        "Debe ser eliminado por completo de la práctica clínica.",
+        "Es la única forma válida de entender el sufrimiento humano."
+      ],
+      "respuesta_correcta": "Es una construcción histórica y cultural que organiza la experiencia, pero que no debe naturalizarse ni imponerse sin considerar sus efectos en la identidad del paciente."
+    },
+    {
+      "id": "om_16",
+      "tipo": "opcion_multiple",
+      "pregunta": "El 'entrelazamiento cuántico' sirve como metáfora en psicología para reflexionar sobre:",
+      "opciones": [
+        "La imposibilidad de que dos personas se influyan mutuamente a distancia.",
+        "La interconexión profunda y no local entre sistemas (ej. la relación terapéutica o sistemas familiares), donde el cambio en una parte afecta al todo.",
+        "La necesidad de aislar al paciente de su entorno para que la terapia funcione.",
+        "La separación absoluta entre la mente y el cuerpo."
+      ],
+      "respuesta_correcta": "La interconexión profunda y no local entre sistemas (ej. la relación terapéutica o sistemas familiares), donde el cambio en una parte afecta al todo."
+    },
+    {
+      "id": "om_17",
+      "tipo": "opcion_multiple",
+      "pregunta": "¿Cuál de las siguientes afirmaciones sobre el 'colapso de la función de onda' es correcta según el material de la Semana 5?",
+      "opciones": [
+        "Ocurre cuando un sistema cuántico es aislado completamente de cualquier medición.",
+        "Es la transición de un estado de múltiples probabilidades (superposición) a un estado definido como resultado de una medición o interacción.",
+        "Demuestra que el observador es totalmente pasivo y no afecta lo observado.",
+        "Es un proceso que solo ocurre en objetos macroscópicos, no en partículas subatómicas."
+      ],
+      "respuesta_correcta": "Es la transición de un estado de múltiples probabilidades (superposición) a un estado definido como resultado de una medición o interacción."
+    },
+    {
+      "id": "om_18",
+      "tipo": "opcion_multiple",
+      "pregunta": "La crítica de Rorty a la psicología como 'ciencia objetiva que descubre leyes de la conducta' se basa en la idea de que:",
+      "opciones": [
+        "El lenguaje es contingente y no existe un 'lenguaje adecuado' único para describir la realidad; la verdad es un instrumento, no un reflejo.",
+        "La psicología debe convertirse en una rama de la física cuántica.",
+        "Los métodos cuantitativos son inherentemente malvados.",
+        "No existen patrones de comportamiento humano, solo caos absoluto."
+      ],
+      "respuesta_correcta": "El lenguaje es contingente y no existe un 'lenguaje adecuado' único para describir la realidad; la verdad es un instrumento, no un reflejo."
+    },
+    {
+      "id": "om_19",
+      "tipo": "opcion_multiple",
+      "pregunta": "En la terapia narrativa, la 're-escritura de la historia' busca:",
+      "opciones": [
+        "Falsificar los recuerdos del paciente para que se sienta mejor.",
+        "Identificar narrativas dominantes opresivas y construir historias alternativas que amplíen las posibilidades del paciente.",
+        "Aceptar pasivamente que el pasado no puede cambiarse.",
+        "Imponer la visión del mundo del terapeuta como la única válida."
+      ],
+      "respuesta_correcta": "Identificar narrativas dominantes opresivas y construir historias alternativas que amplíen las posibilidades del paciente."
+    },
+    {
+      "id": "om_20",
+      "tipo": "opcion_multiple",
+      "pregunta": "Un paciente dice: 'Soy un fracasado'. Desde la perspectiva de los 'parecidos de familia' de Wittgenstein, el terapeuta debería:",
+      "opciones": [
+        "Aceptar que 'fracasado' es una esencia biológica permanente del paciente.",
+        "Buscar la definición universal y diccionarial de 'fracaso' para debatirla.",
+        "Explorar los diferentes contextos y usos en los que el paciente aplica este término, reconociendo que no hay una esencia única, sino múltiples manifestaciones de esa experiencia.",
+        "Ignorar el lenguaje y enfocarse solo en la conducta observable."
+      ],
+      "respuesta_correcta": "Explorar los diferentes contextos y usos en los que el paciente aplica este término, reconociendo que no hay una esencia única, sino múltiples manifestaciones de esa experiencia."
+    },
+    {
+      "id": "om_21",
+      "tipo": "opcion_multiple",
+      "pregunta": "La idea de que 'el terapeuta afecta la realidad psicológica del paciente; no hay observación neutral' es una implicación directa en psicología del concepto cuántico de:",
+      "opciones": [
+        "Entrelazamiento.",
+        "El observador participante y el colapso de la función de onda.",
+        "Dualidad onda-partícula.",
+        "Principio de incertidumbre."
+      ],
+      "respuesta_correcta": "El observador participante y el colapso de la función de onda."
+    },
+    {
+      "id": "om_22",
+      "tipo": "opcion_multiple",
+      "pregunta": "En un centro de salud mental comunitaria con alta prevalencia de depresión y violencia, el enfoque transdisciplinario se diferencia de una intervención clínica individual porque:",
+      "opciones": [
+        "Reconoce que los determinantes sociales (pobreza, violencia, acceso a servicios) forman parte constitutiva del problema y deben investigarse y modificarse junto con la intervención clínica, y no solo tratarse como un contexto ajeno a la terapia.",
+        "Se limita a ofrecer terapia individual a cada persona afectada, sin considerar el entorno.",
+        "Sustituye el diagnóstico clínico por un informe social que elimina la necesidad de evaluar a los pacientes.",
+        "Implica que la psicología deja de ser pertinente en el abordaje de la salud mental comunitaria."
+      ],
+      "respuesta_correcta": "Reconoce que los determinantes sociales (pobreza, violencia, acceso a servicios) forman parte constitutiva del problema y deben investigarse y modificarse junto con la intervención clínica, y no solo tratarse como un contexto ajeno a la terapia."
+    },
+    {
+      "id": "om_23",
+      "tipo": "opcion_multiple",
+      "pregunta": "El 'problema de la medición' en física cuántica nace del conflicto entre:",
+      "opciones": [
+        "Dos procedimientos fundamentales: la evolución determinista de la función de onda y su colapso probabilístico al ser medida.",
+        "La relatividad general y la gravedad.",
+        "La termodinámica y el electromagnetismo.",
+        "La psicología conductual y el psicoanálisis."
+      ],
+      "respuesta_correcta": "Dos procedimientos fundamentales: la evolución determinista de la función de onda y su colapso probabilístico al ser medida."
+    },
+    {
+      "id": "om_24",
+      "tipo": "opcion_multiple",
+      "pregunta": "La 'despatologización del lenguaje cotidiano' en la práctica clínica implica:",
+      "opciones": [
+        "Dejar de usar cualquier término psicológico.",
+        "Cuestionar la tendencia a transformar el malestar cotidiano en categorías diagnósticas rígidas, reconociendo que el lenguaje diagnóstico es solo un juego del lenguaje entre otros.",
+        "Diagnosticar a todos los pacientes con trastornos de adaptación.",
+        "Usar únicamente lenguaje médico y evitar el lenguaje del paciente."
+      ],
+      "respuesta_correcta": "Cuestionar la tendencia a transformar el malestar cotidiano en categorías diagnósticas rígidas, reconociendo que el lenguaje diagnóstico es solo un juego del lenguaje entre otros."
+    },
+    {
+      "id": "om_25",
+      "tipo": "opcion_multiple",
+      "pregunta": "La teoría de la 'Mente cuántica' de David Bohm propone que:",
+      "opciones": [
+        "La conciencia es un aspecto del 'orden implicado' del universo, sugiriendo una totalidad indivisible.",
+        "El cerebro es una computadora clásica que no tiene relación con la física cuántica.",
+        "La conciencia es una ilusión generada por el lenguaje.",
+        "Solo los humanos tienen conciencia, los animales no."
+      ],
+      "respuesta_correcta": "La conciencia es un aspecto del 'orden implicado' del universo, sugiriendo una totalidad indivisible."
+    },
+    {
+      "id": "ab_01",
+      "tipo": "abierta",
+      "pregunta": "Caso 1 (Integración Transdisciplinaria): Un paciente de 50 años presenta un cuadro de 'burnout' severo, con síntomas depresivos, hipertensión no controlada y conflicto laboral en una empresa tóxica. Un enfoque médico tradicional solo receta antihipertensivos y antidepresivos. \n\nPregunta: Diseña una propuesta de intervención transdisciplinaria para este caso. Identifica al menos tres disciplinas que deberían interactuar, explica cómo se trascenderían sus fronteras (no solo suma multidisciplinaria) y qué nuevo marco conceptual podría surgir para abordar la 'salud' de este paciente.",
+      "respuesta_correcta": "La respuesta debe incluir: 1) Identificación de disciplinas (ej. psicología clínica, medicina/geriatría, sociología/trabajo social). 2) Explicación de la trascendencia: no es que cada uno haga su parte por separado (multidisciplinariedad), sino que dialogan para crear un plan integrado donde lo biológico, lo psicológico y lo social se entiendan como un sistema único (ej. el estrés laboral como desencadenante fisiológico y emocional). 3) Nuevo marco: comprender la salud no como ausencia de enfermedad, sino como un equilibrio dinámico en el contexto socio-laboral del paciente, aplicando flexibilidad epistemológica."
+    },
+    {
+      "id": "ab_02",
+      "tipo": "abierta",
+      "pregunta": "Caso 2 (Giro Lingüístico y Diagnóstico): Un adolescente es derivado a consulta con la etiqueta de 'Trastorno de Oposición Desafiante'. En la sesión, dice: 'Soy un problema, todos lo dicen, soy rebelde por naturaleza'. \n\nPregunta: Utilizando los conceptos de Wittgenstein ('juegos del lenguaje', 'parecidos de familia') y la Terapia Narrativa (externalización), analiza cómo se ha construido la identidad de este paciente. Propón dos preguntas terapéuticas específicas que busquen 're-escribir' esta narrativa sin imponer un nuevo 'gran relato' sobre él.",
+      "respuesta_correcta": "La respuesta debe analizar que la identidad del paciente se ha constituido a través del 'juego del lenguaje' del diagnóstico y las etiquetas familiares/escuelares, naturalizando una esencia ('soy rebelde por naturaleza'). La externalización separaría al adolescente del problema ('¿Cómo ha influido la historia de que eres 'rebelde' en tus decisiones?'). Las preguntas terapéuticas deben buscar excepciones o narrativas alternativas (ej. '¿Hubo algún momento en que esa etiqueta de 'rebelde' no describió lo que sentías?' o '¿Qué historia te gustaría construir sobre ti mismo que no incluya ser 'el problema'?')."
+    },
+    {
+      "id": "ab_03",
+      "tipo": "abierta",
+      "pregunta": "Caso 3 (Analogía Cuántica en Clínica): Una paciente de 30 años refiere: 'En el trabajo soy segura y extrovertida, en casa con mi pareja soy sumisa y ansiosa, y con mis amigos soy completamente diferente. No sé quién soy realmente, siento que soy todas esas cosas a la vez hasta que alguien me mira'. \n\nPregunta: Explica cómo los conceptos cuánticos de 'superposición de estados' y 'colapso de la función de onda por el observador' pueden servir como metáfora heurística (no literal) para comprender la experiencia de esta paciente. ¿Cómo cambiaría la postura del terapeuta al adoptar esta analogía en lugar de buscar una 'identidad verdadera y única'?",
+      "respuesta_correcta": "La respuesta debe explicar que la 'superposición' refleja la coexistencia de múltiples estados o facetas identitarias que son reales y válidas. El 'colapso por el observador' ilustra cómo el contexto y la mirada del otro (jefe, pareja, amigos) 'fijan' o elicitan una de esas facetas. Al adoptar esta analogía, el terapeuta abandona la búsqueda de una 'esencia verdadera' única (visión clásica/newtoniana) y valida la multiplicidad y la naturaleza contextual/probabilística de la identidad, ayudando a la paciente a integrar sus diferentes 'estados' sin patologizar la contradicción."
+    },
+    {
+      "id": "ab_04",
+      "tipo": "abierta",
+      "pregunta": "Caso 4 (El Problema Duro y la Práctica Clínica): David Chalmers distingue entre los 'problemas fáciles' (procesamiento de información, control de conducta) y el 'problema duro' (la experiencia subjetiva, los qualia) de la conciencia. \n\nPregunta: Imagina que estás evaluando a un paciente con un cuadro depresivo severo. Describe cómo se manifestarían los 'problemas fáciles' en tu evaluación (ej. instrumentos, conductas observables) y por qué estos son insuficientes para capturar el 'problema duro' de su depresión. ¿Cómo aborda la psicología fenomenológica o el giro lingüístico ese 'residuo' inexplicable de la subjetividad?",
+      "respuesta_correcta": "La respuesta debe identificar los 'problemas fáciles' como lo medible: puntuaciones en el BDI o GDS, latencia de respuesta, reportes de insomnio o anhedonia observable. Debe argumentar que esto es insuficiente porque no captura 'cómo se siente' la desesperanza (el qualia). El giro lingüístico o la fenomenología abordan este residuo no midiendo, sino explorando el significado y la estructura de esa experiencia subjetiva a través del diálogo, reconociendo que el lenguaje constituye esa vivencia y no solo la describe."
+    },
+    {
+      "id": "ab_05",
+      "tipo": "abierta",
+      "pregunta": "Caso 5 (Desafíos Éticos del Giro Lingüístico): Un colega te critica diciendo: 'Si todo es lenguaje y no hay verdades objetivas (como dice Rorty), entonces cualquier intervención es válida, caemos en un relativismo peligroso donde no podemos decir que el abuso infantil es 'incorrecto', solo que es 'otro juego del lenguaje''. \n\nPregunta: Responde a esta crítica utilizando la 'posición pragmática' de Rorty. Explica cómo la 'ironía' y la 'solidaridad' permiten al psicólogo actuar éticamente y combatir el sufrimiento sin necesidad de apelar a fundamentos últimos o verdades universales objetivas.",
+      "respuesta_correcta": "La respuesta debe refutar el relativismo absoluto aclarando la postura pragmática de Rorty: no necesitamos 'fundamentos últimos' o verdades objetivas para actuar éticamente. La 'solidaridad' (el compromiso de reducir el sufrimiento y la crueldad) es la guía suficiente. La 'ironía' permite al terapeuta ser consciente de que sus propias herramientas y narrativas son contingentes (no verdades absolutas), pero eso no le impide comprometerse firmemente con la protección del paciente y la denuncia del abuso, ya que el objetivo es la conversación que mejora la vida, no el descubrimiento de una verdad metafísica."
+    },
+    {
+      "id": "ab_06",
+      "tipo": "abierta",
+      "pregunta": "Caso 6 (Teorías Cuánticas de la Conciencia): La teoría Orch-OR de Penrose y Hameroff ha sido criticada por la comunidad científica (ej. problema de la decoherencia en el cerebro cálido y húmedo). \n\nPregunta: A pesar de estas críticas físicas, ¿por qué el *debate* sobre las teorías cuánticas de la conciencia es relevante para la psicología transdisciplinaria? Argumenta cómo la apertura a estas hipótesis desafía el reduccionismo computacional clásico y qué nuevas preguntas plantea sobre la libertad, la creatividad y la naturaleza de la experiencia subjetiva.",
+      "respuesta_correcta": "La respuesta debe señalar que, más allá de la validación física de la teoría, su relevancia para la psicología radica en que desafía el paradigma de que la mente es solo una 'computadora clásica' o un epifenómeno neuronal. Abre la puerta a pensar la conciencia como un fenómeno fundamental, no computable y potencialmente conectado con niveles más profundos de la realidad. Esto enriquece el diálogo transdisciplinario, invitando a la psicología a no reducir la experiencia subjetiva, la creatividad o la libertad a meros algoritmos deterministas, fomentando una visión más holística e integradora del ser humano."
+    }
+  ],
+  "tareas": [],
+  "reglas_asignacion": []
+}
