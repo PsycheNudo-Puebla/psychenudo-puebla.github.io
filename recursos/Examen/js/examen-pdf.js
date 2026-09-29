@@ -263,23 +263,11 @@ async function exportToPdf(filename) {
       { text: 'DECLARACIÓN DEL ESTUDIANTE', style: 'sectionHeader', margin: [0, 12, 0, 8] },
       { text: 'He revisado mi examen y manifiesto estar de acuerdo con la calificación obtenida. Confirmo que las respuestas registradas en este reporte corresponden a mi trabajo durante el examen.', fontSize: 10, color: '#334155', margin: [0, 0, 0, 24] },
       {
-        columns: [
-          {
-            stack: [
-              { text: 'ESTUDIANTE', fontSize: 9, bold: true, color: '#64748b' },
-              { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 200, y2: 0, lineWidth: 0.7, lineColor: '#94a3b8' }], margin: [0, 26, 0, 4] },
-              { text: data.studentName, fontSize: 11, bold: true },
-              { text: 'Firma de conformidad', fontSize: 9, color: '#64748b' }
-            ]
-          },
-          {
-            stack: [
-              { text: 'FECHA', fontSize: 9, bold: true, color: '#64748b' },
-              { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 200, y2: 0, lineWidth: 0.7, lineColor: '#94a3b8' }], margin: [0, 26, 0, 4] },
-              { text: '', fontSize: 11 },
-              { text: 'Firma de conformidad', fontSize: 9, color: '#64748b' }
-            ]
-          }
+        stack: [
+          { text: 'ESTUDIANTE', fontSize: 9, bold: true, color: '#64748b' },
+          { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 260, y2: 0, lineWidth: 0.7, lineColor: '#94a3b8' }], margin: [0, 26, 0, 4] },
+          { text: data.studentName, fontSize: 11, bold: true },
+          { text: 'Firma de conformidad', fontSize: 9, color: '#64748b' }
         ]
       }
     ],
@@ -500,21 +488,12 @@ function buildPrintableReport(resultPayload) {
       <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #4f46e5; page-break-inside: avoid; break-inside: avoid;">
         <h3 style="margin: 0 0 8px 0; font-size: 15px; color: #1e293b; text-transform: uppercase; letter-spacing: 0.5px;">Declaración del estudiante</h3>
         <p style="margin: 0 0 24px 0; font-size: 12px; color: #334155;">He revisado mi examen y manifiesto estar de acuerdo con la calificación obtenida. Confirmo que las respuestas registradas en este reporte corresponden a mi trabajo durante el examen.</p>
-        <table style="width: 100%; font-size: 12px;">
-          <tr>
-            <td style="width: 60%; padding-right: 20px; vertical-align: top;">
-              <div style="font-size: 9px; text-transform: uppercase; color: #64748b; font-weight: bold;">Estudiante</div>
-              <div style="border-bottom: 1px solid #94a3b8; height: 34px; margin: 8px 0 4px 0;"></div>
-              <div style="font-weight: 700; color: #0f172a;">${escapeHtml(name)}</div>
-              <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Firma de conformidad</div>
-            </td>
-            <td style="width: 40%; vertical-align: top;">
-              <div style="font-size: 9px; text-transform: uppercase; color: #64748b; font-weight: bold;">Fecha</div>
-              <div style="border-bottom: 1px solid #94a3b8; height: 34px; margin: 8px 0 4px 0;"></div>
-              <div style="font-size: 10px; color: #64748b;">Firma de conformidad</div>
-            </td>
-          </tr>
-        </table>
+        <div style="width: 55%;">
+          <div style="font-size: 9px; text-transform: uppercase; color: #64748b; font-weight: bold;">Estudiante</div>
+          <div style="border-bottom: 1px solid #94a3b8; height: 34px; margin: 8px 0 4px 0;"></div>
+          <div style="font-weight: 700; color: #0f172a;">${escapeHtml(name)}</div>
+          <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Firma de conformidad</div>
+        </div>
       </div>
 
       <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #f1f5f9; text-align: center; color: #94a3b8; font-size: 11px; font-style: italic; page-break-inside: avoid; break-inside: avoid;">
