@@ -584,22 +584,41 @@ async function submitExam(isAuto) {
   showBlockedScreen(
     isAuto
       ? "El examen se cerró automáticamente por tiempo o por exceso de salidas de pantalla."
-      : "El examen fue finalizado correctamente. El comprobante PDF se descargó automáticamente.",
+      : "Examen finalizado. Descarga tu comprobante en PDF y envía el archivo del examen al docente.",
     reportHtml
   );
-  await exportToPdf(`${studentData.name.replace(/\s+/g, "_") || "estudiante"}_resultado.pdf`);
 }
 
 function showBlockedScreen(message, reportHtml = "") {
   elements.examControls.classList.add("hidden");
   elements.blockedSection.classList.remove("hidden");
-  
+
+  const baseName = (studentData.name || "estudiante").replace(/\s+/g, "_");
+  const pdfName = `${baseName}_comprobante.pdf`;
+  const jsonName = `${baseName}_examen.json`;
+
   let content = `<p>${message}</p>`;
   if (latestResultPayload) {
-    content += `<div style="margin: 20px 0; text-align: center;">
-                  <button id="manual-pdf-btn" style="background: var(--primary); color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
-                    📥 Descargar Comprobante PDF
-                  </button>
+    content += `<div class="download-panel" style="margin: 20px 0; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); text-align: center;">
+                  <p class="muted" style="margin: 0 0 12px; font-size: 0.85rem;">
+                    <strong>${escapeHtml(pdfName)}</strong> es tu comprobante, guárdalo para entregarlo.<br>
+                    <strong>${escapeHtml(jsonName)}</strong> es el archivo que debe recibir tu docente.
+                  </p>
+                  <div class="inline-actions" style="justify-content: center;">
+                    <button id="manual-pdf-btn" type="button" style="background: var(--primary); color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                      📄 Descargar comprobante (PDF)
+                    </button>
+                    <button id="manual-json-btn" type="button" style="background: #0f766e; color: white; padding: 12px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                      📦 Examen para el docente (JSON)
+                    </button>
+                  </div>
+                  <div id="download-status" class="status" style="margin-top: 10px;"></div>
+                  <details style="margin-top: 10px; text-align: left;">
+                    <summary class="muted" style="cursor: pointer; font-size: 0.8rem;">¿El navegador no descarga el archivo?</summary>
+                    <p class="muted" style="font-size: 0.8rem; margin: 8px 0;">Copia el contenido y guárdalo como <strong>${escapeHtml(jsonName.replace(/\.json$/, ".txt"))}</strong> en un archivo de texto. La app del docente también lee ese archivo.</p>
+                    <button id="manual-copy-btn" class="secondary" type="button" style="font-size: 0.8rem;">Copiar contenido del examen</button>
+                    <div id="copy-fallback-host"></div>
+                  </details>
                 </div>`;
   }
 
@@ -612,11 +631,43 @@ function showBlockedScreen(message, reportHtml = "") {
 
   elements.blockedMessage.innerHTML = content;
 
-  const btn = document.getElementById("manual-pdf-btn");
-  if (btn) {
-    btn.addEventListener("click", () => {
-      const filename = `${studentData.name.replace(/\s+/g, "_") || "estudiante"}_resultado.pdf`;
-      exportToPdf(filename);
+  const setStatus = (text) => {
+    const status = document.getElementById("download-status");
+    if (status) status.textContent = text;
+  };
+
+  const pdfBtn = document.getElementById("manual-pdf-btn");
+  if (pdfBtn) {
+    pdfBtn.addEventListener("click", async () => {
+      setStatus("Preparando tu comprobante…");
+      try {
+        const result = await exportToPdf(pdfName);
+        setStatus(result && result.method === "print"
+          ? "Se abrió la vista de impresión: elige 'Imprimir' o 'Guardar como PDF'."
+          : `Comprobante guardado como ${pdfName}.`);
+      } catch (e) {
+        setStatus("No se pudo generar el PDF. Usa la copia de respaldo para entregar tu examen al docente.");
+      }
+    });
+  }
+
+  const jsonBtn = document.getElementById("manual-json-btn");
+  if (jsonBtn) {
+    jsonBtn.addEventListener("click", () => {
+      try {
+        downloadLatestResultJson();
+        setStatus(`Examen enviado al docente como ${jsonName}.`);
+      } catch (e) {
+        setStatus("No se pudo descargar. Usa 'Copiar contenido del examen'.");
+      }
+    });
+  }
+
+  const copyBtn = document.getElementById("manual-copy-btn");
+  if (copyBtn) {
+    copyBtn.addEventListener("click", () => {
+      const text = JSON.stringify(latestResultPayload, null, 2);
+      showCopyFallbackPanel("copy-fallback-host", text, jsonName.replace(/\.json$/, ".txt"));
     });
   }
 

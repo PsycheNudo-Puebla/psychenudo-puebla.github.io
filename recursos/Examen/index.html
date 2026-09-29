@@ -30,9 +30,9 @@
         </div>
         <div class="mode-card">
           <h3>Calificar resultados</h3>
-          <p class="muted">Carga un archivo JSON exportado desde un intento anterior para revisarlo o conservar su información.</p>
-          <input type="file" id="results-file-input" accept="application/json" class="folder-input" />
-          <button id="import-results-btn" class="secondary">Cargar archivo JSON</button>
+          <p class="muted">Carga el archivo que envió el estudiante. Acepta el .json descargado desde la app o un .txt con el mismo contenido (respaldo cuando el navegador no deja descargar).</p>
+          <input type="file" id="results-file-input" accept="application/json,.json,.txt,text/plain" class="folder-input" />
+          <button id="import-results-btn" class="secondary">Cargar archivo del estudiante</button>
           <div id="results-import-status" class="status"></div>
         </div>
         <div class="mode-card">
@@ -278,7 +278,6 @@
       </div>
       <div class="inline-actions" style="margin-top: 12px;">
         <button id="reset-exam-btn" class="secondary">Preparar un nuevo intento</button>
-        <button id="download-results-json-btn" class="secondary">Descargar resultados JSON</button>
       </div>
     </section>
   </div>

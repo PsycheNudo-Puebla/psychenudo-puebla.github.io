@@ -61,7 +61,6 @@ function init() {
     if (confirmed) submitExam(false);
   });
   document.getElementById("reset-exam-btn").addEventListener("click", resetExam);
-  document.getElementById("download-results-json-btn").addEventListener("click", downloadLatestResultJson);
 
   // === Navegación de preguntas ===
   document.getElementById("next-question-btn").addEventListener("click", () => navigatePage(1));

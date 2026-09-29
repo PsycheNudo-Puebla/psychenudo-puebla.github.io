@@ -14,7 +14,8 @@ function buildSafariPrintDocument(reportHtml) {
     html, body { margin: 0; padding: 0; background: white; color: #0f172a; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     body { padding: 0; }
     * { box-sizing: border-box; }
-    .pdf-question-block { page-break-inside: avoid; break-inside: avoid; }
+    .pdf-question-block { page-break-inside: auto; break-inside: auto; }
+    .pdf-question-head { page-break-inside: avoid; break-inside: avoid; }
   </style>
 </head>
 <body>
@@ -36,7 +37,6 @@ async function exportToPdf(filename) {
       { canvas: [{ type: 'line', x1: 0, y1: 5, x2: 515, y2: 5, lineWidth: 2, lineColor: '#f59e0b' }] },
       { text: 'TAREAS ASIGNADAS', style: 'sectionHeader', color: '#f59e0b', margin: [0, 20, 0, 15] },
       ...data.tareas_asignadas.map((tarea, i) => ({
-        unbreakable: true,
         margin: [0, 0, 0, 12],
         stack: [
           { text: `${i + 1}. ${tarea.nombre}`, bold: true, fontSize: 12, color: '#0f172a', margin: [0, 0, 0, 4] },
@@ -130,17 +130,24 @@ async function exportToPdf(filename) {
         const cleanStatusText = q.status.replace('✅', 'CORRECTO').replace('❌', 'INCORRECTO').replace('🟡', 'PARCIAL').replace('⏳', 'PENDIENTE');
         
         return {
-          unbreakable: true,
           margin: [0, 0, 0, 15],
           stack: [
+            // Solo el encabezado es inquebrable: pdfmake 0.2.7 descarta el
+            // bloque completo (incluida la tabla de relacionar) cuando un
+            // contenedor unbreakable es más alto que una página.
             {
-              columns: [
-                { text: `Pregunta ${i + 1}`, bold: true, fontSize: 10, color: '#64748b' },
-                { text: `${q.points} pts`, alignment: 'right', fontSize: 10, color: '#64748b' }
-              ],
-              margin: [0, 0, 0, 5]
+              unbreakable: true,
+              stack: [
+                {
+                  columns: [
+                    { text: `Pregunta ${i + 1}`, bold: true, fontSize: 10, color: '#64748b' },
+                    { text: `${q.points} pts`, alignment: 'right', fontSize: 10, color: '#64748b' }
+                  ],
+                  margin: [0, 0, 0, 5]
+                },
+                { text: q.question, bold: true, fontSize: 12, margin: [0, 0, 0, 10] }
+              ]
             },
-            { text: q.question, bold: true, fontSize: 12, margin: [0, 0, 0, 10] },
             (q.type === 'relacionar' ? {
               fillColor: '#f8fafc',
               padding: [10, 8],
@@ -291,8 +298,26 @@ async function exportToPdf(filename) {
     },
     defaultStyle: { font: 'Roboto' }
   };
-  
-  pdfMake.createPdf(docDefinition).download(filename);
+
+  // En iPhone/iPad la descarga con pdfmake no es confiable: se abre la vista
+  // de impresión en una pestaña nueva (el usuario ya pulsó "Descargar").
+  if (isSafariLikeBrowser()) {
+    const printWin = window.open("", "_blank");
+    if (printWin) {
+      printWin.document.write(buildSafariPrintDocument(buildPrintableReport(data)));
+      printWin.document.close();
+      printWin.focus();
+      setTimeout(() => { try { printWin.print(); } catch (e) { /* el usuario imprime a mano */ } }, 600);
+      return { method: "print" };
+    }
+  }
+
+  return new Promise((resolve) => {
+    pdfMake.createPdf(docDefinition).getBlob((blob) => {
+      triggerFileDownload(filename, blob);
+      resolve({ method: "download" });
+    });
+  });
 }
 
 function buildPrintableReport(resultPayload) {
@@ -421,18 +446,21 @@ function buildPrintableReport(resultPayload) {
                 studentAnswerContent = (typeof q.studentAnswer === 'string') ? q.studentAnswer : 'Sin respuesta';
             }
 
+            // Una tabla de relacionar es más alta que una página: si el bloque
+            // es inquebrable, el navegador lo descarta al imprimir.
+            const blockBreak = (q.type === 'relacionar') ? 'auto' : 'avoid';
             return `
-                <div class="pdf-question-block" style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin: 0 0 20px 0; background-color: #fcfdff; page-break-inside: avoid; break-inside: avoid; display: block; clear: both; position: relative; overflow: hidden; box-sizing: border-box; max-width: 100%;">
-                    <div style="border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 12px; overflow: hidden;">
+                <div class="pdf-question-block" style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin: 0 0 20px 0; background-color: #fcfdff; page-break-inside: auto; break-inside: auto; display: block; clear: both; position: relative; overflow: visible; box-sizing: border-box; max-width: 100%;">
+                    <div class="pdf-question-head" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 12px; overflow: hidden; page-break-inside: avoid; break-inside: avoid;">
                         <span style="float: left; font-weight: bold; color: #1e293b;">Pregunta ${index + 1}</span>
                         <span style="float: right; font-size: 11px; color: #64748b; font-weight: bold;">${q.points} pts</span>
                     </div>
                     <div style="margin: 0 0 15px 0; font-size: 14px; color: #0f172a; font-weight: 500; overflow-wrap: anywhere; word-break: break-word;">${escapeHtml(q.question)}</div>
-                    <div style="margin-bottom: 12px; padding: 10px; background-color: #f8fafc; border-radius: 6px; font-size: 13px; page-break-inside: avoid; break-inside: avoid;">
+                    <div style="margin-bottom: 12px; padding: 10px; background-color: #f8fafc; border-radius: 6px; font-size: 13px; page-break-inside: ${blockBreak}; break-inside: ${blockBreak};">
                         <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; margin-bottom: 4px; font-weight: bold;">Tu respuesta:</div>
                         <div style="color: #1e293b;">${studentAnswerContent}</div>
                     </div>
-                    <div style="margin-bottom: 12px; padding: 10px 10px 15px 10px; background-color: #f0f7ff; border-radius: 6px; font-size: ${q.type === "abierta" ? '12px' : '13px'}; border-left: 3px solid #4f46e5; page-break-inside: avoid; break-inside: avoid; overflow-wrap: anywhere; word-break: break-word; line-height: 1.5; min-height: 40px;">
+                    <div style="margin-bottom: 12px; padding: 10px 10px 15px 10px; background-color: #f0f7ff; border-radius: 6px; font-size: ${q.type === "abierta" ? '12px' : '13px'}; border-left: 3px solid #4f46e5; page-break-inside: ${blockBreak}; break-inside: ${blockBreak}; overflow-wrap: anywhere; word-break: break-word; line-height: 1.5; min-height: 40px;">
                         <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #4f46e5; margin-bottom: 4px; font-weight: bold;">
                             ${q.type === "abierta" ? "Guía de respuesta / Respuesta esperada" : (q.type === 'relacionar' ? 'Relación correcta de conceptos:' : 'Respuesta correcta:')}
                         </div>

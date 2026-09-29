@@ -220,9 +220,9 @@ function downloadLatestResultJson() {
     updateStatus("No hay resultados disponibles para descargar aún.", true);
     return;
   }
-  const filename = `${(latestResultPayload.studentName || "estudiante").replace(/\s+/g, "_")}_resultado.json`;
+  const filename = `${(latestResultPayload.studentName || "estudiante").replace(/\s+/g, "_")}_examen.json`;
   downloadJsonFile(latestResultPayload, filename);
-  updateStatus(`Resultados exportados como ${filename}.`);
+  updateStatus(`Examen exportado como ${filename}. Envía ese archivo al docente.`);
 }
 
 async function handleImportedResultsSelection(event) {
@@ -230,7 +230,7 @@ async function handleImportedResultsSelection(event) {
   if (!file) return;
   try {
     const text = await file.text();
-    const parsed = JSON.parse(text);
+    const parsed = parseResultText(text);
     latestResultPayload = normalizeResultPayload(parsed);
     renderImportedResults(latestResultPayload);
     elements.resultsImportStatus.textContent = `Resultados cargados desde ${file.name}.`;
