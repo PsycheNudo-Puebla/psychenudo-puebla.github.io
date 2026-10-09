@@ -1,0 +1,94 @@
+{
+  "id": "psi_situado_burnout_puebla",
+  "nombre": "Aprendizaje situado: Salud mental laboral en Puebla",
+  "descripcion": "Análisis de caso situado a partir de una problemática real de Puebla (crisis de salud mental laboral). Los equipos identifican el problema, proponen alternativas de solución y argumentan la más viable desde su formación profesional.",
+  "curso": {
+    "nombre": "Trastornos Psicológicos del Adulto (PS176P)",
+    "descripcion": "Actividad de aprendizaje situado y resolución de problemas. A partir de una situación real del entorno poblano, los equipos relacionan los conocimientos de la materia (evaluación, diagnóstico e intervención con base en el CIE-11 y enfoque biopsicosocial) para proponer soluciones viables a una necesidad social. Caso adaptado de notas periodísticas de Puebla (Municipios Puebla y Crónica Puebla, 2026).",
+    "perfilLicenciatura": "El egresado de Psicología de la UVP evalúa, diagnostica e interviene en procesos psicológicos de personas y grupos con enfoque biopsicosocial, actuando con responsabilidad, ética y compromiso social para responder a las necesidades de su entorno.",
+    "competenciasLicenciatura": "Evalúa e interviene procesos psicológicos en personas y grupos desde un enfoque biopsicosocial.\nAnaliza el comportamiento humano para detectar afecciones mentales y formular diagnósticos.\nDiseña estrategias de intervención con enfoque de primer nivel de atención.\nActúa con compromiso ético, social y bioético en el ejercicio profesional.",
+    "alumno": ""
+  },
+  "competencias": [
+    {
+      "id": "c2",
+      "nombre": "Análisis y diagnóstico de la problemática",
+      "descripcion": "Identifica el problema central de una situación real y lo analiza con el CIE-11 y el enfoque biopsicosocial, realizando diagnóstico diferencial.",
+      "peso": 5,
+      "esperadoInicio": 1,
+      "esperadoFinal": 5,
+      "mapeoLicenciatura": [1]
+    },
+    {
+      "id": "c3",
+      "nombre": "Propuesta de soluciones viables",
+      "descripcion": "Propone alternativas de solución pertinentes y fundamentadas y selecciona la más viable considerando recursos, contexto e impacto.",
+      "peso": 5,
+      "esperadoInicio": 1,
+      "esperadoFinal": 5,
+      "mapeoLicenciatura": [2]
+    },
+    {
+      "id": "c4",
+      "nombre": "Ética y responsabilidad profesional",
+      "descripcion": "Aplica principios éticos y bioéticos (confidencialidad, consentimiento, límites del rol) en situaciones donde intervienen terceros, como la empresa.",
+      "peso": 3,
+      "esperadoInicio": 1.5,
+      "esperadoFinal": 4,
+      "mapeoLicenciatura": [3]
+    },
+    {
+      "id": "c1",
+      "nombre": "Pertinencia social y aprendizaje situado",
+      "descripcion": "Relaciona los conocimientos de la materia con problemáticas reales del entorno y reconoce el papel de su formación profesional para atender necesidades sociales.",
+      "peso": 3,
+      "esperadoInicio": 1,
+      "esperadoFinal": 4.5,
+      "mapeoLicenciatura": [0]
+    }
+  ],
+  "preguntas": [
+    {
+      "id": "p1",
+      "tipo": "caso",
+      "competenciaId": "c2",
+      "contexto": "Un informe de salud laboral difundido en Puebla (2026) reveló que 6 de cada 10 consultas médicas en el ámbito laboral se relacionan con ansiedad (37%) y burnout (26%), y que 7 de cada 10 trabajadores padecen estrés laboral. En una empresa de la zona metropolitana, el área de Recursos Humanos solicita apoyo psicológico porque los colaboradores presentan insomnio, irritabilidad, desmotivación y ausentismo. Un trabajador de 42 años refiere llevar 8 meses con jornadas de más de 60 horas, no haber tomado vacaciones en 2 años y sentir que 'ya nada le importa en el trabajo'. La empresa pide un informe para decidir si el trabajador 'es apto o no para el puesto'.",
+      "texto": "Con base en el caso, trabajen en equipo: 1) Identifiquen y redacten el PROBLEMA PRINCIPAL desde la perspectiva de su formación profesional (no solo describan el caso). 2) Propongan DOS ALTERNATIVAS DE SOLUCIÓN distintas y viables.",
+      "criterios": "Se evalúa: 1) Identificación precisa del problema central (deterioro de la salud mental laboral y riesgo de burnout por condiciones organizacionales adversas; no solo el listado de síntomas). 2) Dos alternativas de solución pertinentes y claramente diferenciadas (por ejemplo, una clínica/individual y otra organizacional/preventiva). 3) Uso de lenguaje técnico coherente con la materia."
+    },
+    {
+      "id": "p2",
+      "tipo": "abierta",
+      "competenciaId": "c3",
+      "texto": "De las dos alternativas que propusieron, seleccionen la que consideren MÁS VIABLE y expliquen brevemente por qué, considerando recursos disponibles, contexto y evidencia.",
+      "criterios": "Se evalúa: 1) Elección justificada de una sola alternativa. 2) Argumentación con criterios de viabilidad (recursos, factibilidad, tiempo, impacto). 3) Referencia a la materia, al CIE-11 o al enfoque biopsicosocial. Se valora la coherencia entre el problema identificado y la alternativa elegida."
+    },
+    {
+      "id": "p3",
+      "tipo": "abierta",
+      "competenciaId": "c2",
+      "texto": "Realicen un diagnóstico diferencial: ¿qué categoría(s) del CIE-11 considerarían para este caso y de cuáles las distinguirían? Mencionen al menos dos categorías y justifiquen con criterios clínicos.",
+      "criterios": "Se evalúa: 1) Identificación del Burnout (QD85) como fenómeno ocupacional. 2) Diagnóstico diferencial con al menos otra categoría (Episodio Depresivo 6B20, Trastorno de Ansiedad Generalizada 6B22 o Trastorno Adaptativo). 3) Uso correcto de la terminología y los criterios del CIE-11 y del enfoque biopsicosocial."
+    },
+    {
+      "id": "p4",
+      "tipo": "abierta",
+      "competenciaId": "c4",
+      "texto": "La empresa solicita un informe para determinar la 'aptitud laboral' del trabajador. Describan cómo responderían a esa solicitud respetando la ética profesional y la confidencialidad.",
+      "criterios": "Se evalúa: 1) Consentimiento informado y confidencialidad. 2) Límites del rol profesional y entrega únicamente de las conclusiones de aptitud, sin revelar detalles clínicos. 3) No subordinar el bienestar de la persona a la solicitud de la empresa. 4) Referencia a principios bioéticos y al Código Ético del Psicólogo."
+    },
+    {
+      "id": "p5",
+      "tipo": "abierta",
+      "competenciaId": "c1",
+      "texto": "Reflexión final para compartir con el grupo: ¿cómo contribuye atender esta problemática a las necesidades sociales de nuestro entorno y qué papel juega nuestra formación profesional para responder con conocimiento, ética y compromiso social?",
+      "criterios": "Se evalúa: 1) Vinculación del conocimiento disciplinar con una problemática real de Puebla (aprendizaje situado). 2) Mención de la pertinencia social, la formación integral y los valores profesionales (responsabilidad, justicia, equidad, respeto, compasión). 3) Postura reflexiva y ética sobre el papel del egresado."
+    },
+    {
+      "id": "p6",
+      "tipo": "likert",
+      "competenciaId": "c1",
+      "texto": "El equipo logró relacionar los conocimientos de la materia con una problemática real de su entorno y proponer soluciones argumentadas."
+    }
+  ]
+}

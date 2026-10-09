@@ -17,6 +17,12 @@
       "file": "perfiles-psicologia.json",
       "nombre": "Diagnóstico: Trastornos Psicológicos del Adulto",
       "descripcion": "Evalúa conocimientos sobre clasificación de disfuncionalidad, características clínicas y diagnóstico de trastornos en adultos."
+    },
+    {
+      "id": "psi_situado_burnout_puebla",
+      "file": "situado-trastornos-adulto.json",
+      "nombre": "Aprendizaje situado: Salud mental laboral en Puebla",
+      "descripcion": "Análisis de caso situado a partir de una problemática real de Puebla. Los equipos identifican el problema, proponen alternativas y argumentan la más viable."
     }
   ]
 }
