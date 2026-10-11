@@ -609,3 +609,95 @@ footer.site-footer {
     .tabs { gap: 6px; grid-template-columns: 1fr; }
     .tab { padding: 10px 14px; font-size: 0.85rem; letter-spacing: 0; }
 }
+
+/* ===== SUBTABS RECURSOS ===== */
+.subtabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 6px 0 20px;
+}
+.subtab {
+    border: 2px solid var(--borde-suave);
+    background: #fff;
+    color: var(--color-secundario);
+    padding: 10px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
+}
+.subtab:hover {
+    background: #f0f4f8;
+    border-color: var(--color-secundario);
+    transform: translateY(-1px);
+}
+.subtab.active {
+    background: var(--color-secundario);
+    color: #fff;
+    border-color: var(--color-secundario);
+}
+@media (max-width: 480px) {
+    .subtabs { flex-direction: column; }
+    .subtab { width: 100%; }
+}
+
+/* ===== PANEL NUDO (encabezado fijo + fichas con scroll propio) ===== */
+.nudo-panel {
+    border: 1px solid var(--borde-suave);
+    border-radius: 18px;
+    background: #fff;
+    overflow: hidden;
+    box-shadow: 0 6px 24px rgba(13, 43, 84, 0.07);
+}
+.nudo-panel__header {
+    padding: 22px 24px 18px;
+    background: linear-gradient(180deg, #f7fdfb 0%, #ffffff 100%);
+    border-bottom: 1px solid var(--borde-suave);
+}
+.nudo-panel__header h2 {
+    margin: 0 0 8px;
+    color: var(--color-primario);
+    border-bottom: none;
+    padding-bottom: 0;
+}
+.nudo-panel__header > p {
+    margin: 0 0 16px;
+    color: var(--color-texto-claro);
+}
+/* Dentro del panel la barra deja de ser sticky: queda fija con el encabezado */
+.nudo-panel__header .verificacion-nudo-bar {
+    position: static;
+    top: auto;
+    margin-bottom: 0;
+    background: #eef6f3;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+.nudo-panel__body {
+    max-height: min(62vh, 640px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 22px 24px 26px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-secundario) #eef4f2;
+}
+.nudo-panel__body::-webkit-scrollbar { width: 10px; }
+.nudo-panel__body::-webkit-scrollbar-track {
+    background: #eef4f2;
+    border-radius: 999px;
+}
+.nudo-panel__body::-webkit-scrollbar-thumb {
+    background: var(--color-secundario);
+    border-radius: 999px;
+    border: 2px solid #eef4f2;
+}
+.nudo-panel__body::-webkit-scrollbar-thumb:hover { background: var(--color-primario); }
+.nudo-panel__body .grid-colegas { margin-bottom: 0; }
+@media (max-width: 600px) {
+    .nudo-panel__header { padding: 18px 16px 14px; }
+    .nudo-panel__body { padding: 16px; max-height: 60vh; }
+}

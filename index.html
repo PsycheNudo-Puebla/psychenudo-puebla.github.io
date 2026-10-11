@@ -33,42 +33,48 @@ title: PsycheNudo
     </section>
 
     <section id="nudo" class="tab-content" role="tabpanel">
-        <h2>El Nudo (Red de Profesionales)</h2>
-        <p>Colaboradores validados para atención y orientación. Compara la cédula de cada tarjeta con la SEP; la barra superior de esta sección permanece visible al hacer scroll para abrir los enlaces oficiales cuando los necesites.</p>
+        <div class="nudo-panel">
+            <div class="nudo-panel__header">
+                <h2>El Nudo (Red de Profesionales)</h2>
+                <p>Colaboradores validados para atención y orientación. Compara la cédula de cada tarjeta con la SEP; usa los enlaces oficiales de la barra de verificación para confirmar cada registro.</p>
 
-        <div class="verificacion-nudo-bar" role="navigation" aria-label="Registros oficiales (SEP y REDAM Puebla)">
-            <span class="verificacion-nudo-bar__hint">Verificación manual</span>
-            <div class="verificacion-enlaces verificacion-enlaces--nudo-bar">
-                <a href="https://www.cedulaprofesional.sep.gob.mx/cedula/presidencia/indexAvanzada.action" class="boton-verificacion boton-verificacion--compact" target="_blank" rel="noopener noreferrer">Cédula SEP</a>
-                <a href="https://redam.puebla.gob.mx/" class="boton-verificacion boton-verificacion--compact" target="_blank" rel="noopener noreferrer">REDAM Puebla</a>
-            </div>
-        </div>
-
-        <div class="grid-colegas">
-            {% assign colegas = site.profesionales | sort: 'nombre' %}
-            {% for colega in colegas %}
-            <article class="tarjeta-colega">
-                <h3>{{ colega.nombre }}</h3>
-                <p class="especialidad-colega">{{ colega.especialidad }}</p>
-                <p>{{ colega.content | strip_html | truncatewords: 25 }}</p>
-                <p><strong>Invitado por:</strong> {{ colega.invitado_por }}</p>
-                <p><strong>Cédula:</strong> {{ colega.cedula }}</p>
-                
-                <div class="acciones-tarjeta">
-                    <a href="{{ colega.url | relative_url }}" class="boton">Ver perfil completo</a>
-                    {% if colega.external_urls %}
-                    <select class="boton boton-secundario" style="cursor: pointer;" onchange="if(this.value) { window.open(this.value, '_blank', 'noopener,noreferrer'); this.value = ''; }">
-                        <option value="">Sitio personal ▼</option>
-                        {% for url_item in colega.external_urls %}
-                        <option value="{{ url_item.url }}">{{ url_item.label }}</option>
-                        {% endfor %}
-                    </select>
-                    {% elsif colega.external_url %}
-                    <a href="{{ colega.external_url }}" class="boton boton-secundario" target="_blank" rel="noopener noreferrer">Sitio personal</a>
-                    {% endif %}
+                <div class="verificacion-nudo-bar" role="navigation" aria-label="Registros oficiales (SEP y REDAM Puebla)">
+                    <span class="verificacion-nudo-bar__hint">Verificación manual</span>
+                    <div class="verificacion-enlaces verificacion-enlaces--nudo-bar">
+                        <a href="https://www.cedulaprofesional.sep.gob.mx/cedula/presidencia/indexAvanzada.action" class="boton-verificacion boton-verificacion--compact" target="_blank" rel="noopener noreferrer">Cédula SEP</a>
+                        <a href="https://redam.puebla.gob.mx/" class="boton-verificacion boton-verificacion--compact" target="_blank" rel="noopener noreferrer">REDAM Puebla</a>
+                    </div>
                 </div>
-            </article>
-            {% endfor %}
+            </div>
+
+            <div class="nudo-panel__body">
+                <div class="grid-colegas">
+                    {% assign colegas = site.profesionales | sort: 'nombre' %}
+                    {% for colega in colegas %}
+                    <article class="tarjeta-colega">
+                        <h3>{{ colega.nombre }}</h3>
+                        <p class="especialidad-colega">{{ colega.especialidad }}</p>
+                        <p>{{ colega.content | strip_html | truncatewords: 25 }}</p>
+                        <p><strong>Invitado por:</strong> {{ colega.invitado_por }}</p>
+                        <p><strong>Cédula:</strong> {{ colega.cedula }}</p>
+                        
+                        <div class="acciones-tarjeta">
+                            <a href="{{ colega.url | relative_url }}" class="boton">Ver perfil completo</a>
+                            {% if colega.external_urls %}
+                            <select class="boton boton-secundario" style="cursor: pointer;" onchange="if(this.value) { window.open(this.value, '_blank', 'noopener,noreferrer'); this.value = ''; }">
+                                <option value="">Sitio personal ▼</option>
+                                {% for url_item in colega.external_urls %}
+                                <option value="{{ url_item.url }}">{{ url_item.label }}</option>
+                                {% endfor %}
+                            </select>
+                            {% elsif colega.external_url %}
+                            <a href="{{ colega.external_url }}" class="boton boton-secundario" target="_blank" rel="noopener noreferrer">Sitio personal</a>
+                            {% endif %}
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
 
         <div id="nudo-content" style="margin-top: 30px; padding: 32px; background: #f3fcf8; border-radius: 12px; border-left: 4px solid var(--color-secundario);">
@@ -90,8 +96,13 @@ title: PsycheNudo
             <p style="margin: 0;"><strong>Aviso de Uso Responsable (Importante):</strong> Las herramientas clínicas y psicométricas disponibles en esta sección son estrictamente informativas y psicoeducativas. Ningún recurso de este sitio web sustituye el juicio profesional, ni debe ser utilizado como herramienta diagnóstica única. El diagnóstico clínico es un proceso complejo que requiere la intervención directa de un profesional de la salud mental debidamente acreditado.</p>
         </div>
 
+        <div class="subtabs" role="tablist" aria-label="Categorías de recursos">
+            <button class="subtab active" type="button" data-recursos-cat="psicoeducacion">🧠 Psicoeducación</button>
+            <button class="subtab" type="button" data-recursos-cat="formacion">🎓 Formación universitaria</button>
+        </div>
+
         <div class="grid-colegas">
-            <article class="tarjeta-colega">
+            <article class="tarjeta-colega" data-categoria="formacion">
                 <h3>Generador de Rúbricas</h3>
                 <p class="especialidad-colega">Utilidad educativa</p>
                 <p>Facilita la creación de rúbricas para evaluar actividades, proyectos o evidencias de aprendizaje con criterios claros y niveles de desempeño definidos.</p>
@@ -101,7 +112,7 @@ title: PsycheNudo
                     <a href="{{ '/recursos/rubrica/' | relative_url }}" class="boton" target="_blank" rel="noopener noreferrer">Abrir aplicación</a>
                 </div>
             </article>
-            <article class="tarjeta-colega">
+            <article class="tarjeta-colega" data-categoria="formacion">
                 <h3>TestLab Pro: Gestión de Exámenes</h3>
                 <p class="especialidad-colega">Evaluación / Exámenes</p>
                 <p>Herramienta interactiva para crear, aplicar y calificar exámenes con bancos de preguntas, calificación automática y formatos de evaluación.</p>
@@ -111,7 +122,7 @@ title: PsycheNudo
                     <a href="{{ '/recursos/Examen/index.html' | relative_url }}" class="boton" target="_blank" rel="noopener noreferrer">Abrir aplicación</a>
                 </div>
             </article>
-            <article class="tarjeta-colega">
+            <article class="tarjeta-colega" data-categoria="formacion">
                 <h3>Escape Room: Desafío Psicológico</h3>
                 <p class="especialidad-colega">Juego educativo / Herramienta didáctica</p>
                 <p>Una experiencia interactiva diseñada para explorar conceptos psicológicos clave a través de acertijos y desafíos lógicos. Ideal para el aprendizaje activo y la discusión en grupo.</p>
@@ -121,7 +132,7 @@ title: PsycheNudo
                     <a href="{{ '/recursos/escape-room/' | relative_url }}" class="boton" target="_blank" rel="noopener noreferrer">Abrir aplicación</a>
                 </div>
             </article>
-            <article class="tarjeta-colega">
+            <article class="tarjeta-colega" data-categoria="psicoeducacion">
                 <h3>FARO — Guía de acompañamiento</h3>
                 <p class="especialidad-colega">Psicoeducación / Crisis de ansiedad</p>
                 <p>Guía interactiva para acompañar a una persona durante un ataque de ansiedad, con ejercicio de respiración guiada y recursos de apoyo.</p>
@@ -130,7 +141,7 @@ title: PsycheNudo
                     <a href="{{ '/recursos/faro/' | relative_url }}" class="boton" target="_blank" rel="noopener noreferrer">Abrir aplicación</a>
                 </div>
             </article>
-            <article class="tarjeta-colega">
+            <article class="tarjeta-colega" data-categoria="formacion">
                 <h3>Ejercicio Clínico MMPI-2</h3>
                 <p class="especialidad-colega">Evaluación / Práctica clínica</p>
                 <p>Herramienta interactiva diseñada para que los estudiantes pongan a prueba y desarrollen sus conocimientos en la interpretación del MMPI-2.</p>
@@ -140,7 +151,7 @@ title: PsycheNudo
                     <a href="{{ '/recursos/mmpi/' | relative_url }}" class="boton" target="_blank" rel="noopener noreferrer">Abrir aplicación</a>
                 </div>
             </article>
-            <article class="tarjeta-colega">
+            <article class="tarjeta-colega" data-categoria="formacion">
                 <h3>Selección y Clima Laboral</h3>
                 <p class="especialidad-colega">Recursos Humanos / Org</p>
                 <p>Simulador interactivo que pone a prueba la habilidad de seleccionar personal y mantener el clima laboral. Evalúa candidatos mediante pruebas psicométricas y gestiona la operatividad de una empresa.</p>
@@ -150,7 +161,7 @@ title: PsycheNudo
                     <a href="{{ '/recursos/gestion-de-empresa/index.html' | relative_url }}" class="boton" target="_blank" rel="noopener noreferrer">Abrir aplicación</a>
                 </div>
             </article>
-            <article class="tarjeta-colega">
+            <article class="tarjeta-colega" data-categoria="formacion">
                 <h3>TAviejito: Simulador de Cuidado Geriátrico</h3>
                 <p class="especialidad-colega">Herramienta didáctica / Adulto mayor</p>
                 <p>Simulador interactivo estilo consola portátil que recrea el cuidado del adulto mayor. Su función es crear conciencia sobre la importancia de contemplar diversas variables —físicas, emocionales, sociales y médicas— para brindar un trato digno y humanizado.</p>
@@ -160,7 +171,7 @@ title: PsycheNudo
                     <a href="{{ '/recursos/Taviejito/index.html' | relative_url }}" class="boton" target="_blank" rel="noopener noreferrer">Abrir aplicación</a>
                 </div>
             </article>
-            <article class="tarjeta-colega">
+            <article class="tarjeta-colega" data-categoria="formacion">
                 <h3>Asistencia QR</h3>
                 <p class="especialidad-colega">Gestión pedagógica / Control de asistencia</p>
                 <p>Sistema de control de asistencia mediante códigos QR que limita el uso del celular en clase. Los estudiantes registran su presencia escaneando un código, mientras el profesor monitorea la asistencia en tiempo real.</p>
@@ -170,7 +181,7 @@ title: PsycheNudo
                     <a href="{{ '/recursos/asistencia-qr/index.html' | relative_url }}" class="boton" target="_blank" rel="noopener noreferrer">Abrir aplicación</a>
                 </div>
             </article>
-            <article class="tarjeta-colega">
+            <article class="tarjeta-colega" data-categoria="formacion">
                 <h3>Perfil de Egreso: Diagnóstico ABP</h3>
                 <p class="especialidad-colega">Evaluación diagnóstica / Competencias</p>
                 <p>Herramienta de evaluación diagnóstica diseñada para que los estudiantes identifiquen el nivel actual de sus competencias profesionales al inicio de una materia o de la carrera, contrastándolo con el perfil de egreso esperado.</p>
@@ -180,7 +191,7 @@ title: PsycheNudo
                     <a href="{{ '/recursos/Perfil%20de%20egreso/Perfil%20de%20egreso.html' | relative_url }}" class="boton" target="_blank" rel="noopener noreferrer">Abrir aplicación</a>
                 </div>
             </article>
-            <article class="tarjeta-colega">
+            <article class="tarjeta-colega" data-categoria="psicoeducacion">
                 <h3>Cáncer y Salud Mental: Medicamentos, Emoción y Acompañamiento</h3>
                 <p class="especialidad-colega">Psicoeducación / Salud emocional</p>
                 <p>Recurso de psicoeducación oncológica para pacientes, familias y profesionales. La psicoeducación es parte del tratamiento: normaliza el miedo, el coraje y la tristeza como reacciones esperables, explica con base científica los cambios de ánimo que producen los medicamentos, entrena habilidades para pedir y dar apoyo y ayuda a detectar a tiempo las señales que merecen atención profesional, con respaldo de las guías internacionales de psicooncología (NCCN, IPOS).</p>
@@ -325,4 +336,19 @@ title: PsycheNudo
             });
         });
     }
+
+    // Subcategorías de la pestaña Recursos
+    const subTabs = document.querySelectorAll('.subtab');
+    const recursoCards = document.querySelectorAll('#recursos .tarjeta-colega');
+    function filterRecursos(cat, btn) {
+        subTabs.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        recursoCards.forEach(card => {
+            card.style.display = card.dataset.categoria === cat ? '' : 'none';
+        });
+    }
+    subTabs.forEach(btn => {
+        btn.addEventListener('click', () => filterRecursos(btn.dataset.recursosCat, btn));
+    });
+    filterRecursos('psicoeducacion', document.querySelector('.subtab.active'));
 </script>
