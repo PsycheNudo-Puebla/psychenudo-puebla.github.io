@@ -85,7 +85,7 @@ Puedes ver el archivo `_profesionales/adrian-gonzalez.md` como referencia.
 | ✅ Una **tarjeta** en la pestaña "Nudo" del `index.html` | En `index.html` con el nombre, especialidad, cédula y enlaces |
 | ✅ Una **página de perfil** independiente | En `_site/profesionales/nombre-apellido/index.html` |
 | ✅ Navegación entre perfiles (anterior/siguiente) | Se genera automáticamente con JavaScript |
-| ✅ Enlace a verificación de cédula SEP y REDAM | En cada tarjeta y perfil |
+| ✅ Enlace a verificación de cédula SEP | En cada tarjeta y perfil |
 
 ---
 

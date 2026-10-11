@@ -678,26 +678,10 @@ footer.site-footer {
     backdrop-filter: none;
 }
 .nudo-panel__body {
-    max-height: min(62vh, 640px);
-    overflow-y: auto;
-    overscroll-behavior: contain;
     padding: 22px 24px 26px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-secundario) #eef4f2;
 }
-.nudo-panel__body::-webkit-scrollbar { width: 10px; }
-.nudo-panel__body::-webkit-scrollbar-track {
-    background: #eef4f2;
-    border-radius: 999px;
-}
-.nudo-panel__body::-webkit-scrollbar-thumb {
-    background: var(--color-secundario);
-    border-radius: 999px;
-    border: 2px solid #eef4f2;
-}
-.nudo-panel__body::-webkit-scrollbar-thumb:hover { background: var(--color-primario); }
 .nudo-panel__body .grid-colegas { margin-bottom: 0; }
 @media (max-width: 600px) {
     .nudo-panel__header { padding: 18px 16px 14px; }
-    .nudo-panel__body { padding: 16px; max-height: 60vh; }
+    .nudo-panel__body { padding: 16px; }
 }

@@ -36,15 +36,7 @@ title: PsycheNudo
         <div class="nudo-panel">
             <div class="nudo-panel__header">
                 <h2>El Nudo (Red de Profesionales)</h2>
-                <p>Colaboradores validados para atención y orientación. Compara la cédula de cada tarjeta con la SEP; usa los enlaces oficiales de la barra de verificación para confirmar cada registro.</p>
-
-                <div class="verificacion-nudo-bar" role="navigation" aria-label="Registros oficiales (SEP y REDAM Puebla)">
-                    <span class="verificacion-nudo-bar__hint">Verificación manual</span>
-                    <div class="verificacion-enlaces verificacion-enlaces--nudo-bar">
-                        <a href="https://www.cedulaprofesional.sep.gob.mx/cedula/presidencia/indexAvanzada.action" class="boton-verificacion boton-verificacion--compact" target="_blank" rel="noopener noreferrer">Cédula SEP</a>
-                        <a href="https://redam.puebla.gob.mx/" class="boton-verificacion boton-verificacion--compact" target="_blank" rel="noopener noreferrer">REDAM Puebla</a>
-                    </div>
-                </div>
+                <p>Colaboradores validados para atención y orientación. Compara la cédula de cada tarjeta con la SEP usando el botón <strong>Verificar cédula</strong> que aparece en cada ficha.</p>
             </div>
 
             <div class="nudo-panel__body">
@@ -60,6 +52,9 @@ title: PsycheNudo
                         
                         <div class="acciones-tarjeta">
                             <a href="{{ colega.url | relative_url }}" class="boton">Ver perfil completo</a>
+                            {% if colega.cedula and colega.cedula != 'Institucional' %}
+                            <a href="https://cedulaprofesional.sep.gob.mx/" class="boton boton-secundario" target="_blank" rel="noopener noreferrer">Verificar cédula (SEP)</a>
+                            {% endif %}
                             {% if colega.external_urls %}
                             <select class="boton boton-secundario" style="cursor: pointer;" onchange="if(this.value) { window.open(this.value, '_blank', 'noopener,noreferrer'); this.value = ''; }">
                                 <option value="">Sitio personal ▼</option>
