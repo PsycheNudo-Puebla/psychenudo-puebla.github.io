@@ -341,22 +341,46 @@ title: PsycheNudo
         recursoCards.forEach(card => {
             card.style.display = card.dataset.categoria === cat ? '' : 'none';
         });
+        if (typeof initRecursosCards === 'function') initRecursosCards();
     }
     subTabs.forEach(btn => {
         btn.addEventListener('click', () => filterRecursos(btn.dataset.recursosCat, btn));
     });
     filterRecursos('psicoeducacion', document.querySelector('.subtab.active'));
 
-    // Fichas de Recursos: agrupar el texto en un cuerpo con scroll si excede el alto máximo
-    document.querySelectorAll('#recursos .tarjeta-colega').forEach(card => {
-        const cuerpo = document.createElement('div');
-        cuerpo.className = 'recurso-card__cuerpo';
-        card.querySelectorAll(':scope > p:not(.especialidad-colega)').forEach(p => cuerpo.appendChild(p));
-        const acciones = card.querySelector(':scope > .acciones-tarjeta');
-        if (acciones) {
-            card.insertBefore(cuerpo, acciones);
-        } else {
-            card.appendChild(cuerpo);
-        }
-    });
+    // Fichas de Recursos: alto uniforme + "Leer más" cuando el texto excede
+    function initRecursosCards() {
+        document.querySelectorAll('#recursos .tarjeta-colega').forEach(card => {
+            if (!card.dataset.recursosInit) {
+                card.dataset.recursosInit = '1';
+                const cuerpo = document.createElement('div');
+                cuerpo.className = 'recurso-card__cuerpo';
+                card.querySelectorAll(':scope > p:not(.especialidad-colega)').forEach(p => cuerpo.appendChild(p));
+                const acciones = card.querySelector(':scope > .acciones-tarjeta');
+                const toggle = document.createElement('button');
+                toggle.type = 'button';
+                toggle.className = 'recurso-card__toggle';
+                toggle.textContent = 'Leer más';
+                if (acciones) {
+                    card.insertBefore(cuerpo, acciones);
+                    card.insertBefore(toggle, acciones);
+                } else {
+                    card.appendChild(cuerpo);
+                    card.appendChild(toggle);
+                }
+                toggle.addEventListener('click', () => {
+                    const expandida = card.classList.toggle('expandida');
+                    toggle.textContent = expandida ? 'Leer menos' : 'Leer más';
+                });
+            }
+            if (card.classList.contains('expandida')) return;
+            const cuerpo = card.querySelector('.recurso-card__cuerpo');
+            const toggle = card.querySelector('.recurso-card__toggle');
+            const desborda = cuerpo.scrollHeight > cuerpo.clientHeight + 2;
+            card.classList.toggle('tiene-overflow', desborda);
+            toggle.style.display = desborda ? 'block' : 'none';
+        });
+    }
+    initRecursosCards();
+    window.addEventListener('load', initRecursosCards);
 </script>

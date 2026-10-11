@@ -208,30 +208,49 @@ nav.site-nav a:hover { background-color: #ecf0f1; }
     flex-grow: 1;
 }
 
-/* ===== FICHAS DE RECURSOS: alto controlado con scroll interno ===== */
+/* ===== FICHAS DE RECURSOS: alto uniforme + "Leer más" al hacer click ===== */
 #recursos .grid-colegas { align-items: start; }
+#recursos .grid-colegas .tarjeta-colega {
+    height: 430px;
+    overflow: hidden;
+}
+#recursos .grid-colegas .tarjeta-colega.expandida { height: auto; }
 #recursos .grid-colegas .tarjeta-colega > p:nth-of-type(2) { flex-grow: 0; }
 .recurso-card__cuerpo {
-    max-height: 320px;
-    overflow-y: auto;
-    padding-right: 10px;
-    margin-bottom: 6px;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-secundario) #eef4f2;
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
 }
-.recurso-card__cuerpo::-webkit-scrollbar { width: 8px; }
-.recurso-card__cuerpo::-webkit-scrollbar-track {
-    background: #eef4f2;
-    border-radius: 999px;
+#recursos .grid-colegas .tarjeta-colega.expandida .recurso-card__cuerpo { overflow: visible; }
+.recurso-card__cuerpo::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 44px;
+    background: linear-gradient(180deg, rgba(243, 252, 248, 0) 0%, rgba(243, 252, 248, 0.96) 100%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
 }
-.recurso-card__cuerpo::-webkit-scrollbar-thumb {
-    background: var(--color-secundario);
-    border-radius: 999px;
+#recursos .grid-colegas .tarjeta-colega.tiene-overflow:not(.expandida) .recurso-card__cuerpo::after { opacity: 1; }
+.recurso-card__toggle {
+    display: none;
+    align-self: flex-start;
+    margin: 0 0 6px;
+    padding: 2px 0;
+    background: none;
+    border: none;
+    color: var(--color-secundario);
+    font-weight: 700;
+    font-size: 0.85rem;
+    font-family: var(--fuente-ui);
+    cursor: pointer;
 }
-.recurso-card__cuerpo::-webkit-scrollbar-thumb:hover { background: var(--color-primario); }
+.recurso-card__toggle::before { content: "▾ "; }
+#recursos .grid-colegas .tarjeta-colega.expandida .recurso-card__toggle::before { content: "▴ "; }
 @media (max-width: 600px) {
-    .recurso-card__cuerpo { max-height: 260px; }
+    #recursos .grid-colegas .tarjeta-colega { height: 470px; }
 }
 .grid-colegas .tarjeta-colega .boton {
     align-self: flex-start;
