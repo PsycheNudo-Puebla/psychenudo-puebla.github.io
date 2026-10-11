@@ -346,4 +346,17 @@ title: PsycheNudo
         btn.addEventListener('click', () => filterRecursos(btn.dataset.recursosCat, btn));
     });
     filterRecursos('psicoeducacion', document.querySelector('.subtab.active'));
+
+    // Fichas de Recursos: agrupar el texto en un cuerpo con scroll si excede el alto máximo
+    document.querySelectorAll('#recursos .tarjeta-colega').forEach(card => {
+        const cuerpo = document.createElement('div');
+        cuerpo.className = 'recurso-card__cuerpo';
+        card.querySelectorAll(':scope > p:not(.especialidad-colega)').forEach(p => cuerpo.appendChild(p));
+        const acciones = card.querySelector(':scope > .acciones-tarjeta');
+        if (acciones) {
+            card.insertBefore(cuerpo, acciones);
+        } else {
+            card.appendChild(cuerpo);
+        }
+    });
 </script>

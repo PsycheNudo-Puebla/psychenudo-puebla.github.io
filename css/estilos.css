@@ -207,6 +207,32 @@ nav.site-nav a:hover { background-color: #ecf0f1; }
 .grid-colegas .tarjeta-colega > p:nth-of-type(2) {
     flex-grow: 1;
 }
+
+/* ===== FICHAS DE RECURSOS: alto controlado con scroll interno ===== */
+#recursos .grid-colegas { align-items: start; }
+#recursos .grid-colegas .tarjeta-colega > p:nth-of-type(2) { flex-grow: 0; }
+.recurso-card__cuerpo {
+    max-height: 320px;
+    overflow-y: auto;
+    padding-right: 10px;
+    margin-bottom: 6px;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-secundario) #eef4f2;
+}
+.recurso-card__cuerpo::-webkit-scrollbar { width: 8px; }
+.recurso-card__cuerpo::-webkit-scrollbar-track {
+    background: #eef4f2;
+    border-radius: 999px;
+}
+.recurso-card__cuerpo::-webkit-scrollbar-thumb {
+    background: var(--color-secundario);
+    border-radius: 999px;
+}
+.recurso-card__cuerpo::-webkit-scrollbar-thumb:hover { background: var(--color-primario); }
+@media (max-width: 600px) {
+    .recurso-card__cuerpo { max-height: 260px; }
+}
 .grid-colegas .tarjeta-colega .boton {
     align-self: flex-start;
 }
