@@ -6,7 +6,7 @@ invitado_por: "el equipo de PsycheNudo Puebla"
 cedula: "09279684"
 external_urls:
   - label: "LinkedIn Profesional"
-    url: "https://www.linkedin.com/in/adrian-gonzalez-3b725b318"
+    url: "https://www.linkedin.com/in/alfredo-adrián-gonzález-lazcano-3b725b318"
   - label: "Sitio Web Personal"
     url: "/adrian-gonzalez/"
 ---
