@@ -72,9 +72,10 @@ function init() {
 
   // === Sincronización de metadatos del editor ===
   [elements.examTitle, elements.examTime, elements.examExits,
+   elements.examAccessKey, elements.examAvailableFrom, elements.examAvailableUntil,
    elements.distOM, elements.distVF, elements.distRel, elements.distOpen, elements.distMat,
    elements.ptsOM, elements.ptsVF, elements.ptsRel, elements.ptsOpen, elements.ptsMat
-  ].forEach((field) => field.addEventListener("input", syncMetadata));
+  ].forEach((field) => field && field.addEventListener("input", syncMetadata));
 
   // === Editor de preguntas (input/change/click) ===
   elements.questionsEditor.addEventListener("input", handleQuestionEditorInput);

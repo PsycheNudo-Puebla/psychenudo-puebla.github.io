@@ -40,34 +40,61 @@ async function loadDefaultExamFiles() {
 }
 
 async function loadExamFile(file, isApplyMode) {
+  let text;
   try {
-    const text = await file.text();
+    text = await file.text();
+  } catch (error) {
+    const message = `No se pudo leer el archivo: ${error.message}`;
+    if (isApplyMode) updateStatus(message, true);
+    else setEditStatus(message, true);
+    return;
+  }
+  loadExamText(text, file.name || "examen_local.json", isApplyMode);
+}
+
+function loadExamText(text, fileName, isApplyMode) {
+  const sourceName = fileName || "examen_local.json";
+  try {
+    if (typeof text !== "string" || !text.trim()) {
+      throw new Error("El archivo está vacío o no es un JSON válido.");
+    }
     const parsed = JSON.parse(text);
     currentExam = normalizeExam(parsed);
     populateEditor();
-    currentExamFileName = file.name || "examen_local.json";
+    currentExamFileName = sourceName;
     if (isApplyMode) {
-      updateStatus(`Examen cargado desde ${file.name}.`);
+      updateStatus(`Examen cargado desde ${sourceName}.`);
       showExamStage("welcome");
     } else {
-      setEditStatus(`Examen cargado desde ${file.name} y listo para editar.`);
+      setEditStatus(`Examen cargado desde ${sourceName} y listo para editar.`);
     }
+    return true;
   } catch (error) {
-    if (isApplyMode) updateStatus(`No se pudo leer el archivo: ${error.message}`, true);
-    else setEditStatus(`No se pudo leer el archivo: ${error.message}`, true);
+    const message = `No se pudo leer el archivo: ${error.message}`;
+    if (isApplyMode) updateStatus(message, true);
+    else setEditStatus(message, true);
+    return false;
   }
 }
 
 async function discoverKnownJsonFiles() {
-  let knownNames = ["config_examen.json", "banco_preguntas.json", "examen_ejemplo.json"];
+  let knownNames = [];
   try {
     const res = await fetch("examenes.json", { cache: "no-store" });
     if (res.ok) {
       const list = await res.json();
-      if (Array.isArray(list)) knownNames = [...new Set([...knownNames, ...list])];
+      if (Array.isArray(list) && list.length) knownNames = [...new Set(list)];
     }
-  } catch (e) { 
-    console.warn("No se encontró examenes.json, usando lista por defecto."); 
+  } catch (e) {
+    console.warn("No se encontró examenes.json, usando lista mínima.");
+  }
+
+  if (!knownNames.length) {
+    knownNames = [
+      "PPI.json",
+      "Primer parcial Transdisciplina II.json",
+      "transdisciplina 3TB.json"
+    ];
   }
 
   const discovered = [];
@@ -189,11 +216,11 @@ function renderFolderFileList(items, useDirectoryHandle) {
     } else if (item?.url) {
       try {
         const response = await fetch(item.url, { cache: "no-store" });
-        const blob = await response.blob();
-        const file = new File([blob], item.name, { type: "application/json" });
-        loadExamFile(file, true);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const text = await response.text();
+        loadExamText(text, item.name, true);
       } catch (error) {
-        updateStatus(`No se pudo cargar ${item.name} desde la carpeta del proyecto.`, true);
+        updateStatus(`No se pudo cargar ${item.name} desde la carpeta del proyecto: ${error.message}`, true);
       }
     } else {
       const file = item?.file;

@@ -53,7 +53,7 @@ function showExamStage(stage) {
   }
 }
 
-function prepareExam() {
+async function prepareExam() {
   const name = elements.welcomeName.value.trim();
   const id = elements.welcomeId.value.trim();
   if (!name || !id) { 
@@ -62,11 +62,64 @@ function prepareExam() {
     return; 
   }
   if (!currentExam.preguntas.length) { updateStatus("El examen no tiene preguntas. Agrega o carga uno antes de iniciar.", true); return; }
+
+  const accessCheck = await validateExamAccess();
+  if (!accessCheck.allowed) {
+    showModalAlert(accessCheck.message, "Examen no disponible", "🔒");
+    updateStatus(accessCheck.message, true);
+    return;
+  }
+
   studentData = { name, id };
 
   document.getElementById("apply-header").classList.add("hidden");
   elements.examSection.classList.remove("hidden");
   showExamStage("instructions");
+}
+
+async function validateExamAccess() {
+  const access = currentExam && currentExam.acceso ? currentExam.acceso : { clave: "", habilitar_desde: "", habilitar_hasta: "", requiere_clave: false };
+  const now = new Date();
+  const openFrom = access.habilitar_desde ? new Date(access.habilitar_desde) : null;
+  const openUntil = access.habilitar_hasta ? new Date(access.habilitar_hasta) : null;
+  const openFromValid = openFrom && !Number.isNaN(openFrom.getTime());
+  const openUntilValid = openUntil && !Number.isNaN(openUntil.getTime());
+
+  // 1) Validar rango de disponibilidad (si se definió)
+  if (openFromValid && now < openFrom) {
+    return {
+      allowed: false,
+      message: `Este examen estará disponible desde ${openFrom.toLocaleString("es-MX", { dateStyle: "medium", timeStyle: "short" })}.`
+    };
+  }
+
+  if (openUntilValid && now > openUntil) {
+    return {
+      allowed: false,
+      message: `La fecha y hora de acceso para este examen concluyeron el ${openUntil.toLocaleString("es-MX", { dateStyle: "medium", timeStyle: "short" })}.`
+    };
+  }
+
+  // 2) Validar clave de acceso (si se definió)
+  const requiredKey = access.clave ? String(access.clave).trim() : "";
+  if (requiredKey) {
+    const enteredKey = await window.showModalPrompt(
+      "Este examen requiere una clave de acceso. Ingresa la clave para continuar:",
+      "Clave de acceso",
+      "🔑",
+      ""
+    );
+
+    if (enteredKey === null) {
+      return { allowed: false, message: "Se canceló el ingreso de la clave de acceso." };
+    }
+
+    if (String(enteredKey).trim() !== requiredKey) {
+      return { allowed: false, message: "La clave de acceso es incorrecta o no se proporcionó." };
+    }
+  }
+
+  return { allowed: true, message: "Acceso permitido." };
 }
 
 function startExam() {

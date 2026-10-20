@@ -7,6 +7,9 @@ function populateEditor() {
   elements.examTime.value = currentExam.tiempo_limite_minutos || 15;
   elements.examExits.value = currentExam.maximo_salidas || 3;
   if (elements.examRecoveryKey) elements.examRecoveryKey.value = currentExam.clave_recuperacion || "";
+  if (elements.examAccessKey) elements.examAccessKey.value = currentExam.acceso?.clave || "";
+  if (elements.examAvailableFrom) elements.examAvailableFrom.value = normalizeDateTimeInput(currentExam.acceso?.habilitar_desde || "");
+  if (elements.examAvailableUntil) elements.examAvailableUntil.value = normalizeDateTimeInput(currentExam.acceso?.habilitar_hasta || "");
   elements.distOM.value = currentExam.distribucion.opcion_multiple || 0;
   elements.distVF.value = currentExam.distribucion.vf || 0;
   elements.distRel.value = currentExam.distribucion.relacionar || 0;
@@ -164,11 +167,26 @@ function updateEditorNavigation() {
   document.getElementById("next-editor-btn").classList.toggle("hidden", currentEditorPage === totalQuestions - 1 || totalQuestions === 0);
 }
 
+function normalizeDateTimeInput(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const offset = date.getTimezoneOffset();
+  const local = new Date(date.getTime() - offset * 60000);
+  return local.toISOString().slice(0, 16);
+}
+
 function syncMetadata() {
   currentExam.titulo = elements.examTitle.value.trim() || "Examen sin título";
   currentExam.tiempo_limite_minutos = Number(elements.examTime.value || 15);
   currentExam.maximo_salidas = Number(elements.examExits.value || 3);
   currentExam.clave_recuperacion = elements.examRecoveryKey ? elements.examRecoveryKey.value.trim() : "";
+  currentExam.acceso = {
+    clave: elements.examAccessKey ? elements.examAccessKey.value.trim() : "",
+    habilitar_desde: elements.examAvailableFrom ? elements.examAvailableFrom.value : "",
+    habilitar_hasta: elements.examAvailableUntil ? elements.examAvailableUntil.value : "",
+    requiere_clave: Boolean(elements.examAccessKey && elements.examAccessKey.value.trim())
+  };
   currentExam.puntos_distribucion = {
     opcion_multiple: Number(elements.ptsOM.value || 0),
     vf: Number(elements.ptsVF.value || 0),

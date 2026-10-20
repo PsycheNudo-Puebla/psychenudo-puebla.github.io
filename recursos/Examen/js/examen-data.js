@@ -17,6 +17,7 @@ function normalizeExam(data) {
   // Normalizar tareas
   const tareasInput = Array.isArray(source.tareas) ? source.tareas : [];
   const reglasInput = Array.isArray(source.reglas_asignacion) ? source.reglas_asignacion : [];
+  const access = source.acceso || {};
   return {
     titulo: source.titulo || "Examen sin título",
     tiempo_limite_minutos: Number(source.tiempo_limite_minutos || 15),
@@ -38,7 +39,13 @@ function normalizeExam(data) {
     preguntas: preguntas.map((question, index) => normalizeQuestion(question, index)),
     tareas: tareasInput.map(t => normalizeTarea(t)),
     reglas_asignacion: reglasInput.map(r => normalizeRegla(r)),
-    clave_recuperacion: source.clave_recuperacion || ""
+    clave_recuperacion: source.clave_recuperacion || "",
+    acceso: {
+      clave: (access.clave || source.clave_acceso || source.clave || "").trim(),
+      habilitar_desde: access.habilitar_desde || access.fecha_hora_inicio || access.inicia_en || "",
+      habilitar_hasta: access.habilitar_hasta || access.fecha_hora_fin || access.termina_en || "",
+      requiere_clave: Boolean(access.requiere_clave ?? !!(access.clave || source.clave_acceso || source.clave))
+    }
   };
 }
 
@@ -140,6 +147,12 @@ function serializeCurrentExam() {
     preguntas: currentExam.preguntas,
     tareas: currentExam.tareas || [],
     reglas_asignacion: currentExam.reglas_asignacion || [],
-    clave_recuperacion: currentExam.clave_recuperacion || ""
+    clave_recuperacion: currentExam.clave_recuperacion || "",
+    acceso: {
+      clave: currentExam.acceso?.clave || "",
+      habilitar_desde: currentExam.acceso?.habilitar_desde || "",
+      habilitar_hasta: currentExam.acceso?.habilitar_hasta || "",
+      requiere_clave: Boolean(currentExam.acceso?.requiere_clave)
+    }
   };
 }

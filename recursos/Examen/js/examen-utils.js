@@ -163,22 +163,64 @@ function showModalAlert(message, title = "TestLab Pro", icon = "ℹ️") {
     document.getElementById("modal-message").textContent = message;
     document.getElementById("modal-confirm-btn").classList.remove("hidden");
     document.getElementById("modal-cancel-btn").classList.add("hidden");
+    // Restaurar el manejador del botón Aceptar (por si un prompt lo había reemplazado)
+    document.getElementById("modal-confirm-btn").onclick = () => closeModal(true);
     document.getElementById("modal-overlay").classList.remove("hidden");
     modalResolve = (val) => { resolve(val); modalResolve = null; };
   });
 }
 
+window.showModalAlert = showModalAlert;
+
 function showModalConfirm(message, title = "Confirmar", icon = "❓") {
   return new Promise((resolve) => {
     document.getElementById("modal-icon").textContent = icon;
     document.getElementById("modal-title").textContent = title;
-    document.getElementById("modal-message").textContent = message;
+    document.getElementById("modal-message").innerHTML = `<p>${escapeHtml(message)}</p>`;
     document.getElementById("modal-confirm-btn").classList.remove("hidden");
     document.getElementById("modal-cancel-btn").classList.remove("hidden");
     document.getElementById("modal-overlay").classList.remove("hidden");
+    document.getElementById("modal-confirm-btn").onclick = () => closeModal(true);
+    document.getElementById("modal-cancel-btn").onclick = () => closeModal(false);
     modalResolve = (val) => { resolve(val); modalResolve = null; };
   });
 }
+
+function showModalPrompt(message, title = "Clave de acceso", icon = "🔑", defaultValue = "") {
+  return new Promise((resolve) => {
+    const messageEl = document.getElementById("modal-message");
+    messageEl.innerHTML = `
+      <p style="margin: 0 0 12px;">${escapeHtml(message)}</p>
+      <input id="modal-prompt-input" type="text" value="${escapeAttribute(defaultValue)}" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box;" autofocus />
+    `;
+    document.getElementById("modal-icon").textContent = icon;
+    document.getElementById("modal-title").textContent = title;
+    document.getElementById("modal-confirm-btn").classList.remove("hidden");
+    document.getElementById("modal-cancel-btn").classList.remove("hidden");
+    document.getElementById("modal-overlay").classList.remove("hidden");
+    const confirmPrompt = () => {
+      const input = document.getElementById("modal-prompt-input");
+      closeModal(input ? input.value : "");
+    };
+    document.getElementById("modal-confirm-btn").onclick = confirmPrompt;
+    document.getElementById("modal-cancel-btn").onclick = () => closeModal(null);
+    const inputEl = document.getElementById("modal-prompt-input");
+    if (inputEl) {
+      inputEl.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          confirmPrompt();
+        }
+      });
+      inputEl.focus();
+      inputEl.select();
+    }
+    modalResolve = (val) => { resolve(val); modalResolve = null; };
+  });
+}
+
+window.showModalConfirm = showModalConfirm;
+window.showModalPrompt = showModalPrompt;
 
 function closeModal(value) {
   document.getElementById("modal-overlay").classList.add("hidden");

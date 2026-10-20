@@ -172,6 +172,19 @@
           <input id="exam-recovery-key" type="text" placeholder="Dejar vacío = sin recuperación" />
           <small style="color:var(--muted);font-size:0.75rem;">Si se agotan las salidas, el alumno puede ingresar esta clave para retomar el examen (falsos positivos).</small>
         </label>
+        <label class="field">
+          <span>Clave de acceso <em style="font-weight:400;color:var(--muted);font-size:0.8rem;">(opcional)</em></span>
+          <input id="exam-access-key" type="text" placeholder="Dejar vacío = sin clave" />
+          <small style="color:var(--muted);font-size:0.75rem;">Si se llena, el alumno deberá ingresar esta clave antes de empezar el examen.</small>
+        </label>
+        <label class="field">
+          <span>Disponible desde</span>
+          <input id="exam-available-from" type="datetime-local" />
+        </label>
+        <label class="field">
+          <span>Disponible hasta</span>
+          <input id="exam-available-until" type="datetime-local" />
+        </label>
       </div>
       <div class="section-heading" style="margin-top: 16px;">
         <div>

@@ -1,0 +1,278 @@
+{
+  "titulo": "Examen Diagnóstico: Transdisciplina II - Teorías de la Complejidad",
+  "tiempo_limite_minutos": 15,
+  "maximo_salidas": 2,
+  "clave_recuperacion": "deadpool",
+  "acceso": {
+    "clave": "trans3tb",
+    "habilitar_desde": "",
+    "habilitar_hasta": "",
+    "requiere_clave": true
+  },
+  "puntos_distribucion": {
+    "opcion_multiple": 1,
+    "vf": 0,
+    "relacionar": 2,
+    "abierta": 0,
+    "matematica": 0
+  },
+  "distribucion": {
+    "opcion_multiple": 10,
+    "vf": 0,
+    "relacionar": 2,
+    "abierta": 0,
+    "matematica": 0
+  },
+  "tareas": [
+    {
+      "id": "tarea_base_4",
+      "nombre": "TAREA BASE 4: Pregunta de investigación aplicando teorías de la complejidad a un fenómeno psicológico",
+      "descripcion": "Elaborar un documento de 2 a 3 cuartillas que incluya: delimitación del fenómeno psicológico, pregunta de investigación desde el pensamiento complejo, justificación de su abordaje no lineal y multidimensional, aplicación explícita de al menos dos conceptos (Morin o Prigogine), vinculación con la práctica psicológica y mínimo tres referencias en APA 7.",
+      "tipo": "investigacion",
+      "fecha_entrega": "2026-11-02",
+      "instrucciones": "Formato: Arial o Times New Roman 12, interlineado 1.5, citas en APA 7. Criterios de evaluación: pertinencia del fenómeno, claridad de la pregunta, uso correcto de los conceptos, coherencia argumentativa, referencias y formato. (Obligatoria para todos)."
+    },
+    {
+      "id": "ta4_d1",
+      "nombre": "TA4-D1: Glosario de la complejidad",
+      "descripcion": "Elaborar un glosario con al menos 8 conceptos fundamentales de las teorías de la complejidad (pensamiento complejo, estructura disipativa, autoorganización, atractor, bifurcación, emergencia, no linealidad, autopoiesis, entre otros).",
+      "tipo": "ejercicio",
+      "fecha_entrega": "2026-11-02",
+      "instrucciones": "Cada concepto debe incluir: 1. Definición, 2. Autor o tradición de la que proviene, 3. Ejemplo aplicado a la psicología, 4. Fuente de consulta en APA 7. Extensión: 1 a 2 cuartillas."
+    },
+    {
+      "id": "ta4_d2",
+      "nombre": "TA4-D2: Análisis breve de un fenómeno psicológico desde la complejidad",
+      "descripcion": "Seleccionar un fenómeno psicológico (ansiedad, conflicto de pareja, fracaso escolar, adicción, burnout, entre otros) y analizarlo desde las teorías de la complejidad.",
+      "tipo": "analisis",
+      "fecha_entrega": "2026-11-02",
+      "instrucciones": "Debe incluir: descripción del fenómeno, identificación de los niveles que interactúan (biológico, psicológico, social, cultural), explicación de al menos dos conceptos de la complejidad aplicados al fenómeno, reflexión sobre el cambio en la intervención psicológica y referencias en APA 7. Extensión: 1 a 2 cuartillas."
+    },
+    {
+      "id": "ta4_d3",
+      "nombre": "TA4-D3: Mapa conceptual de las teorías de la complejidad",
+      "descripcion": "Elaborar un mapa conceptual que integre los principales autores, conceptos y aplicaciones psicológicas de las teorías de la complejidad.",
+      "tipo": "investigacion",
+      "fecha_entrega": "2026-11-02",
+      "instrucciones": "Debe incluir: al menos 8 conceptos con jerarquías y conexiones explicadas, referencia a Morin, Prigogine y al menos un autor complementario, una sección de aplicaciones en psicología y referencias en APA 7. Formato libre (digital o elaborado a mano y escaneado)."
+    }
+  ],
+  "reglas_asignacion": [
+    {
+      "id": "regla_excelente",
+      "nombre": "Rendimiento excelente (9.0 - 10.0)",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": ">=",
+          "valor": 9.0,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": ["tarea_base_4"]
+    },
+    {
+      "id": "regla_alto",
+      "nombre": "Rendimiento alto (7.5 - 8.9)",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": ">=",
+          "valor": 7.5,
+          "unidad": "porcentaje"
+        },
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": "<",
+          "valor": 9.0,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": ["tarea_base_4", "ta4_d1"]
+    },
+    {
+      "id": "regla_medio",
+      "nombre": "Rendimiento medio (6.0 - 7.4)",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": ">=",
+          "valor": 6.0,
+          "unidad": "porcentaje"
+        },
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": "<",
+          "valor": 7.5,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": ["tarea_base_4", "ta4_d1", "ta4_d2"]
+    },
+    {
+      "id": "regla_bajo",
+      "nombre": "Rendimiento bajo (5.9 o menor)",
+      "condiciones": [
+        {
+          "tipo": "porcentaje_global",
+          "seccion": "",
+          "operador": "<",
+          "valor": 6.0,
+          "unidad": "porcentaje"
+        }
+      ],
+      "tareas_asignadas": ["tarea_base_4", "ta4_d1", "ta4_d2", "ta4_d3"]
+    }
+  ],
+  "preguntas": [
+    {
+      "id": "om_01",
+      "tipo": "opcion_multiple",
+      "pregunta": "En el contexto del principio dialógico de Edgar Morin, ¿cómo se aborda la aparente contradicción entre la autonomía del paciente y su dependencia del entorno terapéutico?",
+      "opciones": [
+        "Se resuelve jerarquizando la autonomía sobre la dependencia mediante técnicas de empoderamiento.",
+        "Se acepta la coexistencia de ambas lógicas sin que la contradicción se resuelva en una síntesis superior, sino en un bucle productivo y constitutivo.",
+        "Se elimina la dependencia mediante la psicoeducación, considerándola un obstáculo para el cambio clínico.",
+        "Se considera una falacia lógica producto del pensamiento simplificador que debe ser descartada en la formulación de casos."
+      ],
+      "respuesta_correcta": "Se acepta la coexistencia de ambas lógicas sin que la contradicción se resuelva en una síntesis superior, sino en un bucle productivo y constitutivo."
+    },
+    {
+      "id": "om_02",
+      "tipo": "opcion_multiple",
+      "pregunta": "Según la teoría de las estructuras disipativas de Ilya Prigogine, un episodio de crisis aguda en un paciente (punto de bifurcación) se caracteriza fundamentalmente por:",
+      "opciones": [
+        "La reversibilidad temporal de los procesos psíquicos hacia un estado homeostático previo garantizado.",
+        "La determinación lineal y predecible del desenlace clínico basada exclusivamente en el historial de vida.",
+        "La alta sensibilidad a las condiciones iniciales y la posibilidad de evolucionar hacia múltiples estados atractores, rompiendo el equilibrio anterior.",
+        "La disipación total de la energía psíquica, conduciendo inevitablemente a la entropía máxima y al colapso irreversible del sistema."
+      ],
+      "respuesta_correcta": "La alta sensibilidad a las condiciones iniciales y la posibilidad de evolucionar hacia múltiples estados atractores, rompiendo el equilibrio anterior."
+    },
+    {
+      "id": "om_03",
+      "tipo": "opcion_multiple",
+      "pregunta": "Desde la perspectiva de la autopoiesis de Maturana y Varela, la intervención psicoterapéutica NO debe entenderse como:",
+      "opciones": [
+        "Un acoplamiento estructural que desencadena cambios en la red de producción del propio paciente.",
+        "Una instrucción o control externo que modifica directamente y de manera determinista la organización del sistema psíquico del otro.",
+        "Un proceso de co-creación de significados en el dominio de las interacciones recurrentes.",
+        "Una perturbación que el sistema vivo compensa o integra según su propia dinámica organizacional cerrada."
+      ],
+      "respuesta_correcta": "Una instrucción o control externo que modifica directamente y de manera determinista la organización del sistema psíquico del otro."
+    },
+    {
+      "id": "om_04",
+      "tipo": "opcion_multiple",
+      "pregunta": "En la modelación de la psicopatología mediante sistemas dinámicos no lineales, el concepto de 'atractor' resulta útil para explicar:",
+      "opciones": [
+        "La remisión espontánea y lineal de los síntomas tras un periodo de estrés agudo.",
+        "Patrones de conducta o pensamiento recurrentes, caóticos pero acotados dentro de un espacio de fases, que son resistentes al cambio lineal.",
+        "La influencia genética como único determinante de la trayectoria vital del individuo.",
+        "La capacidad del terapeuta para predecir con exactitud determinista el estado futuro del paciente a largo plazo."
+      ],
+      "respuesta_correcta": "Patrones de conducta o pensamiento recurrentes, caóticos pero acotados dentro de un espacio de fases, que son resistentes al cambio lineal."
+    },
+    {
+      "id": "om_05",
+      "tipo": "opcion_multiple",
+      "pregunta": "El principio hologramático de Morin, aplicado a la psicología social y clínica, implica que:",
+      "opciones": [
+        "La cultura es un mero epifenómeno de las estructuras cerebrales individuales.",
+        "El individuo lleva en sí mismo la totalidad de la sociedad (ej. a través del lenguaje, las normas y la historia), así como la sociedad está presente en el individuo.",
+        "Las partes de un grupo terapéutico son idénticas entre sí, reflejando la homogeneidad necesaria del todo.",
+        "El análisis de una sola sesión clínica es suficiente para deducir las leyes universales y estáticas de la psique humana."
+      ],
+      "respuesta_correcta": "El individuo lleva en sí mismo la totalidad de la sociedad (ej. a través del lenguaje, las normas y la historia), así como la sociedad está presente en el individuo."
+    },
+    {
+      "id": "om_06",
+      "tipo": "opcion_multiple",
+      "pregunta": "Según la teoría de sistemas de Niklas Luhmann aplicada a la psicología, la unidad básica que constituye el sistema social (incluyendo el sistema terapéutico) es:",
+      "opciones": [
+        "La acción intencional y consciente de los individuos que lo componen.",
+        "La comunicación, entendida como la síntesis de información, enunciación y comprensión.",
+        "El intercambio de recursos emocionales y empáticos entre el terapeuta y el paciente.",
+        "La estructura jerárquica y normativa de la institución clínica."
+      ],
+      "respuesta_correcta": "La comunicación, entendida como la síntesis de información, enunciación y comprensión."
+    },
+    {
+      "id": "om_07",
+      "tipo": "opcion_multiple",
+      "pregunta": "La recursividad en los procesos psicológicos, según el pensamiento complejo, se ilustra mejor cuando:",
+      "opciones": [
+        "Un trauma del pasado causa directamente un síntoma en el presente sin mediaciones ni reinterpretaciones.",
+        "Los productos de la interacción terapéutica (ej. la alianza) se convierten a su vez en productores de nuevas interacciones que modifican la alianza misma.",
+        "El terapeuta aplica un manual de tratamiento estandarizado paso a paso, sin desviaciones.",
+        "Se aísla la variable 'ansiedad' para medir su impacto lineal en el rendimiento académico del paciente."
+      ],
+      "respuesta_correcta": "Los productos de la interacción terapéutica (ej. la alianza) se convierten a su vez en productores de nuevas interacciones que modifican la alianza misma."
+    },
+    {
+      "id": "om_08",
+      "tipo": "opcion_multiple",
+      "pregunta": "Morin insiste en que 'lo complejo no es lo complicado'. En la práctica clínica, esta distinción epistemológica implica que:",
+      "opciones": [
+        "Un caso complicado requiere más variables, pero un caso complejo requiere reconocer que el tejido conjunto de las variables genera propiedades emergentes irreductibles a su suma.",
+        "Lo complicado es propio de la neurobiología, mientras que lo complejo es un concepto exclusivo de la sociología y la antropología.",
+        "El pensamiento complejo busca simplificar lo complicado mediante algoritmos para hacerlo clínicamente manejable.",
+        "No existe diferencia real entre ambos términos; son sinónimos utilizados para justificar la falta de protocolos estandarizados."
+      ],
+      "respuesta_correcta": "Un caso complicado requiere más variables, pero un caso complejo requiere reconocer que el tejido conjunto de las variables genera propiedades emergentes irreductibles a su suma."
+    },
+    {
+      "id": "om_09",
+      "tipo": "opcion_multiple",
+      "pregunta": "Según el enfoque de la complejidad, ¿cómo se conceptualiza un trastorno psicológico como la depresión?",
+      "opciones": [
+        "Como un desequilibrio químico aislado en el cerebro que requiere corrección farmacológica exclusiva.",
+        "Como un patrón emergente que involucra la interacción dinámica y no lineal de factores biológicos, psicológicos, relacionales y contextuales.",
+        "Como una entidad discreta con una causa lineal única y predecible en el historial de desarrollo.",
+        "Como una falla exclusiva en los mecanismos de defensa del yo, independiente del entorno social."
+      ],
+      "respuesta_correcta": "Como un patrón emergente que involucra la interacción dinámica y no lineal de factores biológicos, psicológicos, relacionales y contextuales."
+    },
+    {
+      "id": "om_10",
+      "tipo": "opcion_multiple",
+      "pregunta": "Al abordar la subjetividad desde el pensamiento complejo, ¿cuál de las siguientes afirmaciones es epistemológicamente correcta?",
+      "opciones": [
+        "La subjetividad puede reducirse a su base neurobiológica para garantizar el rigor científico.",
+        "La subjetividad es un proceso dinámico donde interactúan niveles biológicos, psicológicos, sociales, culturales, históricos y lingüísticos.",
+        "La subjetividad es una entidad fija determinada únicamente por las narrativas culturales dominantes.",
+        "La subjetividad debe estudiarse aislando las variables psicológicas de las influencias sociales para evitar sesgos."
+      ],
+      "respuesta_correcta": "La subjetividad es un proceso dinámico donde interactúan niveles biológicos, psicológicos, sociales, culturales, históricos y lingüísticos."
+    },
+    {
+      "id": "rel_01",
+      "tipo": "relacionar",
+      "pregunta": "Relaciona cada concepto fundamental de la complejidad con su definición formal.",
+      "opciones": {
+        "Estructura disipativa": "Sistema que se mantiene lejos del equilibrio mediante el intercambio de energía, generando nuevo orden a partir del caos.",
+        "Autopoiesis": "Capacidad de un sistema vivo de producir y renovar continuamente sus propios componentes y su organización.",
+        "Atractor": "Patrón o estado hacia el cual tiende a evolucionar un sistema dinámico a lo largo del tiempo.",
+        "Bifurcación": "Punto crítico de inestabilidad donde el sistema puede evolucionar hacia múltiples estados posibles.",
+        "Emergencia": "Propiedades nuevas que surgen de la interacción entre componentes y que no pueden predecirse a partir de ellos por separado."
+      }
+    },
+    {
+      "id": "rel_02",
+      "tipo": "relacionar",
+      "pregunta": "Relaciona cada principio del pensamiento complejo de Edgar Morin con su descripción.",
+      "opciones": {
+        "Principio sistémico": "El todo es más que la suma de las partes (emergencia), pero también es menos (restricciones).",
+        "Principio hologramático": "La parte está en el todo y el todo está en la parte, como en un holograma.",
+        "Principio de retroactividad": "Los efectos retroactúan sobre las causas, estableciendo bucles de retroalimentación.",
+        "Principio de recursividad": "Los productos y los efectos son a la vez causas y productores de aquello que los produce.",
+        "Principio dialógico": "Dos lógicas opuestas pueden estar unidas sin que la contradicción se resuelva en una síntesis superior."
+      }
+    }
+  ]
+}
