@@ -26,8 +26,23 @@ function buildSafariPrintDocument(reportHtml) {
 
 async function exportToPdf(filename) {
   if (!latestResultPayload) return;
-  
+
   const data = latestResultPayload;
+
+  // Si pdfMake no cargó (CDN/red bloqueada), usar la vista imprimible como respaldo.
+  if (typeof pdfMake === "undefined" || !pdfMake || typeof pdfMake.createPdf !== "function") {
+    const printWin = window.open("", "_blank");
+    if (printWin) {
+      printWin.document.write(buildSafariPrintDocument(buildPrintableReport(data)));
+      printWin.document.close();
+      printWin.focus();
+      setTimeout(() => { try { printWin.print(); } catch (e) { /* el usuario imprime a mano */ } }, 600);
+    } else {
+      showModalAlert("No se pudo cargar el generador de PDF. Habilita las ventanas emergentes para imprimir tu reporte.", "PDF no disponible", "⚠️");
+    }
+    return { method: "print" };
+  }
+
   const scoreBase10 = (data.score && !isNaN(parseFloat(data.score))) ? data.score : ((data.totalPoints > 0) ? ((data.earnedPoints / data.totalPoints) * 10).toFixed(1) : "0.0");
   
   // --- Preparar contenido de tareas asignadas para el PDF ---
