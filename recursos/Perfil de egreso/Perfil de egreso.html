@@ -7,11 +7,44 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="format-detection" content="telephone=no">
 
-<script src="../../vendor/chart.umd.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';document.head.appendChild(s);"></script>
-<script src="../../vendor/html2canvas.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';document.head.appendChild(s);"></script>
-<script src="../../vendor/jspdf.umd.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';document.head.appendChild(s);"></script>
-<script src="../../vendor/pdfmake.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/pdfmake@0.2.10/build/pdfmake.min.js';document.head.appendChild(s);"></script>
-<script src="../../vendor/vfs_fonts.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/pdfmake@0.2.10/build/vfs_fonts.js';document.head.appendChild(s);"></script>
+<script src="../../vendor/chart.umd.min.js"></script>
+<script src="../../vendor/html2canvas.min.js"></script>
+<script src="../../vendor/jspdf.umd.min.js"></script>
+<script src="../../vendor/pdfmake.min.js"></script>
+<script src="../../vendor/vfs_fonts.js"></script>
+<script>
+(function(){
+  function load(src){
+    if(document.querySelector('script[src="'+src+'"]')) return;
+    var s=document.createElement('script');
+    s.src=src;
+    s.async=false;
+    document.head.appendChild(s);
+  }
+  function check(){
+    if(typeof window.Chart==='undefined') load('https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js');
+    if(typeof window.html2canvas==='undefined') load('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js');
+    if(typeof window.jspdf==='undefined') load('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js');
+    if(typeof window.pdfMake==='undefined') load('https://cdn.jsdelivr.net/npm/pdfmake@0.2.10/build/pdfmake.min.js');
+    if(typeof window.pdfMake!=='undefined' && (!window.pdfMake.vfs || Object.keys(window.pdfMake.vfs).length===0)){
+      load('https://cdn.jsdelivr.net/npm/pdfmake@0.2.10/build/vfs_fonts.js');
+    }
+  }
+  window.addEventListener('error',function(e){
+    var t=e.target;
+    if(t && t.tagName==='SCRIPT'){
+      var src=t.src||'';
+      if(src.indexOf('chart.umd.min.js')>-1 && typeof window.Chart==='undefined') load('https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js');
+      if(src.indexOf('html2canvas.min.js')>-1 && typeof window.html2canvas==='undefined') load('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js');
+      if(src.indexOf('jspdf.umd.min.js')>-1 && typeof window.jspdf==='undefined') load('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js');
+      if(src.indexOf('pdfmake.min.js')>-1 && typeof window.pdfMake==='undefined') load('https://cdn.jsdelivr.net/npm/pdfmake@0.2.10/build/pdfmake.min.js');
+      if(src.indexOf('vfs_fonts.js')>-1 && typeof window.pdfMake!=='undefined') load('https://cdn.jsdelivr.net/npm/pdfmake@0.2.10/build/vfs_fonts.js');
+    }
+  },true);
+  setTimeout(check,500);
+  setTimeout(check,1500);
+})();
+</script>
 
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -943,11 +976,13 @@ function ensureChartLoaded() {
       if (typeof window.Chart !== 'undefined') return resolve();
       const s = document.createElement('script');
       s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+      s.async = false;
       s.onload = resolve;
-      s.onerror = resolve;
+      s.onerror = () => { setTimeout(resolve, 500); };
       document.head.appendChild(s);
     };
     tryLoad();
+    setTimeout(resolve, 2000);
   });
 }
 
@@ -2543,10 +2578,30 @@ async function generarPDFMake(tipo) {
   content.push({ text: 'Gráfica de competencias', style: 'section', margin: [0, 20, 0, 10] });
   try {
     const canvasId = isFinal ? 'chartRadarFinal' : 'chartRadar';
-    const canvas = document.getElementById(canvasId);
+    let canvas = document.getElementById(canvasId);
+    if (!canvas) {
+      // intentar renderizar
+      await renderRadar(resultados, canvasId);
+      await new Promise(r=>setTimeout(r,800));
+      canvas = document.getElementById(canvasId);
+    }
     if (canvas) {
-      const imgData = canvas.toDataURL('image/png', 1.0);
-      content.push({ image: imgData, width: 500, alignment: 'center', margin: [0, 0, 0, 10] });
+      try {
+        const imgData = canvas.toDataURL('image/png', 1.0);
+        if (imgData && imgData.length > 100) {
+          content.push({ image: imgData, width: 500, alignment: 'center', margin: [0, 0, 0, 10] });
+        }
+      } catch(e) {}
+    }
+    if ((!content.some(c=>c.image))) {
+      try {
+        const cont = document.querySelector('.chart-container canvas')?.parentElement || document.getElementById(canvasId)?.parentElement;
+        if (cont && typeof html2canvas !== 'undefined') {
+          const c2 = await html2canvas(cont, {scale:2, backgroundColor:'#ffffff'});
+          const imgData = c2.toDataURL('image/png', 1.0);
+          if (imgData && imgData.length > 100) content.push({ image: imgData, width: 500, alignment: 'center', margin: [0, 0, 0, 10] });
+        }
+      } catch(e) {}
     }
   } catch (e) {}
   content.push({ text: 'Competencias', style: 'section', margin: [0, 10, 0, 10] });
