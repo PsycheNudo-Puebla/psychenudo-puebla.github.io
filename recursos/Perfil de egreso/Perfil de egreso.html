@@ -7,11 +7,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="format-detection" content="telephone=no">
 
-<script src="../../vendor/chart.umd.min.js"></script>
-<script src="../../vendor/jspdf.umd.min.js"></script>
-<script src="../../vendor/html2canvas.min.js"></script>
-<script src="../../vendor/pdfmake.min.js"></script>
-<script src="../../vendor/vfs_fonts.js"></script>
+<script src="../../vendor/chart.umd.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';document.head.appendChild(s);"></script>
+<script src="../../vendor/html2canvas.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';document.head.appendChild(s);"></script>
+<script src="../../vendor/jspdf.umd.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';document.head.appendChild(s);"></script>
+<script src="../../vendor/pdfmake.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/pdfmake@0.2.10/build/pdfmake.min.js';document.head.appendChild(s);"></script>
+<script src="../../vendor/vfs_fonts.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/pdfmake@0.2.10/build/vfs_fonts.js';document.head.appendChild(s);"></script>
 
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -936,6 +936,21 @@ let chartInstanceFinal = null;
 let filtroCompetencias = 'materia'; // 'materia', 'licenciatura', 'ambas'
 let lineVisibility = { inicio: true, meta: true, actual: true };
 
+function ensureChartLoaded() {
+  if (typeof window.Chart !== 'undefined') return Promise.resolve();
+  return new Promise(resolve => {
+    const tryLoad = () => {
+      if (typeof window.Chart !== 'undefined') return resolve();
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+      s.onload = resolve;
+      s.onerror = resolve;
+      document.head.appendChild(s);
+    };
+    tryLoad();
+  });
+}
+
 // ============ TOGGLE FLUJO DE TRABAJO ============
 function toggleFlujo() {
   const box = document.getElementById('flujoBox');
@@ -1794,7 +1809,14 @@ function toggleLinea(key) {
   renderDetalle(filtrados, detalleId);
 }
 
-function renderRadar(resultados, canvasId) {
+async function renderRadar(resultados, canvasId) {
+  await ensureChartLoaded();
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  if (typeof window.Chart === 'undefined') {
+    if (canvas.parentElement) canvas.parentElement.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No se pudo cargar la gráfica</div>';
+    return;
+  }
   // Destruir la gráfica anterior ANTES de crear una nueva en el mismo canvas
   if (canvasId === 'chartRadar') {
     if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
@@ -1842,7 +1864,8 @@ function renderRadar(resultados, canvasId) {
     });
   }
 
-  const ctx = document.getElementById(canvasId).getContext('2d');
+  const canvasEl = document.getElementById(canvasId);
+  const ctx = canvasEl.getContext('2d');
   const chart = new Chart(ctx, {
     type: 'radar',
     data: { labels: resultados.map(r => r.nombre), datasets },
