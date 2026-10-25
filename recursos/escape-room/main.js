@@ -259,8 +259,23 @@ const state = {
     instructionsShownThisLevel: false
 };
 
-// Inicialización del sonido de pasos (Asegúrate de tener el archivo en assets/)
-const footstepSound = new Audio('assets/footstep.mp3');
+// Sonido de pasos: se carga solo cuando se necesita para evitar errores de audio en arranque
+let footstepSound = null;
+
+function getFootstepSound() {
+    if (!state.soundEnabled) return null;
+
+    if (!footstepSound) {
+        footstepSound = new Audio('assets/footstep.mp3');
+        footstepSound.preload = 'auto';
+        footstepSound.addEventListener('error', () => {
+            state.soundEnabled = false;
+            footstepSound = null;
+        });
+    }
+
+    return footstepSound;
+}
 
 const player = {
     x: 400, y: 300, w: 64, h: 64, speed: 5, 
@@ -1099,9 +1114,12 @@ function update(dt) {
             
             // Reproducir sonido de pasos en los frames de contacto (1 y 3)
             if (state.soundEnabled && (player.animFrame === 1 || player.animFrame === 3)) {
-                footstepSound.currentTime = 0; // Reiniciar para permitir pasos rápidos
-                footstepSound.volume = 0.2;     // Volumen moderado
-                footstepSound.play().catch(() => {}); // El catch evita errores si el navegador bloquea audio inicial
+                const sound = getFootstepSound();
+                if (sound) {
+                    sound.currentTime = 0; // Reiniciar para permitir pasos rápidos
+                    sound.volume = 0.2;     // Volumen moderado
+                    sound.play().catch(() => {}); // El catch evita errores si el navegador bloquea audio inicial
+                }
             }
         }
     } else {
