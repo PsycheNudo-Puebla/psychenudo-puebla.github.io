@@ -19,11 +19,16 @@ collections:
     output: true
     permalink: /profesionales/:name/
 
+# Static assets that must be published with the site
+include:
+  - vendor
+  - vendor/*.js
+
 # Exclude from processing
 exclude:
   - Gemfile
   - Gemfile.lock
-  - vendor/
+  - vendor/bundle/
   - .bundle/
   - .sass-cache/
   - .jekyll-cache/
