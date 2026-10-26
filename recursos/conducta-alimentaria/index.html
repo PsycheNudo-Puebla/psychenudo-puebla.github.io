@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conducta alimentaria · psychenudo</title>
+<meta name="description" content="Guía de psicoeducación sobre los trastornos de la conducta alimentaria: cómo se instalan, tipos, señales de alerta, autochequeo, cómo acompañar y dónde pedir ayuda en México.">
+<style>
+  /* ==========================================================================
+     1. TOKENS DE DISEÑO · reutilizables para otros programas de la plataforma
+     ========================================================================== */
+  :root{
+    /* Paleta editorial */
+    --vino:#7a1f2b;
+    --vino-oscuro:#4d1219;
+    --vino-claro:#a63d4a;
+    --vino-tinte:rgba(122,31,43,.08);
+    --vino-borde:rgba(122,31,43,.14);
+    --crema:#faf5ef;
+    --crema-2:#f4ebe1;
+    --arena:#e6d8c8;
+    --arena-oscura:#d6c2ad;
+    --blanco:#fff;
+    --tinta:#2b1d1f;
+    --tinta-suave:#5c4a4d;
+    --alerta:#b23a2e;
+    --alerta-suave:#fbeceb;
+    --ok:#2d6a4f;
+    --ok-suave:#e9f4ee;
+    --dorado:#a9752a;
+
+    /* Tipografía */
+    --fuente-titulo:Georgia,"Iowan Old Style","Palatino Linotype","Times New Roman",serif;
+    --fuente-ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+
+    /* Medidas y radios */
+    --max:960px;
+    --radio-sm:10px;
+    --radio:16px;
+    --radio-lg:24px;
+    --radio-pill:999px;
+
+    /* Sombras depuradas */
+    --sombra-sm:0 1px 2px rgba(77,18,25,.05),0 6px 16px -10px rgba(77,18,25,.22);
+    --sombra:0 1px 2px rgba(77,18,25,.04),0 16px 38px -22px rgba(77,18,25,.36);
+    --sombra-alta:0 2px 4px rgba(77,18,25,.05),0 26px 52px -24px rgba(77,18,25,.42);
+
+    /* Bordes y transiciones */
+    --borde:1px solid var(--vino-borde);
+    --borde-arena:1px solid var(--arena);
+    --trans:.22s ease;
+  }
+
+  /* ==========================================================================
+     2. BASE
+     ========================================================================== */
+  *,*::before,*::after{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background-color:var(--crema);
+    background-image:
+      radial-gradient(circle at 12% 0%,rgba(166,61,74,.06),transparent 42%),
+      radial-gradient(circle at 92% 8%,rgba(169,117,42,.07),transparent 38%);
+    background-attachment:fixed;
+    color:var(--tinta);
+    font-family:var(--fuente-ui);
+    font-size:16px;
+    line-height:1.68;
+    -webkit-font-smoothing:antialiased;
+  }
+  p{margin:0 0 15px;color:var(--tinta)}
+  b,strong{font-weight:700}
+  a{color:var(--vino);text-decoration:none}
+  a:hover{text-decoration:underline}
+  a:focus-visible,button:focus-visible{outline:3px solid rgba(166,61,74,.35);outline-offset:3px}
+
+  h2{
+    font-family:var(--fuente-titulo);
+    font-size:clamp(1.55rem,3.4vw,2rem);
+    font-weight:700;
+    line-height:1.2;
+    letter-spacing:-.02em;
+    color:var(--vino-oscuro);
+    margin:0 0 10px;
+  }
+  h2::before{
+    content:"";
+    display:block;
+    width:46px;height:3px;
+    margin-bottom:16px;
+    border-radius:var(--radio-pill);
+    background:linear-gradient(90deg,var(--vino-claro),var(--vino));
+  }
+  h3{
+    font-family:var(--fuente-titulo);
+    font-size:1.22rem;
+    font-weight:700;
+    line-height:1.3;
+    color:var(--vino);
+    margin:0 0 8px;
+  }
+
+  /* ==========================================================================
+     3. ENCABEZADO EDITORIAL
+     ========================================================================== */
+  header{
+    position:relative;
+    overflow:hidden;
+    color:#fff;
+    padding:42px 22px 46px;
+    background:linear-gradient(135deg,#57141c 0%,var(--vino) 52%,#8e2a37 100%);
+    border-bottom:3px solid var(--vino-claro);
+  }
+  header::before,
+  header::after{
+    content:"";
+    position:absolute;
+    border-radius:50%;
+    pointer-events:none;
+  }
+  header::before{
+    width:340px;height:340px;
+    right:-120px;top:-170px;
+    background:radial-gradient(circle,rgba(255,255,255,.14),transparent 68%);
+  }
+  header::after{
+    width:260px;height:260px;
+    left:-110px;bottom:-180px;
+    background:radial-gradient(circle,rgba(255,255,255,.10),transparent 70%);
+  }
+  .header-inner{position:relative;z-index:1;max-width:var(--max);margin:0 auto}
+  .brand{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:22px;
+    padding:8px 16px;
+    border-radius:var(--radio-pill);
+    border:1px solid rgba(255,255,255,.42);
+    background:rgba(255,255,255,.12);
+    color:#fff;
+    font-size:.84rem;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    text-decoration:none;
+    transition:background var(--trans),transform var(--trans),box-shadow var(--trans);
+  }
+  .brand::before{content:"\2190";font-size:1rem;line-height:1;letter-spacing:0}
+  .brand:hover{background:rgba(255,255,255,.24);transform:translateX(-3px);box-shadow:0 8px 20px rgba(0,0,0,.18);text-decoration:none}
+  .kicker{
+    display:inline-block;
+    margin:0 0 12px;
+    padding:5px 12px;
+    border-radius:var(--radio-pill);
+    background:rgba(255,255,255,.14);
+    border:1px solid rgba(255,255,255,.28);
+    color:rgba(255,255,255,.94);
+    font-size:.7rem;
+    font-weight:700;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+  }
+  h1.titulo{
+    margin:0 0 10px;
+    font-family:var(--fuente-titulo);
+    font-size:clamp(2rem,5vw,3rem);
+    font-weight:700;
+    line-height:1.08;
+    letter-spacing:-.03em;
+  }
+  .subtitulo{
+    max-width:640px;
+    margin:0;
+    color:rgba(255,255,255,.9);
+    font-size:1.06rem;
+    line-height:1.6;
+  }
+
+  /* ==========================================================================
+     4. AVISO
+     ========================================================================== */
+  .aviso-wrap{max-width:var(--max);margin:0 auto;padding:20px 22px 0}
+  .aviso{
+    margin:0;
+    padding:14px 18px;
+    border:1px solid #ead9b0;
+    border-left:4px solid var(--dorado);
+    border-radius:0 var(--radio) var(--radio) 0;
+    background:#fff9ec;
+    color:#62501f;
+    font-size:.9rem;
+    line-height:1.6;
+    box-shadow:var(--sombra-sm);
+  }
+  .aviso b{color:#7a5a00}
+
+  /* ==========================================================================
+     5. PESTAÑAS
+     ========================================================================== */
+  .tabs{
+    position:sticky;
+    top:0;
+    z-index:50;
+    display:flex;
+    gap:4px;
+    overflow-x:auto;
+    padding:10px 14px;
+    background:rgba(250,245,239,.94);
+    border-bottom:1px solid var(--arena);
+    -webkit-backdrop-filter:blur(12px);
+    backdrop-filter:blur(12px);
+    scrollbar-width:none;
+  }
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{
+    flex:0 0 auto;
+    padding:10px 14px;
+    border:1px solid transparent;
+    border-radius:var(--radio-pill);
+    background:transparent;
+    color:var(--tinta-suave);
+    font-family:var(--fuente-ui);
+    font-size:.88rem;
+    font-weight:600;
+    white-space:nowrap;
+    cursor:pointer;
+    transition:background var(--trans),color var(--trans),box-shadow var(--trans);
+  }
+  .tab:hover{color:var(--vino);background:var(--vino-tinte)}
+  .tab.active{
+    color:#fff;
+    background:var(--vino);
+    box-shadow:0 8px 18px -10px rgba(77,18,25,.75);
+  }
+
+  /* ==========================================================================
+     6. ESTRUCTURA DE PANELES
+     ========================================================================== */
+  main{max-width:var(--max);margin:0 auto;padding:34px 22px 56px}
+  .panel{display:none}
+  .panel.active{display:block;animation:fade .32s ease both}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .lead{
+    margin:0 0 26px;
+    padding-left:18px;
+    border-left:3px solid var(--vino-claro);
+    color:var(--tinta-suave);
+    font-family:var(--fuente-titulo);
+    font-size:1.16rem;
+    line-height:1.66;
+  }
+
+  /* ==========================================================================
+     7. BADGES · píldoras reutilizables
+     ========================================================================== */
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    width:fit-content;
+    margin-bottom:10px;
+    padding:4px 12px;
+    border:1px solid var(--vino-borde);
+    border-radius:var(--radio-pill);
+    background:var(--vino-tinte);
+    color:var(--vino);
+    font-family:var(--fuente-ui);
+    font-size:.7rem;
+    font-weight:700;
+    line-height:1.5;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+  }
+  .badge--arena{
+    background:#f8f0e4;
+    border-color:#e7d4b8;
+    color:#8a5a2b;
+  }
+  .badge--ok{
+    background:var(--ok-suave);
+    border-color:rgba(45,106,79,.22);
+    color:var(--ok);
+  }
+  .badge--alerta{
+    background:var(--alerta-suave);
+    border-color:rgba(178,58,46,.22);
+    color:var(--alerta);
+  }
+
+  /* ==========================================================================
+     8. CONTENEDORES DE IMAGEN E ILUSTRACIÓN
+     ========================================================================== */
+  .card-image-container{
+    position:relative;
+    display:grid;
+    grid-template-columns:minmax(150px,200px) 1fr;
+    gap:28px;
+    align-items:center;
+    overflow:hidden;
+    margin:24px 0 30px;
+    padding:26px 30px;
+    border:var(--borde-arena);
+    border-radius:var(--radio-lg);
+    background:linear-gradient(135deg,#fff 0%,var(--crema-2) 100%);
+    box-shadow:var(--sombra-sm);
+  }
+  .card-image-container::after{
+    content:"";
+    position:absolute;
+    width:180px;height:180px;
+    right:-70px;top:-80px;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(166,61,74,.12),transparent 70%);
+    pointer-events:none;
+  }
+  .card-image-container--reverse{grid-template-columns:1fr minmax(150px,200px)}
+  .card-image-container--reverse .ilustracion{order:2}
+  .card-image-container .ilustracion{
+    position:relative;
+    z-index:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    max-width:200px;
+    margin:0 auto;
+    color:var(--vino-claro);
+  }
+  .card-image-container svg{display:block;width:100%;height:auto}
+  .icono svg,
+  .fase__icono svg{
+    display:block;
+    width:22px;height:22px;
+    stroke:currentColor;
+    fill:none;
+    stroke-width:1.6;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  .card-image-container .leyenda{position:relative;z-index:1}
+  .card-image-container .leyenda h3{margin:0 0 6px;font-size:1.16rem;color:var(--vino-oscuro)}
+  .card-image-container .leyenda p{margin:0;font-size:.94rem;color:var(--tinta-suave)}
+
+  /* ==========================================================================
+     9. DATOS DESTACADOS
+     ========================================================================== */
+  .datos{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+    gap:14px;
+    margin:24px 0 30px;
+  }
+  .dato{
+    padding:18px 18px 20px;
+    border:var(--borde);
+    border-radius:var(--radio);
+    background:#fff;
+    box-shadow:var(--sombra);
+  }
+  .dato .num{
+    display:block;
+    margin:2px 0 6px;
+    font-family:var(--fuente-titulo);
+    font-size:2rem;
+    font-weight:700;
+    line-height:1.05;
+    color:var(--vino);
+  }
+  .dato .txt{display:block;color:var(--tinta-suave);font-size:.88rem;line-height:1.58}
+
+  /* ==========================================================================
+     10. PELDAÑOS
+     ========================================================================== */
+  .peldano{
+    position:relative;
+    margin-bottom:18px;
+    padding:24px 26px 22px;
+    border:var(--borde);
+    border-radius:var(--radio);
+    background:#fff;
+    box-shadow:var(--sombra);
+    transition:transform var(--trans),box-shadow var(--trans);
+  }
+  .peldano::before{
+    content:"";
+    position:absolute;
+    left:0;top:24px;bottom:24px;
+    width:3px;
+    border-radius:0 3px 3px 0;
+    background:linear-gradient(var(--vino-claro),var(--vino));
+    opacity:.6;
+  }
+  .peldano:hover{transform:translateY(-2px);box-shadow:var(--sombra-alta)}
+  .peldano h3{margin:0 0 8px;color:var(--vino-oscuro)}
+  .peldano p:last-child{margin-bottom:0}
+  .senal{
+    display:flex;
+    align-items:flex-start;
+    gap:8px;
+    margin:12px 0 0;
+    padding:10px 13px;
+    border-radius:var(--radio-sm);
+    background:var(--vino-tinte);
+    color:var(--vino);
+    font-size:.88rem;
+    font-weight:600;
+    line-height:1.55;
+  }
+
+  /* ==========================================================================
+     11. TIPOS / CICLO
+     ========================================================================== */
+  .ciclo{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:14px;
+    margin:22px 0 26px;
+  }
+  .fase{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    padding:20px;
+    border:var(--borde-arena);
+    border-radius:var(--radio);
+    background:#fff;
+    box-shadow:var(--sombra-sm);
+    transition:transform var(--trans),box-shadow var(--trans);
+  }
+  .fase:hover{transform:translateY(-2px);box-shadow:var(--sombra)}
+  .fase__icono{
+    display:grid;
+    place-items:center;
+    width:48px;height:48px;
+    margin-bottom:12px;
+    border-radius:14px;
+    background:var(--crema-2);
+    border:1px solid var(--arena);
+    color:var(--vino);
+    font-size:1.45rem;
+    line-height:1;
+  }
+  .fase b{display:block;margin-bottom:5px;color:var(--vino-oscuro);font-size:.98rem}
+  .fase small{color:var(--tinta-suave);font-size:.85rem;line-height:1.55}
+  .flecha{display:none}
+  @media(min-width:760px){
+    .ciclo{grid-template-columns:1fr auto 1fr auto 1fr;align-items:stretch;gap:10px}
+    .flecha{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--vino-claro);
+      font-size:1.3rem;
+      font-weight:700;
+    }
+  }
+
+  /* ==========================================================================
+     12. TARJETAS DE SEÑALES
+     ========================================================================== */
+  .trampa-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:16px;
+    margin:22px 0 26px;
+  }
+  .trampa-card{
+    position:relative;
+    overflow:hidden;
+    padding:20px;
+    border:var(--borde);
+    border-radius:var(--radio);
+    background:#fff;
+    box-shadow:var(--sombra);
+    transition:transform var(--trans),box-shadow var(--trans);
+  }
+  .trampa-card::before{
+    content:"";
+    position:absolute;
+    inset:0 0 auto 0;
+    height:3px;
+    background:linear-gradient(90deg,var(--vino-claro),var(--vino));
+  }
+  .trampa-card:hover{transform:translateY(-3px);box-shadow:var(--sombra-alta)}
+  .trampa-card .icono{
+    display:grid;
+    place-items:center;
+    width:46px;height:46px;
+    margin-bottom:12px;
+    border-radius:14px;
+    background:var(--crema-2);
+    border:1px solid var(--arena);
+    color:var(--vino);
+    font-size:1.4rem;
+    line-height:1;
+  }
+  .trampa-card h4{
+    margin:0 0 6px;
+    font-family:var(--fuente-titulo);
+    font-size:1.04rem;
+    font-weight:700;
+    color:var(--vino-oscuro);
+  }
+  .trampa-card p{margin:0;color:var(--tinta-suave);font-size:.89rem;line-height:1.58}
+
+  /* ==========================================================================
+     13. FRASES TÍPICAS
+     ========================================================================== */
+  .frases-tipicas{
+    margin:22px 0;
+    padding:20px 22px;
+    border:1px dashed var(--arena-oscura);
+    border-radius:var(--radio);
+    background:rgba(255,255,255,.6);
+  }
+  .frases-tipicas__titulo{
+    display:block;
+    margin-bottom:12px;
+    font-family:var(--fuente-ui);
+    font-size:.7rem;
+    font-weight:700;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--tinta-suave);
+  }
+  .frases-tipicas__chips{display:flex;flex-wrap:wrap;gap:8px}
+  .frase-chip{
+    display:inline-block;
+    padding:6px 14px;
+    border:1px solid var(--vino-borde);
+    border-radius:var(--radio-pill);
+    background:#fff;
+    color:var(--vino);
+    font-family:var(--fuente-titulo);
+    font-style:italic;
+    font-size:.94rem;
+    box-shadow:var(--sombra-sm);
+  }
+
+  /* ==========================================================================
+     14. CITAS Y FRASES
+     ========================================================================== */
+  .cita{
+    position:relative;
+    margin:28px 0;
+    padding:22px 26px 22px 30px;
+    border:var(--borde-arena);
+    border-left:4px solid var(--vino-claro);
+    border-radius:0 var(--radio) var(--radio) 0;
+    background:linear-gradient(135deg,#fff 0%,var(--crema-2) 100%);
+    box-shadow:var(--sombra-sm);
+    color:var(--vino-oscuro);
+    font-family:var(--fuente-titulo);
+    font-size:1.1rem;
+    font-style:italic;
+    line-height:1.66;
+  }
+  .cita::before{
+    content:"\201C";
+    position:absolute;
+    left:14px;top:2px;
+    font-family:var(--fuente-titulo);
+    font-size:3rem;
+    line-height:1;
+    color:var(--vino-claro);
+    opacity:.22;
+    pointer-events:none;
+  }
+  .cita p{margin:0;color:inherit;font:inherit}
+  .cita cite{
+    display:block;
+    margin-top:12px;
+    color:var(--tinta-suave);
+    font-family:var(--fuente-ui);
+    font-size:.72rem;
+    font-style:normal;
+    font-weight:700;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+  }
+  .cita--cierre{
+    margin:30px 0 6px;
+    padding:26px 30px;
+    font-size:1.2rem;
+    font-style:normal;
+  }
+  .cita--cierre p{font-style:italic}
+  .cita-inline{
+    display:block;
+    margin:6px 0 0;
+    color:var(--tinta-suave);
+    font-family:var(--fuente-ui);
+    font-size:.78rem;
+    font-style:italic;
+    line-height:1.5;
+  }
+
+  /* ==========================================================================
+     15. CALLOUTS
+     ========================================================================== */
+  .callout{
+    margin:22px 0;
+    padding:16px 18px;
+    border:var(--borde-arena);
+    border-radius:var(--radio);
+    background:var(--crema-2);
+    color:var(--tinta-suave);
+    font-size:.9rem;
+    line-height:1.65;
+    box-shadow:var(--sombra-sm);
+  }
+  .callout b{color:var(--vino-oscuro)}
+  .callout--alerta{
+    border-color:rgba(178,58,46,.2);
+    border-left:4px solid var(--alerta);
+    border-radius:0 var(--radio) var(--radio) 0;
+    background:var(--alerta-suave);
+    color:#6e2c24;
+  }
+  .callout--alerta b{color:var(--alerta)}
+  .callout--ok{
+    border-color:rgba(45,106,79,.2);
+    border-left:4px solid var(--ok);
+    border-radius:0 var(--radio) var(--radio) 0;
+    background:var(--ok-suave);
+    color:#285c45;
+  }
+  .callout--ok b{color:var(--ok)}
+
+  /* ==========================================================================
+     16. AUTOCHECK
+     ========================================================================== */
+  .checklist{
+    margin:22px 0;
+    padding:10px 22px 20px;
+    border:var(--borde);
+    border-radius:var(--radio);
+    background:#fff;
+    box-shadow:var(--sombra);
+  }
+  .checklist label{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    padding:13px 0;
+    border-bottom:1px solid var(--arena);
+    color:var(--tinta);
+    font-size:.95rem;
+    line-height:1.55;
+    cursor:pointer;
+    transition:background var(--trans),padding-left var(--trans);
+  }
+  .checklist label:hover{background:rgba(244,235,225,.5);padding-left:4px}
+  .checklist label:last-of-type{border-bottom:none}
+  .checklist input{
+    flex:0 0 auto;
+    width:18px;height:18px;
+    margin-top:3px;
+    accent-color:var(--vino);
+    cursor:pointer;
+  }
+  .contador{
+    margin-top:16px;
+    padding:13px 16px;
+    border-radius:var(--radio-sm);
+    background:var(--crema-2);
+    color:var(--vino);
+    font-weight:700;
+    text-align:center;
+    transition:background var(--trans),color var(--trans);
+  }
+  .contador.is-warning{background:var(--alerta-suave);color:var(--alerta)}
+
+  /* ==========================================================================
+     17. AYUDAR A ALGUIEN
+     ========================================================================== */
+  .ayudar-bloque{
+    margin-bottom:20px;
+    padding:24px;
+    border:var(--borde);
+    border-radius:var(--radio);
+    background:#fff;
+    box-shadow:var(--sombra);
+  }
+  .ayudar-bloque h3{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    margin:0 0 14px;
+    color:var(--vino-oscuro);
+  }
+  .ayudar-bloque .emoji{font-size:1.35rem;line-height:1}
+  .hacer,
+  .no-hacer{
+    margin:10px 0;
+    padding:13px 16px;
+    border-radius:var(--radio-sm);
+    font-size:.92rem;
+    line-height:1.62;
+  }
+  .hacer{background:var(--ok-suave);border-left:4px solid var(--ok);color:#2b5c46}
+  .hacer b{color:var(--ok)}
+  .no-hacer{background:var(--alerta-suave);border-left:4px solid var(--alerta);color:#6e2c24}
+  .no-hacer b{color:var(--alerta)}
+
+  /* ==========================================================================
+     18. DIRECTORIO DE AYUDA
+     ========================================================================== */
+  .ayuda-bloque{margin-bottom:28px}
+  .ayuda-bloque h3{
+    display:inline-block;
+    margin-bottom:16px;
+    padding-bottom:6px;
+    border-bottom:2px solid var(--vino);
+  }
+  .tel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+  .tel-card{
+    padding:18px;
+    border:var(--borde);
+    border-radius:var(--radio);
+    background:#fff;
+    box-shadow:var(--sombra);
+    transition:transform var(--trans),box-shadow var(--trans);
+  }
+  .tel-card:hover{transform:translateY(-2px);box-shadow:var(--sombra-alta)}
+  .tel-card .icono{
+    display:grid;
+    place-items:center;
+    width:42px;height:42px;
+    margin-bottom:10px;
+    border-radius:13px;
+    background:var(--crema-2);
+    border:1px solid var(--arena);
+    color:var(--vino);
+    font-size:1.25rem;
+    line-height:1;
+  }
+  .tel-card b{display:block;margin-bottom:2px;color:var(--vino-oscuro);font-size:.96rem;line-height:1.4}
+  .tel-card a.tel{
+    display:inline-block;
+    margin:8px 0;
+    padding:7px 14px;
+    border-radius:var(--radio-pill);
+    background:var(--vino);
+    color:#fff;
+    font-weight:700;
+    font-size:.95rem;
+    text-decoration:none;
+    transition:background var(--trans),transform var(--trans);
+  }
+  .tel-card a.tel:hover{background:var(--vino-oscuro);transform:translateY(-1px);text-decoration:none}
+  .tel-card small{display:block;margin-top:4px;color:var(--tinta-suave);font-size:.83rem;line-height:1.55}
+
+  /* ==========================================================================
+     19. FUENTES
+     ========================================================================== */
+  .fuente-item{
+    margin-bottom:14px;
+    padding:20px;
+    border:var(--borde);
+    border-left:4px solid var(--vino-claro);
+    border-radius:0 var(--radio) var(--radio) 0;
+    background:#fff;
+    box-shadow:var(--sombra-sm);
+  }
+  .fuente-item h4{
+    margin:0 0 8px;
+    font-family:var(--fuente-titulo);
+    font-size:1.02rem;
+    line-height:1.4;
+    color:var(--vino-oscuro);
+  }
+  .fuente-item p{margin:0 0 8px;color:var(--tinta);font-size:.9rem;line-height:1.6}
+  .fuente-item p:last-child{margin-bottom:0}
+  .fuente-item a{
+    display:inline-block;
+    margin-top:4px;
+    padding:6px 13px;
+    border-radius:var(--radio-pill);
+    background:var(--crema-2);
+    color:var(--vino);
+    font-size:.85rem;
+    font-weight:600;
+    transition:background var(--trans);
+  }
+  .fuente-item a:hover{background:var(--arena);text-decoration:none}
+
+  /* ==========================================================================
+     20. PIE DE PÁGINA
+     ========================================================================== */
+  footer{
+    margin-top:48px;
+    padding:36px 22px 24px;
+    border-top:3px solid var(--vino);
+    background:var(--crema-2);
+  }
+  .footer-inner{max-width:var(--max);margin:0 auto}
+  .footer-frase{
+    margin:0 0 22px;
+    padding:0 10px;
+    color:var(--vino-oscuro);
+    font-family:var(--fuente-titulo);
+    font-size:1.06rem;
+    font-style:italic;
+    line-height:1.55;
+    text-align:center;
+  }
+  .disclaimer-box{
+    margin-bottom:18px;
+    padding:20px;
+    border:var(--borde-arena);
+    border-radius:var(--radio);
+    background:#fff;
+    box-shadow:var(--sombra-sm);
+  }
+  .disclaimer-box h4{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin:0 0 10px;
+    color:var(--vino-oscuro);
+    font-family:var(--fuente-titulo);
+    font-size:1rem;
+  }
+  .disclaimer-box p{margin:0 0 8px;color:var(--tinta);font-size:.88rem;line-height:1.6}
+  .disclaimer-box p:last-child{margin-bottom:0}
+  .footer-copy{
+    padding-top:16px;
+    border-top:1px solid var(--arena);
+    color:var(--tinta-suave);
+    font-size:.82rem;
+    line-height:1.65;
+    text-align:center;
+  }
+  .footer-copy b{color:var(--vino)}
+  .footer-copy a{text-decoration:underline;text-underline-offset:2px}
+
+  /* ==========================================================================
+     21. BOTÓN SOS Y MODAL
+     ========================================================================== */
+  .sos{
+    position:fixed;
+    right:22px;bottom:22px;
+    z-index:100;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:13px 20px;
+    border:1px solid rgba(255,255,255,.28);
+    border-radius:var(--radio-pill);
+    background:var(--alerta);
+    color:#fff;
+    font-family:var(--fuente-ui);
+    font-size:.94rem;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 14px 30px -12px rgba(178,58,46,.85);
+    transition:background var(--trans),transform var(--trans),box-shadow var(--trans);
+  }
+  .sos:hover{background:#982f24;transform:translateY(-2px);box-shadow:0 18px 34px -12px rgba(178,58,46,.9)}
+
+  .modal{
+    position:fixed;
+    inset:0;
+    z-index:200;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:rgba(43,29,31,.62);
+    -webkit-backdrop-filter:blur(4px);
+    backdrop-filter:blur(4px);
+  }
+  .modal.open{display:flex}
+  .modal-box{
+    width:100%;
+    max-width:520px;
+    max-height:90vh;
+    overflow-y:auto;
+    padding:26px;
+    border-radius:var(--radio-lg);
+    border-top:4px solid var(--alerta);
+    background:#fff;
+    box-shadow:0 30px 70px -20px rgba(0,0,0,.5);
+    animation:modal-in .22s ease both;
+  }
+  @keyframes modal-in{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+  .modal-box h3{margin:0 0 14px;color:var(--alerta)}
+  .modal-box ol{margin:0 0 18px;padding-left:22px}
+  .modal-box li{margin-bottom:9px;color:var(--tinta);font-size:.95rem}
+  .modal-actions{display:flex;flex-wrap:wrap;gap:10px}
+  .modal-actions a{
+    display:inline-block;
+    padding:10px 16px;
+    border-radius:var(--radio-pill);
+    color:#fff;
+    font-weight:700;
+    font-size:.92rem;
+    text-decoration:none;
+  }
+  .modal-actions a:hover{text-decoration:none;filter:brightness(1.08)}
+  .modal-actions .tel-vida{background:var(--vino)}
+  .modal-actions .tel-911{background:var(--alerta)}
+  .cerrar{
+    padding:10px 16px;
+    border:none;
+    border-radius:var(--radio-pill);
+    background:var(--tinta-suave);
+    color:#fff;
+    font-family:var(--fuente-ui);
+    font-weight:600;
+    font-size:.92rem;
+    cursor:pointer;
+    transition:background var(--trans);
+  }
+  .cerrar:hover{background:var(--tinta)}
+
+  /* ==========================================================================
+     22. RESPONSIVO
+     ========================================================================== */
+  @media(max-width:760px){
+    .card-image-container,
+    .card-image-container--reverse{grid-template-columns:1fr;gap:18px;padding:22px}
+    .card-image-container--reverse .ilustracion{order:0}
+    .card-image-container .ilustracion{max-width:170px}
+    .card-image-container::after{width:130px;height:130px;right:-50px;top:-55px}
+    .ciclo{grid-template-columns:1fr}
+    .flecha{display:none!important}
+  }
+  @media(max-width:600px){
+    header{padding:34px 18px 38px}
+    .aviso-wrap{padding:16px 18px 0}
+    .tabs{padding:8px 10px}
+    .tab{padding:9px 13px;font-size:.86rem}
+    main{padding:28px 18px 46px}
+    h1.titulo{font-size:1.8rem}
+    .lead{font-size:1.06rem;padding-left:14px}
+    .peldano{padding:20px 20px 18px}
+    .checklist{padding:8px 16px 16px}
+    .ayudar-bloque{padding:20px}
+    .sos{right:16px;bottom:16px;padding:12px 16px;font-size:.88rem}
+    .modal-box{padding:22px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation:none!important;transition:none!important}
+  }
+
+  /* ==========================================================================
+     23. IMPRESIÓN
+     ========================================================================== */
+  @media print{
+    .tabs,.sos,.modal{display:none!important}
+    .panel{display:block!important}
+    body{background:#fff}
+    header{background:#fff;color:var(--vino-oscuro);border-bottom:2px solid var(--vino)}
+    .subtitulo,.kicker{color:var(--tinta-suave)}
+    .card-image-container,.peldano,.dato,.trampa-card,.checklist,.ayudar-bloque,.tel-card,.fuente-item{box-shadow:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="brand" href="../../" aria-label="Volver a PsycheNudo">psychenudo</a>
+    <p class="kicker">Psicoeducación · Salud mental</p>
+    <h1 class="titulo">Conducta alimentaria</h1>
+    <p class="subtitulo">Cómo se instala, qué señales ignoramos y cómo acompañar sin dañar. Una guía editorial con datos de México.</p>
+  </div>
+</header>
+
+<div class="aviso-wrap">
+  <p class="aviso"><b>Aviso:</b> esta página es educativa. No sustituye evaluación médica, nutricional ni psicológica. Si hay riesgo vital, acude a urgencias o llama a la <b>Línea de la Vida 800 911 2000</b>.</p>
+</div>
+
+<nav class="tabs" role="tablist" aria-label="Secciones de la guía">
+  <button class="tab active" type="button" role="tab" id="tab-entra" data-tab="entra" aria-controls="entra" aria-selected="true">Cómo se instala</button>
+  <button class="tab" type="button" role="tab" id="tab-tipos" data-tab="tipos" aria-controls="tipos" aria-selected="false" tabindex="-1">Los tipos</button>
+  <button class="tab" type="button" role="tab" id="tab-senales" data-tab="senales" aria-controls="senales" aria-selected="false" tabindex="-1">Señales de alerta</button>
+  <button class="tab" type="button" role="tab" id="tab-autocheck" data-tab="autocheck" aria-controls="autocheck" aria-selected="false" tabindex="-1">Autochequeo</button>
+  <button class="tab" type="button" role="tab" id="tab-ayudar" data-tab="ayudar" aria-controls="ayudar" aria-selected="false" tabindex="-1">Ayudar a alguien</button>
+  <button class="tab" type="button" role="tab" id="tab-ayuda" data-tab="ayuda" aria-controls="ayuda" aria-selected="false" tabindex="-1">Ayuda en México</button>
+  <button class="tab" type="button" role="tab" id="tab-fuentes" data-tab="fuentes" aria-controls="fuentes" aria-selected="false" tabindex="-1">Fuentes</button>
+</nav>
+
+<main>
+
+  <!-- PANEL 1: CÓMO SE INSTALA -->
+  <section class="panel active" id="entra" role="tabpanel" aria-labelledby="tab-entra" aria-hidden="false">
+    <h2>No empieza con un trastorno. Empieza con una dieta.</h2>
+    <p class="lead">Los trastornos de la conducta alimentaria (TCA) no son una elección ni un problema de vanidad. Son enfermedades mentales graves con base biológica, psicológica y social. Y casi siempre se anuncian con algo que la cultura celebra: “comer sano”, “bajar unas tallas”, “ponerse en forma”.</p>
+
+    <div class="card-image-container">
+      <div class="ilustracion" aria-hidden="true">
+        <svg viewBox="0 0 220 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 28c31 2 49 15 68 33 18 17 39 31 68 39" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="1 7"/>
+          <path d="M145 96l17 5-7 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="54" cy="41" r="15" stroke="currentColor" stroke-width="1.6"/>
+          <circle cx="54" cy="41" r="8" stroke="currentColor" stroke-width="1.2" opacity=".5"/>
+          <circle cx="103" cy="80" r="17" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M95 80h16M103 72v16" stroke="currentColor" stroke-width="1.2" opacity=".45"/>
+          <circle cx="150" cy="113" r="12" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M27 112c14-10 29-10 43 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M27 122h43" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".5"/>
+        </svg>
+      </div>
+      <div class="leyenda">
+        <span class="badge">Cómo empieza</span>
+        <h3>Una decisión que parece virtuosa</h3>
+        <p>La restricción casi nunca se presenta como un problema: se presenta como disciplina, salud o autocontrol. Por eso tarda en reconocerse, incluso para quien la vive.</p>
+      </div>
+    </div>
+
+    <div class="datos">
+      <div class="dato">
+        <span class="badge badge--arena">Ensanut 2022</span>
+        <span class="num">1.6%</span>
+        <span class="txt">de las adolescentes mexicanas presenta algún TCA <span class="cita-inline">(citada por la Secretaría de Salud)</span></span>
+      </div>
+      <div class="dato">
+        <span class="badge badge--arena">INPRFM</span>
+        <span class="num">8 de 10</span>
+        <span class="txt">personas con TCA son mujeres; en hombres el diagnóstico tarda hasta 5 años más</span>
+      </div>
+      <div class="dato">
+        <span class="badge badge--arena">INPRFM</span>
+        <span class="num">10–19</span>
+        <span class="txt">años: la edad de mayor aparición; la adolescencia es el epicentro</span>
+      </div>
+    </div>
+
+    <p>La Secretaría de Salud de México describe los TCA como alteraciones caracterizadas por una <b>distorsión de la imagen corporal</b> y patrones alimentarios dañinos que pueden poner en riesgo la vida. No hay una sola causa: se combinan factores genéticos, temperamentales (ansiedad, perfeccionismo), experiencias de bullying o abuso, y un entorno que asocia delgadez con éxito.</p>
+
+    <h3>La pendiente resbaladiza: de la “vida sana” al trastorno</h3>
+
+    <article class="peldano">
+      <span class="badge">Peldaño 01</span>
+      <h3>La regla nueva</h3>
+      <p>Empieza como una decisión “razonable”: dejar el azúcar, contar calorías, “comer limpio”. La persona siente control, disciplina, logro. Nadie lo ve como riesgo; se ve como virtud.</p>
+      <p class="senal"><span aria-hidden="true">🚩</span> Señal temprana: la comida deja de ser placer y se vuelve cálculo.</p>
+    </article>
+
+    <article class="peldano">
+      <span class="badge">Peldaño 02</span>
+      <h3>La regla se aprieta</h3>
+      <p>Aparecen las “comidas prohibidas”, la culpa después de comer, el ayuno compensatorio, el ejercicio obligatorio. La persona empieza a aislarse en las comidas: “ya comí”, “no tengo hambre”, “me cae mal esto”.</p>
+      <p class="senal"><span aria-hidden="true">🚩</span> Señal temprana: evita comer con otros, o come “antes” para no comer contigo.</p>
+    </article>
+
+    <article class="peldano">
+      <span class="badge">Peldaño 03</span>
+      <h3>El cuerpo se vuelve el problema</h3>
+      <p>La imagen corporal se distorsiona. La persona se ve “gorda” donde otros ven delgadez. La autoestima se reduce al número de la balanza o al espejo. Aparecen atracones, purgas, o restricción severa.</p>
+      <p class="senal"><span aria-hidden="true">🚩</span> Señal temprana: comenta constantemente que se siente “gorda/o” aunque esté por debajo de un peso saludable.</p>
+    </article>
+
+    <article class="peldano">
+      <span class="badge">Peldaño 04</span>
+      <h3>El cuerpo empieza a cobrar</h3>
+      <p>Se suman consecuencias médicas: mareos, frío constante, caída de cabello, irregularidad menstrual, desmayos, problemas dentales (por vómito), arritmias. La negación es parte de la enfermedad: “estoy bien”.</p>
+      <p class="senal"><span aria-hidden="true">🚩</span> Señal temprana: cansancio inexplicable, intolerancia al frío, o lesiones que no sanan.</p>
+    </article>
+
+    <blockquote class="cita">
+      <p>El TCA no es un síntoma de superficialidad: es la punta de un iceberg emocional y biológico.</p>
+      <cite>Idea clave de esta guía</cite>
+    </blockquote>
+  </section>
+
+  <!-- PANEL 2: LOS TIPOS -->
+  <section class="panel" id="tipos" role="tabpanel" aria-labelledby="tab-tipos" aria-hidden="true">
+    <h2>No todos se ven igual</h2>
+    <p class="lead">El peso no define el diagnóstico. Una persona con bulimia puede tener un peso “normal”; el trastorno por atracón suele cursar con sobrepeso, pero no siempre. El sufrimiento no se mide en kilos.</p>
+
+    <div class="card-image-container card-image-container--reverse">
+      <div class="ilustracion" aria-hidden="true">
+        <svg viewBox="0 0 220 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="48" cy="76" r="31" stroke="currentColor" stroke-width="1.6"/>
+          <circle cx="48" cy="76" r="20" stroke="currentColor" stroke-width="1.2" opacity=".5"/>
+          <circle cx="110" cy="76" r="31" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M93 76a17 17 0 0 1 34 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M93 76a17 17 0 0 0 34 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".55"/>
+          <circle cx="172" cy="76" r="31" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M158 64c9 5 9 19 0 24s-9 19 0 24" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" transform="translate(0,-12)"/>
+          <path d="M20 130h180" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".35"/>
+        </svg>
+      </div>
+      <div class="leyenda">
+        <span class="badge badge--arena">Peso y diagnóstico</span>
+        <h3>El cuerpo no cuenta toda la historia</h3>
+        <p>Un peso “normal” puede esconder purgas, atracones o un sufrimiento intenso. El diagnóstico se sostiene en la conducta y el malestar, no en la balanza.</p>
+      </div>
+    </div>
+
+    <div class="ciclo">
+      <article class="fase">
+        <span class="fase__icono" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M6 6l12 12"/></svg>
+        </span>
+        <span class="badge badge--arena">Restricción</span>
+        <b>Anorexia nerviosa</b>
+        <small>Restricción extrema, miedo intenso a subir de peso, distorsión corporal. Puede haber purgas o ejercicio compulsivo.</small>
+      </article>
+      <div class="flecha" aria-hidden="true">→</div>
+      <article class="fase">
+        <span class="fase__icono" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5 12a7 7 0 0 1 12-5M19 12a7 7 0 0 1-12 5"/><path d="M17 3v4h-4M7 21v-4h4"/></svg>
+        </span>
+        <span class="badge badge--arena">Atracón–purga</span>
+        <b>Bulimia nerviosa</b>
+        <small>Atracones seguidos de purgas (vómito, laxantes, ejercicio). Peso a menudo normopeso. Gran vergüenza y secreto.</small>
+      </article>
+      <div class="flecha" aria-hidden="true">→</div>
+      <article class="fase">
+        <span class="fase__icono" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M3 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/><path d="M3 17c2-4 4-4 6 0s4 4 6 0 4-4 6 0" opacity=".45"/></svg>
+        </span>
+        <span class="badge badge--arena">Pérdida de control</span>
+        <b>Trastorno por atracón</b>
+        <small>Episodios de ingestión masiva con pérdida de control, sin purgas. Culpa intensa después. El más frecuente, y el más silenciado.</small>
+      </article>
+    </div>
+
+    <h3>Otros cuadros reconocidos</h3>
+    <p><b>Ortorexia:</b> obsesión por la comida “pura” o “sana”, que empobrece la vida social y nutricional. <b>Vigorexia:</b> obsesión por la musculatura y el ejercicio, con distorsión de la propia imagen. La Secretaría de Salud de México los incluye entre los TCA reconocidos.</p>
+    <p>El <b>DSM-5</b> también incluye el trastorno evitativo/restrictivo de la ingesta, frecuente en la infancia, y el trastorno por rumiación. La clave común no es el tipo de conducta, sino el <b>sufrimiento y la disfunción</b> que genera.</p>
+
+    <div class="callout">
+      <b>⚠ Dato clave:</b> el TCA más frecuente en México no siempre es el más visible. El trastorno por atracón y los cuadros no especificados representan una carga enorme y suelen pasar desapercibidos porque la persona no está “delgada”.
+    </div>
+  </section>
+
+  <!-- PANEL 3: SEÑALES DE ALERTA -->
+  <section class="panel" id="senales" role="tabpanel" aria-labelledby="tab-senales" aria-hidden="true">
+    <h2>Lo que se ve, y lo que no</h2>
+    <p class="lead">Las personas con TCA suelen ocultar sus conductas por vergüenza. Las señales no son pruebas, pero son motivos para acercarse con cuidado.</p>
+
+    <div class="card-image-container">
+      <div class="ilustracion" aria-hidden="true">
+        <svg viewBox="0 0 220 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="86" cy="84" r="36" stroke="currentColor" stroke-width="1.6"/>
+          <circle cx="86" cy="84" r="24" stroke="currentColor" stroke-width="1.3" opacity=".5"/>
+          <circle cx="148" cy="58" r="27" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M167 77l20 20" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          <path d="M139 58h18M148 49v18" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity=".5"/>
+          <path d="M28 132h164" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".3"/>
+        </svg>
+      </div>
+      <div class="leyenda">
+        <span class="badge">Mirada atenta</span>
+        <h3>Señales que piden atención, no juicio</h3>
+        <p>Una conducta aislada no confirma nada. Lo que importa es el patrón sostenido en el tiempo y el malestar que acompaña a la persona.</p>
+      </div>
+    </div>
+
+    <div class="trampa-grid">
+      <article class="trampa-card">
+        <div class="icono" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="10" cy="12" r="6"/><circle cx="10" cy="12" r="3"/><path d="M19 4v16M16.5 4v4a2.5 2.5 0 0 0 5 0V4"/></svg>
+        </div>
+        <span class="badge">En la mesa</span>
+        <h4>Conducta en la mesa</h4>
+        <p>Corta la comida en trozos mínimos, la mueve por el plato, come muy lento o muy rápido, se levanta al baño justo después, dice que “ya comió”.</p>
+      </article>
+
+      <article class="trampa-card">
+        <div class="icono" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 4a3 3 0 0 1 3 3v7a5 5 0 1 1-6 0V7a3 3 0 0 1 3-3z"/><path d="M12 9v6"/></svg>
+        </div>
+        <span class="badge">Cuerpo</span>
+        <h4>Señales físicas</h4>
+        <p>Pérdida de peso no explicada, frío constante, mareos, caída de cabello, uñas frágiles, piel seca, desmayos, irregularidad menstrual.</p>
+      </article>
+
+      <article class="trampa-card">
+        <div class="icono" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M7 20v-4a7 7 0 1 1 11 0v4"/><path d="M9 20h6"/><path d="M12 8a2 2 0 1 1 2 2c-1.4.5-2 1.4-2 2.6"/></svg>
+        </div>
+        <span class="badge">Pensamiento</span>
+        <h4>Discurso obsesivo</h4>
+        <p>Habla constantemente de calorías, peso, dietas, “comida limpia”. Se siente “gorda/o” aunque esté delgada/o. Muestra culpa intensa tras comer.</p>
+      </article>
+
+      <article class="trampa-card">
+        <div class="icono" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="15" cy="5" r="2"/><path d="M14 9l-4 4 2 3-3 5M14 9l4 3 3-1M11 16l5 5"/></svg>
+        </div>
+        <span class="badge">Compensación</span>
+        <h4>Compensación</h4>
+        <p>Ejercicio obligatorio aunque haya lesión o cansancio extremo. Uso de laxantes, diuréticos o pastillas para adelgazar sin prescripción.</p>
+      </article>
+
+      <article class="trampa-card">
+        <div class="icono" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="1.5"/><circle cx="15" cy="12" r="1"/></svg>
+        </div>
+        <span class="badge">Aislamiento</span>
+        <h4>Aislamiento</h4>
+        <p>Evita reuniones con comida, se encierra, come solo/a, rechaza invitaciones que impliquen comer. Cambios bruscos de ánimo.</p>
+      </article>
+
+      <article class="trampa-card">
+        <div class="icono" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><ellipse cx="12" cy="9" rx="5" ry="7"/><path d="M12 16v5M8.5 21h7"/></svg>
+        </div>
+        <span class="badge">Imagen corporal</span>
+        <h4>Imagen corporal</h4>
+        <p>Se mira obsesivamente al espejo, se pesa varias veces al día, usa ropa holgada para ocultar el cuerpo, compara su cuerpo con otros.</p>
+      </article>
+    </div>
+
+    <div class="frases-tipicas">
+      <span class="frases-tipicas__titulo">Frases que suelen escucharse</span>
+      <div class="frases-tipicas__chips">
+        <span class="frase-chip">“Ya comí”</span>
+        <span class="frase-chip">“No tengo hambre”</span>
+        <span class="frase-chip">“Me cae mal esto”</span>
+      </div>
+    </div>
+
+    <p class="cita-inline">Señales descritas por la Secretaría de Salud de México (INPRFM) y la información para pacientes de BMJ.</p>
+
+    <div class="callout">
+      <b>🧭 Recuerda:</b> una señal aislada no es un diagnóstico. Lo que importa es el patrón y el sufrimiento. Si algo te preocupa, pregunta con cuidado, sin acusar.
+    </div>
+  </section>
+
+  <!-- PANEL 4: AUTOCHECK -->
+  <section class="panel" id="autocheck" role="tabpanel" aria-labelledby="tab-autocheck" aria-hidden="true">
+    <h2>Autochequeo honesto</h2>
+    <p class="lead">No es un test diagnóstico. Es un espejo. Marca lo que reconozcas en ti <b>en las últimas semanas</b>. Nadie ve tus respuestas: todo se calcula en tu navegador.</p>
+
+    <div class="card-image-container">
+      <div class="ilustracion" aria-hidden="true">
+        <svg viewBox="0 0 220 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="58" y="22" width="104" height="114" rx="12" stroke="currentColor" stroke-width="1.6"/>
+          <rect x="88" y="13" width="44" height="20" rx="7" fill="#faf5ef" stroke="currentColor" stroke-width="1.6"/>
+          <rect x="76" y="54" width="13" height="13" rx="3" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M79 60.5l3 3 5-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M99 61h45" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".5"/>
+          <rect x="76" y="80" width="13" height="13" rx="3" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M79 86.5l3 3 5-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M99 87h45" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".5"/>
+          <rect x="76" y="106" width="13" height="13" rx="3" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M99 113h32" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".5"/>
+        </svg>
+      </div>
+      <div class="leyenda">
+        <span class="badge badge--ok">Autochequeo</span>
+        <h3>Un espejo, no una sentencia</h3>
+        <p>Responder con honestidad ayuda a poner en palabras lo que a veces se normaliza. Si algo resuena, ese puede ser el primer paso para hablarlo.</p>
+      </div>
+    </div>
+
+    <div class="checklist" id="check-tca">
+      <label><input type="checkbox" class="chk-tca"> Pienso en comida, calorías o peso la mayor parte del día.</label>
+      <label><input type="checkbox" class="chk-tca"> Siento culpa intensa después de comer, incluso si fue una comida normal.</label>
+      <label><input type="checkbox" class="chk-tca"> Evito comer con otras personas para que no me vean comer.</label>
+      <label><input type="checkbox" class="chk-tca"> Me he provocado vómito, usado laxantes o hecho ejercicio excesivo para “compensar”.</label>
+      <label><input type="checkbox" class="chk-tca"> Me veo “gordo/a” aunque otros me digan que estoy delgado/a.</label>
+      <label><input type="checkbox" class="chk-tca"> He tenido atracones (comer mucho, rápido, con pérdida de control).</label>
+      <label><input type="checkbox" class="chk-tca"> Siento frío constante, mareos o cansancio que no explico.</label>
+      <label><input type="checkbox" class="chk-tca"> Mi estado de ánimo depende de lo que la balanza diga.</label>
+      <div class="contador" id="cnt-tca" aria-live="polite">0 de 8 señales marcadas</div>
+    </div>
+
+    <div class="callout callout--alerta">
+      <b>⚠ Si marcaste 3 o más:</b> no significa que tengas un TCA, pero sí que vale la pena hablarlo con un profesional. La detección temprana cambia el pronóstico. La Línea de la Vida (800 911 2000) ofrece orientación 24/7.
+    </div>
+  </section>
+
+  <!-- PANEL 5: AYUDAR A ALGUIEN -->
+  <section class="panel" id="ayudar" role="tabpanel" aria-labelledby="tab-ayudar" aria-hidden="true">
+    <h2>Si quieres ayudar a alguien</h2>
+    <p class="lead">El TCA no es la persona. La persona está atrapada en algo que la supera. Cómo te acerques puede abrir una puerta o cerrarla para siempre.</p>
+
+    <div class="card-image-container">
+      <div class="ilustracion" aria-hidden="true">
+        <svg viewBox="0 0 220 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M30 34h92a13 13 0 0 1 13 13v34a13 13 0 0 1-13 13H76l-17 15v-15H30a13 13 0 0 1-13-13V47a13 13 0 0 1 13-13z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M43 56h58M43 72h40" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".55"/>
+          <path d="M103 68h84a11 11 0 0 1 11 11v30a11 11 0 0 1-11 11h-14l-13 12v-12h-57a11 11 0 0 1-11-11V79a11 11 0 0 1 11-11z" fill="#faf5ef" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M116 87h58M116 101h40" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".55"/>
+        </svg>
+      </div>
+      <div class="leyenda">
+        <span class="badge">Acompañamiento</span>
+        <h3>La conversación también cuida</h3>
+        <p>Hablar desde la preocupación y no desde el cuerpo abre una puerta. No necesitas tener la respuesta: basta con escuchar sin juicio y ofrecer compañía.</p>
+      </div>
+    </div>
+
+    <div class="ayudar-bloque">
+      <h3><span class="emoji" aria-hidden="true">💬</span> Lo que sí ayuda</h3>
+      <div class="hacer"><b>✓ Habla desde la preocupación, no desde el cuerpo.</b><br>“Me preocupa cómo te ves de cansada/o últimamente” funciona mejor que “te veo mal” o “ya no comas eso”. Evita comentar el peso o la apariencia.</div>
+      <div class="hacer"><b>✓ Escucha sin intentar arreglar.</b><br>No necesitas tener la respuesta. A veces basta con “no sabía que te sentías así, gracias por contármelo”.</div>
+      <div class="hacer"><b>✓ Anima a buscar ayuda profesional, y ofrece acompañar.</b><br>Ofrécete a ir con la persona a su primera cita. La barrera de entrada muchas veces es el miedo a ir sola/o.</div>
+      <div class="hacer"><b>✓ Mantén conversaciones neutrales en las comidas.</b><br>No hables de dietas, calorías, ejercicio ni del cuerpo de nadie en la mesa. Puedes acordar distracciones (música, un podcast) para bajar la ansiedad.</div>
+      <div class="hacer"><b>✓ Recuerda que la recuperación no es lineal.</b><br>Habrá retrocesos. Tu presencia sostenida, sin juicio, es un factor protector real.</div>
+    </div>
+
+    <div class="ayudar-bloque">
+      <h3><span class="emoji" aria-hidden="true">🚫</span> Lo que empeora las cosas</h3>
+      <div class="no-hacer"><b>✕ Comentar el cuerpo: “estás más flaca/o”, “se te ve sano”.</b><br>Incluso los cumplidos refuerzan la lógica del trastorno. Mejor comenta otras cosas: su humor, sus intereses, su compañía.</div>
+      <div class="no-hacer"><b>✕ Vigilar, esconder comida o forzar a comer.</b><br>El control externo aumenta la desconfianza y el secreto. El tratamiento nutricional es tarea de profesionales.</div>
+      <div class="no-hacer"><b>✕ Decir “es solo una etapa” o “solo es vanidad”.</b><br>Los TCA tienen la tasa de mortalidad más alta entre los trastornos mentales. Minimizar retrasa la ayuda.</div>
+      <div class="no-hacer"><b>✕ Hacer de la comida una batalla diaria.</b><br>La mesa no es el lugar para la confrontación. Si hay conflicto, trátalo fuera de las comidas.</div>
+    </div>
+
+    <blockquote class="cita cita--cierre">
+      <p>No se trata de que “coma”.<br>Se trata de que pueda vivir sin que la comida sea su cárcel.</p>
+      <cite>Cierre de la guía</cite>
+    </blockquote>
+  </section>
+
+  <!-- PANEL 6: AYUDA EN MÉXICO -->
+  <section class="panel" id="ayuda" role="tabpanel" aria-labelledby="tab-ayuda" aria-hidden="true">
+    <h2>Ayuda en México</h2>
+    <p class="lead">Estos servicios son gratuitos y de orientación. Para emergencias médicas o psiquiátricas, acude al hospital más cercano.</p>
+
+    <div class="card-image-container">
+      <div class="ilustracion" aria-hidden="true">
+        <svg viewBox="0 0 220 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M55 34c7-9 20-10 27-1l10 13c5 7 3 16-5 21l-9 5c6 16 19 29 35 35l5-9c5-8 14-10 21-5l13 10c9 7 7 21-3 27l-8 5c-10 6-23 5-35-1C70 112 45 87 36 51c-2-8-1-15 4-20z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M144 38c12-8 28-6 37 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".55"/>
+          <path d="M156 25c16-10 37-7 49 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".35"/>
+          <path d="M28 132h164" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".3"/>
+        </svg>
+      </div>
+      <div class="leyenda">
+        <span class="badge badge--alerta">Pedir ayuda</span>
+        <h3>Orientación gratuita y confidencial</h3>
+        <p>No hace falta tener todo claro para llamar. Estos servicios escuchan, orientan y pueden canalizar a atención especializada.</p>
+      </div>
+    </div>
+
+    <div class="ayuda-bloque">
+      <h3>🇲🇽 Nacional</h3>
+      <div class="tel-grid">
+        <article class="tel-card">
+          <div class="icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a12 12 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>
+          </div>
+          <span class="badge badge--ok">24/7 · Gratuita</span>
+          <b>Línea de la Vida</b>
+          <a class="tel" href="tel:8009112000">800 911 2000</a>
+          <small>Orientación en salud mental y adicciones, 24/7, gratuita. Pueden canalizar a servicios especializados en TCA.</small>
+        </article>
+        <article class="tel-card">
+          <div class="icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 21V8l8-4 8 4v13"/><path d="M9 21v-6h6v6"/><path d="M12 7v4M10 9h4"/></svg>
+          </div>
+          <span class="badge badge--arena">CDMX</span>
+          <b>INPRFM · Clínica de la Conducta Alimentaria</b>
+          <a class="tel" href="tel:5541605000">55 4160 5000</a>
+          <small>Instituto Nacional de Psiquiatría “Ramón de la Fuente Muñiz”, CDMX. Atención especializada; informes y referencia.</small>
+        </article>
+        <article class="tel-card">
+          <div class="icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 3l9 17H3z"/><path d="M12 9v5M12 17.5v.5"/></svg>
+          </div>
+          <span class="badge badge--alerta">Riesgo vital</span>
+          <b>Emergencias</b>
+          <a class="tel" href="tel:911">911</a>
+          <small>Si hay desmayo, dolor torácico, sangrado o riesgo vital inmediato.</small>
+        </article>
+      </div>
+    </div>
+
+    <div class="callout">
+      <b>📌 Nota:</b> la atención especializada en TCA en México es limitada fuera de las grandes ciudades. Si no hay servicio local, la Línea de la Vida puede orientar sobre el recurso más cercano. La detección temprana por un profesional de primer contacto (médico familiar, psicólogo escolar) también es válida.
+    </div>
+  </section>
+
+  <!-- PANEL 7: FUENTES -->
+  <section class="panel" id="fuentes" role="tabpanel" aria-labelledby="tab-fuentes" aria-hidden="true">
+    <h2>Fuentes verificables</h2>
+    <p class="lead">Contenido basado en documentos oficiales de la Secretaría de Salud de México, guías clínicas internacionales y literatura académica. Acceso abierto.</p>
+
+    <div class="card-image-container">
+      <div class="ilustracion" aria-hidden="true">
+        <svg viewBox="0 0 220 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="44" y="96" width="132" height="18" rx="4" stroke="currentColor" stroke-width="1.6"/>
+          <rect x="56" y="78" width="108" height="18" rx="4" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M74 60h72a10 10 0 0 1 10 10v8H84a10 10 0 0 1-10-10z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M96 60V46h58" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M44 124h132" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".35"/>
+          <path d="M56 82v12M170 82v12" stroke="currentColor" stroke-width="1.2" opacity=".4"/>
+        </svg>
+      </div>
+      <div class="leyenda">
+        <span class="badge">Respaldo</span>
+        <h3>Contenido con trazabilidad</h3>
+        <p>Cada dato de esta guía puede rastrearse a una fuente oficial o a una guía clínica. La transparencia también es parte del cuidado.</p>
+      </div>
+    </div>
+
+    <article class="fuente-item">
+      <span class="badge badge--arena">Oficial · México</span>
+      <h4>🏛️ Secretaría de Salud (2025). Día Nacional de la Lucha contra los Trastornos de la Conducta Alimentaria</h4>
+      <p>Datos de Ensanut 2022 (1.6% de adolescentes mexicanas con TCA), definición de TCA, tipos reconocidos y enfoque de tratamiento multidisciplinario.</p>
+      <a href="https://www.gob.mx/salud/es/articulos/dia-nacional-de-la-lucha-contra-los-trastornos-de-la-conducta-alimentaria" target="_blank" rel="noopener noreferrer">📄 gob.mx/salud</a>
+    </article>
+
+    <article class="fuente-item">
+      <span class="badge badge--arena">Oficial · México</span>
+      <h4>🏛️ Secretaría de Salud / INPRFM (2025). Señales tempranas de los TCA</h4>
+      <p>Edad de mayor aparición (10–19 años), proporción de mujeres afectadas, subdiagnóstico en hombres, y recomendaciones de prevención escolar y mediática.</p>
+      <a href="https://www.gob.mx/salud/prensa/230-secretaria-de-salud-llama-a-identificar-senales-tempranas-de-los-trastornos-de-la-conducta-alimentaria" target="_blank" rel="noopener noreferrer">📄 gob.mx/salud/prensa</a>
+    </article>
+
+    <article class="fuente-item">
+      <span class="badge badge--arena">Oficial · México</span>
+      <h4>🏛️ Secretaría de Salud (2026). Línea de la Vida para TCA</h4>
+      <p>Confirmación del servicio 800 911 2000, disponible 24/7 para orientación y referencia en salud mental.</p>
+      <a href="https://www.gob.mx/salud/articulos/indispensable-detectar-senales-de-riesgo-para-prevenir-trastornos-de-la-conducta-alimentaria" target="_blank" rel="noopener noreferrer">📄 gob.mx/salud</a>
+    </article>
+
+    <article class="fuente-item">
+      <span class="badge badge--arena">Guía clínica</span>
+      <h4>📖 BMJ Best Practice (2024). Anorexia: cómo ayudar si alguien que conoce puede padecerla</h4>
+      <p>Guía para pacientes y familiares: señales de alerta, cómo acercarse, qué evitar, y la importancia del tratamiento temprano.</p>
+    </article>
+
+    <article class="fuente-item">
+      <span class="badge badge--arena">Guía clínica</span>
+      <h4>📖 NHS Inform (2024). How to support someone with an eating disorder</h4>
+      <p>Recomendaciones prácticas para comidas, conversaciones y límites. Énfasis en no comentar el cuerpo ni vigilar la comida.</p>
+      <a href="https://www.nhsinform.scot/illnesses-and-conditions/mental-health/eating-disorders/how-to-support-someone-with-an-eating-disorder/" target="_blank" rel="noopener noreferrer">🌐 nhsinform.scot</a>
+    </article>
+
+    <article class="fuente-item">
+      <span class="badge badge--arena">Marco general</span>
+      <h4>📖 Servicio de Salud de Castilla-La Mancha. Aproximación al problema</h4>
+      <p>Marco general: los TCA como alteraciones del pensamiento y la conducta, con causas múltiples y necesidad de tratamiento integral.</p>
+    </article>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <p class="footer-frase">No se trata de que “coma”. Se trata de que pueda vivir sin que la comida sea su cárcel.</p>
+    <div class="disclaimer-box">
+      <h4>Disclaimer</h4>
+      <p><b>psychenudo</b> tiene un propósito exclusivamente educativo y de orientación. Esta página <b>no sustituye</b> la evaluación, diagnóstico ni tratamiento de profesionales de salud mental, medicina o nutrición.</p>
+      <p>El autochequeo es una herramienta de reflexión, <b>no un instrumento clínico</b>. Los teléfonos se verificaron contra fuentes oficiales al momento de publicar; pueden cambiar. Ante una emergencia, llama al <b>911</b>.</p>
+    </div>
+    <p class="footer-copy">
+      <b>psychenudo</b> · Guía educativa — conducta alimentaria<br>
+      Fuentes oficiales de México y guías clínicas internacionales · <a href="#" class="tab-link" data-target="fuentes">Ver fuentes →</a>
+    </p>
+  </div>
+</footer>
+
+<button class="sos" id="abrir-sos" type="button" aria-haspopup="dialog" aria-controls="modal">🆘 Necesito ayuda</button>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-hidden="true">
+  <div class="modal-box">
+    <h3 id="modal-title">🚨 Si necesitas ayuda ahora</h3>
+    <ol>
+      <li>Llama a la <b>Línea de la Vida: 800 911 2000</b>. Es gratuita, 24/7, y pueden orientarte.</li>
+      <li>Si hay desmayo, dolor en el pecho, sangrado o confusión: <b>911</b> o urgencias.</li>
+      <li>No estás solo/a. Habla con alguien de confianza hoy.</li>
+    </ol>
+    <div class="modal-actions">
+      <a class="tel-vida" href="tel:8009112000">📞 Línea de la Vida</a>
+      <a class="tel-911" href="tel:911">🚨 911</a>
+      <button class="cerrar" id="cerrar-sos" type="button">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+    var panels = Array.prototype.slice.call(document.querySelectorAll('.panel'));
+
+    function activateTab(id, options) {
+      options = options || {};
+      tabs.forEach(function (tab) {
+        var isActive = tab.dataset.tab === id;
+        tab.classList.toggle('active', isActive);
+        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        tab.tabIndex = isActive ? 0 : -1;
+        if (isActive && options.focus) tab.focus();
+      });
+      panels.forEach(function (panel) {
+        var isActive = panel.id === id;
+        panel.classList.toggle('active', isActive);
+        panel.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+      });
+      if (options.scroll !== false) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    tabs.forEach(function (tab, index) {
+      tab.addEventListener('click', function () {
+        activateTab(tab.dataset.tab);
+      });
+
+      tab.addEventListener('keydown', function (event) {
+        var keys = ['ArrowRight', 'ArrowLeft', 'Home', 'End'];
+        if (keys.indexOf(event.key) === -1) return;
+        event.preventDefault();
+        var next = index;
+        if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
+        if (event.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length;
+        if (event.key === 'Home') next = 0;
+        if (event.key === 'End') next = tabs.length - 1;
+        activateTab(tabs[next].dataset.tab, { focus: true, scroll: false });
+      });
+    });
+
+    document.querySelectorAll('.tab-link').forEach(function (link) {
+      link.addEventListener('click', function (event) {
+        event.preventDefault();
+        activateTab(link.dataset.target);
+      });
+    });
+
+    var checks = Array.prototype.slice.call(document.querySelectorAll('.chk-tca'));
+    var counter = document.getElementById('cnt-tca');
+    checks.forEach(function (check) {
+      check.addEventListener('change', function () {
+        var total = checks.filter(function (item) { return item.checked; }).length;
+        counter.textContent = total + ' de ' + checks.length + ' señales marcadas';
+        counter.classList.toggle('is-warning', total >= 3);
+      });
+    });
+
+    var modal = document.getElementById('modal');
+    var openButton = document.getElementById('abrir-sos');
+    var closeButton = document.getElementById('cerrar-sos');
+    var lastFocused = null;
+
+    function openModal() {
+      lastFocused = document.activeElement;
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      closeButton.focus();
+    }
+
+    function closeModal() {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      if (lastFocused) lastFocused.focus();
+    }
+
+    openButton.addEventListener('click', openModal);
+    closeButton.addEventListener('click', closeModal);
+    modal.addEventListener('click', function (event) {
+      if (event.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && modal.classList.contains('open')) closeModal();
+    });
+  })();
+</script>
+
+</body>
+</html>

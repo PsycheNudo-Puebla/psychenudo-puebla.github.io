@@ -207,6 +207,16 @@ title: PsycheNudo
                 </div>
             </article>
             <article class="tarjeta-colega" data-categoria="psicoeducacion">
+                <h3>Conducta alimentaria: cuando comer deja de ser un placer</h3>
+                <p class="especialidad-colega">Psicoeducación / Trastornos de la conducta alimentaria</p>
+                <p>Guía educativa sobre los trastornos de la conducta alimentaria (TCA): explica cómo una dieta aparentemente “saludable” puede convertirse en una pendiente hacia la restricción, la culpa y el aislamiento, y por qué el peso no define el diagnóstico.</p>
+                <p>Dirigida a adolescentes, familias, docentes y profesionales de primer contacto. Ayuda a reconocer señales tempranas sin alarmismo, a distinguir los distintos cuadros (anorexia, bulimia, atracón, ortorexia y vigorexia) y a acompañar a alguien sin comentar su cuerpo ni vigilar su comida.</p>
+                <p><strong>Incluye:</strong> los cuatro peldaños de la “vida sana” al trastorno, tipos y cuadros reconocidos, señales de alerta, autochequeo de 8 preguntas, frases típicas, guía de acompañamiento (qué ayuda y qué empeora), directorio de ayuda en México y fuentes oficiales.</p>
+                <div class="acciones-tarjeta">
+                    <a href="{{ '/recursos/conducta-alimentaria/index.html' | relative_url }}" class="boton" target="_blank" rel="noopener noreferrer">Abrir guía</a>
+                </div>
+            </article>
+            <article class="tarjeta-colega" data-categoria="psicoeducacion">
                 <h3>Amor Rojo: Identificar relaciones de violencia</h3>
                 <p class="especialidad-colega">Psicoeducación / Violencia de pareja</p>
                 <p>Recurso de psicoeducación sobre la violencia en las relaciones de pareja: explica cómo la violencia no empieza con un golpe, sino que entra poco a poco disfrazada de amor, y cómo reconocer las primeras señales antes de que escalen.</p>
@@ -272,6 +282,10 @@ title: PsycheNudo
         });
         if (updateHash && tabIds.includes(tabId)) {
             history.replaceState(null, '', '#' + tabId);
+        }
+        // Recalcular el alto de las fichas cuando la pestaña Recursos se hace visible
+        if (tabId === 'recursos' && typeof initRecursosCards === 'function') {
+            requestAnimationFrame(initRecursosCards);
         }
     }
 

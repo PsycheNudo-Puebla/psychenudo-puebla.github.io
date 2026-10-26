@@ -1,1457 +1,1985 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>El Reflejo, los Fármacos y el Vínculo — Psicoeducación sobre cáncer y salud mental</title>
-    <meta name="description" content="Recurso psicoeducativo sobre el cáncer y la importancia del acompañamiento para la salud mental. Explica cómo los medicamentos influyen en el estado de ánimo y ofrece un espacio para compartir experiencias.">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        :root {
-            --azul: #2E4A73;
-            --azul-medio: #4A6FA5;
-            --verde: #81B29A;
-            --rojo: #c53030;
-            --arena: #D4A373;
-            --tierra: #8C7A6B;
-            --texto: #2d3748;
-            --gris: #718096;
-            --fondo: #f5f7fa;
-        }
-
-        html { scroll-behavior: smooth; }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: var(--fondo);
-            color: var(--texto);
-            line-height: 1.65;
-        }
-
-        /* ---------- BOTÓN VOLVER ---------- */
-        .volver-bar {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            background: rgba(30, 51, 84, 0.96);
-            backdrop-filter: blur(6px);
-            padding: 10px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .btn-volver {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255,255,255,0.12);
-            border: 1px solid rgba(255,255,255,0.25);
-            color: #fff;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            padding: 8px 14px;
-            border-radius: 30px;
-            transition: background 0.2s, transform 0.2s;
-        }
-
-        .btn-volver:hover { background: rgba(255,255,255,0.22); transform: translateX(-2px); }
-
-        .volver-marca {
-            color: rgba(255,255,255,0.75);
-            font-size: 12px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            font-weight: 700;
-        }
-
-        /* ---------- HERO ---------- */
-        .hero {
-            background: linear-gradient(140deg, #1e3354 0%, var(--azul) 35%, var(--azul-medio) 65%, var(--verde) 115%);
-            color: white;
-            padding: 52px 20px 84px;
-            text-align: center;
-            position: relative;
-        }
-
-        .hero-badge {
-            display: inline-block;
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.25);
-            border-radius: 30px;
-            padding: 6px 16px;
-            font-size: 12px;
-            letter-spacing: 1.2px;
-            text-transform: uppercase;
-            font-weight: 600;
-            margin-bottom: 18px;
-            backdrop-filter: blur(4px);
-        }
-
-        .hero h1 {
-            font-size: 32px;
-            margin-bottom: 14px;
-            font-weight: 800;
-            letter-spacing: -0.3px;
-        }
-
-        .hero p {
-            font-size: 15.5px;
-            opacity: 0.94;
-            max-width: 640px;
-            margin: 0 auto;
-        }
-
-        .hero-wave {
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            width: 100%;
-            line-height: 0;
-        }
-
-        .hero-wave svg { width: 100%; height: 46px; display: block; }
-
-        /* ---------- PESTAÑAS ---------- */
-        .tabs-shell {
-            position: sticky;
-            top: 53px;
-            z-index: 40;
-            background: var(--fondo);
-            border-bottom: 1px solid #e2e8f0;
-            padding: 10px 12px;
-        }
-
-        .tabs {
-            max-width: 820px;
-            margin: 0 auto;
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        .tabs::-webkit-scrollbar { display: none; }
-
-        .tabbtn {
-            flex: 0 0 auto;
-            border: 1px solid #d9e1ec;
-            background: #fff;
-            color: var(--azul);
-            font-family: inherit;
-            font-size: 13.5px;
-            font-weight: 700;
-            padding: 10px 16px;
-            border-radius: 30px;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
-
-        .tabbtn:hover { border-color: var(--azul-medio); background: #f0f4fa; }
-        .tabbtn.active { background: var(--azul); border-color: var(--azul); color: #fff; box-shadow: 0 4px 12px rgba(46,74,115,0.25); }
-
-        /* ---------- LAYOUT ---------- */
-        .container { max-width: 820px; margin: 0 auto; padding: 24px 20px 40px; }
-
-        .tabpanel { display: none; }
-        .tabpanel.active { display: block; animation: aparecer 0.35s ease; }
-
-        @keyframes aparecer {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .section {
-            background: white;
-            border-radius: 14px;
-            padding: 26px 24px;
-            margin-bottom: 22px;
-            box-shadow: 0 2px 10px rgba(30, 51, 84, 0.07);
-            border: 1px solid #eef1f5;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 18px;
-        }
-
-        .section-icon {
-            width: 46px;
-            height: 46px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #ebf4ff, #e6f4ec);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            flex-shrink: 0;
-        }
-
-        .section-title {
-            font-size: 20px;
-            color: var(--azul);
-            font-weight: 800;
-            letter-spacing: -0.2px;
-        }
-
-        .card {
-            background: #f8fafc;
-            border-radius: 10px;
-            padding: 18px;
-            margin: 12px 0;
-            border-left: 4px solid var(--azul-medio);
-        }
-
-        .card p { margin-bottom: 8px; font-size: 14.5px; }
-
-        .storm-grid {
-            display: grid;
-            gap: 12px;
-            margin-top: 16px;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        }
-
-        .storm-item {
-            background: white;
-            padding: 16px;
-            border-radius: 10px;
-            border: 1px solid #e2e8f0;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .storm-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(30,51,84,0.08); }
-
-        .storm-item h4 { font-size: 15px; color: var(--azul); margin-bottom: 6px; }
-        .storm-item p { font-size: 13px; color: var(--gris); }
-
-        /* ---------- SCIENCE BOX ---------- */
-        .science-box {
-            background: #ebf4ff;
-            border-left: 4px solid var(--azul-medio);
-            padding: 14px 16px;
-            margin: 14px 0;
-            border-radius: 0 8px 8px 0;
-            font-size: 13.5px;
-        }
-
-        .science-box a { color: var(--azul); text-decoration: underline; font-weight: 600; }
-        .science-box a:hover { color: var(--azul-medio); }
-
-        .ref-tag {
-            display: inline-block;
-            background: var(--azul);
-            color: white;
-            font-size: 10.5px;
-            font-weight: 700;
-            border-radius: 4px;
-            padding: 1px 7px;
-            margin-right: 4px;
-            vertical-align: middle;
-            letter-spacing: 0.4px;
-        }
-
-        /* ---------- PHARMA ACCORDION ---------- */
-        .pharma-card {
-            background: white;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            border: 1px solid #e2e8f0;
-            overflow: hidden;
-            transition: box-shadow 0.2s;
-        }
-
-        .pharma-card.active { box-shadow: 0 4px 14px rgba(30,51,84,0.09); }
-
-        .pharma-header {
-            padding: 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            background: #fafbfd;
-            transition: background 0.2s;
-            user-select: none;
-        }
-
-        .pharma-header:hover { background: #f0f4fa; }
-        .pharma-header:active { background: #e9eef6; }
-
-        .pharma-emoji {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #ebf4ff, #e6f4ec);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 26px;
-            flex-shrink: 0;
-        }
-
-        .pharma-info { flex: 1; }
-        .pharma-info h3 { font-size: 16.5px; font-weight: 800; color: var(--texto); margin-bottom: 2px; }
-        .pharma-info span { font-size: 13px; color: var(--gris); }
-
-        .pharma-chevron { font-size: 14px; color: #a0aec0; transition: transform 0.3s; }
-        .pharma-card.active .pharma-chevron { transform: rotate(180deg); }
-
-        .pharma-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; }
-        .pharma-card.active .pharma-body { max-height: 2400px; transition: max-height 0.7s ease-in; }
-
-        .pharma-content { padding: 20px 18px; border-top: 1px solid #e2e8f0; }
-
-        .pharma-section { margin-bottom: 18px; }
-        .pharma-section:last-child { margin-bottom: 0; }
-
-        .pharma-section-label {
-            display: inline-block;
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            padding: 4px 12px;
-            border-radius: 20px;
-            margin-bottom: 10px;
-        }
-
-        .label-effect   { background: #fff5f5; color: var(--rojo); }
-        .label-science  { background: #ebf8ff; color: #2b6cb0; }
-        .label-action   { background: #f0fff4; color: #276749; }
-
-        .pharma-section ul { list-style: none; padding-left: 0; }
-
-        .pharma-section ul li {
-            position: relative;
-            padding-left: 18px;
-            margin-bottom: 8px;
-            font-size: 14.5px;
-            line-height: 1.65;
-        }
-
-        .pharma-section ul li::before {
-            content: '•';
-            position: absolute;
-            left: 0;
-            color: var(--azul-medio);
-            font-weight: bold;
-        }
-
-        .pharma-section ul li strong { color: var(--azul); }
-
-        /* ---------- ALERT ---------- */
-        .alert-card {
-            background: #fff5f5;
-            border: 2px solid #fed7d7;
-            border-radius: 12px;
-            padding: 22px;
-        }
-
-        .alert-title { font-size: 16px; font-weight: 800; color: var(--rojo); margin-bottom: 14px; }
-
-        .alert-list { list-style: none; padding: 0; }
-
-        .alert-list li {
-            background: white;
-            padding: 12px 14px 12px 42px;
-            margin-bottom: 8px;
-            border-radius: 8px;
-            border: 1px solid #fed7d7;
-            font-size: 13.5px;
-            position: relative;
-        }
-
-        .alert-list li::before {
-            content: '⚠️';
-            position: absolute;
-            left: 12px;
-            top: 12px;
-        }
-
-        /* ---------- DIARY TABLE ---------- */
-        .diary-wrapper { overflow-x: auto; border-radius: 10px; border: 1px solid #e2e8f0; }
-
-        .diary-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            font-size: 13.5px;
-        }
-
-        .diary-table th {
-            background: var(--azul-medio);
-            color: white;
-            padding: 13px;
-            text-align: left;
-            font-weight: 700;
-            font-size: 12px;
-        }
-
-        .diary-table td { padding: 13px; border-bottom: 1px solid #e2e8f0; }
-        .diary-table tr:nth-child(even) { background: #f8fafc; }
-
-        .example { color: var(--gris); font-style: italic; }
-
-        .your-turn {
-            background: #fff3c4 !important;
-            font-weight: 700;
-            color: var(--azul);
-            text-align: center;
-        }
-
-        /* ---------- BRIDGE ---------- */
-        .bridge-card {
-            background: linear-gradient(135deg, #f0f4ff, #e8e0f0);
-            border: 1px solid #d6bcfa;
-            border-radius: 12px;
-            padding: 22px;
-        }
-
-        .bridge-card p { font-size: 14.5px; margin-bottom: 10px; }
-
-        /* ---------- RESOURCES ---------- */
-        .resources-grid { display: grid; gap: 10px; margin-top: 16px; }
-
-        .resource-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 14px;
-            text-decoration: none;
-            color: var(--texto);
-            transition: all 0.2s;
-        }
-
-        .resource-link:hover { border-color: var(--azul-medio); box-shadow: 0 3px 10px rgba(30,51,84,0.07); }
-        .resource-link:active { background: #f8fafc; transform: scale(0.98); }
-
-        .r-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            background: #ebf8ff;
-            flex-shrink: 0;
-        }
-
-        .r-text { flex: 1; }
-        .r-text h4 { font-size: 14px; font-weight: 700; color: var(--azul); margin-bottom: 2px; }
-        .r-text span { font-size: 12px; color: var(--gris); }
-        .r-arrow { color: #a0aec0; font-size: 18px; }
-
-        /* ---------- REFERENCE LIST ---------- */
-        .ref-list { counter-reset: ref; list-style: none; margin-top: 14px; }
-
-        .ref-list li {
-            counter-increment: ref;
-            position: relative;
-            padding: 12px 14px 12px 46px;
-            background: #f8fafc;
-            border: 1px solid #e8edf3;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            font-size: 13px;
-            color: #4a5568;
-            line-height: 1.6;
-        }
-
-        .ref-list li::before {
-            content: counter(ref);
-            position: absolute;
-            left: 14px;
-            top: 13px;
-            width: 22px;
-            height: 22px;
-            background: var(--azul-medio);
-            color: white;
-            border-radius: 50%;
-            font-size: 11.5px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .ref-list li em { color: var(--azul); font-style: normal; font-weight: 700; }
-        .ref-list li a { color: var(--azul-medio); }
-
-        /* =====================================================
-           PESTAÑA 2 · EL REFLEJO Y EL VÍNCULO (tema cálido)
-           ===================================================== */
-        .vinculo {
-            --vl-bg: #F9F6F0;
-            --vl-text: #3A3A3A;
-            --vl-accent: #8C7A6B;
-            --vl-soft-blue: #A8B5B2;
-            --vl-card: #FFFFFF;
-            --vl-highlight: #D4A373;
-            font-family: 'Georgia', serif;
-            color: var(--vl-text);
-        }
-
-        .vinculo-intro {
-            background: linear-gradient(135deg, var(--vl-soft-blue), var(--vl-accent));
-            color: #fff;
-            text-align: center;
-            padding: 44px 28px;
-            border-radius: 14px;
-            margin-bottom: 22px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        }
-
-        .vinculo-intro h2 {
-            font-size: 2em;
-            font-weight: normal;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            border: none;
-            padding: 0;
-            color: #fff;
-        }
-
-        .vinculo-intro p { font-style: italic; font-size: 1.1em; opacity: 0.95; }
-
-        .vinculo .vl-section {
-            background: var(--vl-card);
-            margin-bottom: 22px;
-            padding: 34px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            border-left: 5px solid var(--vl-highlight);
-        }
-
-        .vinculo .vl-section h2 {
-            color: var(--vl-accent);
-            font-size: 1.55em;
-            font-family: 'Georgia', serif;
-            margin-top: 0;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            margin-bottom: 16px;
-        }
-
-        .vinculo .vl-section p { margin-bottom: 14px; line-height: 1.8; }
-
-        .vinculo .quote {
-            background-color: #FAF3E8;
-            padding: 20px;
-            border-left: 4px solid var(--vl-soft-blue);
-            font-style: italic;
-            margin: 20px 0;
-            font-size: 1.08em;
-            color: #555;
-            border-radius: 0 8px 8px 0;
-        }
-
-        .vinculo .insight {
-            background-color: #F0F4F3;
-            padding: 16px;
-            border-radius: 8px;
-            margin-top: 20px;
-            font-size: 0.95em;
-        }
-
-        .vinculo .insight strong { color: var(--vl-accent); }
-
-        .vinculo ul { padding-left: 22px; }
-        .vinculo li { margin-bottom: 15px; line-height: 1.75; }
-        .vinculo li strong { color: var(--vl-accent); }
-
-        /* =====================================================
-           PESTAÑA 3 · MURO DE EXPERIENCIAS
-           ===================================================== */
-        .muro-hero {
-            background: linear-gradient(140deg, #2d4a3e, #3f6b57 55%, var(--verde));
-            color: #fff;
-            border-radius: 14px;
-            padding: 34px 28px;
-            text-align: center;
-            margin-bottom: 22px;
-        }
-
-        .muro-hero h2 { font-size: 24px; margin-bottom: 12px; }
-        .muro-hero p { font-size: 15px; opacity: 0.95; max-width: 560px; margin: 0 auto; }
-
-        .muro-acciones {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            justify-content: center;
-            margin-top: 22px;
-        }
-
-        .btn-muro {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: #fff;
-            color: var(--azul);
-            text-decoration: none;
-            font-weight: 800;
-            font-size: 15px;
-            padding: 14px 24px;
-            border-radius: 40px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.18);
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: none;
-            cursor: pointer;
-            font-family: inherit;
-        }
-
-        .btn-muro:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,0.22); }
-        .btn-muro.secundario { background: rgba(255,255,255,0.14); color: #fff; border: 1px solid rgba(255,255,255,0.4); box-shadow: none; }
-
-        .muro-nota {
-            font-size: 12.5px;
-            color: var(--gris);
-            margin-top: 14px;
-        }
-
-        .pautas-list { list-style: none; padding: 0; margin-top: 8px; }
-
-        .pautas-list li {
-            position: relative;
-            padding: 12px 14px 12px 46px;
-            background: #f8fafc;
-            border: 1px solid #e8edf3;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .pautas-list li::before {
-            position: absolute;
-            left: 14px;
-            top: 11px;
-            font-size: 16px;
-        }
-
-        .pautas-list li.ok::before { content: '✅'; }
-        .pautas-list li.cuidado::before { content: '🤍'; }
-
-        /* ---------- INTRO PSICOEDUCACIÓN ---------- */
-        .def-box {
-            background: linear-gradient(135deg, #f0f4ff, #e6f4ec);
-            border: 1px solid #d6e4fc;
-            border-radius: 12px;
-            padding: 20px 22px;
-            margin: 16px 0;
-        }
-
-        .def-box ul { list-style: none; padding-left: 0; margin-top: 10px; }
-
-        .def-box ul li {
-            position: relative;
-            padding-left: 28px;
-            margin-bottom: 9px;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .def-box ul li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            top: 1px;
-            width: 18px;
-            height: 18px;
-            background: var(--azul);
-            color: #fff;
-            border-radius: 50%;
-            font-size: 11px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .def-box ul li strong { color: var(--azul); }
-
-        .omision-grid {
-            display: grid;
-            gap: 14px;
-            grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
-        }
-
-        .omision-card {
-            border-radius: 12px;
-            padding: 18px 18px 14px;
-            border: 1px solid #e2e8f0;
-            background: #f8fafc;
-        }
-
-        .omision-card--paciente { border-top: 4px solid var(--azul-medio); }
-        .omision-card--familiar { border-top: 4px solid var(--verde); }
-        .omision-card--profesional { border-top: 4px solid var(--arena); }
-
-        .omision-card h3 { font-size: 15px; margin-bottom: 4px; color: var(--azul); }
-        .omision-card .omision-who {
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--gris);
-            margin-bottom: 10px;
-        }
-
-        .omision-list { list-style: none; padding-left: 0; }
-
-        .omision-list li {
-            position: relative;
-            padding-left: 20px;
-            margin-bottom: 9px;
-            font-size: 13.5px;
-            line-height: 1.55;
-        }
-
-        .omision-list li::before {
-            content: '·';
-            position: absolute;
-            left: 5px;
-            top: -2px;
-            font-size: 22px;
-            color: var(--azul-medio);
-            font-weight: 800;
-        }
-
-        .omision-list li strong { color: var(--azul); }
-
-        .usar-grid {
-            display: grid;
-            gap: 10px;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-        }
-
-        .usar-item {
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 14px 16px;
-        }
-
-        .usar-item h4 { font-size: 14px; color: var(--azul); margin-bottom: 5px; }
-        .usar-item p { font-size: 12.5px; color: var(--gris); }
-
-        /* ---------- FOOTER ---------- */
-        .footer {
-            background: linear-gradient(135deg, var(--azul), var(--azul-medio));
-            color: white;
-            padding: 44px 20px;
-            text-align: center;
-            margin-top: 42px;
-        }
-
-        .author-badge {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 14px;
-            padding: 24px;
-            margin-bottom: 20px;
-            display: inline-block;
-        }
-
-        .author-avatar {
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--verde), #6B8FC4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            color: white;
-            font-weight: 800;
-            margin: 0 auto 12px;
-            border: 3px solid rgba(255,255,255,0.3);
-        }
-
-        .author-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
-        .author-role { font-size: 12px; opacity: 0.85; }
-
-        .footer-disclaimer {
-            font-size: 12px;
-            opacity: 0.75;
-            max-width: 540px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-
-        .footer-year { font-size: 11px; opacity: 0.55; margin-top: 16px; }
-
-        .footer-volver {
-            display: inline-block;
-            margin-top: 22px;
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.45);
-            border-radius: 30px;
-            padding: 9px 20px;
-            font-size: 13px;
-            font-weight: 600;
-            text-decoration: none;
-        }
-
-        .footer-volver:hover { background: rgba(255,255,255,0.15); }
-
-        @media (max-width: 480px) {
-            .hero h1 { font-size: 24px; }
-            .section { padding: 20px 16px; }
-            .vinculo .vl-section { padding: 24px 18px; }
-            .tabbtn { font-size: 12.5px; padding: 9px 13px; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Reflejo, los Fármacos y el Vínculo · Cáncer y salud mental · psychenudo</title>
+<meta name="description" content="Recurso psicoeducativo sobre el cáncer y la salud mental: cómo los medicamentos influyen en el estado de ánimo, qué se vive frente al espejo y cómo acompañar a quien cuida.">
+<meta name="theme-color" content="#2e4a73">
+<style>
+  /* ==========================================================================
+     1. TOKENS · paleta original de Cáncer y Salud Mental, ordenada como sistema
+     ========================================================================== */
+  :root{
+    --bg:#f5f7fa;
+    --bg-2:#eaf0f7;
+    --bg-3:#e1ebf4;
+    --card:#ffffff;
+
+    --ink:#22303f;
+    --ink-soft:#5a6a7e;
+
+    --azul:#2e4a73;
+    --azul-medio:#4a6fa5;
+    --accent:#2e4a73;
+    --accent-2:#4a6fa5;
+    --accent-texto:#2e4a73;
+    --accent-tinte:rgba(46,74,115,.07);
+    --accent-borde:rgba(46,74,115,.18);
+
+    --verde:#81b29a;
+    --verde-deep:#4f8b71;
+    --verde-texto:#2f6a54;
+    --verde-suave:#ecf5f0;
+    --verde-borde:rgba(79,139,113,.25);
+
+    --rojo:#c53030;
+    --rojo-texto:#a82424;
+    --rojo-suave:#fdeeee;
+    --rojo-borde:rgba(197,48,48,.22);
+
+    --arena:#d4a373;
+    --arena-texto:#7a4c1e;
+    --arena-suave:#fdf4e8;
+    --arena-borde:#efdcc4;
+
+    --line:#dfe6ef;
+    --line-suave:rgba(223,230,239,.7);
+
+    --fuente-titulo:Georgia,"Iowan Old Style","Palatino Linotype","Times New Roman",serif;
+    --fuente-ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+
+    --max:960px;
+    --radio-sm:10px;
+    --radio:16px;
+    --radio-lg:24px;
+    --pill:999px;
+
+    --sombra-sm:0 1px 2px rgba(30,51,84,.05),0 6px 16px -10px rgba(30,51,84,.28);
+    --sombra:0 1px 2px rgba(30,51,84,.05),0 16px 38px -22px rgba(30,51,84,.42);
+    --sombra-alta:0 2px 4px rgba(30,51,84,.06),0 26px 52px -24px rgba(30,51,84,.48);
+
+    --trans:.22s ease;
+  }
+
+  /* ==========================================================================
+     2. BASE
+     ========================================================================== */
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;scroll-padding-top:86px}
+  body{
+    background-color:var(--bg);
+    background-image:
+      radial-gradient(circle at 8% 0%,rgba(129,178,154,.14),transparent 42%),
+      radial-gradient(circle at 96% 8%,rgba(74,111,165,.10),transparent 40%);
+    background-attachment:fixed;
+    color:var(--ink);
+    font-family:var(--fuente-ui);
+    font-size:16px;
+    line-height:1.68;
+    -webkit-font-smoothing:antialiased;
+    position:relative;
+  }
+  p{margin:0 0 15px}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  a:focus-visible,button:focus-visible,[tabindex]:focus-visible{
+    outline:3px solid rgba(46,74,115,.35);
+    outline-offset:3px;
+  }
+  h2{
+    font-family:var(--fuente-titulo);
+    font-size:clamp(1.55rem,3.4vw,2rem);
+    font-weight:700;
+    line-height:1.2;
+    letter-spacing:-.02em;
+    color:var(--accent);
+    margin:0 0 10px;
+  }
+  h2::before{
+    content:"";
+    display:block;
+    width:46px;height:3px;
+    margin-bottom:16px;
+    border-radius:var(--pill);
+    background:linear-gradient(90deg,var(--verde),var(--accent-2));
+  }
+  h3{
+    font-family:var(--fuente-titulo);
+    font-size:1.22rem;
+    font-weight:700;
+    line-height:1.3;
+    color:var(--ink);
+    margin:0 0 8px;
+  }
+  ::selection{background:var(--accent);color:#fff}
+
+  .skip{
+    position:absolute;
+    left:-9999px;
+    top:0;
+    padding:10px 16px;
+    border-radius:0 0 var(--radio-sm) 0;
+    background:var(--accent);
+    color:#fff;
+    font-weight:700;
+    z-index:999;
+  }
+  .skip:focus{left:0;outline:3px solid var(--arena);outline-offset:2px}
+
+  /* ==========================================================================
+     3. BARRA DE PROGRESO
+     ========================================================================== */
+  #progress{
+    position:fixed;
+    top:0;left:0;
+    z-index:120;
+    width:0;height:3px;
+    background:linear-gradient(90deg,var(--accent),var(--verde));
+  }
+
+  /* ==========================================================================
+     4. ENCABEZADO EDITORIAL
+     ========================================================================== */
+  header{
+    position:relative;
+    overflow:hidden;
+    padding:44px 22px 48px;
+    color:#fff;
+    background:linear-gradient(135deg,#1e3354 0%,var(--azul) 46%,var(--azul-medio) 100%);
+    border-bottom:3px solid var(--arena);
+  }
+  header::before,
+  header::after{
+    content:"";
+    position:absolute;
+    border-radius:50%;
+    pointer-events:none;
+  }
+  header::before{
+    width:380px;height:380px;
+    right:-140px;top:-190px;
+    background:radial-gradient(circle,rgba(255,255,255,.12),transparent 68%);
+  }
+  header::after{
+    width:320px;height:320px;
+    left:-150px;bottom:-210px;
+    background:radial-gradient(circle,rgba(129,178,154,.28),transparent 70%);
+  }
+  .header-inner{position:relative;z-index:1;max-width:var(--max);margin:0 auto}
+  .brand{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:22px;
+    padding:8px 16px;
+    border-radius:var(--pill);
+    border:1px solid rgba(255,255,255,.42);
+    background:rgba(255,255,255,.12);
+    color:#fff;
+    font-size:.84rem;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    text-decoration:none;
+    transition:background var(--trans),transform var(--trans),box-shadow var(--trans);
+  }
+  .brand::before{content:"\2190";font-size:1rem;line-height:1;letter-spacing:0}
+  .brand:hover{background:rgba(255,255,255,.24);transform:translateX(-3px);box-shadow:0 8px 20px rgba(0,0,0,.18);text-decoration:none}
+  .kicker{
+    display:inline-block;
+    margin:0 0 12px;
+    padding:5px 12px;
+    border-radius:var(--pill);
+    background:rgba(255,255,255,.13);
+    border:1px solid rgba(255,255,255,.28);
+    color:rgba(255,255,255,.94);
+    font-size:.7rem;
+    font-weight:700;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+  }
+  h1.titulo{
+    max-width:820px;
+    margin:0 0 12px;
+    font-family:var(--fuente-titulo);
+    font-size:clamp(1.95rem,4.6vw,2.9rem);
+    font-weight:700;
+    line-height:1.12;
+    letter-spacing:-.03em;
+  }
+  h1.titulo em{font-style:italic;color:#f4d6b0}
+  .subtitulo{
+    max-width:700px;
+    margin:0;
+    color:rgba(255,255,255,.9);
+    font-size:1.04rem;
+    line-height:1.62;
+  }
+  .header-cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+
+  /* ==========================================================================
+     5. AVISO
+     ========================================================================== */
+  .aviso-wrap{max-width:var(--max);margin:0 auto;padding:20px 22px 0}
+  .aviso{
+    margin:0;
+    padding:14px 18px;
+    border:1px solid var(--arena-borde);
+    border-left:4px solid var(--arena);
+    border-radius:0 var(--radio) var(--radio) 0;
+    background:var(--arena-suave);
+    color:#6b4a25;
+    font-size:.9rem;
+    line-height:1.6;
+    box-shadow:var(--sombra-sm);
+  }
+  .aviso b,.aviso strong{color:var(--rojo-texto)}
+
+  /* ==========================================================================
+     6. NAVEGACIÓN STICKY
+     ========================================================================== */
+  .tabs{
+    position:sticky;
+    top:0;
+    z-index:50;
+    display:flex;
+    gap:4px;
+    overflow-x:auto;
+    padding:10px 14px;
+    background:rgba(245,247,250,.95);
+    border-bottom:1px solid var(--line);
+    -webkit-backdrop-filter:blur(12px);
+    backdrop-filter:blur(12px);
+    scrollbar-width:none;
+  }
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{
+    flex:0 0 auto;
+    padding:9px 14px;
+    border:1px solid transparent;
+    border-radius:var(--pill);
+    background:none;
+    color:var(--ink-soft);
+    font-family:var(--fuente-ui);
+    font-size:.84rem;
+    font-weight:600;
+    white-space:nowrap;
+    text-decoration:none;
+    cursor:pointer;
+    transition:background var(--trans),color var(--trans),box-shadow var(--trans);
+  }
+  .tab:hover{color:var(--accent);background:var(--accent-tinte);text-decoration:none}
+  .tab.active{
+    color:#fff;
+    background:var(--accent);
+    box-shadow:0 8px 18px -10px rgba(30,51,84,.8);
+  }
+  .tab--urgent{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    margin-left:6px;
+    color:#fff;
+    background:var(--rojo);
+    border-color:var(--rojo);
+    font-weight:700;
+  }
+  .tab--urgent::before{
+    content:"";
+    width:7px;height:7px;
+    border-radius:50%;
+    background:#ffd9d9;
+    animation:pulse-dot 2.4s infinite;
+  }
+  .tab--urgent:hover{color:#fff;background:#a82424;text-decoration:none}
+  .tab--urgent.active{background:var(--rojo);box-shadow:0 8px 18px -10px rgba(140,20,20,.8)}
+  @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.35}}
+
+  /* ==========================================================================
+     7. ESTRUCTURA
+     ========================================================================== */
+  main{max-width:var(--max);margin:0 auto;padding:34px 22px 56px}
+  .seccion{margin-bottom:3.2rem;scroll-margin-top:88px}
+  .lead{
+    margin:0 0 24px;
+    padding-left:18px;
+    border-left:3px solid var(--verde);
+    color:var(--ink-soft);
+    font-family:var(--fuente-titulo);
+    font-size:1.12rem;
+    line-height:1.66;
+  }
+  .small{font-family:var(--fuente-ui);font-size:.86rem;color:var(--ink-soft);line-height:1.6}
+  .divider{
+    margin:2.4rem 0;
+    color:var(--verde-deep);
+    font-size:1.15rem;
+    letter-spacing:.9rem;
+    text-align:center;
+    opacity:.75;
+  }
+
+  /* ==========================================================================
+     8. BADGES Y BOTONES
+     ========================================================================== */
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    width:fit-content;
+    margin-bottom:10px;
+    padding:4px 12px;
+    border:1px solid var(--accent-borde);
+    border-radius:var(--pill);
+    background:var(--accent-tinte);
+    color:var(--accent-texto);
+    font-family:var(--fuente-ui);
+    font-size:.68rem;
+    font-weight:700;
+    line-height:1.5;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+  }
+  .badge--verde{background:var(--verde-suave);border-color:var(--verde-borde);color:var(--verde-texto)}
+  .badge--rojo{background:var(--rojo-suave);border-color:var(--rojo-borde);color:var(--rojo-texto)}
+  .badge--arena{background:var(--arena-suave);border-color:var(--arena-borde);color:var(--arena-texto)}
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    border:1.5px solid transparent;
+    border-radius:var(--pill);
+    padding:12px 22px;
+    font-family:var(--fuente-ui);
+    font-size:.92rem;
+    font-weight:700;
+    line-height:1.2;
+    text-decoration:none;
+    cursor:pointer;
+    transition:background var(--trans),transform var(--trans),box-shadow var(--trans),color var(--trans);
+  }
+  .btn--accent{background:var(--accent);color:#fff;box-shadow:0 12px 24px -12px rgba(46,74,115,.8)}
+  .btn--accent:hover{background:#22385a;transform:translateY(-2px);text-decoration:none}
+  .btn--light{background:#fff;color:var(--accent);box-shadow:0 12px 24px -14px rgba(0,0,0,.5)}
+  .btn--light:hover{background:var(--arena-suave);transform:translateY(-2px);text-decoration:none}
+  .btn--ghost{background:transparent;color:var(--accent);border-color:var(--accent)}
+  .btn--ghost:hover{background:var(--accent);color:#fff;text-decoration:none}
+  .btn--dark-ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.45)}
+  .btn--dark-ghost:hover{background:rgba(255,255,255,.14);text-decoration:none}
+  .btn--urgent{background:var(--rojo);color:#fff;box-shadow:0 12px 24px -12px rgba(197,48,48,.8)}
+  .btn--urgent:hover{background:#a82424;transform:translateY(-2px);text-decoration:none}
+
+  /* ==========================================================================
+     9. TARJETA CON ILUSTRACIÓN
+     ========================================================================== */
+  .card-image-container{
+    position:relative;
+    display:grid;
+    grid-template-columns:minmax(150px,200px) 1fr;
+    gap:28px;
+    align-items:center;
+    overflow:hidden;
+    margin:24px 0 28px;
+    padding:26px 30px;
+    border:1px solid var(--line);
+    border-radius:var(--radio-lg);
+    background:linear-gradient(135deg,var(--card) 0%,var(--bg-2) 100%);
+    box-shadow:var(--sombra-sm);
+  }
+  .card-image-container::after{
+    content:"";
+    position:absolute;
+    width:190px;height:190px;
+    right:-70px;top:-90px;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(129,178,154,.2),transparent 70%);
+    pointer-events:none;
+  }
+  .card-image-container .ilustracion{
+    position:relative;
+    z-index:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    max-width:200px;
+    margin:0 auto;
+    color:var(--accent-2);
+  }
+  .card-image-container svg{display:block;width:100%;height:auto}
+  .card-image-container .leyenda{position:relative;z-index:1}
+  .card-image-container .leyenda h3{margin:0 0 6px;font-size:1.15rem}
+  .card-image-container .leyenda p{margin:0;font-size:.94rem;color:var(--ink-soft)}
+
+  /* ==========================================================================
+     10. CIFRAS
+     ========================================================================== */
+  .stat-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+    margin:0 0 26px;
+  }
+  .stat{
+    padding:16px 18px;
+    border:1px solid var(--line);
+    border-radius:var(--radio);
+    background:var(--card);
+    box-shadow:var(--sombra-sm);
+  }
+  .stat b{
+    display:block;
+    margin-bottom:4px;
+    color:var(--accent);
+    font-family:var(--fuente-titulo);
+    font-size:1.55rem;
+    font-weight:700;
+    line-height:1.15;
+  }
+  .stat span{display:block;font-size:.82rem;line-height:1.5;color:var(--ink-soft)}
+  .stat small{display:block;margin-top:6px;font-size:.7rem;color:var(--ink-soft);opacity:.85}
+
+  /* ==========================================================================
+     11. PANELES Y PRINCIPIOS
+     ========================================================================== */
+  .panel{
+    padding:clamp(20px,3vw,28px);
+    border:1px solid var(--line);
+    border-radius:var(--radio);
+    background:var(--card);
+    box-shadow:var(--sombra);
+  }
+  .panel h3{font-size:1.22rem;margin-bottom:12px}
+  .panel p{font-size:.93rem;color:var(--ink-soft)}
+  .panel p:last-child{margin-bottom:0}
+
+  .principios{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+  .principio{
+    display:grid;
+    grid-template-columns:38px 1fr;
+    gap:12px;
+    align-items:start;
+    padding:16px 18px;
+    border:1px solid var(--line);
+    border-radius:var(--radio-sm);
+    background:var(--bg);
+  }
+  .principio .num{
+    display:grid;
+    place-items:center;
+    width:32px;height:32px;
+    border-radius:10px;
+    background:var(--accent-tinte);
+    border:1px solid var(--accent-borde);
+    color:var(--accent-texto);
+    font-family:var(--fuente-titulo);
+    font-size:.98rem;
+    font-weight:700;
+  }
+  .principio b{display:block;font-size:.95rem;color:var(--ink);margin-bottom:2px}
+  .principio p{margin:0;font-size:.86rem;line-height:1.55;color:var(--ink-soft)}
+
+  /* ==========================================================================
+     12. LO QUE SOLEMOS OMITIR
+     ========================================================================== */
+  .omision-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+  .omision-card{
+    padding:20px;
+    border:1px solid var(--line);
+    border-top:3px solid var(--accent-2);
+    border-radius:var(--radio);
+    background:var(--card);
+    box-shadow:var(--sombra-sm);
+    font-size:.9rem;
+  }
+  .omision-card--paciente{border-top-color:var(--accent)}
+  .omision-card--familiar{border-top-color:var(--verde-deep)}
+  .omision-card--profesional{border-top-color:var(--arena)}
+  .omision-card h4{
+    margin:0 0 2px;
+    font-family:var(--fuente-titulo);
+    font-size:1.05rem;
+    line-height:1.3;
+  }
+  .omision-who{
+    margin:0 0 12px;
+    color:var(--ink-soft);
+    font-size:.72rem;
+    font-weight:700;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+  .omision-list{display:grid;gap:8px;list-style:none}
+  .omision-list li{
+    position:relative;
+    padding-left:14px;
+    font-size:.84rem;
+    line-height:1.55;
+    color:var(--ink-soft);
+  }
+  .omision-list li::before{
+    content:"";
+    position:absolute;
+    left:0;top:.62em;
+    width:5px;height:5px;
+    border-radius:50%;
+    background:var(--verde-deep);
+  }
+  .omision-card--paciente .omision-list li::before{background:var(--accent-2)}
+  .omision-card--profesional .omision-list li::before{background:var(--arena)}
+  .omision-list strong{color:var(--ink)}
+
+  /* ==========================================================================
+     13. CÓMO USAR ESTE RECURSO
+     ========================================================================== */
+  .usar-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
+  .usar-item{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    padding:18px 20px;
+    border:1px solid var(--line);
+    border-radius:var(--radio);
+    background:var(--card);
+    color:var(--ink);
+    box-shadow:var(--sombra-sm);
+    text-decoration:none;
+    transition:transform var(--trans),box-shadow var(--trans),border-color var(--trans);
+  }
+  .usar-item:hover{transform:translateY(-2px);box-shadow:var(--sombra);border-color:var(--accent-2);text-decoration:none}
+  .usar-item .n{
+    color:var(--accent-2);
+    font-family:var(--fuente-titulo);
+    font-size:.95rem;
+    font-style:italic;
+  }
+  .usar-item h4{margin:0;font-family:var(--fuente-titulo);font-size:1.02rem;line-height:1.35;color:var(--accent)}
+  .usar-item p{margin:0;font-size:.84rem;line-height:1.55;color:var(--ink-soft)}
+  .usar-item .go{margin-top:auto;padding-top:8px;color:var(--accent);font-size:.8rem;font-weight:800;letter-spacing:.04em}
+
+  /* ==========================================================================
+     14. AVISOS CIENTÍFICOS Y MÉDICOS
+     ========================================================================== */
+  .ciencia{
+    margin:18px 0;
+    padding:16px 18px;
+    border:1px solid var(--accent-borde);
+    border-left:4px solid var(--accent-2);
+    border-radius:0 var(--radio) var(--radio) 0;
+    background:#edf3fa;
+    color:#33475f;
+    font-size:.86rem;
+    line-height:1.65;
+  }
+  .ciencia b,.ciencia strong{color:var(--accent)}
+  .ciencia a{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+  .ciencia a:hover{color:var(--azul-medio)}
+
+  .aviso-medico{
+    display:flex;
+    gap:16px;
+    align-items:flex-start;
+    margin-top:20px;
+    padding:20px 22px;
+    border:1px solid var(--arena-borde);
+    border-left:4px solid var(--arena);
+    border-radius:0 var(--radio) var(--radio) 0;
+    background:var(--arena-suave);
+    box-shadow:var(--sombra-sm);
+  }
+  .aviso-medico .icono{
+    flex:0 0 auto;
+    display:grid;
+    place-items:center;
+    width:40px;height:40px;
+    border:1px solid var(--arena-borde);
+    border-radius:12px;
+    background:#fff;
+    color:var(--accent);
+  }
+  .aviso-medico .icono svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .aviso-medico h4{margin:0 0 4px;color:#7a4c1e;font-family:var(--fuente-titulo);font-size:1.05rem}
+  .aviso-medico p{margin:0;font-size:.88rem;line-height:1.62;color:#6b4a25}
+  .aviso-medico b{color:var(--rojo-texto)}
+
+  .ref{
+    display:inline-block;
+    margin:0 2px;
+    padding:1px 6px;
+    border-radius:4px;
+    background:var(--accent);
+    color:#fff;
+    font-family:var(--fuente-ui);
+    font-size:.62rem;
+    font-weight:700;
+    line-height:1.4;
+    vertical-align:middle;
+    letter-spacing:.04em;
+  }
+
+  /* ==========================================================================
+     15. LA TORMENTA BIOPSICOSOCIAL
+     ========================================================================== */
+  .storm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+  .storm{
+    padding:18px;
+    border:1px solid var(--line);
+    border-radius:var(--radio-sm);
+    background:var(--bg);
+  }
+  .storm .tag{
+    display:inline-block;
+    margin-bottom:8px;
+    padding:3px 10px;
+    border-radius:var(--pill);
+    background:#fff;
+    border:1px solid var(--line);
+    color:var(--accent);
+    font-size:.68rem;
+    font-weight:800;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+  .storm h3{margin:0 0 4px;font-family:var(--fuente-titulo);font-size:1rem;line-height:1.3}
+  .storm p{margin:0;font-size:.84rem;line-height:1.55;color:var(--ink-soft)}
+
+  /* ==========================================================================
+     16. FARMACIA EMOCIONAL · ACORDEONES
+     ========================================================================== */
+  .pharma-card{
+    margin-bottom:12px;
+    border:1px solid var(--line);
+    border-radius:var(--radio);
+    background:var(--card);
+    box-shadow:var(--sombra-sm);
+    overflow:hidden;
+    transition:box-shadow var(--trans),border-color var(--trans);
+  }
+  .pharma-card.open{border-color:var(--accent-borde);box-shadow:var(--sombra)}
+  .pharma-toggle{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    width:100%;
+    padding:16px 18px;
+    border:0;
+    background:transparent;
+    color:var(--ink);
+    font-family:var(--fuente-ui);
+    text-align:left;
+    cursor:pointer;
+    transition:background var(--trans);
+  }
+  .pharma-toggle:hover{background:var(--bg)}
+  .pharma-icon{
+    flex:0 0 auto;
+    display:grid;
+    place-items:center;
+    width:44px;height:44px;
+    border:1px solid var(--accent-borde);
+    border-radius:12px;
+    background:var(--accent-tinte);
+    color:var(--accent);
+  }
+  .pharma-icon svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+  .pharma-info{flex:1;min-width:0}
+  .pharma-title{
+    display:block;
+    font-family:var(--fuente-titulo);
+    font-size:1.1rem;
+    font-weight:700;
+    line-height:1.3;
+    color:var(--ink);
+  }
+  .pharma-sub{display:block;margin-top:2px;font-size:.8rem;color:var(--ink-soft)}
+  .pharma-chevron{
+    flex:0 0 auto;
+    display:grid;
+    place-items:center;
+    width:28px;height:28px;
+    color:var(--accent-2);
+    transition:transform var(--trans);
+  }
+  .pharma-chevron svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .pharma-card.open .pharma-chevron{transform:rotate(180deg)}
+  .pharma-body{display:none;padding:0 18px 20px}
+  .pharma-card.open .pharma-body{display:block}
+  .pharma-block{
+    padding:14px 16px;
+    border-radius:var(--radio-sm);
+    background:var(--bg);
+    margin-top:10px;
+    font-size:.87rem;
+    line-height:1.62;
+  }
+  .pharma-block:first-child{margin-top:0}
+  .pharma-block h4{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    margin:0 0 8px;
+    padding:3px 10px;
+    border-radius:var(--pill);
+    font-family:var(--fuente-ui);
+    font-size:.68rem;
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+  .pharma-block.efecto{background:var(--rojo-suave)}
+  .pharma-block.efecto h4{background:#fff;color:var(--rojo-texto);border:1px solid var(--rojo-borde)}
+  .pharma-block.ciencia-bloque{background:#edf3fa}
+  .pharma-block.ciencia-bloque h4{background:#fff;color:var(--accent);border:1px solid var(--accent-borde)}
+  .pharma-block.accion{background:var(--verde-suave)}
+  .pharma-block.accion h4{background:#fff;color:var(--verde-texto);border:1px solid var(--verde-borde)}
+  .pharma-block ul{margin:0;padding-left:18px;display:grid;gap:7px}
+  .pharma-block li{color:var(--ink-soft)}
+  .pharma-block li strong{color:var(--ink)}
+  .pharma-block p{margin:0 0 8px;color:var(--ink-soft);font-size:.84rem}
+  .pharma-block p:last-child{margin-bottom:0}
+  .pharma-block .ciencia{margin:8px 0 0;background:#fff;border-left-width:3px}
+
+  /* ==========================================================================
+     17. EL PUENTE
+     ========================================================================== */
+  .bridge-card{
+    position:relative;
+    overflow:hidden;
+    padding:clamp(22px,4vw,32px);
+    border-radius:var(--radio-lg);
+    background:
+      radial-gradient(700px 380px at 90% 0%,rgba(129,178,154,.22),transparent 65%),
+      linear-gradient(135deg,var(--azul) 0%,#335a8c 100%);
+    color:#e8f0f8;
+    box-shadow:var(--sombra-alta);
+  }
+  .bridge-card::after{
+    content:"";
+    position:absolute;
+    right:-90px;bottom:-120px;
+    width:280px;height:280px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.12);
+    pointer-events:none;
+  }
+  .bridge-card h3{color:#fff;font-size:1.3rem;margin-bottom:10px}
+  .bridge-card p{position:relative;z-index:1;margin:0 0 10px;font-size:.95rem;line-height:1.68;color:#dbe7f2}
+  .bridge-card p:last-child{margin-bottom:0}
+  .bridge-card strong{color:#fff}
+  .bridge-card .ref{background:rgba(255,255,255,.22);color:#fff}
+
+  /* ==========================================================================
+     18. ALERTAS
+     ========================================================================== */
+  .alert-card{
+    margin-top:18px;
+    padding:clamp(20px,3vw,26px);
+    border:1px solid var(--rojo-borde);
+    border-left:4px solid var(--rojo);
+    border-radius:0 var(--radio) var(--radio) 0;
+    background:var(--rojo-suave);
+    box-shadow:var(--sombra-sm);
+  }
+  .alert-card h3{
+    margin:0 0 10px;
+    color:var(--rojo-texto);
+    font-family:var(--fuente-ui);
+    font-size:.82rem;
+    font-weight:800;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+  .alert-list{list-style:none;display:grid;gap:9px}
+  .alert-list li{
+    position:relative;
+    padding-left:16px;
+    font-size:.9rem;
+    line-height:1.6;
+    color:#6d2a2a;
+  }
+  .alert-list li::before{
+    content:"";
+    position:absolute;
+    left:0;top:.6em;
+    width:6px;height:6px;
+    border-radius:50%;
+    background:var(--rojo);
+  }
+  .alert-list strong{color:#5c1f1f}
+  .alert-list .ref{background:var(--rojo)}
+
+  /* ==========================================================================
+     19. DIARIO
+     ========================================================================== */
+  .diary-wrap{
+    margin-top:18px;
+    border:1px solid var(--line);
+    border-radius:var(--radio);
+    background:var(--card);
+    box-shadow:var(--sombra-sm);
+    overflow-x:auto;
+  }
+  .diary-table{
+    width:100%;
+    min-width:640px;
+    border-collapse:collapse;
+    font-size:.86rem;
+  }
+  .diary-table caption{
+    padding:16px 18px 0;
+    color:var(--ink-soft);
+    font-size:.8rem;
+    text-align:left;
+    caption-side:top;
+  }
+  .diary-table th{
+    padding:12px 16px;
+    border-bottom:1px solid var(--line);
+    background:var(--bg-2);
+    color:var(--accent);
+    font-family:var(--fuente-ui);
+    font-size:.7rem;
+    font-weight:800;
+    letter-spacing:.08em;
+    text-align:left;
+    text-transform:uppercase;
+    white-space:nowrap;
+  }
+  .diary-table td{
+    padding:12px 16px;
+    border-bottom:1px solid var(--line-suave);
+    vertical-align:top;
+  }
+  .diary-table tbody tr:last-child td{border-bottom:0}
+  .diary-table td.example{color:var(--ink-soft)}
+  .diary-table .your-turn{
+    padding:16px;
+    background:var(--arena-suave);
+    color:var(--arena-texto);
+    font-weight:700;
+    text-align:center;
+  }
+  .diary-note{margin:10px 0 0;font-size:.78rem;color:var(--ink-soft);font-style:italic}
+
+  /* ==========================================================================
+     20. EL REFLEJO Y EL VÍNCULO
+     ========================================================================== */
+  .vl-stack{display:grid;gap:14px}
+  .vl-card{
+    padding:clamp(20px,3vw,28px);
+    border:1px solid var(--line);
+    border-radius:var(--radio);
+    background:var(--card);
+    box-shadow:var(--sombra-sm);
+  }
+  .vl-card .vl-num{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:10px;
+    color:var(--accent-2);
+    font-family:var(--fuente-titulo);
+    font-size:.95rem;
+    font-style:italic;
+  }
+  .vl-card .vl-num::before{
+    content:"";
+    width:26px;height:1.5px;
+    background:var(--verde);
+  }
+  .vl-card h3{font-size:1.24rem;margin-bottom:10px}
+  .vl-card p{font-size:.94rem;color:var(--ink-soft)}
+  .vl-card p:last-child{margin-bottom:0}
+  .vl-card strong{color:var(--ink)}
+  .vl-quote{
+    margin:16px 0;
+    padding:4px 0 4px 16px;
+    border-left:3px solid var(--arena);
+    color:var(--ink);
+    font-family:var(--fuente-titulo);
+    font-size:1.05rem;
+    font-style:italic;
+    line-height:1.6;
+  }
+  .vl-insight{
+    margin-top:14px;
+    padding:14px 16px;
+    border-radius:var(--radio-sm);
+    background:var(--verde-suave);
+    border:1px solid var(--verde-borde);
+    font-size:.87rem;
+    line-height:1.62;
+    color:#345c4d;
+  }
+  .vl-insight b{color:var(--verde-texto)}
+  .vl-list{margin:6px 0 0;padding-left:20px;display:grid;gap:9px}
+  .vl-list li{font-size:.93rem;line-height:1.62;color:var(--ink-soft)}
+  .vl-list strong{color:var(--ink)}
+
+  /* ==========================================================================
+     21. MURO
+     ========================================================================== */
+  .muro-hero{
+    position:relative;
+    overflow:hidden;
+    padding:clamp(26px,5vw,40px);
+    border-radius:var(--radio-lg);
+    background:
+      radial-gradient(700px 400px at 88% 10%,rgba(212,163,115,.28),transparent 62%),
+      linear-gradient(135deg,#1e3354 0%,var(--azul) 55%,#3f6d7c 100%);
+    color:#eef4f9;
+    box-shadow:var(--sombra-alta);
+  }
+  .muro-hero h2{color:#fff;margin-bottom:10px}
+  .muro-hero h2::before{background:linear-gradient(90deg,var(--arena),#f4d6b0)}
+  .muro-hero p{max-width:58ch;font-size:.97rem;line-height:1.66;color:#dce8f2}
+  .muro-acciones{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+  .muro-nota{margin-top:12px;font-size:.78rem;color:#b9cde0}
+  .pautas{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  .pautas-col{
+    padding:18px 20px;
+    border-radius:var(--radio);
+    border:1px solid;
+    font-size:.88rem;
+  }
+  .pautas-col.si{background:var(--verde-suave);border-color:var(--verde-borde)}
+  .pautas-col.evita{background:var(--rojo-suave);border-color:var(--rojo-borde)}
+  .pautas-col h4{
+    margin:0 0 10px;
+    font-family:var(--fuente-ui);
+    font-size:.72rem;
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+  .pautas-col.si h4{color:var(--verde-texto)}
+  .pautas-col.evita h4{color:var(--rojo-texto)}
+  .pautas-col ul{list-style:none;display:grid;gap:8px}
+  .pautas-col li{position:relative;padding-left:18px;line-height:1.55;color:var(--ink-soft)}
+  .pautas-col li::before{
+    position:absolute;
+    left:0;top:0;
+    font-weight:800;
+  }
+  .pautas-col.si li::before{content:"✓";color:var(--verde-deep)}
+  .pautas-col.evita li::before{content:"✕";color:var(--rojo)}
+  .pautas-col strong{color:var(--ink)}
+
+  /* ==========================================================================
+     22. AYUDA
+     ========================================================================== */
+  .ayuda-panel{
+    padding:clamp(22px,4vw,32px);
+    border:1px solid var(--rojo-borde);
+    border-radius:var(--radio-lg);
+    background:linear-gradient(160deg,#fff 0%,#fdf1f1 100%);
+    box-shadow:var(--sombra);
+  }
+  .ayuda-panel .alert-card{margin-top:0;border-left-width:4px;background:#fff}
+  .help-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:18px}
+  .help-card{
+    display:block;
+    padding:20px;
+    border:1px solid var(--line);
+    border-radius:var(--radio);
+    background:var(--card);
+    color:var(--ink);
+    box-shadow:var(--sombra-sm);
+    text-decoration:none;
+    transition:transform var(--trans),box-shadow var(--trans),border-color var(--trans);
+  }
+  .help-card:hover{transform:translateY(-2px);box-shadow:var(--sombra);border-color:var(--rojo);text-decoration:none}
+  .help-card .tag{
+    display:inline-flex;
+    align-items:center;
+    width:fit-content;
+    margin-bottom:8px;
+    padding:4px 10px;
+    border:1px solid var(--rojo-borde);
+    border-radius:var(--pill);
+    background:var(--rojo-suave);
+    color:var(--rojo-texto);
+    font-size:.64rem;
+    font-weight:800;
+    letter-spacing:.1em;
+    line-height:1.5;
+    text-transform:uppercase;
+  }
+  .help-card .tag--azul{background:var(--accent-tinte);border-color:var(--accent-borde);color:var(--accent-texto)}
+  .help-card h3{margin:.2rem 0 .3rem;font-family:var(--fuente-titulo);font-size:1.05rem;line-height:1.35}
+  .help-card .tel{display:block;margin-top:2px;color:var(--accent);font-size:1.12rem;font-weight:800;letter-spacing:.02em}
+  .help-card .desc{margin:.5rem 0 0;font-size:.84rem;line-height:1.55;color:var(--ink-soft)}
+  .ayuda-foot{margin-top:14px;font-size:.8rem;line-height:1.6;color:var(--ink-soft)}
+
+  /* ==========================================================================
+     23. RECURSOS
+     ========================================================================== */
+  .resources-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+  .resource-card{
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+    padding:16px 18px;
+    border:1px solid var(--line);
+    border-radius:var(--radio);
+    background:var(--card);
+    color:var(--ink);
+    box-shadow:var(--sombra-sm);
+    text-decoration:none;
+    transition:transform var(--trans),box-shadow var(--trans),border-color var(--trans);
+  }
+  .resource-card:hover{transform:translateY(-2px);box-shadow:var(--sombra);border-color:var(--accent-2);text-decoration:none}
+  .resource-card .r-tag{
+    flex:0 0 auto;
+    display:grid;
+    place-items:center;
+    min-width:46px;
+    padding:5px 8px;
+    border:1px solid var(--accent-borde);
+    border-radius:9px;
+    background:var(--accent-tinte);
+    color:var(--accent-texto);
+    font-size:.6rem;
+    font-weight:800;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    line-height:1.3;
+    text-align:center;
+  }
+  .resource-card .r-body{flex:1;min-width:0}
+  .resource-card h3{margin:0 0 3px;font-family:var(--fuente-titulo);font-size:.98rem;line-height:1.35;color:var(--ink)}
+  .resource-card .r-meta{display:block;font-size:.75rem;line-height:1.5;color:var(--ink-soft)}
+  .resource-card .r-arrow{flex:0 0 auto;margin-left:2px;color:var(--accent-2);font-size:1.05rem;line-height:1.2;transition:transform var(--trans)}
+  .resource-card:hover .r-arrow{transform:translateX(3px)}
+
+  .refs{
+    margin-top:18px;
+    padding:clamp(20px,3vw,26px);
+    border:1px solid var(--line);
+    border-radius:var(--radio);
+    background:var(--card);
+    box-shadow:var(--sombra-sm);
+  }
+  .refs h3{font-size:1.15rem;margin-bottom:12px}
+  .refs ol{margin:0;padding-left:22px;display:grid;gap:10px}
+  .refs li{font-size:.82rem;line-height:1.6;color:var(--ink-soft)}
+  .refs li em{color:var(--ink)}
+  .refs a{font-weight:600;text-decoration:underline;text-underline-offset:2px}
+
+  /* ==========================================================================
+     24. PIE DE PÁGINA
+     ========================================================================== */
+  footer{
+    margin-top:48px;
+    padding:44px 22px 104px;
+    background:#1e3354;
+    color:#b9cde0;
+    font-size:.85rem;
+  }
+  .footer-inner{max-width:var(--max);margin:0 auto}
+  .fquote{
+    max-width:34ch;
+    margin:0 0 26px;
+    color:#f5f7fa;
+    font-family:var(--fuente-titulo);
+    font-size:clamp(1.3rem,2.7vw,1.8rem);
+    font-style:italic;
+    line-height:1.3;
+  }
+  .fquote em{color:var(--arena)}
+  .disclaimer-box{
+    max-width:820px;
+    margin-bottom:26px;
+    padding:clamp(18px,3vw,24px);
+    border:1px solid rgba(212,163,115,.45);
+    border-left:4px solid var(--arena);
+    border-radius:0 var(--radio) var(--radio) 0;
+    background:rgba(212,163,115,.08);
+  }
+  .disclaimer-box h4{margin:0 0 6px;color:var(--arena);font-family:var(--fuente-titulo);font-size:1.02rem}
+  .disclaimer-box p{margin:0;font-size:.88rem;line-height:1.7;color:#d7e3ee}
+  .disclaimer-box b{color:#fff}
+  .author{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    max-width:820px;
+    padding-top:20px;
+    border-top:1px solid rgba(255,255,255,.14);
+  }
+  .avatar{
+    display:grid;
+    place-items:center;
+    width:44px;height:44px;
+    border-radius:50%;
+    background:rgba(255,255,255,.14);
+    border:1px solid rgba(255,255,255,.3);
+    color:#fff;
+    font-family:var(--fuente-titulo);
+    font-size:1rem;
+    font-weight:700;
+  }
+  .author-name{color:#f5f7fa;font-weight:700;font-size:.9rem;line-height:1.35}
+  .author-role{color:#9fb7cc;font-size:.78rem;line-height:1.35}
+  .credit{
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:26px;
+    padding-top:18px;
+    border-top:1px solid rgba(255,255,255,.14);
+    font-size:.76rem;
+    color:#9fb7cc;
+  }
+  .credit a{color:var(--arena);text-decoration:underline;text-underline-offset:2px}
+
+  /* ==========================================================================
+     25. BOTÓN SOS
+     ========================================================================== */
+  .sos{
+    position:fixed;
+    right:22px;bottom:22px;
+    z-index:100;
+    display:inline-flex;
+    align-items:center;
+    gap:9px;
+    padding:13px 20px;
+    border:1px solid rgba(255,255,255,.28);
+    border-radius:var(--pill);
+    background:var(--rojo);
+    color:#fff;
+    font-family:var(--fuente-ui);
+    font-size:.92rem;
+    font-weight:700;
+    text-decoration:none;
+    box-shadow:0 14px 30px -12px rgba(197,48,48,.85);
+    transform:translateY(120px);
+    opacity:0;
+    transition:transform .35s,opacity .35s,background var(--trans);
+  }
+  .sos.show{transform:translateY(0);opacity:1}
+  .sos:hover{background:#a82424;text-decoration:none}
+  .sos .beat{width:9px;height:9px;border-radius:50%;background:#fff;animation:pulse-dot 1.6s infinite}
+
+  /* ==========================================================================
+     26. RESPONSIVO
+     ========================================================================== */
+  @media(max-width:860px){
+    .card-image-container{grid-template-columns:1fr;gap:18px;padding:22px}
+    .card-image-container .ilustracion{max-width:170px}
+    .card-image-container::after{width:130px;height:130px;right:-50px;top:-55px}
+    .stat-grid{grid-template-columns:1fr;gap:9px}
+    .stat{display:flex;align-items:baseline;gap:12px;padding:12px 16px;flex-wrap:wrap}
+    .stat b{margin-bottom:0;font-size:1.3rem;min-width:86px;white-space:nowrap}
+    .stat small{width:100%;margin-top:0}
+    .principios{grid-template-columns:1fr}
+    .omision-grid{grid-template-columns:1fr}
+    .storm-grid{grid-template-columns:1fr}
+    .usar-grid{grid-template-columns:1fr}
+    .help-grid,.resources-grid,.pautas{grid-template-columns:1fr}
+  }
+  @media(max-width:600px){
+    header{padding:34px 18px 38px}
+    .aviso-wrap{padding:16px 18px 0}
+    .tabs{padding:8px 10px}
+    .tab{padding:8px 12px;font-size:.8rem}
+    main{padding:28px 18px 46px}
+    h1.titulo{font-size:1.8rem}
+    .lead{font-size:1.03rem;padding-left:14px}
+    .panel,.vl-card{padding:18px}
+    .pharma-toggle{padding:14px}
+    .pharma-body{padding:0 14px 16px}
+    .pharma-icon{width:38px;height:38px;border-radius:10px}
+    .pharma-title{font-size:1rem}
+    .muro-hero{padding:22px 18px;border-radius:var(--radio)}
+    .muro-acciones .btn{width:100%}
+    .sos{right:16px;bottom:16px;padding:12px 16px;font-size:.86rem}
+    .credit{flex-direction:column}
+    .author{align-items:flex-start}
+  }
+  @media(prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation:none!important;transition:none!important}
+  }
+
+  /* ==========================================================================
+     27. IMPRESIÓN
+     ========================================================================== */
+  @media print{
+    .tabs,.sos,#progress{display:none!important}
+    body{background:#fff}
+    header{background:#fff;color:var(--ink);border-bottom:2px solid var(--accent)}
+    .subtitulo,.kicker,h1.titulo em{color:var(--ink-soft)}
+    .header-cta{display:none}
+    .panel,.stat,.pharma-card,.vl-card,.resource-card,.help-card,.diary-wrap,.refs,.aviso-medico,.alert-card,.ayuda-panel,.muro-hero,.bridge-card{box-shadow:none}
+    .muro-hero,.bridge-card{background:#fff;color:var(--ink);border:1px solid var(--line)}
+    .muro-hero h2,.muro-hero p,.bridge-card h3,.bridge-card p{color:var(--ink)}
+    .pharma-body{display:block!important}
+    .pharma-chevron{display:none}
+  }
+</style>
 </head>
 <body>
 
-<!-- ================= BARRA VOLVER ================= -->
-<div class="volver-bar">
-    <a class="btn-volver" href="../../">← Volver a PsycheNudo</a>
-    <span class="volver-marca">PsycheNudo Puebla</span>
-</div>
+<a class="skip" href="#intro">Saltar al contenido</a>
+<div id="progress" aria-hidden="true"></div>
 
-<header class="hero">
-    <div class="hero-badge">🧠 Psicoeducación oncológica</div>
-    <h1>El Reflejo, los Fármacos y el Vínculo</h1>
-    <p>Un recurso para comprender el cáncer, el efecto de los medicamentos sobre el estado de ánimo y la importancia del acompañamiento para la salud mental. Dirigido a pacientes, familias y profesionales.</p>
-    <div class="hero-wave">
-        <svg viewBox="0 0 1440 46" preserveAspectRatio="none">
-            <path d="M0,24 C240,50 480,0 720,16 C960,32 1200,44 1440,20 L1440,46 L0,46 Z" fill="#f5f7fa"></path>
-        </svg>
+<header>
+  <div class="header-inner">
+    <a class="brand" href="../../" aria-label="Volver a PsycheNudo">psychenudo</a>
+    <p class="kicker">Psicoeducación oncológica · Cáncer y salud mental</p>
+    <h1 class="titulo">El Reflejo, los Fármacos <em>y el Vínculo</em></h1>
+    <p class="subtitulo">Comprender el cáncer también es cuidar la mente. Este recurso explica cómo los medicamentos influyen en el ánimo, qué se vive frente al espejo y cómo acompañar sin invadir —a quien enferma y a quien cuida.</p>
+    <div class="header-cta">
+      <a class="btn btn--light" href="#intro">Empezar a entender</a>
+      <a class="btn btn--urgent" href="#ayuda">Necesito ayuda ahora</a>
     </div>
+  </div>
 </header>
 
-<!-- ================= PESTAÑAS ================= -->
-<div class="tabs-shell">
-    <nav class="tabs" role="tablist" aria-label="Secciones del recurso">
-        <button class="tabbtn active" role="tab" aria-selected="true" aria-controls="panel-intro" data-panel="panel-intro" onclick="mostrarTab(this)">🧭 Introducción</button>
-        <button class="tabbtn" role="tab" aria-selected="false" aria-controls="panel-farmacos" data-panel="panel-farmacos" onclick="mostrarTab(this)">💊 Medicamentos y emoción</button>
-        <button class="tabbtn" role="tab" aria-selected="false" aria-controls="panel-vinculo" data-panel="panel-vinculo" onclick="mostrarTab(this)">🪞 El Reflejo y el Vínculo</button>
-        <button class="tabbtn" role="tab" aria-selected="false" aria-controls="panel-muro" data-panel="panel-muro" onclick="mostrarTab(this)">🗒️ Muro de experiencias</button>
-    </nav>
+<div class="aviso-wrap">
+  <p class="aviso"><b>Material psicoeducativo:</b> no sustituye la evaluación, el diagnóstico ni el tratamiento de tu equipo de salud. Si algo te preocupa —del cuerpo o del ánimo—, consúltalo con tu hematólogo, tu psicooncólogo o tu profesional de salud mental.</p>
 </div>
 
-<div class="container">
+<nav class="tabs" aria-label="Secciones del recurso">
+  <a class="tab active" href="#intro" aria-current="true">Introducción</a>
+  <a class="tab" href="#farmacos">Medicamentos</a>
+  <a class="tab" href="#vinculo">Vínculo</a>
+  <a class="tab" href="#muro">Muro</a>
+  <a class="tab tab--urgent" href="#ayuda">Ayuda ahora</a>
+  <a class="tab" href="#recursos">Recursos</a>
+</nav>
 
-    <!-- =========================================================
-         PANEL 0 · INTRODUCCIÓN · PSICOEDUCACIÓN
-    ========================================================== -->
-    <section id="panel-intro" class="tabpanel active" role="tabpanel">
+<main id="top">
 
-        <div class="section">
-            <div class="section-header">
-                <div class="section-icon">🧭</div>
-                <h2 class="section-title">Bienvenida: ¿Qué es la psicoeducación?</h2>
-            </div>
+<!-- ============================================================
+     INTRODUCCIÓN
+============================================================ -->
+<section class="seccion" id="intro">
+  <h2>Comprender también es parte del tratamiento</h2>
+  <p class="lead">Cuando hablamos de cáncer solemos pensar solo en diagnósticos, análisis y tratamientos. La psicoeducación es el proceso por el cual, de la mano del tratamiento médico, aprendemos a comprender las reacciones emocionales que la enfermedad y sus medicamentos provocan —las nuestras y las de quienes nos rodean— para poder manejarlas en lugar de que nos manejen.</p>
 
-            <p style="font-size:15px; line-height:1.75;">
-                Cuando hablamos de cáncer solemos pensar solo en diagnósticos, análisis y tratamientos. La <strong>psicoeducación</strong> es el proceso por el cual, de la mano del tratamiento médico, aprendemos a comprender las <strong>reacciones emocionales</strong> que la enfermedad y sus medicamentos provocan —las nuestras y las de quienes nos rodean— para poder manejarlas en lugar de que nos manejen.
-            </p>
-            <p style="font-size:14px; line-height:1.7; color:var(--gris); margin:12px 0;">
-                No se trata de "dar ánimo" ni de restarle importancia a lo que sientes. Se trata de dar <strong>palabras, explicaciones y herramientas</strong> basadas en evidencia.
-            </p>
+  <div class="card-image-container">
+    <div class="ilustracion" aria-hidden="true">
+      <svg viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M120 98C104 84 88 72 88 56a16 16 0 0 1 32-8 16 16 0 0 1 32 8c0 16-16 28-32 42Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M64 106c6 24 28 34 56 34s50-10 56-34" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M42 100c8 7 15 9 22 7M198 100c-8 7-15 9-22 7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity=".55"/>
+        <path d="M98 62h12l5-8 6 16 6-11 4 3h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" opacity=".6"/>
+        <path d="M120 30V18M107 24l-5-7M133 24l5-7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".4"/>
+        <circle cx="58" cy="52" r="2" stroke="currentColor" stroke-width="1.1" opacity=".35"/>
+        <circle cx="187" cy="42" r="3" stroke="currentColor" stroke-width="1.1" opacity=".28"/>
+        <circle cx="196" cy="76" r="2" stroke="currentColor" stroke-width="1.1" opacity=".3"/>
+      </svg>
+    </div>
+    <div class="leyenda">
+      <span class="badge">La idea central</span>
+      <h3>No se trata de "dar ánimo"</h3>
+      <p>Se trata de dar <strong>palabras, explicaciones y herramientas</strong> basadas en evidencia. Normalizar lo que sientes —el miedo, el coraje, la tristeza— no le resta importancia: le quita culpa.</p>
+    </div>
+  </div>
 
-            <div class="def-box">
-                <strong style="color:var(--azul);">La psicoeducación:</strong>
-                <ul>
-                    <li><strong>Normaliza</strong> lo que sientes: el miedo, el coraje y la tristeza no te hacen "mal paciente".</li>
-                    <li><strong>Explica</strong> lo que ocurre: hay reacciones con base química (los medicamentos) y reacciones con base emocional; distinguirlas quita culpa.</li>
-                    <li><strong>Entrena habilidades</strong>: pedir ayuda, comunicar lo que necesitas, cuidar a quien cuida.</li>
-                    <li><strong>Previene crisis</strong>: saber cuándo una señal merece atención profesional.</li>
-                </ul>
-            </div>
+  <div class="stat-grid">
+    <div class="stat">
+      <b>28–41%</b>
+      <span>de los trastornos inducidos por corticoides en pacientes oncológicos corresponde a depresión</span>
+      <small>Referencias 1 y 2</small>
+    </div>
+    <div class="stat">
+      <b>29–35%</b>
+      <span>corresponde a manía o hipomanía inducida por el mismo tratamiento</span>
+      <small>Referencias 1 y 2</small>
+    </div>
+    <div class="stat">
+      <b>&ge;40 mg/día</b>
+      <span>de prednisona o equivalente: el umbral donde el riesgo neuropsiquiátrico aumenta claramente</span>
+      <small>Referencia 1</small>
+    </div>
+  </div>
 
-            <div class="science-box">
-                <strong>🔬 Respaldo científico:</strong> el tamizaje de distrés emocional y la psicoeducación son recomendados por las guías internacionales de psicooncología (NCCN, IPOS). Reducen la ansiedad y la depresión, mejoran la adherencia al tratamiento y la calidad de vida, y disminuyen la carga del cuidador.
-            </div>
+  <div class="panel">
+    <h3>Qué hace la psicoeducación</h3>
+    <p>Cuatro movimientos que cambian la experiencia del proceso, para el paciente y para su familia:</p>
+    <div class="principios">
+      <div class="principio">
+        <div class="num" aria-hidden="true">01</div>
+        <div><b>Normaliza</b><p>El miedo, el coraje y la tristeza no te hacen "mal paciente": son reacciones esperables.</p></div>
+      </div>
+      <div class="principio">
+        <div class="num" aria-hidden="true">02</div>
+        <div><b>Explica</b><p>Hay reacciones con base química (los medicamentos) y reacciones con base emocional; distinguirlas quita culpa.</p></div>
+      </div>
+      <div class="principio">
+        <div class="num" aria-hidden="true">03</div>
+        <div><b>Entrena habilidades</b><p>Pedir ayuda, comunicar lo que necesitas y cuidar a quien cuida también se aprende.</p></div>
+      </div>
+      <div class="principio">
+        <div class="num" aria-hidden="true">04</div>
+        <div><b>Previene crisis</b><p>Saber cuándo una señal merece atención profesional evita llegar tarde a la ayuda.</p></div>
+      </div>
+    </div>
+    <div class="ciencia">
+      <strong>Respaldo científico:</strong> el tamizaje de distrés emocional y la psicoeducación son recomendados por las guías internacionales de psicooncología (NCCN, IPOS). Reducen la ansiedad y la depresión, mejoran la adherencia al tratamiento y la calidad de vida, y disminuyen la carga del cuidador.
+    </div>
+  </div>
+
+  <h3 style="margin-top:32px">Lo que solemos omitir durante el proceso</h3>
+  <p class="small">Nos concentramos tanto en "curar el cuerpo" que, sin querer, dejamos fuera necesidades que pesan igual. Esto es lo que más se olvida —y más se agradece escuchar— para cada quien.</p>
+
+  <div class="omision-grid">
+    <div class="omision-card omision-card--paciente">
+      <h4>Para el paciente</h4>
+      <div class="omision-who">Lo que suele callar</div>
+      <ul class="omision-list">
+        <li>Que el <strong>miedo, el coraje y la tristeza</strong> son reacciones esperables, no una "mala actitud".</li>
+        <li>Que algunos <strong>medicamentos cambian el ánimo</strong>: tiene base bioquímica, no eres "débil".</li>
+        <li>Que el <strong>cansancio extremo</strong> es biológico (el cuerpo en alerta), no flojera.</li>
+        <li>Que <strong>extrañar a la persona del espejo</strong> es un duelo legítimo, no vanidad.</li>
+        <li>Que la <strong>sexualidad y la intimidad</strong> no desaparecen con el diagnóstico.</li>
+        <li>Que <strong>hacer preguntas</strong> en consulta es tu derecho; tú eres el experto de tu cuerpo.</li>
+        <li>Que <strong>pedir ayuda psicológica</strong> no es rendirse: es parte del tratamiento.</li>
+        <li>Que al terminar el tratamiento llega un <strong>"nuevo normal"</strong> que también necesita adaptación.</li>
+      </ul>
+    </div>
+
+    <div class="omision-card omision-card--familiar">
+      <h4>Para el familiar o cuidador</h4>
+      <div class="omision-who">Lo que suele ocultar</div>
+      <ul class="omision-list">
+        <li>Que <strong>cuidar duele y agota</strong>: tú también estás de duelo.</li>
+        <li>Que <strong>descansar no es abandonar</strong>; nadie sostiene el cielo solo.</li>
+        <li>Que la <strong>culpa por querer escapar</strong> un momento es parte del peso, no un pecado.</li>
+        <li>Que <strong>minimizar</strong> ("es solo cabello") hiere más que consolar; validar acompaña.</li>
+        <li>Que el paciente <strong>no es solo "el enfermo"</strong>: puede y quiere hablar de otras cosas.</li>
+        <li>Que <strong>preguntar "¿qué necesitas hoy?"</strong> le devuelve el control de su narrativa.</li>
+        <li>Que <strong>tu salud mental es el cimiento</strong> del cuidado: pedir apoyo también es cuidar.</li>
+      </ul>
+    </div>
+
+    <div class="omision-card omision-card--profesional">
+      <h4>Para el profesional de la salud</h4>
+      <div class="omision-who">Lo que suele pasar por alto</div>
+      <ul class="omision-list">
+        <li>Que <strong>dar malas noticias deja huella</strong>: las palabras construyen o fragmentan.</li>
+        <li>Que el <strong>malestar emocional</strong> del paciente se detecta como un signo vital (tamizaje de distrés), no se "adivina".</li>
+        <li>Que la <strong>fatiga por compasión y el burnout</strong> también necesitan cuidado y supervisión.</li>
+        <li>Que <strong>los duelos y las propias emociones</strong> son parte del oficio y se elaboran en espacios de contención.</li>
+        <li>Que <strong>psicoeducar no "quita tiempo"</strong>: reduce consultas repetidas y mejora adherencia y satisfacción.</li>
+        <li>Que la <strong>psicooncología no es un lujo</strong>: es parte del equipo de tratamiento.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:32px">Tres puertas de entrada</h3>
+  <p class="small">Elige según lo que necesites hoy. Puedes volver cuando quieras: no hay un orden correcto.</p>
+
+  <div class="usar-grid">
+    <a class="usar-item" href="#farmacos">
+      <span class="n">01</span>
+      <h4>Medicamentos y emoción</h4>
+      <p>Si quieres entender por qué te sientes "raro" o "decaído": fármacos, efectos en el ánimo, señales de alarma y tu diario de síntomas.</p>
+      <span class="go">Ir a esta sección &rarr;</span>
+    </a>
+    <a class="usar-item" href="#vinculo">
+      <span class="n">02</span>
+      <h4>El Reflejo y el Vínculo</h4>
+      <p>Si necesitas comprender la pérdida de la imagen, el rol del cuidador y cómo acompañar con respeto y cariño.</p>
+      <span class="go">Ir a esta sección &rarr;</span>
+    </a>
+    <a class="usar-item" href="#muro">
+      <span class="n">03</span>
+      <h4>Muro de experiencias</h4>
+      <p>Si quieres leer y dejar una nota: compartir tu vivencia también acompaña a otros.</p>
+      <span class="go">Ir a esta sección &rarr;</span>
+    </a>
+  </div>
+
+  <div class="aviso-medico">
+    <span class="icono" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+    </span>
+    <div>
+      <h4>Un recordatorio importante</h4>
+      <p>Este recurso es psicoeducativo y <b>no sustituye</b> el juicio ni la atención de tu equipo de salud. Si algo te preocupa, consulta a tu médico o a un profesional de salud mental.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider" aria-hidden="true">· · ·</div>
+
+<!-- ============================================================
+     MEDICAMENTOS Y EMOCIÓN
+============================================================ -->
+<section class="seccion" id="farmacos">
+  <h2>Cuando el tratamiento también mueve el ánimo</h2>
+  <p class="lead">Superar una leucemia y someterse a un trasplante de médula ósea es una de las experiencias más demandantes para el cuerpo y la mente. La psicooncología lo entiende como una "tormenta biopsicosocial".</p>
+
+  <div class="storm-grid">
+    <div class="storm">
+      <span class="tag">Cuerpo</span>
+      <h3>Desgaste físico</h3>
+      <p>La quimioterapia de acondicionamiento y el aislamiento agotan tus reservas de energía.</p>
+    </div>
+    <div class="storm">
+      <span class="tag">Fármacos</span>
+      <h3>Huella farmacológica</h3>
+      <p>Corticoides e inmunosupresores actúan directamente sobre el cerebro y los neurotransmisores.</p>
+    </div>
+    <div class="storm">
+      <span class="tag">Adaptación</span>
+      <h3>Duelo y regreso</h3>
+      <p>El reto de volver a la rutina tras semanas de aislamiento y protección extrema.</p>
+    </div>
+  </div>
+
+  <div class="ciencia" style="margin-top:20px">
+    <strong>Respaldo científico:</strong> los estudios en pacientes con trasplante de progenitores hematopoyéticos (TPH) muestran que es frecuente presentar ansiedad clínica y síntomas depresivos durante el proceso, y que <strong>el apoyo psicológico especializado reduce significativamente ambos síntomas</strong> <span class="ref">3</span><span class="ref">4</span>.
+    <a href="https://revistas.ucm.es/index.php/PSIC/article/download/PSIC0707120097A/15750" target="_blank" rel="noopener noreferrer">De Linares et al., 2007</a> ·
+    <a href="https://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-48082017000300259" target="_blank" rel="noopener noreferrer">Pérez-Marfil et al., 2017</a>
+  </div>
+
+  <h3 style="margin-top:32px">Tu farmacia emocional</h3>
+  <p class="small">Tres grupos de medicamentos con efectos directos sobre el estado de ánimo. Abre cada tarjeta para ver qué ocurre, qué dice la ciencia y qué puedes hacer.</p>
+
+  <!-- CORTICOIDES -->
+  <div class="pharma-card open">
+    <button class="pharma-toggle" type="button" aria-expanded="true" aria-controls="pharma-cort">
+      <span class="pharma-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 3c2.5 3 4 5.5 4 8a4 4 0 0 1-8 0c0-2.5 1.5-5 4-8Z"/><path d="M12 15v6M9 21h6"/></svg>
+      </span>
+      <span class="pharma-info">
+        <span class="pharma-title">Corticosteroides</span>
+        <span class="pharma-sub">Prednisona · Metilprednisolona · Dexametasona</span>
+      </span>
+      <span class="pharma-chevron" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+      </span>
+    </button>
+    <div class="pharma-body" id="pharma-cort">
+      <div class="pharma-block efecto">
+        <h4>Efecto anímico</h4>
+        <ul>
+          <li><strong>En dosis altas:</strong> insomnio, ansiedad, irritabilidad, euforia o agitación (síntomas que pueden aparecer en los primeros días de tratamiento).</li>
+          <li><strong>Durante la reducción ("el bajón"):</strong> fatiga intensa, apatía y tristeza. Al suspender corticoides tras uso prolongado también se describen alteraciones del ánimo y la cognición; mejoran con una reducción gradual.</li>
+          <li><strong>En pacientes con cáncer tratados con corticoides,</strong> la depresión es uno de los cuadros más frecuentes (28–41% de los trastornos inducidos).</li>
+        </ul>
+      </div>
+      <div class="pharma-block ciencia-bloque">
+        <h4>Lo que dice la ciencia</h4>
+        <p>Los glucocorticoides atraviesan la barrera hematoencefálica y actúan sobre el hipocampo y la amígdala, alterando los sistemas dopaminérgico y serotoninérgico. El riesgo de síntomas psiquiátricos es <strong>dosis-dependiente</strong>: aumenta claramente a partir de 40 mg/día de prednisona o equivalente. Los cuadros más frecuentes son depresión (28–41%) y manía/hipomanía (29–35%) <span class="ref">1</span><span class="ref">2</span>.</p>
+        <div class="ciencia">
+          <a href="http://scielo.isciii.es/scielo.php?script=sci_arttext&pid=S0211-57352015000200007" target="_blank" rel="noopener noreferrer">Sánchez-García, Pecino-Esquerdo &amp; Pérez-Martínez (2015). Manía inducida por el tratamiento con corticoesteroides: revisión a partir de un caso clínico. Revista de Psiquiatría, España.</a>
+          <br>
+          <a href="https://www.researchgate.net/publication/353331928_Trastornos_neuropsiquiatricos_secundarios_al_tratamiento_corticoide_en_pacientes_con_cancer" target="_blank" rel="noopener noreferrer">Toledo et al. (2021). Trastornos neuropsiquiátricos secundarios al tratamiento corticoide en pacientes con cáncer.</a>
         </div>
+      </div>
+      <div class="pharma-block accion">
+        <h4>Qué puedes hacer</h4>
+        <ul>
+          <li><strong>No te asustes al reducir la dosis:</strong> la tristeza y el cansancio durante el descenso tienen base química y son temporales; avisa a tu equipo para que la reducción sea gradual.</li>
+          <li><strong>Higiene del sueño estricta:</strong> toma la dosis lo más temprano que tu médico indique para reducir el insomnio.</li>
+          <li><strong>Comunica:</strong> si la irritabilidad afecta tus relaciones, avisa a tu familia: "es el medicamento, no soy yo". Informar a paciente y familiares del riesgo es una medida preventiva recomendada.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
-        <div class="section">
-            <div class="section-header">
-                <div class="section-icon">🤫</div>
-                <h2 class="section-title">Lo que solemos omitir durante el proceso</h2>
-            </div>
-
-            <p style="font-size:14.5px; margin-bottom:16px; color:var(--gris);">
-                Nos concentramos tanto en "curar el cuerpo" que, sin querer, dejamos fuera necesidades que pesan igual. Esto es lo que más se olvida —y más se agradece escuchar— para cada quien:
-            </p>
-
-            <div class="omision-grid">
-                <div class="omision-card omision-card--paciente">
-                    <h3>🧑 Para el enfermo</h3>
-                    <div class="omision-who">Lo que el paciente suele callar</div>
-                    <ul class="omision-list">
-                        <li>Que el <strong>miedo, el coraje y la tristeza</strong> son reacciones esperables, no una "mala actitud".</li>
-                        <li>Que algunos <strong>medicamentos cambian el ánimo</strong>: tiene base bioquímica, no eres "débil".</li>
-                        <li>Que el <strong>cansancio extremo</strong> es biológico (el cuerpo en alerta), no flojera.</li>
-                        <li>Que <strong>extrañar a la persona del espejo</strong> es un duelo legítimo, no vanidad.</li>
-                        <li>Que la <strong>sexualidad y la intimidad</strong> no desaparecen con el diagnóstico.</li>
-                        <li>Que <strong>hacer preguntas</strong> en consulta es tu derecho; tú eres el experto de tu cuerpo.</li>
-                        <li>Que <strong>pedir ayuda psicológica</strong> no es rendirse: es parte del tratamiento.</li>
-                        <li>Que al terminar el tratamiento llega un <strong>"nuevo normal"</strong> que también necesita adaptación.</li>
-                    </ul>
-                </div>
-
-                <div class="omision-card omision-card--familiar">
-                    <h3>👪 Para el familiar / cuidador</h3>
-                    <div class="omision-who">Lo que el cuidador suele ocultar</div>
-                    <ul class="omision-list">
-                        <li>Que <strong>cuidar duele y agota</strong>: tú también estás de duelo.</li>
-                        <li>Que <strong>descansar no es abandonar</strong>; nadie sostiene el cielo solo.</li>
-                        <li>Que la <strong>culpa por querer escapar</strong> un momento es parte del peso, no un pecado.</li>
-                        <li>Que <strong>minimizar</strong> ("es solo cabello") hiere más que consolar; validar acompaña.</li>
-                        <li>Que el paciente <strong>no es solo "el enfermo"</strong>: puede y quiere hablar de otras cosas.</li>
-                        <li>Que <strong>preguntar "¿qué necesitas hoy?"</strong> le devuelve el control de su narrativa.</li>
-                        <li>Que <strong>tu salud mental es el cimiento</strong> del cuidado: pedir apoyo también es cuidar.</li>
-                    </ul>
-                </div>
-
-                <div class="omision-card omision-card--profesional">
-                    <h3>⚕️ Para el profesional de la salud</h3>
-                    <div class="omision-who">Lo que el equipo suele pasar por alto</div>
-                    <ul class="omision-list">
-                        <li>Que <strong>dar malas noticias deja huella</strong>: las palabras construyen o fragmentan.</li>
-                        <li>Que el <strong>malestar emocional</strong> del paciente se detecta como un signo vital (tamizaje de distrés), no se "adivina".</li>
-                        <li>Que la <strong>fatiga por compasión y el burnout</strong> también necesitan cuidado y supervisión.</li>
-                        <li>Que <strong>los duelos y las propias emociones</strong> son parte del oficio y se elaboran en espacios de contención.</li>
-                        <li>Que <strong>psicoeducar no "quita tiempo"</strong>: reduce consultas repetidas y mejora adherencia y satisfacción.</li>
-                        <li>Que la <strong>psicooncología no es un lujo</strong>: es parte del equipo de tratamiento.</li>
-                    </ul>
-                </div>
-            </div>
+  <!-- INMUNOSUPRESORES -->
+  <div class="pharma-card">
+    <button class="pharma-toggle" type="button" aria-expanded="false" aria-controls="pharma-inm">
+      <span class="pharma-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+      </span>
+      <span class="pharma-info">
+        <span class="pharma-title">Inmunosupresores</span>
+        <span class="pharma-sub">Tacrolimus · Ciclosporina</span>
+      </span>
+      <span class="pharma-chevron" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+      </span>
+    </button>
+    <div class="pharma-body" id="pharma-inm">
+      <div class="pharma-block efecto">
+        <h4>Efecto anímico</h4>
+        <ul>
+          <li><strong>"Niebla mental"</strong> (dificultad para concentrar), temblores, hormigueos, cefalea e insomnio. Esta sintomatología genera frustración y ansiedad por sentirte "diferente".</li>
+          <li><strong>Con tacrolimus</strong> son más frecuentes los efectos neurológicos que con ciclosporina (temblor, cefalea, insomnio; raramente convulsiones).</li>
+        </ul>
+      </div>
+      <div class="pharma-block ciencia-bloque">
+        <h4>Lo que dice la ciencia</h4>
+        <p>Los inhibidores de la calcineurina producen <strong>síntomas neurológicos dosis-dependientes</strong> debidos a la distribución de estas enzimas en el sistema nervioso: temblor y parestesias son los más frecuentes, seguidos de cefalea e insomnio. La revisión Cochrane (30 estudios, 4.102 pacientes) confirmó más efectos neurológicos con tacrolimus que con ciclosporina <span class="ref">5</span><span class="ref">6</span>. Además, el uso prolongado de inmunosupresores se asocia a <strong>peor calidad de vida y menor soporte social percibido</strong> <span class="ref">7</span>.</p>
+        <div class="ciencia">
+          <a href="http://scielo.isciii.es/scielo.php?script=sci_arttext&pid=S1137-66272006000400017" target="_blank" rel="noopener noreferrer">Sádaba (2006). Monitorización y efectos secundarios de los inmunosupresores en el trasplante. Anales del Sistema Sanitario de Navarra, España.</a>
+          <br>
+          <a href="https://www.cochrane.org/es/evidence/CD003961_tacrolimus-superior-cyclosporin-improving-graft-survival-and-preventing-acute-rejection-after-kidney" target="_blank" rel="noopener noreferrer">Webster et al. (2005). Tacrolimus versus ciclosporina como inmunosupresión primaria. Revisión Cochrane (resumen en español).</a>
         </div>
+      </div>
+      <div class="pharma-block accion">
+        <h4>Qué puedes hacer</h4>
+        <ul>
+          <li><strong>Pacing cognitivo:</strong> divide tus tareas en bloques cortos (15–20 minutos) y descansa antes de sentirte agotado.</li>
+          <li><strong>Registra los temblores y el insomnio:</strong> anota hora e intensidad; esta información ayuda a tu equipo a ajustar dosis o horario.</li>
+          <li><strong>Cuida tu red de apoyo:</strong> los estudios muestran que el soporte social se resiente con la inmunosupresión prolongada; busca contacto aunque sea breve (llamadas, visitas cortas).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
-        <div class="section">
-            <div class="section-header">
-                <div class="section-icon">🗂️</div>
-                <h2 class="section-title">Cómo usar este recurso</h2>
-            </div>
-
-            <p style="font-size:14.5px; margin-bottom:14px;">Tres puertas de entrada, según lo que necesites hoy:</p>
-
-            <div class="usar-grid">
-                <div class="usar-item">
-                    <h4>💊 Medicamentos y emoción</h4>
-                    <p>Si quieres entender por qué te sientes "raro" o "decaído": fármacos, efectos en el ánimo, señales de alarma y tu diario de síntomas.</p>
-                </div>
-                <div class="usar-item">
-                    <h4>🪞 El Reflejo y el Vínculo</h4>
-                    <p>Si necesitas comprender la pérdida de la imagen, el rol del cuidador y cómo acompañar con respeto y cariño.</p>
-                </div>
-                <div class="usar-item">
-                    <h4>🗒️ Muro de experiencias</h4>
-                    <p>Si quieres leer y dejar una nota: compartir tu vivencia también acompaña a otros.</p>
-                </div>
-            </div>
-
-            <div class="science-box" style="margin-top:16px;">
-                <strong>💡 Recordatorio:</strong> este recurso es psicoeducativo y no sustituye el juicio ni la atención de tu equipo de salud. Si algo te preocupa, consulta a tu médico o a un profesional de salud mental.
-            </div>
+  <!-- SOPORTE -->
+  <div class="pharma-card">
+    <button class="pharma-toggle" type="button" aria-expanded="false" aria-controls="pharma-sop">
+      <span class="pharma-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 4c-2 3-5 4-5 8a5 5 0 0 0 10 0c0-4-3-5-5-8Z"/><path d="M12 20v1"/><path d="M8 9c0-2 1.5-3.5 4-5"/></svg>
+      </span>
+      <span class="pharma-info">
+        <span class="pharma-title">Fármacos de soporte</span>
+        <span class="pharma-sub">Antivirales · Antibióticos · Antifúngicos</span>
+      </span>
+      <span class="pharma-chevron" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+      </span>
+    </button>
+    <div class="pharma-body" id="pharma-sop">
+      <div class="pharma-block efecto">
+        <h4>Efecto anímico</h4>
+        <ul>
+          <li>Letargo, aislamiento voluntario, falta de deseo de interactuar y cansancio profundo que parece no tener fin.</li>
+          <li><strong>No es "pereza" ni "rendirse":</strong> tu organismo está gastando enormes recursos en defenderse de infecciones y en procesar múltiples fármacos a la vez.</li>
+        </ul>
+      </div>
+      <div class="pharma-block ciencia-bloque">
+        <h4>Lo que dice la ciencia</h4>
+        <p>El tratamiento antimicrobiano prolongado, sumado a la inmunosupresión, mantiene al organismo en un estado de alerta inflamatoria que el cerebro traduce como señal de peligro: <strong>apaga la motivación y la energía para proteger los recursos</strong> (conducta de enfermedad). Los estudios en TPH documentan aumento de la carga emocional, la ansiedad y el estrés durante este periodo, especialmente en quienes permanecen con inmunosupresión e infecciones <span class="ref">3</span><span class="ref">7</span>.</p>
+        <div class="ciencia">
+          <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9578551/" target="_blank" rel="noopener noreferrer">Medina-Valencia et al. (2022). Impacto de la calidad de vida relacionada con la salud en pacientes pediátricos con trasplante de progenitores hematopoyéticos en una institución colombiana. Biomédica.</a>
+          <br>
+          <a href="https://es.oncolink.org/tratamiento-del-cancer/trasplantes-de-la-medula/apoyo/medicamentos-utilizados-despues-del-trasplante-de-celulas-madre" target="_blank" rel="noopener noreferrer">OncoLink en español — Medicamentos utilizados después del trasplante de células madre (revisado 2025).</a>
         </div>
+      </div>
+      <div class="pharma-block accion">
+        <h4>Qué puedes hacer</h4>
+        <ul>
+          <li><strong>Aceptación radical:</strong> descansar ES sanar; no luches contra el cansancio, adminístralo.</li>
+          <li><strong>Micro-movimiento:</strong> si tu médico lo aprueba, estiramientos suaves de 5 minutos ayudan al ánimo y a la circulación.</li>
+          <li><strong>Conexión de baja energía:</strong> visitas cortas, audiolibros o podcasts cuando leer requiera demasiado esfuerzo.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
-    </section>
+  <h3 style="margin-top:32px">El puente hacia la psiquiatría</h3>
+  <div class="bridge-card">
+    <h3>Tu cerebro también requiere soporte</h3>
+    <p>Así como cuidas los valores de tu sangre o tu injerto, <strong>tu cerebro también requiere soporte</strong>. Acudir a psiquiatría no significa que hayas perdido el control; significa que eres un paciente experto que busca optimizar su recuperación.</p>
+    <p>Un psiquiatra especializado en psicooncología conoce las interacciones de los fármacos y puede indicar antidepresivos (por ejemplo ISRS como sertralina o citalopram) o estabilizadores del ánimo que <strong>no interfieren con tu inmunosupresión</strong>. De hecho, en la literatura sobre efectos neuropsiquiátricos de los corticoides, los neurolépticos atípicos y los eutimizantes se consideran tratamientos eficaces y bien tolerados en pacientes oncológicos <span class="ref">1</span>.</p>
+  </div>
 
-    <!-- =========================================================
-         PANEL 1 · MEDICAMENTOS Y EMOCIÓN
-    ========================================================== -->
-    <section id="panel-farmacos" class="tabpanel" role="tabpanel">
+  <h3 style="margin-top:32px">Señales de alerta</h3>
+  <div class="alert-card">
+    <h3>No esperes a tu próxima cita si experimentas:</h3>
+    <ul class="alert-list">
+      <li>Insomnio total que no cede con rutinas y que desgasta tu juicio o paciencia.</li>
+      <li>Ideas de desesperanza extrema o sensación persistente de que el esfuerzo no vale la pena. <strong>Recuerda:</strong> el tratamiento corticoideo aumenta varias veces el riesgo de ideación suicida — no lo enfrentes en soledad <span class="ref">1</span>.</li>
+      <li>Llanto constante e incontrolable que te impide actividades básicas (comer, hidratarte).</li>
+      <li>Confusión severa, desorientación o alucinaciones: puede ser neurotoxicidad por fármacos y requiere evaluación urgente <span class="ref">5</span>.</li>
+    </ul>
+  </div>
 
-        <!-- ================= INTRO ================= -->
-        <div class="section">
-            <div class="section-header">
-                <div class="section-icon">🌪️</div>
-                <h2 class="section-title">¿Por qué sientes este "bajón" emocional?</h2>
-            </div>
+  <h3 style="margin-top:32px">Tu diario de síntomas</h3>
+  <p class="small">Un registro breve —hora, medicamento, síntoma y acción— ayuda a tu equipo a distinguir lo farmacológico de lo emocional y a ajustar el tratamiento con información real.</p>
+  <div class="diary-wrap">
+    <table class="diary-table">
+      <caption>Ejemplo de registro. Puedes copiarlo en una libreta o en tu teléfono.</caption>
+      <thead>
+        <tr>
+          <th scope="col">Hora</th>
+          <th scope="col">Medicamento</th>
+          <th scope="col">Síntoma</th>
+          <th scope="col">Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="example">08:00</td>
+          <td class="example">Prednisona</td>
+          <td class="example">Ansiedad</td>
+          <td class="example">Respiración 4-7-8</td>
+        </tr>
+        <tr>
+          <td class="example">16:00</td>
+          <td class="example">Tacrolimus</td>
+          <td class="example">Temblor leve</td>
+          <td class="example">Anoté hora e intensidad</td>
+        </tr>
+        <tr>
+          <td class="your-turn" colspan="4">Tu turno — copia esta tabla</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="diary-note">Si un síntoma se repite o se intensifica, llévalo a tu próxima consulta. No ajustes dosis por tu cuenta.</p>
+</section>
 
-            <div class="card">
-                <p>Superar una leucemia y someterse a un trasplante de médula ósea es una de las experiencias más demandantes para el cuerpo y la mente. La psicooncología lo entiende como una <strong>"tormenta biopsicosocial"</strong>:</p>
+<div class="divider" aria-hidden="true">· · ·</div>
 
-                <div class="storm-grid">
-                    <div class="storm-item">
-                        <h4>⚡ Desgaste físico</h4>
-                        <p>La quimioterapia de acondicionamiento y el aislamiento agotan tus reservas de energía.</p>
-                    </div>
-                    <div class="storm-item">
-                        <h4>💊 Huella farmacológica</h4>
-                        <p>Corticoides e inmunosupresores actúan directamente sobre el cerebro y los neurotransmisores.</p>
-                    </div>
-                    <div class="storm-item">
-                        <h4>🔄 Duelo y adaptación</h4>
-                        <p>El reto de volver a la rutina tras semanas de aislamiento y protección extrema.</p>
-                    </div>
-                </div>
+<!-- ============================================================
+     EL REFLEJO Y EL VÍNCULO
+============================================================ -->
+<section class="seccion" id="vinculo">
+  <h2>El Reflejo y el Vínculo</h2>
+  <p class="lead">Un espacio para comprender, sentir y acompañar en el viaje del cáncer: lo que se pierde frente al espejo, la mirada del otro y el peso —también real— de quien cuida.</p>
 
-                <div class="science-box">
-                    <strong>🔬 Respaldo científico:</strong> Los estudios en pacientes con trasplante de progenitores hematopoyéticos (TPH) muestran que es frecuente presentar ansiedad clínica y síntomas depresivos durante el proceso, y que <strong>el apoyo psicológico especializado reduce significativamente ambos síntomas</strong>
-                    <span class="ref-tag">3</span><span class="ref-tag">4</span>.
-                    <a href="https://revistas.ucm.es/index.php/PSIC/article/download/PSIC0707120097A/15750" target="_blank">De Linares et al., 2007</a> ·
-                    <a href="https://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-48082017000300259" target="_blank">Pérez-Marfil et al., 2017</a>
-                </div>
-            </div>
-        </div>
+  <div class="vl-stack">
+    <article class="vl-card">
+      <span class="vl-num">01</span>
+      <h3>"No me encuentro en el espejo"</h3>
+      <p>El cuerpo humano es la primera casa que habitamos. Es a través de nuestra imagen que nos presentamos al mundo y, sobre todo, que nos reconocemos a nosotros mismos como un "yo" entero y continuo.</p>
+      <blockquote class="vl-quote">"No me encuentro en el espejo. Esa persona que me mira no soy yo, pero no sé quién es." — Testimonio de un paciente.</blockquote>
+      <p>Cuando la enfermedad y sus tratamientos alteran el cuerpo (la caída del cabello, las cicatrices, la pérdida de peso), no se pierde solo un rasgo físico. <strong>Se pierde el ancla de la identidad.</strong> En la teoría psicoanalítica, el espejo nos regala la ilusión de que somos un ser completo. La enfermedad fragmenta esa imagen. El paciente hace un duelo silencioso por la pérdida de su "rostro conocido", ese que le permitía decir "este soy yo".</p>
+      <div class="vl-insight">
+        <b>¿Por qué duele tanto escuchar "es solo cabello"?</b><br>
+        Porque invalida el duelo. Para el paciente, el cabello era su corona, su firma visual, su identidad. Minimizar esta pérdida es como decirle a alguien que llora por un ser querido que "es solo una persona". La violencia no está en la intención del familiar, sino en la brecha entre el dolor subjetivo del paciente y la mirada pragmática de su entorno.
+      </div>
+    </article>
 
-        <!-- ================= FARMACIA EMOCIONAL ================= -->
-        <div class="section">
-            <div class="section-header">
-                <div class="section-icon">💊</div>
-                <h2 class="section-title">Tu Farmacia Emocional</h2>
-            </div>
+    <article class="vl-card">
+      <span class="vl-num">02</span>
+      <h3>El fantasma y la mirada del otro</h3>
+      <p>Los seres humanos existimos y nos sostenemos a través de la mirada de los demás (nuestros familiares, amigos, la sociedad). Nosotros nos vemos a través de cómo nos miran.</p>
+      <p>Cuando un familiar se obsesiona con recordarle al paciente que "está enfermo", se convierte en lo que llamamos <strong>un fantasma acosador</strong>. El paciente deja de ser un padre, un hijo, un profesional o un amigo con gustos y deseos, para quedar <em>atrapado</em> en la mirada del Otro como "el enfermo de cáncer".</p>
+      <p>Esta mirada constante, llena de angustia y recordatorios, le roba al paciente su espacio de deseo. Le impide vivir el presente porque le exige habitar en la enfermedad todo el tiempo. El acompañamiento amoroso requiere, a veces, la valentía de <strong>olvidar la enfermedad por un rato</strong> para recordar a la persona.</p>
+    </article>
 
-            <!-- CORTICOSTEROIDES -->
-            <div class="pharma-card active">
-                <div class="pharma-header" onclick="toggleCard(this)">
-                    <div class="pharma-emoji">🔥</div>
-                    <div class="pharma-info">
-                        <h3>Corticosteroides</h3>
-                        <span>Prednisona · Metilprednisolona · Dexametasona</span>
-                    </div>
-                    <div class="pharma-chevron">▼</div>
-                </div>
-                <div class="pharma-body">
-                    <div class="pharma-content">
-                        <div class="pharma-section">
-                            <div class="pharma-section-label label-effect">📉 Efecto Anímico</div>
-                            <ul>
-                                <li><strong>En dosis altas:</strong> insomnio, ansiedad, irritabilidad, euforia o agitación (síntomas que pueden aparecer en los primeros días de tratamiento).</li>
-                                <li><strong>Durante la reducción ("el bajón"):</strong> fatiga intensa, apatía y tristeza. Al suspender corticoides tras uso prolongado también se describen alteraciones del ánimo y la cognición; mejoran con una reducción gradual.</li>
-                                <li><strong>En pacientes con cáncer tratados con corticoides,</strong> la depresión es uno de los cuadros más frecuentes (28–41% de los trastornos inducidos).</li>
-                            </ul>
-                        </div>
-                        <div class="pharma-section">
-                            <div class="pharma-section-label label-science">🔬 Lo que dice la ciencia</div>
-                            <p style="font-size: 14px; color: #718096; margin-bottom: 10px;">Los glucocorticoides atraviesan la barrera hematoencefálica y actúan sobre el hipocampo y la amígdala, alterando los sistemas dopaminérgico y serotoninérgico. El riesgo de síntomas psiquiátricos es <strong>dosis-dependiente</strong>: aumenta claramente a partir de 40 mg/día de prednisona o equivalente. Los cuadros más frecuentes son depresión (28–41%) y manía/hipomanía (29–35%) <span class="ref-tag">1</span><span class="ref-tag">2</span>.</p>
-                            <div class="science-box">
-                                📄 <a href="http://scielo.isciii.es/scielo.php?script=sci_arttext&pid=S0211-57352015000200007" target="_blank">Sánchez-García, Pecino-Esquerdo & Pérez-Martínez (2015). Manía inducida por el tratamiento con corticoesteroides: revisión a partir de un caso clínico. Revista de Psiquiatría, España.</a>
-                                <br>📄 <a href="https://www.researchgate.net/publication/353331928_Trastornos_neuropsiquiatricos_secundarios_al_tratamiento_corticoide_en_pacientes_con_cancer" target="_blank">Toledo et al. (2021). Trastornos neuropsiquiátricos secundarios al tratamiento corticoide en pacientes con cáncer.</a>
-                            </div>
-                        </div>
-                        <div class="pharma-section">
-                            <div class="pharma-section-label label-action">🛠️ Qué puedes hacer</div>
-                            <ul>
-                                <li><strong>No te asustes al reducir la dosis:</strong> la tristeza y el cansancio durante el descenso tienen base química y son temporales; avisa a tu equipo para que la reducción sea gradual.</li>
-                                <li><strong>Higiene del sueño estricta:</strong> toma la dosis lo más temprano que tu médico indique para reducir el insomnio.</li>
-                                <li><strong>Comunica:</strong> si la irritabilidad afecta tus relaciones, avisa a tu familia: "es el medicamento, no soy yo". Informar a paciente y familiares del riesgo es una medida preventiva recomendada.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <article class="vl-card">
+      <span class="vl-num">03</span>
+      <h3>El peso del cuidador: el duelo silencioso</h3>
+      <p>Si eres familiar o cuidador, este espacio también es para ti. Acompañar en el cáncer es una maratón, no un sprint. Es natural que el "fantasma" de la enfermedad también te agote a ti.</p>
+      <p>El cansancio, la irritabilidad o el deseo de escapar un momento <strong>no te hacen mala persona ni te hacen dejar de amar</strong>. Son síntomas del peso emocional de sostener el mundo de alguien más mientras el tuyo propio tiembla. La familia también está de duelo: duelo por la vida que tenían antes, duelo por la impotencia ante el dolor del ser amado.</p>
+      <div class="vl-insight">
+        <b>Una nota de compasión para el cuidador:</b><br>
+        No puedes sostener el cielo tú solo. Buscar ayuda profesional, compartir la carga o permitirte espacios de respiro no es un acto de abandono: es la única forma de garantizar que tu acompañamiento sea sostenible y amoroso a largo plazo.
+      </div>
+    </article>
 
-            <!-- INMUNOSUPRESORES -->
-            <div class="pharma-card">
-                <div class="pharma-header" onclick="toggleCard(this)">
-                    <div class="pharma-emoji">🛡️</div>
-                    <div class="pharma-info">
-                        <h3>Inmunosupresores</h3>
-                        <span>Tacrolimus · Ciclosporina</span>
-                    </div>
-                    <div class="pharma-chevron">▼</div>
-                </div>
-                <div class="pharma-body">
-                    <div class="pharma-content">
-                        <div class="pharma-section">
-                            <div class="pharma-section-label label-effect">📉 Efecto Anímico</div>
-                            <ul>
-                                <li><strong>"Niebla mental"</strong> (dificultad para concentrar), temblores, hormigueos, cefalea e insomnio. Esta sintomatología genera frustración y ansiedad por sentirte "diferente".</li>
-                                <li><strong>Con tacrolimus</strong> son más frecuentes los efectos neurológicos que con ciclosporina (temblor, cefalea, insomnio; raramente convulsiones).</li>
-                            </ul>
-                        </div>
-                        <div class="pharma-section">
-                            <div class="pharma-section-label label-science">🔬 Lo que dice la ciencia</div>
-                            <p style="font-size: 14px; color: #718096; margin-bottom: 10px;">Los inhibidores de la calcineurina producen <strong>síntomas neurológicos dosis-dependientes</strong> debidos a la distribución de estas enzimas en el sistema nervioso: temblor y parestesias son los más frecuentes, seguidos de cefalea e insomnio. La revisión Cochrane (30 estudios, 4.102 pacientes) confirmó más efectos neurológicos con tacrolimus que con ciclosporina <span class="ref-tag">5</span><span class="ref-tag">6</span>. Además, el uso prolongado de inmunosupresores se asocia a <strong>peor calidad de vida y menor soporte social percibido</strong> <span class="ref-tag">7</span>.</p>
-                            <div class="science-box">
-                                📄 <a href="http://scielo.isciii.es/scielo.php?script=sci_arttext&pid=S1137-66272006000400017" target="_blank">Sádaba (2006). Monitorización y efectos secundarios de los inmunosupresores en el trasplante. Anales del Sistema Sanitario de Navarra, España.</a>
-                                <br>📄 <a href="https://www.cochrane.org/es/evidence/CD003961_tacrolimus-superior-cyclosporin-improving-graft-survival-and-preventing-acute-rejection-after-kidney" target="_blank">Webster et al. (2005). Tacrolimus versus ciclosporina como inmunosupresión primaria. Revisión Cochrane (resumen en español).</a>
-                            </div>
-                        </div>
-                        <div class="pharma-section">
-                            <div class="pharma-section-label label-action">🛠️ Qué puedes hacer</div>
-                            <ul>
-                                <li><strong>Pacing cognitivo:</strong> divide tus tareas en bloques cortos (15–20 minutos) y descansa antes de sentirte agotado.</li>
-                                <li><strong>Registra los temblores y el insomnio:</strong> anota hora e intensidad; esta información ayuda a tu equipo a ajustar dosis o horario.</li>
-                                <li><strong>Cuida tu red de apoyo:</strong> los estudios muestran que el soporte social se resiente con la inmunosupresión prolongada; busca contacto aunque sea breve (llamadas, visitas cortas).</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <article class="vl-card">
+      <span class="vl-num">04</span>
+      <h3>¿Cómo acompañar desde el amor y el respeto?</h3>
+      <ul class="vl-list">
+        <li><strong>Valida el duelo de la imagen:</strong> si el paciente llora frente al espejo, no ofrezcas soluciones rápidas. Siéntate a su lado. Sostén su mano. Dile: "Entiendo que esta imagen te duela y te asuste. Estoy aquí contigo".</li>
+        <li><strong>Habla de otras cosas:</strong> rompe el fantasma de la enfermedad. Hablen de películas, de recuerdos, de chismes, de arte. Demuéstrale con tu mirada que para ti, él/ella sigue siendo la misma persona fascinante de siempre.</li>
+        <li><strong>Pregunta en lugar de asumir:</strong> "¿Hoy necesitas que hablemos de tu tratamiento o prefieres que nos distraigamos un rato?". Dale al paciente el control de su propia narrativa.</li>
+        <li><strong>Cuida tu propio reflejo:</strong> como familiar, busca tus propios espacios de desahogo. Tu salud mental es el cimiento del cuidado que brindas.</li>
+      </ul>
+    </article>
+  </div>
 
-            <!-- FÁRMACOS DE SOPORTE -->
-            <div class="pharma-card">
-                <div class="pharma-header" onclick="toggleCard(this)">
-                    <div class="pharma-emoji">🦠</div>
-                    <div class="pharma-info">
-                        <h3>Fármacos de Soporte</h3>
-                        <span>Antivirales · Antibióticos · Antifúngicos</span>
-                    </div>
-                    <div class="pharma-chevron">▼</div>
-                </div>
-                <div class="pharma-body">
-                    <div class="pharma-content">
-                        <div class="pharma-section">
-                            <div class="pharma-section-label label-effect">📉 Efecto Anímico</div>
-                            <ul>
-                                <li>Letargo, aislamiento voluntario, falta de deseo de interactuar y cansancio profundo que parece no tener fin.</li>
-                                <li><strong>No es "pereza" ni "rendirse":</strong> tu organismo está gastando enormes recursos en defenderse de infecciones y en procesar múltiples fármacos a la vez.</li>
-                            </ul>
-                        </div>
-                        <div class="pharma-section">
-                            <div class="pharma-section-label label-science">🔬 Lo que dice la ciencia</div>
-                            <p style="font-size: 14px; color: #718096; margin-bottom: 10px;">El tratamiento antimicrobiano prolongado, sumado a la inmunosupresión, mantiene al organismo en un estado de alerta inflamatoria que el cerebro traduce como señal de peligro: <strong>apaga la motivación y la energía para proteger los recursos</strong> (conducta de enfermedad). Los estudios en TPH documentan aumento de la carga emocional, la ansiedad y el estrés durante este periodo, especialmente en quienes permanecen con inmunosupresión e infecciones <span class="ref-tag">3</span><span class="ref-tag">7</span>.</p>
-                            <div class="science-box">
-                                📄 <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9578551/" target="_blank">Medina-Valencia et al. (2022). Impacto de la calidad de vida relacionada con la salud en pacientes pediátricos con trasplante de progenitores hematopoyéticos en una institución colombiana. Biomédica.</a>
-                                <br>📄 <a href="https://es.oncolink.org/tratamiento-del-cancer/trasplantes-de-la-medula/apoyo/medicamentos-utilizados-despues-del-trasplante-de-celulas-madre" target="_blank">OncoLink en español — Medicamentos utilizados después del trasplante de células madre (revisado 2025).</a>
-                            </div>
-                        </div>
-                        <div class="pharma-section">
-                            <div class="pharma-section-label label-action">🛠️ Qué puedes hacer</div>
-                            <ul>
-                                <li><strong>Aceptación radical:</strong> descansar ES sanar; no luches contra el cansancio, adminístralo.</li>
-                                <li><strong>Micro-movimiento:</strong> si tu médico lo aprueba, estiramientos suaves de 5 minutos ayudan al ánimo y a la circulación.</li>
-                                <li><strong>Conexión de baja energía:</strong> visitas cortas, audiolibros o podcasts cuando leer requiera demasiado esfuerzo.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="refs">
+    <h3>Bibliografía y fundamento teórico</h3>
+    <ul style="list-style:none;padding:0;display:grid;gap:8px;font-size:.82rem;line-height:1.6;color:var(--ink-soft)">
+      <li>Lacan, J. (1949). <em>El estadio del espejo como formador de la función del yo</em>. (En Escritos).</li>
+      <li>Holland, J. C., et al. (2010). <em>Psycho-Oncology</em>. Oxford University Press.</li>
+      <li>Tizón, J. L. (2004). <em>Psicopatología y Trastornos Psicológicos</em>. (Capítulos sobre duelo y enfermedad crónica).</li>
+      <li>Kissane, D. W., &amp; Bloch, S. (2002). <em>Family Focused Grief Therapy</em>. Open University Press.</li>
+    </ul>
+  </div>
+</section>
 
-        <!-- ================= PUENTE PSIQUIATRÍA ================= -->
-        <div class="section">
-            <div class="section-header">
-                <div class="section-icon">🤝</div>
-                <h2 class="section-title">El Puente hacia la Psiquiatría</h2>
-            </div>
+<div class="divider" aria-hidden="true">· · ·</div>
 
-            <div class="bridge-card">
-                <p>Así como cuidas los valores de tu sangre o tu injerto, <strong>tu cerebro también requiere soporte</strong>. Acudir a psiquiatría no significa que hayas perdido el control; significa que eres un paciente experto que busca optimizar su recuperación.</p>
-                <p>Un psiquiatra especializado en psicooncología conoce las interacciones de los fármacos y puede indicar antidepresivos (por ejemplo ISRS como sertralina o citalopram) o estabilizadores del ánimo que <strong>no interfieren con tu inmunosupresión</strong>. De hecho, en la literatura sobre efectos neuropsiquiátricos de los corticoides, los neurolépticos atípicos y los eutimizantes se consideran tratamientos eficaces y bien tolerados en pacientes oncológicos <span class="ref-tag">1</span>.</p>
-            </div>
-        </div>
+<!-- ============================================================
+     MURO DE EXPERIENCIAS
+============================================================ -->
+<section class="seccion" id="muro">
+  <h2>Muro de experiencias</h2>
+  <p class="lead">Un espacio para dejar una nota breve y compartir tu experiencia: como paciente, como familiar o como profesional que acompaña. Nadie tiene que saber quién escribió.</p>
 
-        <!-- ================= ALERTAS ================= -->
-        <div class="section">
-            <div class="section-header">
-                <div class="section-icon">🚨</div>
-                <h2 class="section-title">Señales de Alerta</h2>
-            </div>
+  <div class="muro-hero">
+    <h2>Compartir también acompaña</h2>
+    <p>Palabras cortas, un consejo, algo que te habría gustado escuchar, o una frase para quien está empezando el camino. Tu nota puede acompañar a alguien que hoy se siente solo.</p>
+    <div class="muro-acciones">
+      <!-- Lino bloquea el iframe (X-Frame-Options: SAMEORIGIN), por eso el muro se abre en una
+           pestaña nueva. Si más adelante cambias de servicio, edita la URL en ambos botones. -->
+      <a id="enlace-muro" class="btn btn--light" href="https://linoit.com/users/Adrian1275/canvases/Comparte%20tu%20experiencia" target="_blank" rel="noopener noreferrer">Escribir mi nota</a>
+      <a id="enlace-muro-2" class="btn btn--dark-ghost" href="https://linoit.com/users/Adrian1275/canvases/Comparte%20tu%20experiencia" target="_blank" rel="noopener noreferrer">Ver el muro</a>
+    </div>
+    <p class="muro-nota">El muro se abre en una pestaña nueva (es un servicio externo). No necesitas crear cuenta para leer o dejar una nota.</p>
+  </div>
 
-            <div class="alert-card">
-                <div class="alert-title">🔴 No esperes a tu próxima cita si experimentas:</div>
-                <ul class="alert-list">
-                    <li>Insomnio total que no cede con rutinas y que desgasta tu juicio o paciencia.</li>
-                    <li>Ideas de desesperanza extrema o sensación persistente de que el esfuerzo no vale la pena. (Recuerda: el tratamiento corticoideo aumenta varias veces el riesgo de ideación suicida — no lo enfrentes en soledad <span class="ref-tag">1</span>.)</li>
-                    <li>Llanto constante e incontrolable que te impide actividades básicas (comer, hidratarte).</li>
-                    <li>Confusión severa, desorientación o alucinaciones: puede ser neurotoxicidad por fármacos y requiere evaluación urgente <span class="ref-tag">5</span>.</li>
-                </ul>
-            </div>
-        </div>
+  <h3 style="margin-top:32px">¿Qué puedes compartir?</h3>
+  <p class="small">Escribe desde tu experiencia. No hay respuestas correctas ni incorrectas.</p>
 
-        <!-- ================= DIARIO ================= -->
-        <div class="section">
-            <div class="section-header">
-                <div class="section-icon">📝</div>
-                <h2 class="section-title">Tu Diario de Síntomas</h2>
-            </div>
+  <div class="pautas">
+    <div class="pautas-col si">
+      <h4>Sí</h4>
+      <ul>
+        <li>Una frase de ánimo, un aprendizaje, una pregunta abierta, una imagen esperanzadora.</li>
+        <li>Escribe con respeto y desde tu vivencia.</li>
+        <li>Lo que te habría gustado escuchar cuando empezaste.</li>
+      </ul>
+    </div>
+    <div class="pautas-col evita">
+      <h4>Evita</h4>
+      <ul>
+        <li>Datos personales: nombres completos, teléfonos, direcciones o diagnósticos identificables.</li>
+        <li>Consejos médicos o recomendaciones de medicamentos.</li>
+        <li>Este muro no sustituye a tu equipo de salud.</li>
+      </ul>
+    </div>
+  </div>
+</section>
 
-            <div class="diary-wrapper">
-                <table class="diary-table">
-                    <thead>
-                        <tr>
-                            <th>🕒 Hora</th>
-                            <th>💊 Medicamento</th>
-                            <th>🧠 Síntoma</th>
-                            <th>🛠️ Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="example">08:00 AM</td>
-                            <td class="example">Prednisona</td>
-                            <td class="example">Ansiedad</td>
-                            <td class="example">Respiración 4-7-8</td>
-                        </tr>
-                        <tr>
-                            <td class="example">04:00 PM</td>
-                            <td class="example">Tacrolimus</td>
-                            <td class="example">Temblor leve</td>
-                            <td class="example">Anoté hora/intensidad</td>
-                        </tr>
-                        <tr>
-                            <td class="your-turn" colspan="4">✏️ Tu turno — Copia esta tabla</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<div class="divider" aria-hidden="true">· · ·</div>
 
-        <!-- ================= RECURSOS ================= -->
-        <div class="section">
-            <div class="section-header">
-                <div class="section-icon">📚</div>
-                <h2 class="section-title">Recursos de Consulta</h2>
-            </div>
+<!-- ============================================================
+     AYUDA
+============================================================ -->
+<section class="seccion" id="ayuda">
+  <h2>Si hoy no estás bien</h2>
+  <p class="lead">Buscar ayuda no es exagerar. Si el malestar te desborda o aparecen pensamientos de hacerte daño, no lo enfrentes en soledad: habla ahora con alguien de confianza o acércate a urgencias.</p>
 
-            <div class="resources-grid">
-                <a href="http://scielo.isciii.es/scielo.php?script=sci_arttext&pid=S0211-57352015000200007" target="_blank" class="resource-link">
-                    <div class="r-icon">🔥</div>
-                    <div class="r-text">
-                        <h4>Corticosteroides y ánimo</h4>
-                        <span>Sánchez-García et al., 2015 · SciELO España</span>
-                    </div>
-                    <div class="r-arrow">→</div>
-                </a>
+  <div class="ayuda-panel">
+    <div class="alert-card">
+      <h3>Señales para pedir ayuda hoy</h3>
+      <ul class="alert-list">
+        <li>Pensamientos de hacerte daño o de que no quieres seguir: busca compañía inmediata y ayuda profesional.</li>
+        <li>Llanto o angustia que no cede y te impide comer, dormir o hidratarte.</li>
+        <li>Confusión, desorientación o alucinaciones: puede ser neurotoxicidad por fármacos y requiere evaluación urgente.</li>
+      </ul>
+    </div>
 
-                <a href="http://scielo.isciii.es/scielo.php?script=sci_arttext&pid=S1137-66272006000400017" target="_blank" class="resource-link">
-                    <div class="r-icon">🛡️</div>
-                    <div class="r-text">
-                        <h4>Efectos secundarios de inmunosupresores</h4>
-                        <span>Sádaba, 2006 · Anales Sis San Navarra</span>
-                    </div>
-                    <div class="r-arrow">→</div>
-                </a>
+    <div class="help-grid">
+      <a href="tel:8009112000" class="help-card">
+        <span class="tag">México · 24 horas</span>
+        <h3>Línea de la Vida</h3>
+        <span class="tel">800 911 2000</span>
+        <p class="desc">Atención en crisis emocional y prevención del suicidio. Gratuita y confidencial.</p>
+      </a>
+      <a href="tel:911" class="help-card">
+        <span class="tag tag--azul">Emergencias</span>
+        <h3>Servicios de emergencia</h3>
+        <span class="tel">911</span>
+        <p class="desc">Emergencias médicas y urgencias en México. Si hay riesgo inmediato, llama.</p>
+      </a>
+    </div>
 
-                <a href="https://revistas.ucm.es/index.php/PSIC/article/download/PSIC0707120097A/15750" target="_blank" class="resource-link">
-                    <div class="r-icon">🧠</div>
-                    <div class="r-text">
-                        <h4>Ansiedad y depresión en TPH</h4>
-                        <span>De Linares et al., 2007 · Psicooncología (UCM)</span>
-                    </div>
-                    <div class="r-arrow">→</div>
-                </a>
+    <p class="ayuda-foot">El acompañamiento psicológico especializado reduce el malestar emocional en pacientes y familias: pedirlo es parte del tratamiento. Si estás fuera de México, busca la línea de crisis de tu país.</p>
+  </div>
+</section>
 
-                <a href="https://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-48082017000300259" target="_blank" class="resource-link">
-                    <div class="r-icon">🌱</div>
-                    <div class="r-text">
-                        <h4>Intervención psicooncológica en TPH</h4>
-                        <span>Pérez-Marfil et al., 2017 · Terapia Psicológica</span>
-                    </div>
-                    <div class="r-arrow">→</div>
-                </a>
+<div class="divider" aria-hidden="true">· · ·</div>
 
-                <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9578551/" target="_blank" class="resource-link">
-                    <div class="r-icon">🇨🇴</div>
-                    <div class="r-text">
-                        <h4>Calidad de vida post-TPH</h4>
-                        <span>Medina-Valencia et al., 2022 · Biomédica (Colombia)</span>
-                    </div>
-                    <div class="r-arrow">→</div>
-                </a>
+<!-- ============================================================
+     RECURSOS Y REFERENCIAS
+============================================================ -->
+<section class="seccion" id="recursos">
+  <h2>Para seguir leyendo</h2>
+  <p class="lead">Fuentes abiertas y recursos para pacientes, familias y profesionales. Los enlaces se abren en una pestaña nueva.</p>
 
-                <a href="https://www.cochrane.org/es/evidence/CD003961_tacrolimus-superior-cyclosporin-improving-graft-survival-and-preventing-acute-rejection-after-kidney" target="_blank" class="resource-link">
-                    <div class="r-icon">🔍</div>
-                    <div class="r-text">
-                        <h4>Tacrolimus vs. ciclosporina</h4>
-                        <span>Webster et al., 2005 · Cochrane (en español)</span>
-                    </div>
-                    <div class="r-arrow">→</div>
-                </a>
+  <div class="resources-grid">
+    <a href="http://scielo.isciii.es/scielo.php?script=sci_arttext&pid=S0211-57352015000200007" target="_blank" rel="noopener noreferrer" class="resource-card">
+      <span class="r-tag">Corticoides</span>
+      <span class="r-body">
+        <h3>Corticosteroides y ánimo</h3>
+        <span class="r-meta">Sánchez-García et al., 2015 · SciELO España</span>
+      </span>
+      <span class="r-arrow" aria-hidden="true">&rarr;</span>
+    </a>
 
-                <a href="https://es.oncolink.org/tratamiento-del-cancer/trasplantes-de-la-medula/apoyo/medicamentos-utilizados-despues-del-trasplante-de-celulas-madre" target="_blank" class="resource-link">
-                    <div class="r-icon">💊</div>
-                    <div class="r-text">
-                        <h4>Medicamentos después del trasplante</h4>
-                        <span>OncoLink en español · recurso para pacientes</span>
-                    </div>
-                    <div class="r-arrow">→</div>
-                </a>
+    <a href="http://scielo.isciii.es/scielo.php?script=sci_arttext&pid=S1137-66272006000400017" target="_blank" rel="noopener noreferrer" class="resource-card">
+      <span class="r-tag">Inmuno</span>
+      <span class="r-body">
+        <h3>Efectos secundarios de inmunosupresores</h3>
+        <span class="r-meta">Sádaba, 2006 · Anales Sis San Navarra</span>
+      </span>
+      <span class="r-arrow" aria-hidden="true">&rarr;</span>
+    </a>
 
-                <a href="https://www.ipos-society.org/" target="_blank" class="resource-link">
-                    <div class="r-icon">🌐</div>
-                    <div class="r-text">
-                        <h4>IPOS Society</h4>
-                        <span>Psico-oncología internacional</span>
-                    </div>
-                    <div class="r-arrow">→</div>
-                </a>
-            </div>
-        </div>
+    <a href="https://revistas.ucm.es/index.php/PSIC/article/download/PSIC0707120097A/15750" target="_blank" rel="noopener noreferrer" class="resource-card">
+      <span class="r-tag">TPH</span>
+      <span class="r-body">
+        <h3>Ansiedad y depresión en TPH</h3>
+        <span class="r-meta">De Linares et al., 2007 · Psicooncología (UCM)</span>
+      </span>
+      <span class="r-arrow" aria-hidden="true">&rarr;</span>
+    </a>
 
-        <!-- ================= REFERENCIAS ================= -->
-        <div class="section">
-            <div class="section-header">
-                <div class="section-icon">🎓</div>
-                <h2 class="section-title">Referencias Bibliográficas</h2>
-            </div>
+    <a href="https://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-48082017000300259" target="_blank" rel="noopener noreferrer" class="resource-card">
+      <span class="r-tag">Intervención</span>
+      <span class="r-body">
+        <h3>Intervención psicooncológica en TPH</h3>
+        <span class="r-meta">Pérez-Marfil et al., 2017 · Terapia Psicológica</span>
+      </span>
+      <span class="r-arrow" aria-hidden="true">&rarr;</span>
+    </a>
 
-            <ol class="ref-list">
-                <li><em>Sánchez-García M.D., Pecino-Esquerdo B., Pérez-Martínez E.</em> Manía inducida por el tratamiento con corticoesteroides: revisión a partir de un caso clínico. Revista de Psiquiatría, España. 2015. <a href="http://scielo.isciii.es/scielo.php?script=sci_arttext&pid=S0211-57352015000200007" target="_blank">SciELO</a></li>
-                <li><em>Toledo A.A.V. et al.</em> Trastornos neuropsiquiátricos secundarios al tratamiento corticoide en pacientes con cáncer. 2021. <a href="https://www.researchgate.net/publication/353331928_Trastornos_neuropsiquiatricos_secundarios_al_tratamiento_corticoide_en_pacientes_con_cancer" target="_blank">ResearchGate</a></li>
-                <li><em>De Linares S., Moratalla A., Romero A. et al.</em> Información, ansiedad y depresión en pacientes sometidos a trasplante de progenitores hematopoyéticos (TPH) en un estudio de intervención psicológica. Psicooncología. 2007;4(1):97-109. <a href="https://revistas.ucm.es/index.php/PSIC/article/download/PSIC0707120097A/15750" target="_blank">Universidad Complutense de Madrid</a></li>
-                <li><em>Pérez-Marfil N., Cruz-Quintana F., Romero-Aguilar A., Moratalla-López L., López-Fernández E.</em> Intervención psicooncológica en Trasplante de Progenitores Hematopoyéticos (TPH): efectos en el impacto emocional. Terapia Psicológica. 2017;35(3):259-272. <a href="https://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-48082017000300259" target="_blank">SciELO Chile</a></li>
-                <li><em>Sádaba B.</em> Monitorización y efectos secundarios de los inmunosupresores en el trasplante. Anales del Sistema Sanitario de Navarra. 2006;29(4). <a href="http://scielo.isciii.es/scielo.php?script=sci_arttext&pid=S1137-66272006000400017" target="_blank">SciELO España</a></li>
-                <li><em>Webster A.C., Taylor R.R.S., Chapman J.R., Craig J.C.</em> Tacrolimus versus ciclosporin as primary immunosuppression for kidney transplant recipients. Cochrane Database of Systematic Reviews. 2005;(4):CD003961. <a href="https://www.cochrane.org/es/evidence/CD003961_tacrolimus-superior-cyclosporin-improving-graft-survival-and-preventing-acute-rejection-after-kidney" target="_blank">Resumen en español</a></li>
-                <li><em>Medina-Valencia D., Castillo-Martínez A., Beltrán E. et al.</em> Impacto de la calidad de vida relacionada con la salud en pacientes pediátricos con trasplante de progenitores hematopoyéticos en una institución colombiana. Biomédica. 2022;42:531-540. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9578551/" target="_blank">PMC</a></li>
-            </ol>
-        </div>
+    <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9578551/" target="_blank" rel="noopener noreferrer" class="resource-card">
+      <span class="r-tag">Calidad de vida</span>
+      <span class="r-body">
+        <h3>Calidad de vida post-TPH</h3>
+        <span class="r-meta">Medina-Valencia et al., 2022 · Biomédica (Colombia)</span>
+      </span>
+      <span class="r-arrow" aria-hidden="true">&rarr;</span>
+    </a>
 
-    </section>
+    <a href="https://www.cochrane.org/es/evidence/CD003961_tacrolimus-superior-cyclosporin-improving-graft-survival-and-preventing-acute-rejection-after-kidney" target="_blank" rel="noopener noreferrer" class="resource-card">
+      <span class="r-tag">Cochrane</span>
+      <span class="r-body">
+        <h3>Tacrolimus vs. ciclosporina</h3>
+        <span class="r-meta">Webster et al., 2005 · Cochrane (en español)</span>
+      </span>
+      <span class="r-arrow" aria-hidden="true">&rarr;</span>
+    </a>
 
-    <!-- =========================================================
-         PANEL 2 · EL REFLEJO Y EL VÍNCULO
-    ========================================================== -->
-    <section id="panel-vinculo" class="tabpanel vinculo" role="tabpanel">
+    <a href="https://es.oncolink.org/tratamiento-del-cancer/trasplantes-de-la-medula/apoyo/medicamentos-utilizados-despues-del-trasplante-de-celulas-madre" target="_blank" rel="noopener noreferrer" class="resource-card">
+      <span class="r-tag">Pacientes</span>
+      <span class="r-body">
+        <h3>Medicamentos después del trasplante</h3>
+        <span class="r-meta">OncoLink en español · recurso para pacientes</span>
+      </span>
+      <span class="r-arrow" aria-hidden="true">&rarr;</span>
+    </a>
 
-        <div class="vinculo-intro">
-            <h2>El Reflejo y el Vínculo</h2>
-            <p>Un espacio para comprender, sentir y acompañar en el viaje del cáncer.</p>
-        </div>
+    <a href="https://www.ipos-society.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+      <span class="r-tag">Red</span>
+      <span class="r-body">
+        <h3>IPOS Society</h3>
+        <span class="r-meta">Psicooncología internacional</span>
+      </span>
+      <span class="r-arrow" aria-hidden="true">&rarr;</span>
+    </a>
+  </div>
 
-        <!-- 1 -->
-        <div class="vl-section" id="espejo">
-            <h2>1. "No me encuentro en el espejo"</h2>
-            <p>El cuerpo humano es la primera casa que habitamos. Es a través de nuestra imagen que nos presentamos al mundo y, sobre todo, que nos reconocemos a nosotros mismos como un "yo" entero y continuo.</p>
+  <div class="refs">
+    <h3>Referencias bibliográficas</h3>
+    <ol>
+      <li><em>Sánchez-García M.D., Pecino-Esquerdo B., Pérez-Martínez E.</em> Manía inducida por el tratamiento con corticoesteroides: revisión a partir de un caso clínico. Revista de Psiquiatría, España. 2015. <a href="http://scielo.isciii.es/scielo.php?script=sci_arttext&pid=S0211-57352015000200007" target="_blank" rel="noopener noreferrer">SciELO</a></li>
+      <li><em>Toledo A.A.V. et al.</em> Trastornos neuropsiquiátricos secundarios al tratamiento corticoide en pacientes con cáncer. 2021. <a href="https://www.researchgate.net/publication/353331928_Trastornos_neuropsiquiatricos_secundarios_al_tratamiento_corticoide_en_pacientes_con_cancer" target="_blank" rel="noopener noreferrer">ResearchGate</a></li>
+      <li><em>De Linares S., Moratalla A., Romero A. et al.</em> Información, ansiedad y depresión en pacientes sometidos a trasplante de progenitores hematopoyéticos (TPH) en un estudio de intervención psicológica. Psicooncología. 2007;4(1):97-109. <a href="https://revistas.ucm.es/index.php/PSIC/article/download/PSIC0707120097A/15750" target="_blank" rel="noopener noreferrer">Universidad Complutense de Madrid</a></li>
+      <li><em>Pérez-Marfil N., Cruz-Quintana F., Romero-Aguilar A., Moratalla-López L., López-Fernández E.</em> Intervención psicooncológica en Trasplante de Progenitores Hematopoyéticos (TPH): efectos en el impacto emocional. Terapia Psicológica. 2017;35(3):259-272. <a href="https://www.scielo.cl/scielo.php?script=sci_arttext&pid=S0718-48082017000300259" target="_blank" rel="noopener noreferrer">SciELO Chile</a></li>
+      <li><em>Sádaba B.</em> Monitorización y efectos secundarios de los inmunosupresores en el trasplante. Anales del Sistema Sanitario de Navarra. 2006;29(4). <a href="http://scielo.isciii.es/scielo.php?script=sci_arttext&pid=S1137-66272006000400017" target="_blank" rel="noopener noreferrer">SciELO España</a></li>
+      <li><em>Webster A.C., Taylor R.R.S., Chapman J.R., Craig J.C.</em> Tacrolimus versus ciclosporin as primary immunosuppression for kidney transplant recipients. Cochrane Database of Systematic Reviews. 2005;(4):CD003961. <a href="https://www.cochrane.org/es/evidence/CD003961_tacrolimus-superior-cyclosporin-improving-graft-survival-and-preventing-acute-rejection-after-kidney" target="_blank" rel="noopener noreferrer">Resumen en español</a></li>
+      <li><em>Medina-Valencia D., Castillo-Martínez A., Beltrán E. et al.</em> Impacto de la calidad de vida relacionada con la salud en pacientes pediátricos con trasplante de progenitores hematopoyéticos en una institución colombiana. Biomédica. 2022;42:531-540. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9578551/" target="_blank" rel="noopener noreferrer">PMC</a></li>
+    </ol>
+  </div>
+</section>
 
-            <div class="quote">
-                "No me encuentro en el espejo. Esa persona que me mira no soy yo, pero no sé quién es." — Testimonio de un paciente.
-            </div>
+</main>
 
-            <p>Cuando la enfermedad y sus tratamientos alteran el cuerpo (la caída del cabello, las cicatrices, la pérdida de peso), no se pierde solo un rasgo físico. <strong>Se pierde el ancla de la identidad.</strong> En la teoría psicoanalítica, el espejo nos regala la ilusión de que somos un ser completo. La enfermedad fragmenta esa imagen. El paciente hace un duelo silencioso por la pérdida de su "rostro conocido", ese que le permitía decir "este soy yo".</p>
+<footer>
+  <div class="footer-inner">
+    <p class="fquote">"Comprender no es curar. <em>Acompañar</em> es no dejar a nadie solo en el proceso."</p>
 
-            <div class="insight">
-                <strong>¿Por qué duele tanto escuchar "es solo cabello"?</strong><br>
-                Porque invalida el duelo. Para el paciente, el cabello era su corona, su firma visual, su identidad. Minimizar esta pérdida es como decirle a alguien que luto por un ser querido que "es solo una persona". La violencia no está en la intención del familiar, sino en la brecha entre el dolor subjetivo del paciente y la mirada pragmática de su entorno.
-            </div>
-        </div>
+    <div class="disclaimer-box">
+      <h4>Disclaimer</h4>
+      <p>Este recurso tiene fines exclusivamente <b>psicoeducativos</b> y no sustituye el consejo, la evaluación ni el tratamiento de tu equipo de salud. Ante cualquier duda sobre síntomas, medicación o tu estado de ánimo, consulta a tu hematólogo, psicooncólogo o profesional de salud mental. Si hay riesgo inmediato, acude a urgencias.</p>
+    </div>
 
-        <!-- 2 -->
-        <div class="vl-section" id="el-otro">
-            <h2>2. El Fantasma y la Mirada del Otro</h2>
-            <p>Los seres humanos existimos y nos sostenemos a través de la mirada de los demás (nuestros familiares, amigos, la sociedad). Nosotros nos vemos a través de cómo nos miran.</p>
-
-            <p>Cuando un familiar se obsesiona con recordarle al paciente que "está enfermo", se convierte en lo que llamamos <strong>un fantasma acosador</strong>. El paciente deja de ser un padre, un hijo, un profesional o un amigo con gustos y deseos, para quedar <em>atrapado</em> en la mirada del Otro como "el enfermo de cáncer".</p>
-
-            <p>Esta mirada constante, llena de angustia y recordatorios, le roba al paciente su espacio de deseo. Le impide vivir el presente porque le exige habitar en la enfermedad todo el tiempo. El acompañamiento amoroso requiere, a veces, la valentía de <strong>olvidar la enfermedad por un rato</strong> para recordar a la persona.</p>
-        </div>
-
-        <!-- 3 -->
-        <div class="vl-section" id="cuidado">
-            <h2>3. El Peso del Cuidador: El duelo silencioso</h2>
-            <p>Si eres familiar o cuidador, este espacio también es para ti. Acompañar en el cáncer es una maratón, no un sprint. Es natural que el "fantasma" de la enfermedad también te agote a ti.</p>
-
-            <p>El cansancio, la irritabilidad o el deseo de escapar un momento <strong>no te hacen mala persona ni te hacen dejar de amar</strong>. Son síntomas del peso emocional de sostener el mundo de alguien más mientras el tuyo propio tiembla. La familia también está de duelo: duelo por la vida que tenían antes, duelo por la impotencia ante el dolor del ser amado.</p>
-
-            <div class="insight">
-                <strong>Una nota de compasión para el cuidador:</strong><br>
-                No puedes sostener el cielo tú solo. Buscar ayuda profesional, compartir la carga o permitirte espacios de respiro no es un acto de abandono, es la única forma de garantizar que tu acompañamiento sea sostenible y amoroso a largo plazo.
-            </div>
-        </div>
-
-        <!-- 4 -->
-        <div class="vl-section" id="acompanar">
-            <h2>4. ¿Cómo acompañar desde el amor y el respeto?</h2>
-            <ul>
-                <li><strong>Valida el duelo de la imagen:</strong> Si el paciente llora frente al espejo, no ofrezcas soluciones rápidas. Siéntate a su lado. Sostén su mano. Dile: "Entiendo que esta imagen te duela y te asuste. Estoy aquí contigo".</li>
-                <li><strong>Habla de otras cosas:</strong> Rompe el fantasma de la enfermedad. Hablen de películas, de recuerdos, de chismes, de arte. Demuéstrale con tu mirada que para ti, él/ella sigue siendo la misma persona fascinante de siempre.</li>
-                <li><strong>Pregunta en lugar de asumir:</strong> "¿Hoy necesitas que hablemos de tu tratamiento o prefieres que nos distraigamos un rato?". Dale al paciente el control de su propia narrativa.</li>
-                <li><strong>Cuida tu propio reflejo:</strong> Como familiar, busca tus propios espacios de desahogo. Tu salud mental es el cimiento del cuidado que brindas.</li>
-            </ul>
-        </div>
-
-        <div class="vl-section" style="border-left-color: var(--vl-soft-blue);">
-            <h2 style="color: var(--vl-accent);">Bibliografía y Fundamento Teórico</h2>
-            <ul style="list-style:none; padding-left:0; font-size:0.9em; color:#555;">
-                <li style="margin-bottom:8px;">Lacan, J. (1949). <em>El estadio del espejo como formador de la función del yo</em>. (En Escritos).</li>
-                <li style="margin-bottom:8px;">Holland, J. C., et al. (2010). <em>Psycho-Oncology</em>. Oxford University Press.</li>
-                <li style="margin-bottom:8px;">Tizón, J. L. (2004). <em>Psicopatología y Trastornos Psicológicos</em>. (Capítulos sobre duelo y enfermedad crónica).</li>
-                <li style="margin-bottom:8px;">Kissane, D. W., & Bloch, S. (2002). <em>Family Focused Grief Therapy</em>. Open University Press.</li>
-            </ul>
-        </div>
-
-    </section>
-
-    <!-- =========================================================
-         PANEL 3 · MURO DE EXPERIENCIAS
-    ========================================================== -->
-    <section id="panel-muro" class="tabpanel" role="tabpanel">
-
-        <div class="muro-hero">
-            <h2>🗒️ Muro de experiencias</h2>
-            <p>Un espacio para dejar una nota breve y compartir tu experiencia: como paciente, como familiar o como profesional que acompaña. Nadie tiene que saber quién escribió.</p>
-            <div class="muro-acciones">
-                <!-- Lino bloquea el iframe (X-Frame-Options: SAMEORIGIN), por eso el muro se abre en una
-                     pestaña nueva. Si más adelante cambias de servicio, edita la URL en ambos botones. -->
-                <a id="enlace-muro" class="btn-muro" href="https://linoit.com/users/Adrian1275/canvases/Comparte%20tu%20experiencia" target="_blank" rel="noopener noreferrer">✏️ Escribir mi nota</a>
-                <a id="enlace-muro-2" class="btn-muro secundario" href="https://linoit.com/users/Adrian1275/canvases/Comparte%20tu%20experiencia" target="_blank" rel="noopener noreferrer">👀 Ver el muro</a>
-            </div>
-            <p class="muro-nota" style="color: rgba(255,255,255,0.85);">El muro se abre en una pestaña nueva (es un servicio externo). No necesitas crear cuenta para leer o dejar una nota.</p>
-        </div>
-
-        <div class="section">
-            <div class="section-header">
-                <div class="section-icon">💬</div>
-                <h2 class="section-title">¿Qué puedes compartir?</h2>
-            </div>
-            <p style="font-size:14.5px; margin-bottom:12px;">Palabras cortas, un consejo, algo que te habría gustado escuchar, o una frase para quien está empezando el camino. Tu nota puede acompañar a alguien que hoy se siente solo.</p>
-            <ul class="pautas-list">
-                <li class="ok"><strong>Sí:</strong> una frase de ánimo, un aprendizaje, una pregunta abierta, una imagen esperanzadora.</li>
-                <li class="ok"><strong>Sí:</strong> escribe con respeto y desde tu experiencia. No hay respuestas correctas ni incorrectas.</li>
-                <li class="cuidado"><strong>Evita:</strong> datos personales (nombres completos, teléfonos, direcciones o diagnósticos identificables).</li>
-                <li class="cuidado"><strong>Evita:</strong> consejos médicos o recomendaciones de medicamentos. Este muro no sustituye a tu equipo de salud.</li>
-            </ul>
-        </div>
-
-        <div class="section">
-            <div class="section-header">
-                <div class="section-icon">🛟</div>
-                <h2 class="section-title">Si hoy no estás bien</h2>
-            </div>
-            <div class="alert-card">
-                <div class="alert-title">🔴 Buscar ayuda no es exagerar.</div>
-                <ul class="alert-list">
-                    <li>Si tienes pensamientos de hacerte daño, habla ahora con alguien de confianza o acércate a urgencias.</li>
-                    <li>En México puedes llamar a la Línea de la Vida (800 911 2000) las 24 horas, o al 911.</li>
-                    <li>El acompañamiento psicológico especializado reduce el malestar emocional en pacientes y familias: pedirlo es parte del tratamiento.</li>
-                </ul>
-            </div>
-        </div>
-
-    </section>
-
-</div>
-
-<footer class="footer">
-    <div class="author-badge">
-        <div class="author-avatar">AG</div>
+    <div class="author">
+      <div class="avatar" aria-hidden="true">AG</div>
+      <div>
         <div class="author-name">Creado por Alfredo Adrián González Lazcano</div>
         <div class="author-role">Recurso de orientación psicoeducativa</div>
+      </div>
     </div>
-    <p class="footer-disclaimer">
-        Este recurso tiene fines exclusivamente psicoeducativos y no sustituye el consejo de tu equipo de salud. Ante cualquier duda sobre síntomas, medicación o tu estado de ánimo, consulta a tu hematólogo, psicooncólogo o profesional de salud mental.
-    </p>
-    <a class="footer-volver" href="../../">← Volver a PsycheNudo</a>
-    <p class="footer-year">© 2026 · Todos los derechos reservados</p>
+
+    <div class="credit">
+      <span>PsycheNudo Puebla · Cáncer y salud mental</span>
+      <span>© 2026 · Todos los derechos reservados · <a href="../../">Volver a PsycheNudo</a></span>
+    </div>
+  </div>
 </footer>
 
+<a class="sos" id="sosBtn" href="#ayuda"><span class="beat" aria-hidden="true"></span> Ayuda ahora</a>
+
 <script>
-    function mostrarTab(btn) {
-        var panelId = btn.getAttribute('data-panel');
-        var panels = document.querySelectorAll('.tabpanel');
-        for (var i = 0; i < panels.length; i++) {
-            panels[i].classList.toggle('active', panels[i].id === panelId);
+  /* ---------- Acordeones de la farmacia emocional ---------- */
+  (function () {
+    var toggles = document.querySelectorAll('.pharma-toggle');
+    Array.prototype.forEach.call(toggles, function (btn) {
+      btn.addEventListener('click', function () {
+        var card = btn.closest('.pharma-card');
+        var open = card.classList.toggle('open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    });
+  })();
+
+  /* ---------- Navegación, scrollspy, progreso y SOS ---------- */
+  (function () {
+    var tocLinks = Array.prototype.slice.call(document.querySelectorAll('.tabs .tab[href^="#"]'));
+    var sections = tocLinks
+      .map(function (link) { return document.querySelector(link.getAttribute('href')); })
+      .filter(Boolean);
+    var lastActiveId = null;
+
+    function setActive(id) {
+      if (id === lastActiveId) return;
+      lastActiveId = id;
+      var activeLink = null;
+      tocLinks.forEach(function (link) {
+        var isActive = link.getAttribute('href') === '#' + id;
+        link.classList.toggle('active', isActive);
+        if (isActive) {
+          activeLink = link;
+          link.setAttribute('aria-current', 'true');
+        } else {
+          link.removeAttribute('aria-current');
         }
-        var botones = document.querySelectorAll('.tabbtn');
-        for (var j = 0; j < botones.length; j++) {
-            var activo = botones[j] === btn;
-            botones[j].classList.toggle('active', activo);
-            botones[j].setAttribute('aria-selected', activo ? 'true' : 'false');
-        }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+      if (activeLink && activeLink.parentNode.scrollTo) {
+        var nav = activeLink.parentNode;
+        var target = activeLink.offsetLeft - (nav.clientWidth - activeLink.offsetWidth) / 2;
+        nav.scrollTo({ left: Math.max(0, target), behavior: 'smooth' });
+      }
     }
 
-    function toggleCard(header) {
-        var card = header.parentElement;
-        card.classList.toggle('active');
+    if (sections.length) {
+      var ticking = false;
+      var updateActive = function () {
+        ticking = false;
+        var offset = 120;
+        var current = sections[0];
+        sections.forEach(function (section) {
+          if (section.getBoundingClientRect().top <= offset) current = section;
+        });
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
+          current = sections[sections.length - 1];
+        }
+        setActive(current.id);
+      };
+      var requestTick = function () {
+        if (!ticking) {
+          ticking = true;
+          window.requestAnimationFrame(updateActive);
+        }
+      };
+      window.addEventListener('scroll', requestTick, { passive: true });
+      window.addEventListener('resize', requestTick);
+      updateActive();
     }
+
+    tocLinks.forEach(function (link) {
+      link.addEventListener('click', function () {
+        setActive(link.getAttribute('href').slice(1));
+      });
+    });
+
+    var progress = document.getElementById('progress');
+    var sosBtn = document.getElementById('sosBtn');
+    var onScroll = function () {
+      var y = window.scrollY;
+      sosBtn.classList.toggle('show', y > 420);
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.width = h > 0 ? (y / h * 100) + '%' : '0%';
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
 </script>
 
 </body>
