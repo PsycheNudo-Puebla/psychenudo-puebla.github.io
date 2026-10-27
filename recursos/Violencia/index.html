@@ -4,637 +4,1963 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/png" href="../../assets/mi-logo.png">
-<title>Amor rojo · psychenudo</title>
+<title>Amor rojo · Violencia de pareja · psychenudo</title>
+<meta name="description" content="Guía psicoeducativa sobre violencia de pareja: cómo entra, el ciclo de la violencia, por qué no se sale, violentómetro y directorio de ayuda en Puebla y México.">
+<meta name="theme-color" content="#7a1f2b">
 <style>
+  /* ==========================================================================
+     1. TOKENS · paleta original vino / crema / arena, ordenada como sistema
+     ========================================================================== */
   :root{
+    --bg:#faf5ef;
+    --bg-2:#f5ece1;
+    --bg-3:#efe2d3;
+    --card:#ffffff;
+
+    --ink:#2b1d1f;
+    --ink-soft:#5a4a4d;
+
     --vino:#7a1f2b;
-    --vino-oscuro:#4d1219;
-    --vino-claro:#a63d4a;
-    --crema:#faf5ef;
-    --crema-2:#f3eade;
+    --vino-deep:#4d1219;
+    --vino-soft:#a63d4a;
+    --accent:#7a1f2b;
+    --accent-2:#a63d4a;
+    --accent-texto:#6d1b26;
+    --accent-tinte:rgba(122,31,43,.07);
+    --accent-borde:rgba(122,31,43,.18);
+
     --arena:#e8dccf;
-    --tinta:#2b1d1f;
-    --tinta-suave:#5a4a4d;
-    --alerta:#c0392b;
+    --arena-texto:#7a5326;
+    --arena-suave:#fdf6ea;
+    --arena-borde:#e6d3b8;
+
+    --alerta:#b02a1f;
+    --alerta-texto:#8f231a;
+    --alerta-suave:#fdeeec;
+    --alerta-borde:rgba(176,42,31,.22);
+
     --ok:#2d6a4f;
-    --sombra:0 10px 30px rgba(77,18,25,.08);
+    --ok-texto:#245640;
+    --ok-suave:#eaf4ee;
+    --ok-borde:rgba(45,106,79,.25);
+
+    --line:#e9ddd0;
+    --line-suave:rgba(233,221,208,.7);
+
+    --fuente-titulo:Georgia,"Iowan Old Style","Palatino Linotype","Times New Roman",serif;
+    --fuente-ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+
+    --max:960px;
+    --radio-sm:10px;
+    --radio:16px;
+    --radio-lg:24px;
+    --pill:999px;
+
+    --sombra-sm:0 1px 2px rgba(77,18,25,.04),0 6px 16px -10px rgba(77,18,25,.24);
+    --sombra:0 1px 2px rgba(77,18,25,.04),0 16px 38px -22px rgba(77,18,25,.36);
+    --sombra-alta:0 2px 4px rgba(77,18,25,.05),0 26px 52px -24px rgba(77,18,25,.42);
+
+    --trans:.22s ease;
   }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--crema);color:var(--tinta);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
-  a{color:var(--vino);text-decoration:none}
+
+  /* ==========================================================================
+     2. BASE
+     ========================================================================== */
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;scroll-padding-top:86px}
+  body{
+    background-color:var(--bg);
+    background-image:
+      radial-gradient(circle at 6% 0%,rgba(166,61,74,.12),transparent 42%),
+      radial-gradient(circle at 97% 9%,rgba(232,220,207,.55),transparent 40%);
+    background-attachment:fixed;
+    color:var(--ink);
+    font-family:var(--fuente-ui);
+    font-size:16px;
+    line-height:1.68;
+    -webkit-font-smoothing:antialiased;
+  }
+  p{margin:0 0 15px}
+  a{color:var(--accent);text-decoration:none}
   a:hover{text-decoration:underline}
+  a:focus-visible,button:focus-visible,[tabindex]:focus-visible{
+    outline:3px solid rgba(122,31,43,.38);
+    outline-offset:3px;
+  }
+  h2{
+    font-family:var(--fuente-titulo);
+    font-size:clamp(1.55rem,3.4vw,2rem);
+    font-weight:700;
+    line-height:1.2;
+    letter-spacing:-.02em;
+    color:var(--vino-deep);
+    margin:0 0 10px;
+  }
+  h2::before{
+    content:"";
+    display:block;
+    width:46px;height:3px;
+    margin-bottom:16px;
+    border-radius:var(--pill);
+    background:linear-gradient(90deg,var(--vino-soft),var(--arena));
+  }
+  h3{
+    font-family:var(--fuente-titulo);
+    font-size:1.22rem;
+    font-weight:700;
+    line-height:1.3;
+    color:var(--vino-deep);
+    margin:0 0 8px;
+  }
+  ::selection{background:var(--vino);color:#fff}
 
-  /* HEADER */
-  header{background:linear-gradient(135deg,var(--vino) 0%,var(--vino-oscuro) 100%);color:#fff;padding:28px 20px 18px;border-bottom:3px solid var(--vino-claro)}
-  .brand{display:inline-flex;align-items:center;gap:8px;font-weight:700;letter-spacing:.5px;font-size:.9rem;color:#fff;text-decoration:none;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.4);padding:8px 16px;border-radius:50px;margin-bottom:4px;transition:background .2s,transform .2s,box-shadow .2s}
-  .brand::before{content:"\2190";font-size:1rem;line-height:1}
-  .brand:hover{background:rgba(255,255,255,.28);transform:translateX(-2px);box-shadow:0 4px 14px rgba(0,0,0,.18)}
-  .brand:focus-visible{outline:2px solid #fff;outline-offset:2px}
-  h1.titulo{font-size:clamp(1.8rem,4vw,2.6rem);margin:14px 0 6px;font-weight:700;letter-spacing:-.5px}
-  .subtitulo{opacity:.92;font-size:1.05rem;max-width:720px}
+  .skip{
+    position:absolute;
+    left:-9999px;
+    top:0;
+    padding:10px 16px;
+    border-radius:0 0 var(--radio-sm) 0;
+    background:var(--vino);
+    color:#fff;
+    font-weight:700;
+    z-index:999;
+  }
+  .skip:focus{left:0;outline:3px solid var(--arena);outline-offset:2px}
 
-  /* AVISO SUPERIOR */
-  .aviso{background:#fff8e7;border-left:4px solid #d4a017;padding:12px 16px;margin:16px 20px;border-radius:6px;font-size:.9rem;color:#5a4a1f}
+  /* ==========================================================================
+     3. BARRA DE PROGRESO
+     ========================================================================== */
+  #progress{
+    position:fixed;
+    top:0;left:0;
+    z-index:120;
+    width:0;height:3px;
+    background:linear-gradient(90deg,var(--vino),var(--vino-soft),var(--arena));
+  }
+
+  /* ==========================================================================
+     4. ENCABEZADO EDITORIAL
+     ========================================================================== */
+  header{
+    position:relative;
+    overflow:hidden;
+    padding:44px 22px 48px;
+    color:#fff;
+    background:linear-gradient(135deg,#4d1219 0%,var(--vino) 52%,var(--vino-soft) 100%);
+    border-bottom:3px solid var(--arena);
+  }
+  header::before,
+  header::after{
+    content:"";
+    position:absolute;
+    border-radius:50%;
+    pointer-events:none;
+  }
+  header::before{
+    width:380px;height:380px;
+    right:-140px;top:-190px;
+    background:radial-gradient(circle,rgba(255,255,255,.11),transparent 68%);
+  }
+  header::after{
+    width:320px;height:320px;
+    left:-150px;bottom:-210px;
+    background:radial-gradient(circle,rgba(232,220,207,.26),transparent 70%);
+  }
+  .header-inner{position:relative;z-index:1;max-width:var(--max);margin:0 auto}
+  .brand{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:22px;
+    padding:8px 16px;
+    border-radius:var(--pill);
+    border:1px solid rgba(255,255,255,.42);
+    background:rgba(255,255,255,.12);
+    color:#fff;
+    font-size:.84rem;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    text-decoration:none;
+    transition:background var(--trans),transform var(--trans),box-shadow var(--trans);
+  }
+  .brand::before{content:"\2190";font-size:1rem;line-height:1;letter-spacing:0}
+  .brand:hover{background:rgba(255,255,255,.24);transform:translateX(-3px);box-shadow:0 8px 20px rgba(0,0,0,.18);text-decoration:none}
+  .kicker{
+    display:inline-block;
+    margin:0 0 12px;
+    padding:5px 12px;
+    border-radius:var(--pill);
+    background:rgba(255,255,255,.13);
+    border:1px solid rgba(255,255,255,.28);
+    color:rgba(255,255,255,.94);
+    font-size:.7rem;
+    font-weight:700;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+  }
+  h1.titulo{
+    max-width:820px;
+    margin:0 0 12px;
+    font-family:var(--fuente-titulo);
+    font-size:clamp(1.95rem,4.6vw,2.9rem);
+    font-weight:700;
+    line-height:1.12;
+    letter-spacing:-.03em;
+  }
+  h1.titulo em{font-style:italic;color:#f2d9bd}
+  .subtitulo{
+    max-width:700px;
+    margin:0;
+    color:rgba(255,255,255,.9);
+    font-size:1.04rem;
+    line-height:1.62;
+  }
+  .header-cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+
+  /* ==========================================================================
+     5. AVISO
+     ========================================================================== */
+  .aviso-wrap{max-width:var(--max);margin:0 auto;padding:20px 22px 0}
+  .aviso{
+    margin:0;
+    padding:14px 18px;
+    border:1px solid var(--arena-borde);
+    border-left:4px solid #d4a017;
+    border-radius:0 var(--radio) var(--radio) 0;
+    background:#fff8e7;
+    color:#5a4a1f;
+    font-size:.9rem;
+    line-height:1.6;
+    box-shadow:var(--sombra-sm);
+  }
   .aviso b{color:#7a5a00}
 
-  /* TABS */
-  .tabs{position:sticky;top:0;z-index:50;background:var(--crema);border-bottom:1px solid var(--arena);display:flex;overflow-x:auto;scrollbar-width:none;padding:0 12px}
+  /* ==========================================================================
+     6. NAVEGACIÓN STICKY
+     ========================================================================== */
+  .tabs{
+    position:sticky;
+    top:0;
+    z-index:50;
+    display:flex;
+    gap:4px;
+    overflow-x:auto;
+    padding:10px 14px;
+    background:rgba(250,245,239,.95);
+    border-bottom:1px solid var(--line);
+    -webkit-backdrop-filter:blur(12px);
+    backdrop-filter:blur(12px);
+    scrollbar-width:none;
+  }
   .tabs::-webkit-scrollbar{display:none}
-  .tab{flex:0 0 auto;padding:14px 18px;font-size:.92rem;font-weight:600;color:var(--tinta-suave);border:none;background:transparent;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:all .2s}
-  .tab:hover{color:var(--vino)}
-  .tab.active{color:var(--vino);border-bottom-color:var(--vino)}
+  .tab{
+    flex:0 0 auto;
+    padding:9px 14px;
+    border:1px solid transparent;
+    border-radius:var(--pill);
+    background:none;
+    color:var(--ink-soft);
+    font-family:var(--fuente-ui);
+    font-size:.84rem;
+    font-weight:600;
+    white-space:nowrap;
+    text-decoration:none;
+    cursor:pointer;
+    transition:background var(--trans),color var(--trans),box-shadow var(--trans);
+  }
+  .tab:hover{color:var(--vino);background:var(--accent-tinte);text-decoration:none}
+  .tab.active{
+    color:#fff;
+    background:var(--vino);
+    box-shadow:0 8px 18px -10px rgba(77,18,25,.85);
+  }
+  .tab--urgent{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    margin-left:6px;
+    color:#fff;
+    background:var(--alerta);
+    border-color:var(--alerta);
+    font-weight:700;
+  }
+  .tab--urgent::before{
+    content:"";
+    width:7px;height:7px;
+    border-radius:50%;
+    background:#ffd9d9;
+    animation:pulse-dot 2.4s infinite;
+  }
+  .tab--urgent:hover{color:#fff;background:#8f231a;text-decoration:none}
+  .tab--urgent.active{background:var(--alerta);box-shadow:0 8px 18px -10px rgba(143,35,26,.85)}
+  @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.35}}
 
-  /* CONTENIDO */
-  main{max-width:900px;margin:0 auto;padding:28px 20px 40px}
-  .panel{display:none;animation:fade .3s ease}
-  .panel.active{display:block}
-  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  /* ==========================================================================
+     7. ESTRUCTURA
+     ========================================================================== */
+  main{max-width:var(--max);margin:0 auto;padding:34px 22px 56px}
+  .seccion{margin-bottom:3.2rem;scroll-margin-top:88px}
+  .lead{
+    margin:0 0 24px;
+    padding-left:18px;
+    border-left:3px solid var(--vino-soft);
+    color:var(--ink-soft);
+    font-family:var(--fuente-titulo);
+    font-size:1.12rem;
+    line-height:1.66;
+  }
+  .small{font-family:var(--fuente-ui);font-size:.86rem;color:var(--ink-soft);line-height:1.6}
+  .divider{
+    margin:2.4rem 0;
+    color:var(--vino-soft);
+    font-size:1.15rem;
+    letter-spacing:.9rem;
+    text-align:center;
+    opacity:.7;
+  }
 
-  h2{font-size:1.6rem;color:var(--vino-oscuro);margin-bottom:8px;font-weight:700}
-  h3{font-size:1.15rem;color:var(--vino);margin:22px 0 8px;font-weight:700}
-  p{margin-bottom:14px;color:var(--tinta)}
-  .lead{font-size:1.08rem;color:var(--tinta-suave);margin-bottom:24px;border-left:3px solid var(--vino-claro);padding-left:14px}
+  /* ==========================================================================
+     8. BADGES Y BOTONES
+     ========================================================================== */
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    width:fit-content;
+    margin-bottom:10px;
+    padding:4px 12px;
+    border:1px solid var(--accent-borde);
+    border-radius:var(--pill);
+    background:var(--accent-tinte);
+    color:var(--accent-texto);
+    font-family:var(--fuente-ui);
+    font-size:.68rem;
+    font-weight:700;
+    line-height:1.5;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+  }
+  .badge--rojo{background:var(--alerta-suave);border-color:var(--alerta-borde);color:var(--alerta-texto)}
+  .badge--verde{background:var(--ok-suave);border-color:var(--ok-borde);color:var(--ok-texto)}
+  .badge--arena{background:var(--arena-suave);border-color:var(--arena-borde);color:var(--arena-texto)}
 
-  /* DATOS CLAVE */
-  .datos{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:20px 0 28px}
-  .dato{background:#fff;border:1px solid var(--arena);border-radius:10px;padding:14px;box-shadow:var(--sombra)}
-  .dato .num{font-size:1.6rem;font-weight:700;color:var(--vino);display:block;margin-bottom:4px}
-  .dato .txt{font-size:.85rem;color:var(--tinta-suave)}
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    border:1.5px solid transparent;
+    border-radius:var(--pill);
+    padding:12px 22px;
+    font-family:var(--fuente-ui);
+    font-size:.92rem;
+    font-weight:700;
+    line-height:1.2;
+    text-decoration:none;
+    cursor:pointer;
+    transition:background var(--trans),transform var(--trans),box-shadow var(--trans),color var(--trans);
+  }
+  .btn--accent{background:var(--vino);color:#fff;box-shadow:0 12px 24px -12px rgba(77,18,25,.85)}
+  .btn--accent:hover{background:var(--vino-deep);transform:translateY(-2px);text-decoration:none}
+  .btn--light{background:#fff;color:var(--vino-deep);box-shadow:0 12px 24px -14px rgba(0,0,0,.5)}
+  .btn--light:hover{background:var(--arena-suave);transform:translateY(-2px);text-decoration:none}
+  .btn--ghost{background:transparent;color:var(--vino);border-color:var(--vino)}
+  .btn--ghost:hover{background:var(--vino);color:#fff;text-decoration:none}
+  .btn--dark-ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.45)}
+  .btn--dark-ghost:hover{background:rgba(255,255,255,.14);text-decoration:none}
+  .btn--urgent{background:var(--alerta);color:#fff;box-shadow:0 12px 24px -12px rgba(176,42,31,.85)}
+  .btn--urgent:hover{background:#8f231a;transform:translateY(-2px);text-decoration:none}
+  /* ==========================================================================
+     9. TARJETA CON ILUSTRACIÓN
+     ========================================================================== */
+  .card-image-container{
+    position:relative;
+    display:grid;
+    grid-template-columns:minmax(150px,200px) 1fr;
+    gap:28px;
+    align-items:center;
+    overflow:hidden;
+    margin:24px 0 28px;
+    padding:26px 30px;
+    border:1px solid var(--line);
+    border-radius:var(--radio-lg);
+    background:linear-gradient(135deg,var(--card) 0%,var(--bg-2) 100%);
+    box-shadow:var(--sombra-sm);
+  }
+  .card-image-container::after{
+    content:"";
+    position:absolute;
+    width:190px;height:190px;
+    right:-70px;top:-90px;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(166,61,74,.16),transparent 70%);
+    pointer-events:none;
+  }
+  .card-image-container .ilustracion{
+    position:relative;
+    z-index:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    max-width:200px;
+    margin:0 auto;
+    color:var(--vino-soft);
+  }
+  .card-image-container svg{display:block;width:100%;height:auto}
+  .card-image-container .leyenda{position:relative;z-index:1}
+  .card-image-container .leyenda h3{margin:0 0 6px;font-size:1.15rem}
+  .card-image-container .leyenda p{margin:0;font-size:.94rem;color:var(--ink-soft)}
+  .card-image-container .leyenda strong{color:var(--ink)}
 
-  /* PELDAÑOS */
-  .peldano{background:#fff;border-radius:12px;padding:20px;margin-bottom:16px;border-left:4px solid var(--vino-claro);box-shadow:var(--sombra)}
-  .peldano .num-p{display:inline-block;background:var(--vino);color:#fff;width:32px;height:32px;border-radius:50%;text-align:center;line-height:32px;font-weight:700;margin-right:10px;font-size:.95rem}
-  .peldano h3{margin-top:0;display:inline}
-  .peldano .por-que{background:var(--crema-2);padding:10px 14px;border-radius:8px;margin-top:12px;font-size:.92rem}
-  .peldano .senal{color:var(--vino);font-weight:600;font-size:.9rem;margin-top:8px}
+  /* ==========================================================================
+     10. CIFRAS
+     ========================================================================== */
+  .stat-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+    margin:0 0 26px;
+  }
+  .stat{
+    padding:16px 18px;
+    border:1px solid var(--line);
+    border-radius:var(--radio);
+    background:var(--card);
+    box-shadow:var(--sombra-sm);
+  }
+  .stat b{
+    display:block;
+    margin-bottom:4px;
+    color:var(--vino);
+    font-family:var(--fuente-titulo);
+    font-size:1.55rem;
+    font-weight:700;
+    line-height:1.15;
+  }
+  .stat span{display:block;font-size:.82rem;line-height:1.5;color:var(--ink-soft)}
+  .stat small{display:block;margin-top:6px;font-size:.7rem;color:var(--ink-soft);opacity:.85}
 
-  /* CICLO */
-  .ciclo{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
-  .fase{background:#fff;border-radius:12px;padding:18px;text-align:center;border:2px solid var(--arena);position:relative}
-  .fase .emoji{font-size:2rem;display:block;margin-bottom:6px}
-  .fase b{color:var(--vino);display:block;margin-bottom:4px}
-  .fase small{color:var(--tinta-suave);font-size:.82rem}
-  .flecha{display:none}
-  @media(min-width:640px){.flecha{display:flex;align-items:center;justify-content:center;color:var(--vino-claro);font-size:1.5rem}}
+  /* ==========================================================================
+     11. PELDAÑOS
+     ========================================================================== */
+  .step{
+    margin-bottom:14px;
+    padding:clamp(18px,3vw,24px);
+    border:1px solid var(--line);
+    border-left:4px solid var(--vino-soft);
+    border-radius:0 var(--radio) var(--radio) 0;
+    background:var(--card);
+    box-shadow:var(--sombra-sm);
+  }
+  .step-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:8px}
+  .step-num{
+    flex:0 0 auto;
+    display:grid;
+    place-items:center;
+    width:32px;height:32px;
+    border-radius:50%;
+    background:var(--vino);
+    color:#fff;
+    font-family:var(--fuente-ui);
+    font-size:.92rem;
+    font-weight:700;
+    line-height:1;
+  }
+  .step h3{margin:0;font-size:1.14rem}
+  .step p{font-size:.93rem;color:var(--ink-soft)}
+  .step p:last-child{margin-bottom:0}
+  .step strong{color:var(--ink)}
+  .step-why{
+    margin:12px 0 0;
+    padding:12px 15px;
+    border-radius:var(--radio-sm);
+    background:var(--bg-2);
+    color:var(--ink-soft);
+    font-size:.88rem;
+    line-height:1.6;
+  }
+  .step-why b{color:var(--vino-deep)}
+  .step-signal{
+    display:flex;
+    align-items:flex-start;
+    gap:9px;
+    margin:10px 0 0;
+    padding:11px 14px;
+    border:1px solid var(--alerta-borde);
+    border-radius:var(--radio-sm);
+    background:var(--alerta-suave);
+    color:#6d2a2a;
+    font-size:.87rem;
+    line-height:1.55;
+  }
+  .step-signal::before{
+    content:"";
+    flex:0 0 auto;
+    width:8px;height:8px;
+    margin-top:.48em;
+    border-radius:2px;
+    background:var(--alerta);
+    transform:rotate(45deg);
+  }
+  .step-signal b{color:var(--alerta-texto)}
 
-  /* TRAMPA */
-  .trampa-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:20px 0}
-  .trampa-card{background:#fff;border-radius:12px;padding:16px;border-top:3px solid var(--vino);box-shadow:var(--sombra)}
-  .trampa-card .icono{font-size:1.5rem;margin-bottom:6px}
-  .trampa-card h4{color:var(--vino-oscuro);font-size:1rem;margin-bottom:6px}
-  .trampa-card p{font-size:.9rem;margin:0;color:var(--tinta-suave)}
+  /* ==========================================================================
+     12. CALLOUT
+     ========================================================================== */
+  .callout{
+    display:flex;
+    gap:15px;
+    align-items:flex-start;
+    margin-top:22px;
+    padding:18px 20px;
+    border:1px solid var(--accent-borde);
+    border-left:4px solid var(--vino);
+    border-radius:0 var(--radio) var(--radio) 0;
+    background:linear-gradient(135deg,#fff 0%,var(--bg-2) 100%);
+    box-shadow:var(--sombra-sm);
+  }
+  .callout .icono{
+    flex:0 0 auto;
+    display:grid;
+    place-items:center;
+    width:38px;height:38px;
+    border:1px solid var(--accent-borde);
+    border-radius:11px;
+    background:#fff;
+    color:var(--vino);
+  }
+  .callout .icono svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .callout h3{margin:0 0 4px;font-size:1.02rem}
+  .callout p{margin:0;font-size:.89rem;line-height:1.62;color:var(--ink-soft)}
+  .callout strong{color:var(--ink)}
 
-  /* CHECKLIST */
-  .checklist{background:#fff;border-radius:12px;padding:20px;box-shadow:var(--sombra);margin:20px 0}
-  .checklist label{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--arena);cursor:pointer;font-size:.95rem}
-  .checklist label:last-child{border-bottom:none}
-  .checklist input{margin-top:4px;accent-color:var(--vino);width:18px;height:18px;flex-shrink:0}
-  .contador{margin-top:14px;padding:12px;background:var(--crema-2);border-radius:8px;font-weight:600;color:var(--vino);text-align:center}
+  /* ==========================================================================
+     13. EL CICLO
+     ========================================================================== */
+  .ciclo{
+    display:grid;
+    grid-template-columns:1fr auto 1fr auto 1fr;
+    gap:10px;
+    align-items:stretch;
+    margin:22px 0;
+  }
+  .fase{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:4px;
+    padding:20px;
+    border:1px solid var(--line);
+    border-top:3px solid var(--vino-soft);
+    border-radius:var(--radio);
+    background:var(--card);
+    box-shadow:var(--sombra-sm);
+  }
+  .fase-icon{
+    display:grid;
+    place-items:center;
+    width:40px;height:40px;
+    margin-bottom:8px;
+    border:1px solid var(--accent-borde);
+    border-radius:11px;
+    background:var(--accent-tinte);
+    color:var(--vino);
+  }
+  .fase-icon svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+  .fase b{
+    display:block;
+    font-family:var(--fuente-titulo);
+    font-size:1.02rem;
+    color:var(--vino-deep);
+    line-height:1.3;
+  }
+  .fase small{color:var(--ink-soft);font-size:.83rem;line-height:1.55}
+  .flecha{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--vino-soft);
+    font-size:1.35rem;
+    line-height:1;
+  }
 
-  /* VIOLENTÓMETRO */
-  .vm-intro{background:linear-gradient(135deg,#fff 0%,var(--crema-2) 100%);border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid var(--arena)}
-  .vm-cita{font-style:italic;color:var(--tinta-suave);font-size:.92rem;border-left:3px solid var(--vino);padding-left:12px;margin:14px 0}
-  .vm-nivel{background:#fff;border-radius:12px;padding:18px;margin-bottom:14px;box-shadow:var(--sombra)}
-  .vm-nivel h4{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:1.05rem}
-  .vm-nivel.n1 h4{color:#b8860b}
-  .vm-nivel.n2 h4{color:#d2691e}
-  .vm-nivel.n3 h4{color:var(--alerta)}
-  .vm-nivel.n4 h4{color:var(--vino-oscuro)}
-  .vm-nivel label{display:flex;align-items:flex-start;gap:10px;padding:8px 0;cursor:pointer;font-size:.93rem}
-  .vm-nivel input{margin-top:3px;accent-color:var(--vino);width:18px;height:18px;flex-shrink:0}
-  .vm-total{position:sticky;bottom:12px;background:var(--vino);color:#fff;padding:14px 18px;border-radius:12px;text-align:center;font-weight:600;box-shadow:0 -4px 20px rgba(77,18,25,.15);margin-top:20px}
+  /* ==========================================================================
+     14. TRAMPAS
+     ========================================================================== */
+  .trampa-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:22px 0}
+  .trampa-card{
+    padding:20px;
+    border:1px solid var(--line);
+    border-top:3px solid var(--vino-soft);
+    border-radius:var(--radio);
+    background:var(--card);
+    box-shadow:var(--sombra-sm);
+  }
+  .trampa-card .icono{
+    display:grid;
+    place-items:center;
+    width:40px;height:40px;
+    margin-bottom:10px;
+    border:1px solid var(--accent-borde);
+    border-radius:11px;
+    background:var(--accent-tinte);
+    color:var(--vino);
+  }
+  .trampa-card .icono svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+  .trampa-card h3{margin:0 0 5px;font-size:1.02rem}
+  .trampa-card p{margin:0;font-size:.87rem;line-height:1.58;color:var(--ink-soft)}
+
+  /* ==========================================================================
+     15. CHECKLISTS
+     ========================================================================== */
+  .check-card{
+    margin:20px 0;
+    padding:8px 20px 16px;
+    border:1px solid var(--line);
+    border-radius:var(--radio);
+    background:var(--card);
+    box-shadow:var(--sombra-sm);
+  }
+  .check{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    padding:12px 0;
+    border-bottom:1px solid var(--line);
+    cursor:pointer;
+    font-size:.93rem;
+    line-height:1.58;
+    color:var(--ink);
+    transition:color var(--trans);
+  }
+  .check:last-of-type{border-bottom:0}
+  .check:hover{color:var(--vino-deep)}
+  .check input{
+    flex:0 0 auto;
+    width:18px;height:18px;
+    margin-top:.28em;
+    accent-color:var(--vino);
+    cursor:pointer;
+  }
+  .check input:checked + span{color:var(--ink-soft)}
+  .counter{
+    margin:10px 0 0;
+    padding:11px 14px;
+    border-radius:var(--radio-sm);
+    background:var(--bg-2);
+    color:var(--vino-deep);
+    font-size:.88rem;
+    font-weight:700;
+    text-align:center;
+  }
+  .source-note{
+    margin:10px 0 0;
+    font-size:.79rem;
+    font-style:italic;
+    line-height:1.55;
+    color:var(--ink-soft);
+  }
+  /* ==========================================================================
+     16. VIOLENTÓMETRO
+     ========================================================================== */
+  .vm-intro{
+    margin-bottom:20px;
+    padding:clamp(20px,3vw,26px);
+    border:1px solid var(--line);
+    border-radius:var(--radio);
+    background:linear-gradient(135deg,#fff 0%,var(--bg-2) 100%);
+    box-shadow:var(--sombra-sm);
+  }
+  .vm-intro p{font-size:.92rem;color:var(--ink-soft)}
+  .vm-intro p:last-child{margin-bottom:0}
+  .vm-intro strong{color:var(--ink)}
+  .vm-cita{
+    margin:16px 0;
+    padding:4px 0 4px 16px;
+    border-left:3px solid var(--vino);
+    color:var(--ink);
+    font-family:var(--fuente-titulo);
+    font-size:1rem;
+    font-style:italic;
+    line-height:1.6;
+  }
+  .vm-cita a{
+    display:inline-block;
+    margin-top:6px;
+    font-family:var(--fuente-ui);
+    font-size:.83rem;
+    font-style:normal;
+    font-weight:700;
+    text-decoration:underline;
+    text-underline-offset:2px;
+  }
+
+  .vm-nivel{
+    margin-bottom:14px;
+    padding:20px;
+    border:1px solid var(--line);
+    border-left:5px solid var(--lvl);
+    border-radius:0 var(--radio) var(--radio) 0;
+    background:var(--card);
+    box-shadow:var(--sombra-sm);
+  }
+  .vm-nivel.n1{--lvl:#8a6100;--lvl-suave:#fdf6e3;--lvl-borde:#e8d6a8}
+  .vm-nivel.n2{--lvl:#a34700;--lvl-suave:#fdf0e3;--lvl-borde:#efd4b6}
+  .vm-nivel.n3{--lvl:var(--alerta);--lvl-suave:var(--alerta-suave);--lvl-borde:var(--alerta-borde)}
+  .vm-nivel.n4{--lvl:var(--vino-deep);--lvl-suave:#f7e9ea;--lvl-borde:rgba(77,18,25,.22)}
+  .vm-head{display:flex;flex-direction:column;align-items:flex-start;margin-bottom:8px}
+  .vm-head .badge{
+    margin-bottom:6px;
+    background:var(--lvl-suave);
+    border-color:var(--lvl-borde);
+    color:var(--lvl);
+  }
+  .vm-head h3{margin:0;font-size:1.08rem;color:var(--vino-deep)}
+  .vm-nivel .check{border-bottom:1px solid var(--line-suave)}
+  .vm-nivel .check:last-of-type{border-bottom:0}
+  .vm-nivel .check input{accent-color:var(--lvl)}
+
+  .vm-total{
+    margin-top:18px;
+    padding:14px 18px;
+    border-radius:var(--radio);
+    background:var(--vino);
+    color:#fff;
+    font-size:.92rem;
+    font-weight:700;
+    line-height:1.45;
+    text-align:center;
+    box-shadow:0 10px 24px -18px rgba(77,18,25,.8);
+  }
   .vm-total.ok{background:var(--ok)}
+  .vm-total.grave{background:var(--alerta)}
 
-  /* AYUDAR A ALGUIEN */
-  .ayudar-bloque{background:#fff;border-radius:12px;padding:22px;box-shadow:var(--sombra);margin-bottom:18px;border-left:4px solid var(--vino-claro)}
-  .ayudar-bloque h3{margin-top:0;color:var(--vino-oscuro);display:flex;align-items:center;gap:8px}
-  .ayudar-bloque .emoji{font-size:1.4rem}
-  .hacer{background:#e8f5e9;border-left:4px solid var(--ok);padding:12px 16px;border-radius:8px;margin:10px 0}
-  .hacer b{color:var(--ok)}
-  .no-hacer{background:#fdecea;border-left:4px solid var(--alerta);padding:12px 16px;border-radius:8px;margin:10px 0}
-  .no-hacer b{color:var(--alerta)}
-  .frase-cierre{font-style:italic;font-size:1.05rem;color:var(--vino-oscuro);text-align:center;padding:20px;border-top:2px solid var(--arena);border-bottom:2px solid var(--arena);margin:24px 0;line-height:1.5}
+  /* ==========================================================================
+     17. AYUDAR A ALGUIEN
+     ========================================================================== */
+  .guide-card{
+    margin-bottom:16px;
+    padding:clamp(20px,3vw,26px);
+    border:1px solid var(--line);
+    border-radius:var(--radio);
+    background:var(--card);
+    box-shadow:var(--sombra-sm);
+  }
+  .guide-card > h3{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .guide-card > h3 .icono{
+    flex:0 0 auto;
+    display:grid;
+    place-items:center;
+    width:34px;height:34px;
+    border-radius:10px;
+    border:1px solid var(--accent-borde);
+    background:var(--accent-tinte);
+    color:var(--vino);
+  }
+  .guide-card > h3 .icono svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .guide-card > p{font-size:.93rem;color:var(--ink-soft)}
+  .guide-card > p:last-child{margin-bottom:0}
+  .do-item,
+  .dont-item{
+    padding:13px 16px;
+    border-radius:var(--radio-sm);
+    font-size:.89rem;
+    line-height:1.6;
+    color:var(--ink-soft);
+  }
+  .do-item + .do-item,
+  .dont-item + .dont-item{margin-top:9px}
+  .do-item{background:var(--ok-suave);border-left:3px solid var(--ok)}
+  .dont-item{background:var(--alerta-suave);border-left:3px solid var(--alerta)}
+  .do-item b,
+  .dont-item b{display:block;margin-bottom:2px}
+  .do-item b{color:var(--ok-texto)}
+  .dont-item b{color:var(--alerta-texto)}
+  .guide-card strong{color:var(--ink)}
+  .guide-list{margin:8px 0 0;padding-left:20px;display:grid;gap:8px}
+  .guide-list li{font-size:.91rem;line-height:1.6;color:var(--ink-soft)}
+  .guide-list strong{color:var(--ink)}
+  .frase-cierre{
+    margin:24px 0 0;
+    padding:24px 16px;
+    border-top:1px solid var(--arena);
+    border-bottom:1px solid var(--arena);
+    color:var(--vino-deep);
+    font-family:var(--fuente-titulo);
+    font-size:1.12rem;
+    font-style:italic;
+    line-height:1.5;
+    text-align:center;
+  }
+  .guide-cta{display:flex;justify-content:center;margin-top:22px}
 
-  /* AYUDA */
-  .ayuda-bloque{margin-bottom:28px}
-  .ayuda-bloque h3{border-bottom:2px solid var(--vino);padding-bottom:6px;display:inline-block;margin-bottom:14px}
-  .tel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
-  .tel-card{background:#fff;border-radius:12px;padding:14px;border-left:4px solid var(--vino);box-shadow:var(--sombra);transition:transform .2s}
-  .tel-card:hover{transform:translateY(-2px)}
-  .tel-card .icono{font-size:1.3rem;margin-bottom:4px}
-  .tel-card b{display:block;color:var(--vino-oscuro);font-size:.95rem;margin-bottom:4px}
-  .tel-card a.tel{display:inline-block;background:var(--vino);color:#fff;padding:6px 12px;border-radius:6px;font-weight:600;font-size:.95rem;margin:6px 0;text-decoration:none}
-  .tel-card a.tel:hover{background:var(--vino-oscuro)}
-  .tel-card small{display:block;color:var(--tinta-suave);font-size:.82rem;margin-top:4px}
+  /* ==========================================================================
+     18. AYUDA
+     ========================================================================== */
+  .help-block{margin-bottom:30px}
+  .help-block > h3{
+    display:inline-flex;
+    align-items:center;
+    gap:9px;
+    margin-bottom:14px;
+    padding-bottom:7px;
+    border-bottom:2px solid var(--vino);
+    font-size:1.12rem;
+  }
+  .help-block > h3 svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .help-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .help-card{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    padding:20px;
+    border:1px solid var(--line);
+    border-radius:var(--radio);
+    background:var(--card);
+    color:var(--ink);
+    box-shadow:var(--sombra-sm);
+    text-decoration:none;
+    transition:transform var(--trans),box-shadow var(--trans),border-color var(--trans);
+  }
+  .help-card:hover{transform:translateY(-2px);box-shadow:var(--sombra);border-color:var(--vino-soft);text-decoration:none}
+  .help-card .tag{
+    display:inline-flex;
+    align-items:center;
+    width:fit-content;
+    margin-bottom:8px;
+    padding:4px 10px;
+    border:1px solid var(--accent-borde);
+    border-radius:var(--pill);
+    background:var(--accent-tinte);
+    color:var(--accent-texto);
+    font-size:.64rem;
+    font-weight:800;
+    letter-spacing:.1em;
+    line-height:1.5;
+    text-transform:uppercase;
+  }
+  .help-card .tag--rojo{background:var(--alerta-suave);border-color:var(--alerta-borde);color:var(--alerta-texto)}
+  .help-card h3{margin:0;font-size:1.02rem;line-height:1.35}
+  .help-card .tel{
+    display:block;
+    margin-top:2px;
+    color:var(--vino);
+    font-family:var(--fuente-ui);
+    font-size:1.14rem;
+    font-weight:800;
+    letter-spacing:.02em;
+  }
+  .help-card .desc{margin-top:6px;font-size:.83rem;line-height:1.55;color:var(--ink-soft)}
 
-  .pasos-seg{background:#fff;border-radius:12px;padding:20px;box-shadow:var(--sombra);margin:20px 0;border-top:4px solid var(--alerta)}
-  .pasos-seg ol{padding-left:22px}
-  .pasos-seg li{margin-bottom:8px}
+  .safety-card{
+    margin-top:24px;
+    padding:clamp(20px,3vw,26px);
+    border:1px solid var(--alerta-borde);
+    border-top:4px solid var(--alerta);
+    border-radius:var(--radio);
+    background:linear-gradient(160deg,#fff 0%,var(--alerta-suave) 100%);
+    box-shadow:var(--sombra-sm);
+  }
+  .safety-card h3{display:flex;align-items:center;gap:9px;color:var(--alerta-texto);margin-bottom:14px;font-size:1.1rem}
+  .safety-card h3 svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .safety-list{list-style:none;display:grid;gap:12px}
+  .safety-list li{display:flex;gap:12px;align-items:flex-start;font-size:.9rem;line-height:1.6;color:var(--ink-soft)}
+  .safety-list .n{
+    flex:0 0 auto;
+    display:grid;
+    place-items:center;
+    width:26px;height:26px;
+    border-radius:50%;
+    background:var(--alerta);
+    color:#fff;
+    font-size:.78rem;
+    font-weight:800;
+    line-height:1;
+  }
+  .safety-list strong{color:var(--ink)}
 
-  /* FUENTES (NUEVA PESTAÑA) */
-  .fuente-item{background:#fff;border-radius:12px;padding:18px;margin-bottom:14px;box-shadow:var(--sombra);border-left:4px solid var(--vino-claro)}
-  .fuente-item h4{color:var(--vino-oscuro);margin-bottom:8px;font-size:1rem}
-  .fuente-item p{font-size:.92rem;margin-bottom:8px}
-  .fuente-item a{display:inline-block;background:var(--crema-2);padding:6px 12px;border-radius:6px;font-size:.88rem;margin-top:4px}
+  /* ==========================================================================
+     19. FUENTES
+     ========================================================================== */
+  .source-card{
+    margin-bottom:14px;
+    padding:20px;
+    border:1px solid var(--line);
+    border-left:4px solid var(--vino-soft);
+    border-radius:0 var(--radio) var(--radio) 0;
+    background:var(--card);
+    box-shadow:var(--sombra-sm);
+  }
+  .source-card h3{margin:0 0 6px;font-size:1.02rem;line-height:1.45}
+  .source-card h3 em{color:var(--vino-deep)}
+  .source-card p{margin:0;font-size:.89rem;line-height:1.62;color:var(--ink-soft)}
+  .source-card .src-link{
+    display:inline-block;
+    margin-top:10px;
+    font-size:.84rem;
+    font-weight:700;
+    text-decoration:underline;
+    text-underline-offset:2px;
+  }
+  .source-card ul{margin:8px 0 0;padding-left:20px;display:grid;gap:5px}
+  .source-card li{font-size:.87rem;line-height:1.55;color:var(--ink-soft)}
+  .note-box{
+    margin-top:20px;
+    padding:16px 18px;
+    border:1px dashed var(--vino-soft);
+    border-radius:var(--radio-sm);
+    background:var(--bg-2);
+    font-size:.86rem;
+    line-height:1.6;
+    color:var(--ink-soft);
+  }
+  .note-box b{color:var(--vino-deep)}
 
-  /* CITAS INLINE */
-  .cita-inline{font-size:.82rem;color:var(--tinta-suave);font-style:italic;margin-top:6px}
-
-  /* FOOTER / DISCLAIMER */
-  footer{background:var(--crema-2);border-top:3px solid var(--vino);margin-top:40px;padding:28px 20px 20px}
-  .footer-inner{max-width:900px;margin:0 auto}
-  .footer-frase{font-style:italic;font-size:1.05rem;color:var(--vino-oscuro);text-align:center;margin-bottom:20px;line-height:1.5;padding:0 10px}
-  .footer-frase::before,.footer-frase::after{content:'"';color:var(--vino-claro);font-size:1.3rem;vertical-align:-3px;margin:0 3px}
-  .disclaimer-box{background:#fff;border:1px solid var(--arena);border-radius:12px;padding:18px;margin-bottom:18px;box-shadow:var(--sombra)}
-  .disclaimer-box h4{color:var(--vino-oscuro);display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:1rem}
-  .disclaimer-box p{font-size:.88rem;color:var(--tinta);margin-bottom:8px}
+  /* ==========================================================================
+     20. PIE DE PÁGINA
+     ========================================================================== */
+  footer{
+    margin-top:48px;
+    padding:44px 22px 104px;
+    background:#3a0e14;
+    color:#e3cfc8;
+    font-size:.85rem;
+  }
+  .footer-inner{max-width:var(--max);margin:0 auto}
+  .fquote{
+    max-width:36ch;
+    margin:0 0 26px;
+    color:#fbf3ec;
+    font-family:var(--fuente-titulo);
+    font-size:clamp(1.3rem,2.7vw,1.8rem);
+    font-style:italic;
+    line-height:1.3;
+  }
+  .fquote em{color:#e2b98d}
+  .disclaimer-box{
+    max-width:820px;
+    margin-bottom:26px;
+    padding:clamp(18px,3vw,24px);
+    border:1px solid rgba(232,220,207,.35);
+    border-left:4px solid var(--arena);
+    border-radius:0 var(--radio) var(--radio) 0;
+    background:rgba(232,220,207,.07);
+  }
+  .disclaimer-box h4{margin:0 0 8px;color:#e2b98d;font-family:var(--fuente-titulo);font-size:1.02rem}
+  .disclaimer-box p{margin:0 0 8px;font-size:.86rem;line-height:1.68;color:#e3cfc8}
   .disclaimer-box p:last-child{margin-bottom:0}
-  .footer-copy{text-align:center;font-size:.82rem;color:var(--tinta-suave);padding-top:14px;border-top:1px solid var(--arena)}
-  .footer-copy b{color:var(--vino)}
+  .disclaimer-box b{color:#fff}
+  .author{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    max-width:820px;
+    padding-top:20px;
+    border-top:1px solid rgba(255,255,255,.14);
+  }
+  .avatar{
+    display:grid;
+    place-items:center;
+    width:44px;height:44px;
+    border-radius:50%;
+    background:rgba(255,255,255,.14);
+    border:1px solid rgba(255,255,255,.3);
+    color:#fff;
+    font-family:var(--fuente-titulo);
+    font-size:1rem;
+    font-weight:700;
+  }
+  .author-name{color:#fbf3ec;font-weight:700;font-size:.9rem;line-height:1.35}
+  .author-role{color:#c3a49c;font-size:.78rem;line-height:1.35}
+  .credit{
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:26px;
+    padding-top:18px;
+    border-top:1px solid rgba(255,255,255,.14);
+    font-size:.76rem;
+    color:#c3a49c;
+  }
+  .credit a{color:#e2b98d;text-decoration:underline;text-underline-offset:2px}
 
-  /* BOTÓN SOS */
-  .sos{position:fixed;bottom:20px;right:20px;background:var(--alerta);color:#fff;border:none;padding:12px 18px;border-radius:50px;font-weight:700;box-shadow:0 6px 20px rgba(192,57,43,.4);cursor:pointer;z-index:100;font-size:.95rem}
-  .sos:hover{background:#a93226}
+  /* ==========================================================================
+     21. BOTÓN SOS Y MODAL
+     ========================================================================== */
+  .sos{
+    position:fixed;
+    right:22px;bottom:22px;
+    z-index:100;
+    display:inline-flex;
+    align-items:center;
+    gap:9px;
+    padding:13px 20px;
+    border:1px solid rgba(255,255,255,.28);
+    border-radius:var(--pill);
+    background:var(--alerta);
+    color:#fff;
+    font-family:var(--fuente-ui);
+    font-size:.92rem;
+    font-weight:700;
+    text-decoration:none;
+    cursor:pointer;
+    box-shadow:0 14px 30px -12px rgba(176,42,31,.9);
+    transform:translateY(120px);
+    opacity:0;
+    visibility:hidden;
+    transition:transform .35s,opacity .35s,visibility 0s linear .35s,background var(--trans);
+  }
+  .sos.show{transform:translateY(0);opacity:1;visibility:visible;transition:transform .35s,opacity .35s,visibility 0s,background var(--trans)}
+  .sos:hover{background:#8f231a;transform:translateY(-2px);text-decoration:none}
+  .sos .beat{width:9px;height:9px;border-radius:50%;background:#fff;animation:pulse-dot 1.6s infinite}
 
-  /* MODAL */
-  .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center;padding:20px}
-  .modal.open{display:flex}
-  .modal-box{background:#fff;border-radius:16px;padding:24px;max-width:500px;width:100%;max-height:90vh;overflow-y:auto}
-  .modal-box h3{color:var(--alerta);margin-bottom:12px}
-  .modal-box ol{padding-left:22px;margin-bottom:16px}
-  .modal-box li{margin-bottom:8px}
-  .cerrar{background:var(--tinta-suave);color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:600}
+  .modal{
+    position:fixed;
+    inset:0;
+    z-index:200;
+    display:grid;
+    place-items:center;
+    padding:20px;
+    background:rgba(43,15,18,.66);
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .22s ease,visibility 0s linear .22s;
+  }
+  .modal.open{opacity:1;visibility:visible;transition:opacity .22s ease,visibility 0s}
+  .modal-box{
+    width:100%;
+    max-width:520px;
+    max-height:90vh;
+    overflow-y:auto;
+    padding:clamp(22px,4vw,30px);
+    border-radius:var(--radio-lg);
+    background:#fff;
+    box-shadow:var(--sombra-alta);
+    transform:translateY(10px);
+    transition:transform .22s ease;
+  }
+  .modal.open .modal-box{transform:translateY(0)}
+  .modal-box:focus{outline:none}
+  .modal-box h3{color:var(--alerta-texto);margin:0 0 12px;font-size:1.3rem}
+  .modal-steps{margin:0 0 18px;padding-left:20px;display:grid;gap:9px}
+  .modal-steps li{font-size:.91rem;line-height:1.6;color:var(--ink-soft)}
+  .modal-steps strong{color:var(--ink)}
+  .modal-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .modal-actions .btn{padding:11px 18px;font-size:.88rem}
+  .modal-note{margin:14px 0 0;font-size:.78rem;line-height:1.55;color:var(--ink-soft)}
 
+  /* ==========================================================================
+     22. RESPONSIVO
+     ========================================================================== */
+  @media(max-width:860px){
+    .card-image-container{grid-template-columns:1fr;gap:18px;padding:22px}
+    .card-image-container .ilustracion{max-width:170px}
+    .card-image-container::after{width:130px;height:130px;right:-50px;top:-55px}
+    .stat-grid{grid-template-columns:1fr;gap:9px}
+    .stat{display:flex;align-items:baseline;gap:12px;padding:12px 16px;flex-wrap:wrap}
+    .stat b{margin-bottom:0;font-size:1.3rem;min-width:86px;white-space:nowrap}
+    .stat small{width:100%;margin-top:0}
+    .trampa-grid{grid-template-columns:1fr}
+    .help-grid{grid-template-columns:1fr}
+    .ciclo{grid-template-columns:1fr;gap:8px}
+    .flecha{transform:rotate(90deg);padding:2px 0}
+  }
   @media(max-width:600px){
-    .ciclo{grid-template-columns:1fr}
-    .flecha{display:none!important}
-    h1.titulo{font-size:1.7rem}
+    header{padding:34px 18px 38px}
+    .aviso-wrap{padding:16px 18px 0}
+    .tabs{padding:8px 10px}
+    .tab{padding:8px 12px;font-size:.8rem}
+    main{padding:28px 18px 46px}
+    h1.titulo{font-size:1.8rem}
+    .lead{font-size:1.03rem;padding-left:14px}
+    .step{padding:18px}
+    .step h3{font-size:1.05rem}
+    .vm-nivel{padding:16px}
+    .sos{right:16px;bottom:16px;padding:12px 16px;font-size:.86rem}
+    .credit{flex-direction:column}
+    .author{align-items:flex-start}
+    .modal-actions .btn{width:100%}
+    .footer-inner{padding-bottom:0}
+  }
+  @media(prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation:none!important;transition:none!important}
+  }
+
+  /* ==========================================================================
+     23. IMPRESIÓN
+     ========================================================================== */
+  @media print{
+    .tabs,.sos,.modal,#progress{display:none!important}
+    body{background:#fff}
+    header{background:#fff;color:var(--ink);border-bottom:2px solid var(--vino)}
+    .subtitulo,.kicker,h1.titulo em{color:var(--ink-soft)}
+    .header-cta{display:none}
+    .step,.stat,.trampa-card,.fase,.check-card,.vm-nivel,.vm-intro,.guide-card,.help-card,.safety-card,.source-card,.callout,.card-image-container,.disclaimer-box{box-shadow:none}
   }
 </style>
 </head>
 <body>
 
+<a class="skip" href="#entra">Saltar al contenido</a>
+<div id="progress" aria-hidden="true"></div>
+
 <header>
-  <a class="brand" href="../../" aria-label="Volver a la página principal de PsycheNudo">psychenudo</a>
-  <h1 class="titulo">Amor rojo</h1>
-  <p class="subtitulo">Cómo entra, por qué no se puede salir, violentómetro y ayuda en Puebla.</p>
+  <div class="header-inner">
+    <a class="brand" href="../../" aria-label="Volver a PsycheNudo">psychenudo</a>
+    <p class="kicker">Psicoeducación · Violencia de pareja</p>
+    <h1 class="titulo">Amor <em>rojo</em></h1>
+    <p class="subtitulo">Cómo entra la violencia, por qué cuesta tanto salir, cómo medirla sin mentirte y dónde pedir ayuda en Puebla y en todo México. Una guía para quien la vive y para quien quiere acompañar.</p>
+    <div class="header-cta">
+      <a class="btn btn--light" href="#entra">Entender cómo empieza</a>
+      <button class="btn btn--urgent" type="button" data-open-sos>Necesito ayuda ahora</button>
+    </div>
+  </div>
 </header>
 
-<div class="aviso">
-  <b>⚕ Aviso:</b> esta página es educativa y de orientación; no sustituye atención psicológica, jurídica ni de protección. Si estás en riesgo ahora mismo, llama al <b>911</b>.
+<div class="aviso-wrap">
+  <p class="aviso"><b>Material educativo y de orientación:</b> no sustituye la atención psicológica, jurídica ni de protección. Si estás en riesgo ahora mismo, llama al <b>911</b>. Puedes salir de esta página con el botón «Atrás» o cerrando la pestaña.</p>
 </div>
 
-<nav class="tabs" role="tablist">
-  <button class="tab active" data-tab="entra">Cómo entra</button>
-  <button class="tab" data-tab="ciclo">El ciclo</button>
-  <button class="tab" data-tab="atrapa">Por qué no se sale</button>
-  <button class="tab" data-tab="violentometro">Violentómetro</button>
-  <button class="tab" data-tab="ayudar">Ayudar a alguien</button>
-  <button class="tab" data-tab="ayuda">Ayuda en Puebla</button>
-  <button class="tab" data-tab="fuentes">Fuentes</button>
+<nav class="tabs" aria-label="Secciones del recurso">
+  <a class="tab active" href="#entra" aria-current="true">Cómo entra</a>
+  <a class="tab" href="#ciclo">El ciclo</a>
+  <a class="tab" href="#atrapa">Por qué no se sale</a>
+  <a class="tab" href="#violentometro">Violentómetro</a>
+  <a class="tab" href="#ayudar">Ayudar</a>
+  <a class="tab tab--urgent" href="#ayuda">Ayuda ahora</a>
+  <a class="tab" href="#fuentes">Fuentes</a>
 </nav>
 
-<main>
+<main id="top">
+<!-- ============================================================
+     CÓMO ENTRA
+============================================================ -->
+<section class="seccion" id="entra">
+  <h2>¿Cómo es que llegué aquí?</h2>
+  <p class="lead">La violencia no empieza con un golpe. Empieza con un «te amo». Nadie entra a una relación violenta: la violencia entra de a poco, disfrazada.</p>
 
-  <!-- PANEL 1: CÓMO ENTRA -->
-  <section class="panel active" id="entra">
-    <h2>¿Cómo es que llegué aquí?</h2>
-    <p class="lead">La violencia no empieza con un golpe. Empieza con un "te amo". Nadie entra a una relación violenta: la violencia entra de a poco, disfrazada.</p>
-
-    <div class="datos">
-      <div class="dato"><span class="num">1 de 3</span><span class="txt">mujeres en el mundo ha sufrido violencia física o sexual <span class="cita-inline">(ONU Mujeres / OMS)</span></span></div>
-      <div class="dato"><span class="num">~2 años</span><span class="txt">tardan en promedio en identificar que viven violencia de pareja</span></div>
-      <div class="dato"><span class="num">0</span><span class="txt">es la frecuencia con la que "la violencia solo pasa una vez"</span></div>
+  <div class="card-image-container">
+    <div class="ilustracion" aria-hidden="true">
+      <svg viewBox="0 0 240 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="120" cy="60" r="30" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M120 38c8 4 12 12 8 20-4 8-14 10-20 4-6-6-4-16 4-18 7-2 13 4 11 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M96 72c-10 4-16 12-14 20 2 8 12 12 20 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M144 72c10 4 16 12 14 20-2 8-12 12-20 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M120 90v52" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M120 112c-8 0-14-5-16-12 8-1 14 4 16 12Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+        <path d="M120 132c8 0 14-5 16-12-8-1-14 4-16 12Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+        <path d="M103 104l-5 3M137 120l5 3M110 142l-5 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M90 150h60" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity=".5"/>
+        <circle cx="58" cy="42" r="2" stroke="currentColor" stroke-width="1.1" opacity=".35"/>
+        <circle cx="188" cy="34" r="3" stroke="currentColor" stroke-width="1.1" opacity=".28"/>
+        <circle cx="196" cy="86" r="2" stroke="currentColor" stroke-width="1.1" opacity=".3"/>
+      </svg>
     </div>
-
-    <p>La mayoría de las víctimas describe el inicio como "el mejor momento de mi vida". La violencia se instala por pequeñas concesiones que la pareja va normalizando. Estos son los seis peldaños más reportados:</p>
-
-    <div class="peldano">
-      <span class="num-p">1</span><h3>Idealización: la fase de "alguien por fin me ve"</h3>
-      <p>Atención intensa, mensajes constantes, coincidencias asombrosas, promesas tempranas. El agresor mapea tus carencias y se presenta como la respuesta exacta a cada una. Técnicamente se le llama <b>"love bombing"</b>: lluvia de atención y halagos que genera una unión emocional muy rápida.</p>
-      <div class="por-que"><b>Por qué no lo identificas:</b> se siente como amor romántico de película, no como un riesgo.</div>
-      <div class="senal">🚩 Señal temprana: todo va demasiado rápido y no deja espacio para que pienses.</div>
+    <div class="leyenda">
+      <span class="badge">La idea central</span>
+      <h3>El amor no duele; el control sí</h3>
+      <p>La violencia de pareja casi nunca se anuncia. Se instala por <strong>pequeñas concesiones que se normalizan</strong>: celos que parecen amor, control que parece cuidado, humillaciones que parecen bromas. Reconocerlo no es exagerar: es el primer paso para salir.</p>
     </div>
+  </div>
 
-    <div class="peldano">
-      <span class="num-p">2</span><h3>El primer límite cruzado — y la justificación</h3>
-      <p>Una broma hiriente, una mirada que te silencia, revisar "sin querer" tu teléfono, un primer "no me gusta que hables con él". Cuando protestas, viene la primera explicación: "es que te amo", "es broma", "tú me provocas".</p>
-      <div class="por-que"><b>Por qué no lo identificas:</b> el comportamiento se etiqueta como amor, celos o humor, y los celos están culturalmente romantizados.</div>
-      <div class="senal">🚩 Señal temprana: tu molestia se convierte en el problema, no su conducta.</div>
+  <div class="stat-grid">
+    <div class="stat">
+      <b>1 de 3</b>
+      <span>mujeres en el mundo ha sufrido violencia física o sexual</span>
+      <small>ONU Mujeres / OMS</small>
     </div>
-
-    <div class="peldano">
-      <span class="num-p">3</span><h3>La reescritura: empiezas a dudar de tu propia percepción</h3>
-      <p>El agresor niega hechos ("eso nunca pasó"), minimiza ("exageras") y culpabiliza ("si no me provocaras…"). Poco a poco la víctima deja de confiar en lo que ve y siente. Esto tiene nombre: <b>gaslighting</b>.</p>
-      <div class="por-que"><b>Por qué no lo identificas:</b> sucede en conversaciones normales; no hay gritos, hay dudas.</div>
-      <div class="senal">🚩 Señal temprana: te descubres pensando "quizá sí sea culpa mía" cada vez más seguido.</div>
+    <div class="stat">
+      <b>~2 años</b>
+      <span>tardan en promedio en identificar que viven violencia de pareja</span>
+      <small>Dato de referencia en la literatura sobre violencia de pareja</small>
     </div>
-
-    <div class="peldano">
-      <span class="num-p">4</span><h3>El ciclo: tensión → explosión → luna de miel</h3>
-      <p>Aparecen días de mal humor inexplicable (tensión), un estallido —gritos, insultos, romper cosas— y luego arrepentimiento: flores, llanto, promesas. La víctima aprende que soportando la tensión llega el cariño.</p>
-      <div class="por-que"><b>Por qué no lo identificas:</b> la fase de luna de miel borra el episodio; "ya cambió" parece cierto… hasta la próxima vuelta.</div>
-      <div class="senal">🚩 Señal temprana: caminas "en puntas de pie" tratando de no provocar el mal humor de tu pareja.</div>
-      <p class="cita-inline">Fuente: Walker, L. E. (1979). <i>The Battered Woman</i>. Harper & Row.</p>
+    <div class="stat">
+      <b>0</b>
+      <span>es la frecuencia con la que «la violencia solo pasa una vez»</span>
+      <small>Sin intervención, el ciclo tiende a repetirse y escalar</small>
     </div>
+  </div>
 
-    <div class="peldano">
-      <span class="num-p">5</span><h3>El aislamiento: tu mundo se hace cada vez más pequeño</h3>
-      <p>El agresor no prohíbe ver a tus amigos de golpe: lo hace costoso. Escenas de celos, mensajes constantes, peleas antes de tus eventos, burlas de tu familia. Así, la víctima cancela por su propia cuenta — y cree que fue decisión propia.</p>
-      <div class="por-que"><b>Por qué no lo identificas:</b> cada cancelación tiene una explicación razonable aislada; el patrón solo se ve en conjunto.</div>
-      <div class="senal">🚩 Señal temprana: tus amistades empiezan a decirte "ya casi no sabemos de ti".</div>
+  <p>La mayoría de las víctimas describe el inicio como «el mejor momento de mi vida». La violencia se instala por pequeñas concesiones que la pareja va normalizando. Estos son los seis peldaños más reportados:</p>
+
+  <article class="step">
+    <div class="step-head">
+      <span class="step-num" aria-hidden="true">1</span>
+      <h3>Idealización: la fase de «alguien por fin me ve»</h3>
     </div>
+    <p>Atención intensa, mensajes constantes, coincidencias asombrosas, promesas tempranas. El agresor mapea tus carencias y se presenta como la respuesta exacta a cada una. Técnicamente se le llama <strong>«love bombing»</strong>: lluvia de atención y halagos que genera una unión emocional muy rápida.</p>
+    <div class="step-why"><b>Por qué no lo identificas:</b> se siente como amor romántico de película, no como un riesgo.</div>
+    <p class="step-signal"><span><b>Señal temprana:</b> todo va demasiado rápido y no deja espacio para que pienses.</span></p>
+  </article>
 
-    <div class="peldano">
-      <span class="num-p">6</span><h3>El punto de no retorno aparente: "ya es tarde para irme"</h3>
-      <p>Han pasado meses o años. Hay dependencia económica, quizá hijos, quizá ya hubo violencia física, amenazas de suicidio del agresor. La víctima calcula —con miedo real— que irse es más peligroso que quedarse. Ya no es una decisión emocional: es una trampa estructural.</p>
-      <div class="por-que"><b>Por qué no lo identificas:</b> desde fuera se ve como "elección"; desde dentro, es supervivencia.</div>
-      <div class="senal">🚩 Señal temprana: piensas en irte, pero una voz te dice "y si cumple sus amenazas".</div>
+  <article class="step">
+    <div class="step-head">
+      <span class="step-num" aria-hidden="true">2</span>
+      <h3>El primer límite cruzado — y la justificación</h3>
     </div>
+    <p>Una broma hiriente, una mirada que te silencia, revisar «sin querer» tu teléfono, un primer «no me gusta que hables con él». Cuando protestas, viene la primera explicación: «es que te amo», «es broma», «tú me provocas».</p>
+    <div class="step-why"><b>Por qué no lo identificas:</b> el comportamiento se etiqueta como amor, celos o humor, y los celos están culturalmente romantizados.</div>
+    <p class="step-signal"><span><b>Señal temprana:</b> tu molestia se convierte en el problema, no su conducta.</span></p>
+  </article>
 
-    <div class="disclaimer" style="background:#fff;border:1px dashed var(--vino-claro);border-radius:10px;padding:16px;margin-top:24px;font-size:.85rem;color:var(--tinta-suave)">
-      <b>🧭 Punto clave:</b> entrar a una relación violenta no es una falla de carácter, inteligencia ni autoestima. Los agresores son, por definición, buenos enganchando: estudian, seducen y normalizan.
+  <article class="step">
+    <div class="step-head">
+      <span class="step-num" aria-hidden="true">3</span>
+      <h3>La reescritura: empiezas a dudar de tu propia percepción</h3>
     </div>
-  </section>
+    <p>El agresor niega hechos («eso nunca pasó»), minimiza («exageras») y culpabiliza («si no me provocaras…»). Poco a poco la víctima deja de confiar en lo que ve y siente. Esto tiene nombre: <strong>gaslighting</strong>.</p>
+    <div class="step-why"><b>Por qué no lo identificas:</b> sucede en conversaciones normales; no hay gritos, hay dudas.</div>
+    <p class="step-signal"><span><b>Señal temprana:</b> te descubres pensando «quizá sí sea culpa mía» cada vez más seguido.</span></p>
+  </article>
 
-  <!-- PANEL 2: EL CICLO -->
-  <section class="panel" id="ciclo">
-    <h2>El ciclo de la violencia</h2>
-    <p class="lead">Por qué "ya cambió" nunca es el final. Describe la secuencia que repiten las relaciones violentas: acumulación de tensión, incidente agudo y reconciliación.</p>
-
-    <div class="ciclo">
-      <div class="fase"><span class="emoji">⚡</span><b>1. Tensión</b><small>Mal humor, caminas en puntas de pie, evitas temas</small></div>
-      <div class="flecha">→</div>
-      <div class="fase"><span class="emoji">💥</span><b>2. Explosión</b><small>Gritos, insultos, agresión física o sexual</small></div>
-      <div class="flecha">→</div>
-      <div class="fase"><span class="emoji">🌸</span><b>3. Luna de miel</b><small>Arrepentimiento, promesas, "la mejor versión"</small></div>
+  <article class="step">
+    <div class="step-head">
+      <span class="step-num" aria-hidden="true">4</span>
+      <h3>El ciclo: tensión → explosión → luna de miel</h3>
     </div>
+    <p>Aparecen días de mal humor inexplicable (tensión), un estallido —gritos, insultos, romper cosas— y luego arrepentimiento: flores, llanto, promesas. La víctima aprende que soportando la tensión llega el cariño.</p>
+    <div class="step-why"><b>Por qué no lo identificas:</b> la fase de luna de miel borra el episodio; «ya cambió» parece cierto… hasta la próxima vuelta.</div>
+    <p class="step-signal"><span><b>Señal temprana:</b> caminas «en puntas de pie» tratando de no provocar el mal humor de tu pareja.</span></p>
+    <p class="source-note">Fuente: Walker, L. E. (1979). <i>The Battered Woman</i>. Harper &amp; Row.</p>
+  </article>
 
-    <p>Identificado por la psicóloga <b>Lenore Walker (1979)</b> a partir de entrevistas con mujeres maltratadas, sigue siendo la base de la psicoeducación en violencia de pareja.</p>
-    <p class="cita-inline">Fuente: Walker, L. E. (1979). <i>The Battered Woman</i>. Harper & Row.</p>
-
-    <h3>Lo que debes saber del ciclo</h3>
-    <p>Con cada ciclo, la <b>fase de tensión suele alargarse</b> y la <b>explosión escala en gravedad</b>. La luna de miel no es recuperación del agresor: es el adhesivo que mantiene a la víctima dentro.</p>
-    <p>Por eso "perdonar y seguir" sin intervención profesional y medidas de protección rara vez detiene el ciclo; generalmente lo acelera.</p>
-
-    <div class="disclaimer" style="background:var(--crema-2);border-radius:10px;padding:14px;margin-top:20px;font-size:.85rem;color:var(--tinta-suave)">
-      <b>Marco teórico complementario:</b> Stark, E. (2007). <i>Coercive Control: How Men Entrap Women in Personal Life</i>. Oxford University Press — marco del control coercitivo.
+  <article class="step">
+    <div class="step-head">
+      <span class="step-num" aria-hidden="true">5</span>
+      <h3>El aislamiento: tu mundo se hace cada vez más pequeño</h3>
     </div>
-  </section>
+    <p>El agresor no prohíbe ver a tus amigos de golpe: lo hace costoso. Escenas de celos, mensajes constantes, peleas antes de tus eventos, burlas de tu familia. Así, la víctima cancela por su propia cuenta —y cree que fue decisión propia.</p>
+    <div class="step-why"><b>Por qué no lo identificas:</b> cada cancelación tiene una explicación razonable aislada; el patrón solo se ve en conjunto.</div>
+    <p class="step-signal"><span><b>Señal temprana:</b> tus amistades empiezan a decirte «ya casi no sabemos de ti».</span></p>
+  </article>
 
-  <!-- PANEL 3: POR QUÉ NO SE SALE -->
-  <section class="panel" id="atrapa">
-    <h2>"¿Por qué no se va?" La pregunta está mal planteada</h2>
-    <p class="lead">No se trata de por qué la víctima no se va, sino de qué la mantiene dentro. Salir no es un acto de voluntad: es atravesar una red de condiciones reales que el agresor construyó con tiempo y método.</p>
-
-    <div class="trampa-grid">
-      <div class="trampa-card"><div class="icono">🔗</div><h4>Vínculo traumático</h4><p>El ciclo funciona como refuerzo intermitente: las recompensas impredecibles generan un apego neuroquímico más fuerte que el de una relación estable. Es el mismo mecanismo de las adicciones.</p></div>
-      <div class="trampa-card"><div class="icono">🏠</div><h4>Dependencia económica</h4><p>Controlar el dinero, impedir trabajar o estudiar, endeudar a la pareja. Sin ingresos propios, irse puede significar no tener dónde dormir esa noche.</p></div>
-      <div class="trampa-card"><div class="icono">👶</div><h4>Hijas e hijos</h4><p>La amenaza más eficaz: "te los quito", "no los vas a volver a ver". Irse implica sostener sola una carga con miedo a una respuesta judicial desconocida.</p></div>
-      <div class="trampa-card"><div class="icono">⚠️</div><h4>Miedo creíble</h4><p>Amenazas específicas y repetidas. La investigación sobre femicidio muestra que el momento de mayor riesgo es precisamente la separación.</p></div>
-      <div class="trampa-card"><div class="icono">🌫️</div><h4>Aislamiento total</h4><p>Cuando ya no hay amigos, familia ni dinero, el agresor se vuelve la única fuente de validación e información.</p></div>
-      <div class="trampa-card"><div class="icono">🪞</div><h4>Culpa y vergüenza</h4><p>Años de gaslighting convencen a la víctima de que "ella provoca" o de que nadie la creerá.</p></div>
-      <div class="trampa-card"><div class="icono">⏳</div><h4>Costo hundido</h4><p>"Ya invertí años", "aguanté lo peor, ¿para irme ahora?". La mente confunde lo invertido con motivo para seguir.</p></div>
-      <div class="trampa-card"><div class="icono">🏛️</div><h4>Barreras institucionales</h4><p>Miedo a no ser creída, trámites largos, revictimización, falta de refugios con cupo. Barreras reales documentadas por ONU Mujeres.</p></div>
+  <article class="step">
+    <div class="step-head">
+      <span class="step-num" aria-hidden="true">6</span>
+      <h3>El punto de no retorno aparente: «ya es tarde para irme»</h3>
     </div>
+    <p>Han pasado meses o años. Hay dependencia económica, quizá hijos, quizá ya hubo violencia física, amenazas de suicidio del agresor. La víctima calcula —con miedo real— que irse es más peligroso que quedarse. Ya no es una decisión emocional: es una trampa estructural.</p>
+    <div class="step-why"><b>Por qué no lo identificas:</b> desde fuera se ve como «elección»; desde dentro, es supervivencia.</div>
+    <p class="step-signal"><span><b>Señal temprana:</b> piensas en irte, pero una voz te dice «y si cumple sus amenazas».</span></p>
+  </article>
 
-    <h3>La trampa silenciosa: el aislamiento paso a paso</h3>
-    <p>El aislamiento casi nunca se anuncia. Marca los comportamientos que hayas visto o vivido:</p>
-
-    <div class="checklist">
-      <label><input type="checkbox" class="chk-ais"> Escenas de celos cada vez que sales, hasta que dejas de salir "para evitar problemas".</label>
-      <label><input type="checkbox" class="chk-ais"> Burlas y desprecio hacia tus amigos ("tu amiga es una mala influencia").</label>
-      <label><input type="checkbox" class="chk-ais"> Control de horarios: mensajes cada 20 minutos, llamadas para "verificar".</label>
-      <label><input type="checkbox" class="chk-ais"> Te hace elegir: "¿tu amiga o yo?" y castiga emocionalmente si eliges a tu amiga.</label>
-      <label><input type="checkbox" class="chk-ais"> Se hace el acompañante siempre: nunca sales sola, y cuando sales, está incómodo.</label>
-      <label><input type="checkbox" class="chk-ais"> Conflicto antes de tus planes: discusión justo antes de tu clase o reunión.</label>
-      <label><input type="checkbox" class="chk-ais"> Monopoliza tu tiempo libre con demandas de atención constante.</label>
-      <label><input type="checkbox" class="chk-ais"> Tus amistades notan el cambio antes que tú: "ya casi no escribes".</label>
-      <div class="contador" id="cnt-ais">0 de 8 señales marcadas</div>
+  <div class="callout">
+    <span class="icono" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15 9-2.5 5.5L7 17l2.5-5.5L15 9Z"/></svg>
+    </span>
+    <div>
+      <h3>Punto clave</h3>
+      <p>Entrar a una relación violenta <strong>no es una falla de carácter, inteligencia ni autoestima</strong>. Los agresores son, por definición, buenos enganchando: estudian, seducen y normalizan.</p>
     </div>
-    <p class="cita-inline">El aislamiento como estrategia de control coercitivo: Stark, E. (2007). <i>Coercive Control</i>. Oxford University Press.</p>
-  </section>
+  </div>
+</section>
 
-  <!-- PANEL 4: VIOLENTÓMETRO -->
-  <section class="panel" id="violentometro">
-    <h2>Violentómetro: mide tu relación sin mentiras</h2>
+<div class="divider" aria-hidden="true">· · ·</div>
+<!-- ============================================================
+     EL CICLO
+============================================================ -->
+<section class="seccion" id="ciclo">
+  <h2>El ciclo de la violencia</h2>
+  <p class="lead">Por qué «ya cambió» nunca es el final. Describe la secuencia que repiten las relaciones violentas: acumulación de tensión, incidente agudo y reconciliación.</p>
 
-    <div class="vm-intro">
-      <p>El violentómetro es una regla gráfica creada en el <b>Instituto Politécnico Nacional en 2008</b> y difundida por instancias como el Consejo Nacional de Población (CONAPO) e Inmujeres, para visibilizar conductas violentas que se confunden con amor.</p>
-      <div class="vm-cita">
-        "Si hay violencia en la pareja, no hay amor." — Instituto Politécnico Nacional (2008).<br>
-        <a href="https://www.gob.mx/historico-instituto/es/articulos/violentometro-si-hay-violencia-en-la-pareja-no-hay-amor-234888" target="_blank" rel="noopener">📄 Ver publicación oficial en gob.mx</a>
-      </div>
-      <p style="margin-top:10px;font-size:.9rem">Marca <b>todo</b> lo que pasa en tu relación — incluido "solo a veces". Tus respuestas no se guardan ni se envían: todo se calcula en tu navegador.</p>
+  <div class="ciclo">
+    <div class="fase">
+      <span class="fase-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M13 2 5 13h5l-1 9 8-11h-5l1-9Z"/></svg>
+      </span>
+      <b>1. Tensión</b>
+      <small>Mal humor, caminas en puntas de pie, evitas temas</small>
     </div>
-
-    <div class="vm-nivel n1">
-      <h4>🟡 Nivel 1 · Alerta: Control disfrazado de cariño</h4>
-      <label><input type="checkbox" class="chk-vm"> Revisa tus mensajes, correos o redes "porque le preocupas"</label>
-      <label><input type="checkbox" class="chk-vm"> Celos constantes, presentados como "amor intenso"</label>
-      <label><input type="checkbox" class="chk-vm"> Opina o decide sobre tu ropa, maquillaje o forma de hablar</label>
-      <label><input type="checkbox" class="chk-vm"> Te ridiculiza o corrige frente a otros "en broma"</label>
+    <div class="flecha" aria-hidden="true">→</div>
+    <div class="fase">
+      <span class="fase-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="m12 3 2.2 5.1L20 9.3l-4.3 3.6 1.4 5.6-5.1-3-5.1 3 1.4-5.6L4 9.3l5.8-1.2L12 3Z"/><path d="M12 15v6"/></svg>
+      </span>
+      <b>2. Explosión</b>
+      <small>Gritos, insultos, agresión física o sexual</small>
     </div>
-
-    <div class="vm-nivel n2">
-      <h4>🟠 Nivel 2 · Riesgo: Control abierto</h4>
-      <label><input type="checkbox" class="chk-vm"> Controla tu dinero o te impide trabajar/estudiar</label>
-      <label><input type="checkbox" class="chk-vm"> Te prohíbe o dificulta ver a tu familia o amistades</label>
-      <label><input type="checkbox" class="chk-vm"> Te grita, insulta o te trata con desprecio</label>
-      <label><input type="checkbox" class="chk-vm"> Te castiga con el silencio, las lágrimas o el chantaje</label>
+    <div class="flecha" aria-hidden="true">→</div>
+    <div class="fase">
+      <span class="fase-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="3"/><path d="M12 6c2-2 5-1 5 2s-3 4-5 4-5-1-5-4 3-4 5-2Z"/><path d="M12 13v8M12 17c-3 0-5-1-6-3 3-1 5 1 6 3ZM12 19c3 0 5-1 6-3-3-1-5 1-6 3Z"/></svg>
+      </span>
+      <b>3. Luna de miel</b>
+      <small>Arrepentimiento, promesas, «la mejor versión»</small>
     </div>
+  </div>
 
-    <div class="vm-nivel n3">
-      <h4>🔴 Nivel 3 · Violencia: Amenaza e intimidación</h4>
-      <label><input type="checkbox" class="chk-vm"> Rompe objetos, pega a paredes o te lanza cosas "sin tocarte"</label>
-      <label><input type="checkbox" class="chk-vm"> Amenaza con lastimarse o suicidarse si lo dejas</label>
-      <label><input type="checkbox" class="chk-vm"> Amenaza con dañar a tus hijos, familia o mascotas</label>
-      <label><input type="checkbox" class="chk-vm"> Te empuja, jala del brazo, te encierra o te quita el teléfono</label>
+  <p>Identificado por la psicóloga <strong>Lenore Walker (1979)</strong> a partir de entrevistas con mujeres maltratadas, sigue siendo la base de la psicoeducación en violencia de pareja.</p>
+  <p class="source-note">Fuente: Walker, L. E. (1979). <i>The Battered Woman</i>. Harper &amp; Row.</p>
+
+  <h3 style="margin-top:30px">Lo que debes saber del ciclo</h3>
+  <p>Con cada ciclo, la <strong>fase de tensión suele alargarse</strong> y la <strong>explosión escala en gravedad</strong>. La luna de miel no es recuperación del agresor: es el adhesivo que mantiene a la víctima dentro.</p>
+  <p>Por eso «perdonar y seguir» sin intervención profesional y medidas de protección rara vez detiene el ciclo; generalmente lo acelera.</p>
+
+  <div class="callout">
+    <span class="icono" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M4 19V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v13"/><path d="M4 19h16M9 9h6M9 13h4"/></svg>
+    </span>
+    <div>
+      <h3>Marco teórico complementario</h3>
+      <p>Stark, E. (2007). <i>Coercive Control: How Men Entrap Women in Personal Life</i>. Oxford University Press — marco del control coercitivo.</p>
     </div>
+  </div>
+</section>
 
-    <div class="vm-nivel n4">
-      <h4>⚫ Nivel 4 · Emergencia: Violencia física y sexual</h4>
-      <label><input type="checkbox" class="chk-vm"> Bofetadas, puñetazos, patadas o jalones de pelo</label>
-      <label><input type="checkbox" class="chk-vm"> Te estrangula, te asfixia o te ataca con objetos</label>
-      <label><input type="checkbox" class="chk-vm"> Te obliga a tener relaciones o a practicar cosas que no quieres</label>
-      <label><input type="checkbox" class="chk-vm"> Amenaza o usa armas contra ti</label>
-    </div>
+<div class="divider" aria-hidden="true">· · ·</div>
 
-    <div class="vm-total" id="vm-total">0 conductas marcadas · Sé honesta/o contigo</div>
+<!-- ============================================================
+     POR QUÉ NO SE SALE
+============================================================ -->
+<section class="seccion" id="atrapa">
+  <h2>«¿Por qué no se va?» La pregunta está mal planteada</h2>
+  <p class="lead">No se trata de por qué la víctima no se va, sino de qué la mantiene dentro. Salir no es un acto de voluntad: es atravesar una red de condiciones reales que el agresor construyó con tiempo y método.</p>
 
-    <div style="background:#fff;border:1px dashed var(--vino-claro);border-radius:10px;padding:16px;margin-top:20px;font-size:.85rem;color:var(--tinta-suave)">
-      <b>⚠ Importante:</b><br>
-      · Una sola conducta del nivel 3 o 4 ya configura violencia.<br>
-      · La escala no se "resetea": sube con el tiempo si no hay intervención.<br>
-      · El violentómetro es una herramienta de reflexión, <b>no un instrumento clínico ni forense</b>.
-    </div>
-  </section>
+  <div class="trampa-grid">
+    <article class="trampa-card">
+      <span class="icono" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M9.5 14.5 14.5 9.5"/><path d="M7 17a3.5 3.5 0 0 1 0-5l2-2a3.5 3.5 0 0 1 5 0"/><path d="M17 7a3.5 3.5 0 0 1 0 5l-2 2a3.5 3.5 0 0 1-5 0"/></svg>
+      </span>
+      <h3>Vínculo traumático</h3>
+      <p>El ciclo funciona como refuerzo intermitente: las recompensas impredecibles generan un apego neuroquímico más fuerte que el de una relación estable. Es el mismo mecanismo de las adicciones.</p>
+    </article>
 
-  <!-- PANEL 5: AYUDAR A ALGUIEN -->
-  <section class="panel" id="ayudar">
-    <h2>Si quieres ayudar a alguien</h2>
-    <p class="lead">No estás acompañando a una "víctima": estás acompañando a una persona atrapada en una trampa bien construida. La forma en que te acerques puede abrirle una puerta — o cerrarla.</p>
+    <article class="trampa-card">
+      <span class="icono" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M3 9.5 12 4l9 5.5"/><path d="M5 10v9h14v-9"/><path d="M9 19v-5h6v5"/></svg>
+      </span>
+      <h3>Dependencia económica</h3>
+      <p>Controlar el dinero, impedir trabajar o estudiar, endeudar a la pareja. Sin ingresos propios, irse puede significar no tener dónde dormir esa noche.</p>
+    </article>
 
-    <div class="ayudar-bloque">
-      <h3><span class="emoji">💬</span> Lo que sí funciona</h3>
-      <div class="hacer">
-        <b>✓ "Te creo, no es tu culpa, estoy aquí."</b><br>
-        Tres frases que rompen años de gaslighting. La validación es el primer antídoto contra la vergüenza.
-      </div>
-      <div class="hacer">
-        <b>✓ Ofrece un plan concreto, no presión.</b><br>
-        "¿Quieres que te acompañe al CJM?", "¿Puedo guardar una copia de tus documentos en mi casa?", "¿Fijamos una palabra clave por si necesitas que llame al 911?".
-      </div>
-      <div class="hacer">
-        <b>✓ Sigue su ritmo.</b><br>
-        Salir de una relación violenta toma, en promedio, <b>7 intentos</b>. Cada intento es información, no fracaso. Si la presionas, se aísla más.
-      </div>
-      <div class="hacer">
-        <b>✓ Mantente presente aunque no "haga nada".</b><br>
-        Un mensaje cada semana, una invitación que no acepte, un "sigo aquí" sin condiciones. Eso sostiene el puente.
-      </div>
-      <div class="hacer">
-        <b>✓ Vigila señales de peligro sin interrogar.</b><br>
-        Aislamiento creciente, cambios de humor, miedo visible, lesiones que explica con torpeza. Anota fechas — puede servir después.
-      </div>
-    </div>
+    <article class="trampa-card">
+      <span class="icono" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="2.6"/><circle cx="16" cy="10" r="2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><path d="M14 19c.4-2.2 1.7-3.6 3.4-3.6 1.4 0 2.6.9 3.1 2.4"/></svg>
+      </span>
+      <h3>Hijas e hijos</h3>
+      <p>La amenaza más eficaz: «te los quito», «no los vas a volver a ver». Irse implica sostener sola una carga con miedo a una respuesta judicial desconocida.</p>
+    </article>
 
-    <div class="ayudar-bloque">
-      <h3><span class="emoji">🚫</span> Lo que empeora las cosas</h3>
-      <div class="no-hacer">
-        <b>✕ "¿Por qué no lo/la dejas?"</b><br>
-        Suena a juicio. La víctima ya se lo preguntó mil veces; si pudiera, ya lo habría hecho.
-      </div>
-      <div class="no-hacer">
-        <b>✕ Confrontar al agresor por tu cuenta.</b><br>
-        Esto casi nunca protege a la víctima: la expone a represalias cuando tú ya no estás. El agresor sabe manipular la narrativa.
-      </div>
-      <div class="no-hacer">
-        <b>✕ "Yo te lo dije desde el principio".</b><br>
-        La culpa retroactiva refuerza el aislamiento: "nadie me va a entender, mejor me callo".
-      </div>
-      <div class="no-hacer">
-        <b>✕ Presionar para que se vaya ya.</b><br>
-        El momento de separación es el de <b>mayor riesgo de femicidio</b>. Sin plan de seguridad, la prisa puede costar la vida.
-      </div>
-      <div class="no-hacer">
-        <b>✕ Compartir en redes o con terceros lo que te contó.</b><br>
-        La confidencia es lo único que le queda intacto. Rómpela y la pierdes para siempre.
-      </div>
-    </div>
+    <article class="trampa-card">
+      <span class="icono" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 4 3.5 19h17L12 4Z"/><path d="M12 10v4"/><circle cx="12" cy="16.6" r=".7" fill="currentColor" stroke="none"/></svg>
+      </span>
+      <h3>Miedo creíble</h3>
+      <p>Amenazas específicas y repetidas. La investigación sobre femicidio muestra que el momento de mayor riesgo es precisamente la separación.</p>
+    </article>
 
-    <div class="ayudar-bloque">
-      <h3><span class="emoji">🛡️</span> Tu papel: puente, no salvador</h3>
-      <p>No vas a "rescatar" a nadie. Vas a <b>mantener una puerta abierta</b> y a <b>facilitar el acceso a recursos profesionales</b>. La decisión final siempre será de ella/él — y debe serlo, porque es su vida y su seguridad.</p>
-      <p>Tu trabajo es:</p>
-      <ul style="padding-left:22px;margin:10px 0">
-        <li>Escuchar sin juzgar.</li>
-        <li>Informar sobre recursos (CJM, TelMujer, refugios).</li>
-        <li>Acompañar a trámites si te lo pide.</li>
-        <li>Guardar documentos o dinero si te lo pide.</li>
-        <li>Ser la persona que llama al 911 si se activa la palabra clave.</li>
-      </ul>
-    </div>
+    <article class="trampa-card">
+      <span class="icono" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M4 15h16M6 18.5h12M8 12h8"/><path d="M7 12a5 5 0 0 1 10 0"/></svg>
+      </span>
+      <h3>Aislamiento total</h3>
+      <p>Cuando ya no hay amigos, familia ni dinero, el agresor se vuelve la única fuente de validación e información.</p>
+    </article>
 
-    <div class="frase-cierre">
-      No se va porque quiere quedarse.<br>Se queda porque la trampa está bien construida.
-    </div>
+    <article class="trampa-card">
+      <span class="icono" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 7h6M9 17h6"/><path d="m10 11 4 4M14 11l-4 4"/></svg>
+      </span>
+      <h3>Culpa y vergüenza</h3>
+      <p>Años de gaslighting convencen a la víctima de que «ella provoca» o de que nadie la creerá.</p>
+    </article>
 
-    <p style="text-align:center;margin-top:20px">
-      <a href="#ayuda" class="tab-link" data-target="ayuda" style="display:inline-block;background:var(--vino);color:#fff;padding:12px 22px;border-radius:8px;font-weight:600;text-decoration:none">Ver directorio de ayuda →</a>
+    <article class="trampa-card">
+      <span class="icono" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M7 3h10M7 21h10"/><path d="M8 3c0 4 8 6 8 9s-8 5-8 9M16 3c0 4-8 6-8 9s8 5 8 9"/></svg>
+      </span>
+      <h3>Costo hundido</h3>
+      <p>«Ya invertí años», «aguanté lo peor, ¿para irme ahora?». La mente confunde lo invertido con motivo para seguir.</p>
+    </article>
+
+    <article class="trampa-card">
+      <span class="icono" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M3 20h18"/><path d="M5 20V9l7-4 7 4v11"/><path d="M9 20v-5h6v5M8 11h2M14 11h2"/></svg>
+      </span>
+      <h3>Barreras institucionales</h3>
+      <p>Miedo a no ser creída, trámites largos, revictimización, falta de refugios con cupo. Barreras reales documentadas por ONU Mujeres.</p>
+    </article>
+  </div>
+
+  <h3 style="margin-top:30px">La trampa silenciosa: el aislamiento paso a paso</h3>
+  <p>El aislamiento casi nunca se anuncia. Marca los comportamientos que hayas visto o vivido:</p>
+
+  <div class="check-card">
+    <label class="check"><input type="checkbox" class="chk-ais"><span>Escenas de celos cada vez que sales, hasta que dejas de salir «para evitar problemas».</span></label>
+    <label class="check"><input type="checkbox" class="chk-ais"><span>Burlas y desprecio hacia tus amigos («tu amiga es una mala influencia»).</span></label>
+    <label class="check"><input type="checkbox" class="chk-ais"><span>Control de horarios: mensajes cada 20 minutos, llamadas para «verificar».</span></label>
+    <label class="check"><input type="checkbox" class="chk-ais"><span>Te hace elegir: «¿tu amiga o yo?» y castiga emocionalmente si eliges a tu amiga.</span></label>
+    <label class="check"><input type="checkbox" class="chk-ais"><span>Se hace el acompañante siempre: nunca sales sola, y cuando sales, está incómodo.</span></label>
+    <label class="check"><input type="checkbox" class="chk-ais"><span>Conflicto antes de tus planes: discusión justo antes de tu clase o reunión.</span></label>
+    <label class="check"><input type="checkbox" class="chk-ais"><span>Monopoliza tu tiempo libre con demandas de atención constante.</span></label>
+    <label class="check"><input type="checkbox" class="chk-ais"><span>Tus amistades notan el cambio antes que tú: «ya casi no escribes».</span></label>
+    <p class="counter" id="cnt-ais" aria-live="polite">0 de 8 señales marcadas</p>
+  </div>
+  <p class="source-note">El aislamiento como estrategia de control coercitivo: Stark, E. (2007). <i>Coercive Control</i>. Oxford University Press.</p>
+</section>
+
+<div class="divider" aria-hidden="true">· · ·</div>
+<!-- ============================================================
+     VIOLENTÓMETRO
+============================================================ -->
+<section class="seccion" id="violentometro">
+  <h2>Violentómetro: mide tu relación sin mentiras</h2>
+  <p class="lead">Una regla gráfica para reconocer conductas que se confunden con amor. Marca todo lo que pasa —incluido «solo a veces»— y observa en qué nivel se ubica.</p>
+
+  <div class="vm-intro">
+    <p>El violentómetro es una herramienta creada en el <strong>Instituto Politécnico Nacional en 2008</strong> y difundida por instancias como el Consejo Nacional de Población (CONAPO) e Inmujeres, para visibilizar conductas violentas que se confunden con amor.</p>
+    <p class="vm-cita">«Si hay violencia en la pareja, no hay amor.» — Instituto Politécnico Nacional (2008).<br>
+      <a href="https://www.gob.mx/historico-instituto/es/articulos/violentometro-si-hay-violencia-en-la-pareja-no-hay-amor-234888" target="_blank" rel="noopener noreferrer">Ver publicación oficial en gob.mx</a>
     </p>
-  </section>
+    <p>Marca <strong>todo</strong> lo que pasa en tu relación, incluido «solo a veces». Tus respuestas no se guardan ni se envían: todo se calcula en tu navegador.</p>
+  </div>
 
-  <!-- PANEL 6: AYUDA EN PUEBLA -->
-  <section class="panel" id="ayuda">
-    <h2>Ayuda en Puebla y en todo México</h2>
-    <p class="lead">Todos los servicios listados son gratuitos. Toca cualquier tarjeta para llamar.</p>
-
-    <div class="ayuda-bloque">
-      <h3>📍 Puebla</h3>
-      <div class="tel-grid">
-        <div class="tel-card"><div class="icono">🚨</div><b>Emergencias</b><a class="tel" href="tel:911">911</a><small>Atención inmediata 24/7 si estás en peligro ahora</small></div>
-        <div class="tel-card"><div class="icono">💜</div><b>Secretaría de Igualdad Sustantiva · TelMujer</b><a class="tel" href="tel:2222323738">222 232 3738</a><small>Asesoría jurídica y psicológica. WhatsApp: 222 356 4020 / 222 360 5590 (L–V 9–18h). 2 Sur #902, Centro.</small></div>
-        <div class="tel-card"><div class="icono">💜</div><b>Línea Segura 24 h</b><a class="tel" href="tel:7351673920">735 167 3920</a><small>Atención 24 horas ante situaciones de violencia</small></div>
-        <div class="tel-card"><div class="icono">⚖️</div><b>Centro de Justicia para las Mujeres (CJM)</b><a class="tel" href="tel:2222405214">222 240 5214</a><small>Atención integral sin revictimización. 17 Poniente #1919, Barrio de Santiago.</small></div>
-        <div class="tel-card"><div class="icono">📜</div><b>Comisión de Derechos Humanos del Estado</b><a class="tel" href="tel:2223094700">222 309 4700</a><small>Lada sin costo: 800 201 01 05 · WhatsApp 24/7. 5 Poniente #339, Centro.</small></div>
-        <div class="tel-card"><div class="icono">🤝</div><b>CEEAVI Puebla</b><a class="tel" href="tel:2229456302">222 945 6302</a><small>Asistencia y reparación integral para víctimas. Av. 17 Poniente #1701.</small></div>
-        <div class="tel-card"><div class="icono">🕵️</div><b>Fiscalía Especializada (FEIDVGM)</b><a class="tel" href="tel:2222320168">222 232 0168</a><small>Investigación de feminicidio, violencia familiar y delitos sexuales. 10 Oriente #417 Bis.</small></div>
-      </div>
+  <div class="vm-nivel n1">
+    <div class="vm-head">
+      <span class="badge">Nivel 1 · Alerta</span>
+      <h3>Control disfrazado de cariño</h3>
     </div>
+    <label class="check"><input type="checkbox" class="chk-vm"><span>Revisa tus mensajes, correos o redes «porque le preocupas».</span></label>
+    <label class="check"><input type="checkbox" class="chk-vm"><span>Celos constantes, presentados como «amor intenso».</span></label>
+    <label class="check"><input type="checkbox" class="chk-vm"><span>Opina o decide sobre tu ropa, maquillaje o forma de hablar.</span></label>
+    <label class="check"><input type="checkbox" class="chk-vm"><span>Te ridiculiza o corrige frente a otros «en broma».</span></label>
+  </div>
 
-    <div class="ayuda-bloque">
-      <h3>🇲🇽 Todo México</h3>
-      <div class="tel-grid">
-        <div class="tel-card"><div class="icono">☎️</div><b>Línea Inmujeres</b><a class="tel" href="tel:8009112000">800 911 2000</a><small>Orientación, asesoría y canalización 24/7, desde cualquier estado</small></div>
-        <div class="tel-card"><div class="icono">🧭</div><b>CEAV Nacional</b><a class="tel" href="tel:018005020120">01 800 502 01 20</a><small>Asistencia y reparación integral del daño</small></div>
-        <div class="tel-card"><div class="icono">📞</div><b>Línea de las Mujeres</b><a class="tel" href="tel:079">079</a><small>Asesoría jurídica y atención psicoemocional</small></div>
-      </div>
+  <div class="vm-nivel n2">
+    <div class="vm-head">
+      <span class="badge">Nivel 2 · Riesgo</span>
+      <h3>Control abierto</h3>
     </div>
+    <label class="check"><input type="checkbox" class="chk-vm"><span>Controla tu dinero o te impide trabajar o estudiar.</span></label>
+    <label class="check"><input type="checkbox" class="chk-vm"><span>Te prohíbe o dificulta ver a tu familia o amistades.</span></label>
+    <label class="check"><input type="checkbox" class="chk-vm"><span>Te grita, insulta o te trata con desprecio.</span></label>
+    <label class="check"><input type="checkbox" class="chk-vm"><span>Te castiga con el silencio, las lágrimas o el chantaje.</span></label>
+  </div>
 
-    <div class="pasos-seg">
-      <h3 style="margin-top:0;color:var(--alerta)">🛡 Antes de irte: 4 pasos de seguridad</h3>
-      <ol>
-        <li>Avisa a alguien de confianza y fija una <b>palabra clave de emergencia</b>.</li>
-        <li>Guarda en un lugar seguro documentos, dinero, llaves y cargador (o una copia).</li>
-        <li>Borra o protege con contraseña las búsquedas y llamadas de ayuda.</li>
-        <li>Acude a un CJM o refugio con acompañamiento: <b>el momento de separación es el de mayor riesgo</b>.</li>
-      </ol>
+  <div class="vm-nivel n3">
+    <div class="vm-head">
+      <span class="badge">Nivel 3 · Violencia</span>
+      <h3>Amenaza e intimidación</h3>
     </div>
-  </section>
+    <label class="check"><input type="checkbox" class="chk-vm chk-vm-grave"><span>Rompe objetos, pega a paredes o te lanza cosas «sin tocarte».</span></label>
+    <label class="check"><input type="checkbox" class="chk-vm chk-vm-grave"><span>Amenaza con lastimarse o suicidarse si lo dejas.</span></label>
+    <label class="check"><input type="checkbox" class="chk-vm chk-vm-grave"><span>Amenaza con dañar a tus hijos, familia o mascotas.</span></label>
+    <label class="check"><input type="checkbox" class="chk-vm chk-vm-grave"><span>Te empuja, jala del brazo, te encierra o te quita el teléfono.</span></label>
+  </div>
 
-  <!-- PANEL 7: FUENTES (NUEVA PESTAÑA) -->
-  <section class="panel" id="fuentes">
-    <h2>Fuentes verificables</h2>
-    <p class="lead">Todo el contenido de esta guía se basa en investigación académica, legislación vigente y directorios oficiales. Acceso abierto, sin suscripción.</p>
-
-    <div class="fuente-item">
-      <h4>📖 Walker, L. E. (1979). <i>The Battered Woman</i>. Harper & Row</h4>
-      <p>Origen del ciclo de la violencia (tensión, incidente agudo, luna de miel). Basado en entrevistas con mujeres maltratadas, sigue siendo la base de la psicoeducación en violencia de pareja.</p>
+  <div class="vm-nivel n4">
+    <div class="vm-head">
+      <span class="badge">Nivel 4 · Emergencia</span>
+      <h3>Violencia física y sexual</h3>
     </div>
+    <label class="check"><input type="checkbox" class="chk-vm chk-vm-grave"><span>Bofetadas, puñetazos, patadas o jalones de pelo.</span></label>
+    <label class="check"><input type="checkbox" class="chk-vm chk-vm-grave"><span>Te estrangula, te asfixia o te ataca con objetos.</span></label>
+    <label class="check"><input type="checkbox" class="chk-vm chk-vm-grave"><span>Te obliga a tener relaciones o a practicar cosas que no quieres.</span></label>
+    <label class="check"><input type="checkbox" class="chk-vm chk-vm-grave"><span>Amenaza o usa armas contra ti.</span></label>
+  </div>
 
-    <div class="fuente-item">
-      <h4>📖 Stark, E. (2007). <i>Coercive Control: How Men Entrap Women in Personal Life</i>. Oxford University Press</h4>
-      <p>Marco del control coercitivo como estrategia sistemática de dominio. Explica cómo el aislamiento, la vigilancia y la degradación funcionan como mecanismos de aprisionamiento psicológico.</p>
-    </div>
+  <p class="vm-total" id="vm-total" aria-live="polite">Sin marcas · Sé honesta/o contigo</p>
 
-    <div class="fuente-item">
-      <h4>🏛️ Instituto Politécnico Nacional (2008)</h4>
-      <p>Creación del Violentómetro como herramienta didáctica para visibilizar conductas violentas que se confunden con amor. Difundido por CONAPO e Inmujeres.</p>
-      <a href="https://www.gob.mx/historico-instituto/es/articulos/violentometro-si-hay-violencia-en-la-pareja-no-hay-amor-234888" target="_blank" rel="noopener">📄 Ver publicación oficial en gob.mx</a>
+  <div class="callout" style="border-left-color:var(--alerta)">
+    <span class="icono" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 4 3.5 19h17L12 4Z"/><path d="M12 10v4"/><circle cx="12" cy="16.6" r=".7" fill="currentColor" stroke="none"/></svg>
+    </span>
+    <div>
+      <h3>Importante</h3>
+      <p>Una sola conducta del nivel 3 o 4 <strong>ya configura violencia</strong>. La escala no se «resetea»: sube con el tiempo si no hay intervención. El violentómetro es una herramienta de reflexión, <strong>no un instrumento clínico ni forense</strong>.</p>
     </div>
+  </div>
+</section>
 
-    <div class="fuente-item">
-      <h4>🌍 ONU Mujeres</h4>
-      <p>Hechos y cifras sobre violencia contra las mujeres a nivel mundial. La estadística "1 de cada 3 mujeres ha sufrido violencia física o sexual" proviene de sus reportes globales.</p>
-      <a href="https://www.unwomen.org/es/what-we-do/ending-violence-against-women/facts-and-figures" target="_blank" rel="noopener">🌐 unwomen.org</a>
-    </div>
+<div class="divider" aria-hidden="true">· · ·</div>
 
-    <div class="fuente-item">
-      <h4>📜 Ley General de Acceso de las Mujeres a una Vida Libre de Violencia (México)</h4>
-      <p>Marco legal federal que define los tipos de violencia, establece responsabilidades institucionales y garantiza el acceso a servicios de protección y justicia.</p>
-      <a href="https://www.diputados.gob.mx/LeyesBiblio/pdf/LGAMVLV.pdf" target="_blank" rel="noopener">📄 diputados.gob.mx</a>
-    </div>
+<!-- ============================================================
+     AYUDAR A ALGUIEN
+============================================================ -->
+<section class="seccion" id="ayudar">
+  <h2>Si quieres ayudar a alguien</h2>
+  <p class="lead">No estás acompañando a una «víctima»: estás acompañando a una persona atrapada en una trampa bien construida. La forma en que te acerques puede abrirle una puerta —o cerrarla.</p>
 
-    <div class="fuente-item">
-      <h4>📜 Ley para el Acceso de las Mujeres a una Vida Libre de Violencia del Estado de Puebla</h4>
-      <p>Legislación estatal que complementa el marco federal y establece los mecanismos específicos de protección en Puebla.</p>
-      <a href="https://www.congresopuebla.gob.mx" target="_blank" rel="noopener">🌐 congresopuebla.gob.mx</a>
+  <div class="guide-card">
+    <h3>
+      <span class="icono" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M20 15a2 2 0 0 1-2 2H8l-4 3V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9Z"/><path d="M8 9h8M8 12h5"/></svg>
+      </span>
+      Lo que sí funciona
+    </h3>
+    <div class="do-item">
+      <b>«Te creo, no es tu culpa, estoy aquí.»</b>
+      Tres frases que rompen años de gaslighting. La validación es el primer antídoto contra la vergüenza.
     </div>
+    <div class="do-item">
+      <b>Ofrece un plan concreto, no presión.</b>
+      «¿Quieres que te acompañe al CJM?», «¿Puedo guardar una copia de tus documentos en mi casa?», «¿Fijamos una palabra clave por si necesitas que llame al 911?».
+    </div>
+    <div class="do-item">
+      <b>Sigue su ritmo.</b>
+      Salir de una relación violenta toma, en promedio, <strong>7 intentos</strong>. Cada intento es información, no fracaso. Si la presionas, se aísla más.
+    </div>
+    <div class="do-item">
+      <b>Mantente presente aunque no «haga nada».</b>
+      Un mensaje cada semana, una invitación que no acepte, un «sigo aquí» sin condiciones. Eso sostiene el puente.
+    </div>
+    <div class="do-item">
+      <b>Vigila señales de peligro sin interrogar.</b>
+      Aislamiento creciente, cambios de humor, miedo visible, lesiones que explica con torpeza. Anota fechas —puede servir después.
+    </div>
+  </div>
 
-    <div class="fuente-item">
-      <h4>📞 Directorio institucional consultado</h4>
-      <p>Los teléfonos y direcciones se verificaron al momento de publicar contra portales oficiales:</p>
-      <ul style="padding-left:22px;font-size:.92rem;margin-top:8px">
-        <li>Secretaría de Igualdad Sustantiva de Puebla (TelMujer 222 232 3738)</li>
-        <li>Centro de Justicia para las Mujeres Puebla (222 240 5214)</li>
-        <li>Comisión de Derechos Humanos Puebla (222 309 4700)</li>
-        <li>CEEAVI Puebla (222 945 6302)</li>
-        <li>Inmujeres (800 911 2000)</li>
-        <li>CEAV Nacional (01 800 502 01 20)</li>
-      </ul>
+  <div class="guide-card">
+    <h3>
+      <span class="icono" aria-hidden="true" style="border-color:var(--alerta-borde);background:var(--alerta-suave);color:var(--alerta)">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m6 6 12 12"/></svg>
+      </span>
+      Lo que empeora las cosas
+    </h3>
+    <div class="dont-item">
+      <b>«¿Por qué no lo/la dejas?»</b>
+      Suena a juicio. La víctima ya se lo preguntó mil veces; si pudiera, ya lo habría hecho.
     </div>
+    <div class="dont-item">
+      <b>Confrontar al agresor por tu cuenta.</b>
+      Esto casi nunca protege a la víctima: la expone a represalias cuando tú ya no estás. El agresor sabe manipular la narrativa.
+    </div>
+    <div class="dont-item">
+      <b>«Yo te lo dije desde el principio».</b>
+      La culpa retroactiva refuerza el aislamiento: «nadie me va a entender, mejor me callo».
+    </div>
+    <div class="dont-item">
+      <b>Presionar para que se vaya ya.</b>
+      El momento de separación es el de <strong>mayor riesgo de femicidio</strong>. Sin plan de seguridad, la prisa puede costar la vida.
+    </div>
+    <div class="dont-item">
+      <b>Compartir en redes o con terceros lo que te contó.</b>
+      La confidencia es lo único que le queda intacto. Rómpela y la pierdes para siempre.
+    </div>
+  </div>
 
-    <div style="background:var(--crema-2);border-radius:10px;padding:16px;margin-top:24px;font-size:.88rem;color:var(--tinta-suave)">
-      <b>📝 Nota sobre verificación:</b> Las instituciones pueden actualizar sus teléfonos y direcciones. Ante cualquier duda, consulta directamente los portales oficiales de gob.mx y del gobierno del estado de Puebla.
+  <div class="guide-card">
+    <h3>
+      <span class="icono" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6l-7-3Z"/><path d="M9 12h6"/></svg>
+      </span>
+      Tu papel: puente, no salvador
+    </h3>
+    <p>No vas a «rescatar» a nadie. Vas a <strong>mantener una puerta abierta</strong> y a <strong>facilitar el acceso a recursos profesionales</strong>. La decisión final siempre será de ella/él —y debe serlo, porque es su vida y su seguridad.</p>
+    <p>Tu trabajo es:</p>
+    <ul class="guide-list">
+      <li>Escuchar sin juzgar.</li>
+      <li>Informar sobre recursos (CJM, TelMujer, refugios).</li>
+      <li>Acompañar a trámites si te lo pide.</li>
+      <li>Guardar documentos o dinero si te lo pide.</li>
+      <li>Ser la persona que llama al 911 si se activa la palabra clave.</li>
+    </ul>
+  </div>
+
+  <p class="frase-cierre">No se va porque quiere quedarse.<br>Se queda porque la trampa está bien construida.</p>
+
+  <div class="guide-cta">
+    <a class="btn btn--accent" href="#ayuda">Ver directorio de ayuda →</a>
+  </div>
+</section>
+
+<div class="divider" aria-hidden="true">· · ·</div>
+<!-- ============================================================
+     AYUDA
+============================================================ -->
+<section class="seccion" id="ayuda">
+  <h2>Ayuda en Puebla y en todo México</h2>
+  <p class="lead">Todos los servicios listados son gratuitos. Toca cualquier tarjeta para llamar. Si hay peligro inmediato, marca <strong>911</strong>.</p>
+
+  <div class="help-block">
+    <h3>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
+      Puebla
+    </h3>
+    <div class="help-grid">
+      <a class="help-card" href="tel:911">
+        <span class="tag tag--rojo">Emergencias</span>
+        <h3>Emergencias</h3>
+        <span class="tel">911</span>
+        <span class="desc">Atención inmediata 24/7 si estás en peligro ahora.</span>
+      </a>
+
+      <a class="help-card" href="tel:2222323738">
+        <span class="tag">Secretaría de Igualdad Sustantiva</span>
+        <h3>TelMujer</h3>
+        <span class="tel">222 232 3738</span>
+        <span class="desc">Asesoría jurídica y psicológica. WhatsApp: 222 356 4020 / 222 360 5590 (L–V 9–18 h). 2 Sur #902, Centro.</span>
+      </a>
+
+      <a class="help-card" href="tel:7351673920">
+        <span class="tag">24 horas</span>
+        <h3>Línea Segura</h3>
+        <span class="tel">735 167 3920</span>
+        <span class="desc">Atención las 24 horas ante situaciones de violencia.</span>
+      </a>
+
+      <a class="help-card" href="tel:2222405214">
+        <span class="tag">Atención integral</span>
+        <h3>Centro de Justicia para las Mujeres (CJM)</h3>
+        <span class="tel">222 240 5214</span>
+        <span class="desc">Atención integral sin revictimización. 17 Poniente #1919, Barrio de Santiago.</span>
+      </a>
+
+      <a class="help-card" href="tel:2223094700">
+        <span class="tag">Derechos humanos</span>
+        <h3>Comisión de Derechos Humanos del Estado</h3>
+        <span class="tel">222 309 4700</span>
+        <span class="desc">Lada sin costo: 800 201 01 05 · WhatsApp 24/7. 5 Poniente #339, Centro.</span>
+      </a>
+
+      <a class="help-card" href="tel:2229456302">
+        <span class="tag">Reparación del daño</span>
+        <h3>CEEAVI Puebla</h3>
+        <span class="tel">222 945 6302</span>
+        <span class="desc">Asistencia y reparación integral para víctimas. Av. 17 Poniente #1701.</span>
+      </a>
+
+      <a class="help-card" href="tel:2222320168">
+        <span class="tag">Fiscalía</span>
+        <h3>Fiscalía Especializada (FEIDVGM)</h3>
+        <span class="tel">222 232 0168</span>
+        <span class="desc">Investigación de feminicidio, violencia familiar y delitos sexuales. 10 Oriente #417 Bis.</span>
+      </a>
     </div>
-  </section>
+  </div>
+
+  <div class="help-block">
+    <h3>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 4 5.7 4 9s-1.5 6.4-4 9c-2.5-2.6-4-5.7-4-9s1.5-6.4 4-9Z"/></svg>
+      Todo México
+    </h3>
+    <div class="help-grid">
+      <a class="help-card" href="tel:8009112000">
+        <span class="tag tag--rojo">24/7</span>
+        <h3>Línea Inmujeres</h3>
+        <span class="tel">800 911 2000</span>
+        <span class="desc">Orientación, asesoría y canalización desde cualquier estado.</span>
+      </a>
+
+      <a class="help-card" href="tel:018005020120">
+        <span class="tag">Nacional</span>
+        <h3>CEAV Nacional</h3>
+        <span class="tel">01 800 502 01 20</span>
+        <span class="desc">Asistencia y reparación integral del daño.</span>
+      </a>
+
+      <a class="help-card" href="tel:079">
+        <span class="tag">Asesoría</span>
+        <h3>Línea de las Mujeres</h3>
+        <span class="tel">079</span>
+        <span class="desc">Asesoría jurídica y atención psicoemocional.</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="safety-card">
+    <h3>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+      Antes de irte: 4 pasos de seguridad
+    </h3>
+    <ol class="safety-list">
+      <li><span class="n" aria-hidden="true">1</span><span>Avisa a alguien de confianza y fija una <strong>palabra clave de emergencia</strong>.</span></li>
+      <li><span class="n" aria-hidden="true">2</span><span>Guarda en un lugar seguro documentos, dinero, llaves y cargador (o una copia).</span></li>
+      <li><span class="n" aria-hidden="true">3</span><span>Borra o protege con contraseña las búsquedas y llamadas de ayuda.</span></li>
+      <li><span class="n" aria-hidden="true">4</span><span>Acude a un CJM o refugio con acompañamiento: <strong>el momento de separación es el de mayor riesgo</strong>.</span></li>
+    </ol>
+  </div>
+</section>
+
+<div class="divider" aria-hidden="true">· · ·</div>
+
+<!-- ============================================================
+     FUENTES
+============================================================ -->
+<section class="seccion" id="fuentes">
+  <h2>Fuentes verificables</h2>
+  <p class="lead">Todo el contenido de esta guía se basa en investigación académica, legislación vigente y directorios oficiales. Acceso abierto, sin suscripción.</p>
+
+  <article class="source-card">
+    <span class="badge badge--arena">Libro · 1979</span>
+    <h3>Walker, L. E. <em>The Battered Woman</em>. Harper &amp; Row.</h3>
+    <p>Origen del ciclo de la violencia (tensión, incidente agudo, luna de miel). Basado en entrevistas con mujeres maltratadas, sigue siendo la base de la psicoeducación en violencia de pareja.</p>
+  </article>
+
+  <article class="source-card">
+    <span class="badge badge--arena">Libro · 2007</span>
+    <h3>Stark, E. <em>Coercive Control: How Men Entrap Women in Personal Life</em>. Oxford University Press.</h3>
+    <p>Marco del control coercitivo como estrategia sistemática de dominio. Explica cómo el aislamiento, la vigilancia y la degradación funcionan como mecanismos de aprisionamiento psicológico.</p>
+  </article>
+
+  <article class="source-card">
+    <span class="badge">Herramienta · 2008</span>
+    <h3>Instituto Politécnico Nacional</h3>
+    <p>Creación del Violentómetro como herramienta didáctica para visibilizar conductas violentas que se confunden con amor. Difundido por CONAPO e Inmujeres.</p>
+    <a class="src-link" href="https://www.gob.mx/historico-instituto/es/articulos/violentometro-si-hay-violencia-en-la-pareja-no-hay-amor-234888" target="_blank" rel="noopener noreferrer">Ver publicación oficial en gob.mx →</a>
+  </article>
+
+  <article class="source-card">
+    <span class="badge">Datos globales</span>
+    <h3>ONU Mujeres</h3>
+    <p>Hechos y cifras sobre violencia contra las mujeres a nivel mundial. La estadística «1 de cada 3 mujeres ha sufrido violencia física o sexual» proviene de sus reportes globales.</p>
+    <a class="src-link" href="https://www.unwomen.org/es/what-we-do/ending-violence-against-women/facts-and-figures" target="_blank" rel="noopener noreferrer">unwomen.org →</a>
+  </article>
+
+  <article class="source-card">
+    <span class="badge">Legislación federal</span>
+    <h3>Ley General de Acceso de las Mujeres a una Vida Libre de Violencia (México)</h3>
+    <p>Marco legal federal que define los tipos de violencia, establece responsabilidades institucionales y garantiza el acceso a servicios de protección y justicia.</p>
+    <a class="src-link" href="https://www.diputados.gob.mx/LeyesBiblio/pdf/LGAMVLV.pdf" target="_blank" rel="noopener noreferrer">diputados.gob.mx (PDF) →</a>
+  </article>
+
+  <article class="source-card">
+    <span class="badge">Legislación estatal</span>
+    <h3>Ley para el Acceso de las Mujeres a una Vida Libre de Violencia del Estado de Puebla</h3>
+    <p>Legislación estatal que complementa el marco federal y establece los mecanismos específicos de protección en Puebla.</p>
+    <a class="src-link" href="https://www.congresopuebla.gob.mx" target="_blank" rel="noopener noreferrer">congresopuebla.gob.mx →</a>
+  </article>
+
+  <article class="source-card">
+    <span class="badge">Directorio</span>
+    <h3>Instituciones consultadas</h3>
+    <p>Los teléfonos y direcciones se verificaron al momento de publicar contra portales oficiales:</p>
+    <ul>
+      <li>Secretaría de Igualdad Sustantiva de Puebla (TelMujer 222 232 3738)</li>
+      <li>Centro de Justicia para las Mujeres Puebla (222 240 5214)</li>
+      <li>Comisión de Derechos Humanos Puebla (222 309 4700)</li>
+      <li>CEEAVI Puebla (222 945 6302)</li>
+      <li>Inmujeres (800 911 2000)</li>
+      <li>CEAV Nacional (01 800 502 01 20)</li>
+    </ul>
+  </article>
+
+  <div class="note-box">
+    <b>Nota sobre verificación:</b> las instituciones pueden actualizar sus teléfonos y direcciones. Ante cualquier duda, consulta directamente los portales oficiales de gob.mx y del gobierno del estado de Puebla.
+  </div>
+</section>
 
 </main>
 
-<!-- FOOTER / DISCLAIMER SIMPLIFICADO -->
 <footer>
   <div class="footer-inner">
-
-    <div class="footer-frase">
-      No se va porque quiere quedarse. Se queda porque la trampa está bien construida.
-    </div>
+    <p class="fquote">«No se va porque quiere quedarse. <em>Se queda porque la trampa está bien construida.</em>»</p>
 
     <div class="disclaimer-box">
-      <h4>⚕ Disclaimer</h4>
+      <h4>Disclaimer</h4>
       <p><b>psychenudo</b> tiene un propósito exclusivamente educativo y de orientación. Esta página <b>no sustituye</b> la evaluación, intervención ni protección de profesionales de salud mental, servicios jurídicos ni instancias de protección.</p>
       <p>El <b>violentómetro</b> es una herramienta de reflexión basada en material público de difusión; <b>no es un instrumento clínico ni forense</b> y no debe usarse como único criterio de diagnóstico o decisión.</p>
       <p>Los teléfonos y direcciones se verificaron al momento de publicar contra portales oficiales; las instituciones pueden actualizarlos. Ante cualquier emergencia, llama al <b>911</b>.</p>
     </div>
 
-    <div class="footer-copy">
-      <b>psychenudo</b> · Guía educativa v1.0 — hecha con cuidado para quienes cuidan.<br>
-      Octubre 2026 · <a href="#" class="tab-link" data-target="fuentes" style="color:var(--vino)">Ver fuentes completas →</a>
+    <div class="author">
+      <div class="avatar" aria-hidden="true">AG</div>
+      <div>
+        <div class="author-name">Creado por Alfredo Adrián González Lazcano</div>
+        <div class="author-role">Recurso de orientación psicoeducativa</div>
+      </div>
     </div>
 
+    <div class="credit">
+      <span>psychenudo · Guía educativa v1.0 — hecha con cuidado para quienes cuidan.</span>
+      <span>Octubre 2026 · <a href="#fuentes">Ver fuentes completas</a></span>
+    </div>
   </div>
 </footer>
+<button class="sos" id="sosBtn" type="button" data-open-sos aria-haspopup="dialog" aria-controls="modal">
+  <span class="beat" aria-hidden="true"></span> Estoy en riesgo
+</button>
 
-<button class="sos" onclick="document.getElementById('modal').classList.add('open')">🆘 Estoy en riesgo</button>
-
-<div class="modal" id="modal">
-  <div class="modal-box">
-    <h3>🚨 Si estás en peligro ahora</h3>
-    <ol>
-      <li>Llama al <b>911</b>. No necesitas pruebas ni denuncia previa.</li>
-      <li>Acércate a alguien de confianza y fijen una <b>palabra clave</b>.</li>
-      <li>No confrontes ni anuncies la separación si el agresor está armado: primero plan con un CJM.</li>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-hidden="true">
+  <div class="modal-box" tabindex="-1">
+    <span class="badge badge--rojo">Riesgo ahora</span>
+    <h3 id="modal-title">Si estás en peligro ahora</h3>
+    <ol class="modal-steps">
+      <li>Llama al <strong>911</strong>. No necesitas pruebas ni denuncia previa.</li>
+      <li>Acércate a alguien de confianza y fijen una <strong>palabra clave</strong>.</li>
+      <li>No confrontes ni anuncies la separación si el agresor está armado: primero un plan con un CJM.</li>
       <li>Guarda a salvo documentos, dinero, llaves y cargador.</li>
-      <li>Pide acompañamiento: <b>TelMujer Puebla 222 232 3738</b>.</li>
+      <li>Pide acompañamiento: <strong>TelMujer Puebla 222 232 3738</strong>.</li>
     </ol>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <a class="tel" href="tel:911" style="background:var(--alerta);color:#fff;padding:10px 16px;border-radius:6px;font-weight:600">📞 911</a>
-      <a class="tel" href="tel:2222323738" style="background:var(--vino);color:#fff;padding:10px 16px;border-radius:6px;font-weight:600">💜 TelMujer</a>
-      <button class="cerrar" onclick="document.getElementById('modal').classList.remove('open')">Cerrar</button>
+    <div class="modal-actions">
+      <a class="btn btn--urgent" href="tel:911">Llamar al 911</a>
+      <a class="btn btn--accent" href="tel:2222323738">TelMujer Puebla</a>
+      <button class="btn btn--ghost" type="button" data-close>Cerrar</button>
     </div>
+    <p class="modal-note">Si necesitas ocultar esta página, usa el botón «Atrás» o cierra la pestaña. También puedes abrir una ventana privada para buscar ayuda.</p>
   </div>
 </div>
 
 <script>
-  // TABS
-  document.querySelectorAll('.tab').forEach(t=>{
-    t.addEventListener('click',()=>{
-      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-      document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
-      t.classList.add('active');
-      document.getElementById(t.dataset.tab).classList.add('active');
-      window.scrollTo({top:0,behavior:'smooth'});
-    });
-  });
+  /* ---------- Navegación, scrollspy, progreso ---------- */
+  (function () {
+    var tocLinks = Array.prototype.slice.call(document.querySelectorAll('.tabs .tab[href^="#"]'));
+    var sections = tocLinks
+      .map(function (link) { return document.querySelector(link.getAttribute('href')); })
+      .filter(Boolean);
+    var lastActiveId = null;
 
-  // LINK INTERNO DESDE PANEL AYUDAR → AYUDA
-  document.querySelectorAll('.tab-link').forEach(l=>{
-    l.addEventListener('click',e=>{
-      e.preventDefault();
-      const target=l.dataset.target;
-      document.querySelectorAll('.tab').forEach(x=>{
-        x.classList.toggle('active',x.dataset.tab===target);
+    function setActive(id) {
+      if (id === lastActiveId) return;
+      lastActiveId = id;
+      var activeLink = null;
+      tocLinks.forEach(function (link) {
+        var isActive = link.getAttribute('href') === '#' + id;
+        link.classList.toggle('active', isActive);
+        if (isActive) {
+          activeLink = link;
+          link.setAttribute('aria-current', 'true');
+        } else {
+          link.removeAttribute('aria-current');
+        }
       });
-      document.querySelectorAll('.panel').forEach(x=>{
-        x.classList.toggle('active',x.id===target);
+      if (activeLink && activeLink.parentNode.scrollTo) {
+        var nav = activeLink.parentNode;
+        var target = activeLink.offsetLeft - (nav.clientWidth - activeLink.offsetWidth) / 2;
+        nav.scrollTo({ left: Math.max(0, target), behavior: 'smooth' });
+      }
+    }
+
+    if (sections.length) {
+      var ticking = false;
+      var updateActive = function () {
+        ticking = false;
+        var offset = 120;
+        var current = sections[0];
+        sections.forEach(function (section) {
+          if (section.getBoundingClientRect().top <= offset) current = section;
+        });
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
+          current = sections[sections.length - 1];
+        }
+        setActive(current.id);
+      };
+      var requestTick = function () {
+        if (!ticking) {
+          ticking = true;
+          window.requestAnimationFrame(updateActive);
+        }
+      };
+      window.addEventListener('scroll', requestTick, { passive: true });
+      window.addEventListener('resize', requestTick);
+      updateActive();
+    }
+
+    tocLinks.forEach(function (link) {
+      link.addEventListener('click', function () {
+        setActive(link.getAttribute('href').slice(1));
       });
-      window.scrollTo({top:0,behavior:'smooth'});
     });
-  });
 
-  // CONTADOR AISLAMIENTO
-  document.querySelectorAll('.chk-ais').forEach(c=>{
-    c.addEventListener('change',()=>{
-      const n=document.querySelectorAll('.chk-ais:checked').length;
-      document.getElementById('cnt-ais').textContent=n+' de 8 señales marcadas';
+    var progress = document.getElementById('progress');
+    var sosBtn = document.getElementById('sosBtn');
+    var onScroll = function () {
+      var y = window.scrollY;
+      if (sosBtn) sosBtn.classList.toggle('show', y > 320);
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.width = h > 0 ? (y / h * 100) + '%' : '0%';
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
+  /* ---------- Contador de aislamiento ---------- */
+  (function () {
+    var checks = document.querySelectorAll('.chk-ais');
+    var counter = document.getElementById('cnt-ais');
+    if (!checks.length || !counter) return;
+    Array.prototype.forEach.call(checks, function (c) {
+      c.addEventListener('change', function () {
+        var n = document.querySelectorAll('.chk-ais:checked').length;
+        counter.textContent = n + ' de 8 señales marcadas';
+      });
     });
-  });
+  })();
 
-  // VIOLENTÓMETRO
-  document.querySelectorAll('.chk-vm').forEach(c=>{
-    c.addEventListener('change',()=>{
-      const n=document.querySelectorAll('.chk-vm:checked').length;
-      const t=document.getElementById('vm-total');
-      t.textContent=n+' conductas marcadas';
-      t.classList.toggle('ok',n===0);
-      if(n===0)t.textContent='Sin marcas · Sé honesta/o contigo';
+  /* ---------- Violentómetro ---------- */
+  (function () {
+    var checks = document.querySelectorAll('.chk-vm');
+    var total = document.getElementById('vm-total');
+    if (!checks.length || !total) return;
+
+    function update() {
+      var n = document.querySelectorAll('.chk-vm:checked').length;
+      var graves = document.querySelectorAll('.chk-vm-grave:checked').length;
+      total.classList.toggle('ok', n === 0);
+      total.classList.toggle('grave', graves > 0);
+      if (n === 0) {
+        total.textContent = 'Sin marcas · Sé honesta/o contigo';
+      } else {
+        total.textContent = n + (n === 1 ? ' conducta marcada' : ' conductas marcadas') +
+          (graves > 0 ? ' · Una conducta del nivel 3 o 4 ya es violencia. Busca apoyo hoy.' : ' · Habla con alguien de confianza.');
+      }
+    }
+
+    Array.prototype.forEach.call(checks, function (c) {
+      c.addEventListener('change', update);
     });
-  });
+    update();
+  })();
 
-  // CERRAR MODAL CON CLICK FUERA
-  document.getElementById('modal').addEventListener('click',e=>{
-    if(e.target.id==='modal')e.target.classList.remove('open');
-  });
+  /* ---------- Modal SOS accesible ---------- */
+  (function () {
+    var modal = document.getElementById('modal');
+    if (!modal) return;
+    var openers = document.querySelectorAll('[data-open-sos]');
+    var lastFocus = null;
+
+    function open() {
+      lastFocus = document.activeElement;
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      var box = modal.querySelector('.modal-box');
+      window.requestAnimationFrame(function () {
+        if (box) box.focus();
+      });
+    }
+
+    function close() {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+
+    Array.prototype.forEach.call(openers, function (btn) {
+      btn.addEventListener('click', open);
+    });
+
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal || e.target.hasAttribute('data-close')) close();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (!modal.classList.contains('open')) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        close();
+        return;
+      }
+      if (e.key === 'Tab') {
+        var focusables = modal.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+        if (!focusables.length) return;
+        var first = focusables[0];
+        var last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+  })();
 </script>
 
 </body>
