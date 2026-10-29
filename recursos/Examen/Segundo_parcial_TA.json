@@ -1,0 +1,190 @@
+{
+ "titulo": "Segundo Parcial: Trastornos Psicológicos del Adulto",
+ "tiempo_limite_minutos": 60,
+ "maximo_salidas": 2,
+ "clave_recuperacion": "ayuda",
+ "acceso": {
+  "clave": "vamos",
+  "habilitar_desde": "",
+  "habilitar_hasta": "",
+  "requiere_clave": true
+ },
+ "puntos_distribucion": {
+  "opcion_multiple": 1,
+  "vf": 0,
+  "relacionar": 5,
+  "abierta": 5,
+  "matematica": 0,
+  "caso_clinico": 0
+ },
+ "distribucion": {
+  "opcion_multiple": 5,
+  "vf": 0,
+  "relacionar": 1,
+  "abierta": 1,
+  "matematica": 0,
+  "caso_clinico": 0
+ },
+ "tareas": [],
+ "reglas_asignacion": [],
+ "preguntas": [
+  {
+   "id": "om_01",
+   "tipo": "opcion_multiple",
+   "pregunta": "Según la perspectiva psicoanalítica estructural, ¿cuál es la combinación correcta de alteración principal y mecanismo de defensa básico para la neurosis y la psicosis?",
+   "opciones": [
+    "Neurosis: alteración en la apreciación de la realidad, represión. Psicosis: alteración en el juicio, forclusión.",
+    "Neurosis: alteración en el juicio, represión. Psicosis: alteración en la apreciación de la realidad, forclusión.",
+    "Neurosis: alteración en el sentido, denegación. Psicosis: alteración en el juicio, represión.",
+    "Neurosis: alteración en la apreciación de la realidad, forclusión. Psicosis: alteración en el sentido, represión."
+   ],
+   "respuesta_correcta": "Neurosis: alteración en la apreciación de la realidad, represión. Psicosis: alteración en el juicio, forclusión."
+  },
+  {
+   "id": "om_02",
+   "tipo": "opcion_multiple",
+   "pregunta": "¿Cuál es la principal ventaja del modelo dimensional de la CIE-11 sobre el modelo categorial del DSM-5-TR al evaluar trastornos de personalidad en el adulto mayor?",
+   "opciones": [
+    "Permite evaluar la gravedad y los rasgos como un continuo, reconociendo que algunos rasgos se atenúan y otros se agravan con la edad, sin depender de umbrales rígidos.",
+    "Elimina la necesidad de evaluar la historia de vida del paciente, centrándose únicamente en los síntomas conductuales observables en la consulta.",
+    "Garantiza que el paciente reciba un diagnóstico de deterioro cognitivo, que es la única explicación válida para la rigidez en la vejez.",
+    "Convierte los rasgos de personalidad en categorías discretas, facilitando la prescripción farmacológica estandarizada sin necesidad de psicoterapia."
+   ],
+   "respuesta_correcta": "Permite evaluar la gravedad y los rasgos como un continuo, reconociendo que algunos rasgos se atenúan y otros se agravan con la edad, sin depender de umbrales rígidos."
+  },
+  {
+   "id": "om_03",
+   "tipo": "opcion_multiple",
+   "pregunta": "¿Qué característica clínica distingue principalmente a la psicosis de inicio tardío en el adulto mayor?",
+   "opciones": [
+    "Aparición de síntomas psicóticos después de los 60 años sin antecedentes psiquiátricos previos, con mayor frecuencia de alucinaciones visuales y asociación con deterioro cognitivo subyacente.",
+    "Predominio de alucinaciones auditivas complejas y desorganización grave del pensamiento desde el inicio del cuadro.",
+    "Respuesta inmediata y completa a dosis bajas de psicoterapia sin necesidad de evaluación médica complementaria.",
+    "Inicio siempre precedido por un consumo agudo y reciente de sustancias alucinógenas o estimulantes."
+   ],
+   "respuesta_correcta": "Aparición de síntomas psicóticos después de los 60 años sin antecedentes psiquiátricos previos, con mayor frecuencia de alucinaciones visuales y asociación con deterioro cognitivo subyacente."
+  },
+  {
+   "id": "om_04",
+   "tipo": "opcion_multiple",
+   "pregunta": "¿Cuál es el elemento diferencial clave entre un proceso de duelo normal y un episodio de depresión mayor en el adulto mayor?",
+   "opciones": [
+    "En el duelo normal la autoestima se conserva y el dolor viene en oleadas, mientras que en la depresión la autoestima está disminuida y el estado de ánimo es persistentemente bajo.",
+    "El duelo normal siempre dura más de dos años, mientras que la depresión se resuelve clínicamente en un plazo de dos semanas.",
+    "La depresión mayor nunca se presenta como reacción secundaria a la pérdida de un ser querido o a un evento vital estresante.",
+    "La presencia de llanto y tristeza son síntomas exclusivos de la depresión mayor y no aparecen en el duelo normal."
+   ],
+   "respuesta_correcta": "En el duelo normal la autoestima se conserva y el dolor viene en oleadas, mientras que en la depresión la autoestima está disminuida y el estado de ánimo es persistentemente bajo."
+  },
+  {
+   "id": "om_05",
+   "tipo": "opcion_multiple",
+   "pregunta": "Ante un primer episodio psicótico en un adulto mayor, ¿cuál es la regla clínica fundamental antes de asumir un trastorno psicótico primario?",
+   "opciones": [
+    "Descartar causas orgánicas, médicas o neurológicas secundarias, como infecciones, desequilibrios metabólicos o efectos farmacológicos.",
+    "Iniciar inmediatamente un tratamiento con antipsicóticos de alta potencia para controlar la agitación psicomotriz.",
+    "Asumir que es una manifestación normal y esperable del proceso de envejecimiento cerebral y no intervenir farmacológicamente.",
+    "Derivar directamente a un entorno de cuidado a largo plazo sin realizar evaluación clínica complementaria."
+   ],
+   "respuesta_correcta": "Descartar causas orgánicas, médicas o neurológicas secundarias, como infecciones, desequilibrios metabólicos o efectos farmacológicos."
+  },
+  {
+   "id": "om_06",
+   "tipo": "opcion_multiple",
+   "pregunta": "¿Cómo se manifiesta típicamente el rasgo de personalidad de anancastia en la población geriátrica?",
+   "opciones": [
+    "Como resistencia extrema a los cambios, obsesión por el orden y conflictos con cuidadores, agravándose ante la pérdida de control por enfermedad o dependencia.",
+    "Como una mejora repentina en la flexibilidad cognitiva y la adaptación a los cambios de rutina impuestos por los cuidadores.",
+    "Como una ausencia total de interés por las normas sociales, el autocuidado o las convenciones establecidas.",
+    "Como episodios breves de euforia, gasto excesivo de dinero y toma de decisiones financieras arriesgadas."
+   ],
+   "respuesta_correcta": "Como resistencia extrema a los cambios, obsesión por el orden y conflictos con cuidadores, agravándose ante la pérdida de control por enfermedad o dependencia."
+  },
+  {
+   "id": "om_07",
+   "tipo": "opcion_multiple",
+   "pregunta": "¿Qué fenómeno perceptivo puede presentarse en el duelo normal del adulto mayor sin que necesariamente indique un trastorno psicótico?",
+   "opciones": [
+    "Alucinaciones visuales o auditivas breves y transitorias del fallecido, como verlo sentado en su silla o escuchar su voz momentáneamente.",
+    "Delirios sistemáticos y complejos de persecución que se mantienen de forma fija durante más de seis meses.",
+    "Conducta desorganizada grave que pone en riesgo inminente la integridad física del paciente o de terceros.",
+    "Aplanamiento afectivo total y mutismo persistente que se prolonga por más de un año sin fluctuaciones."
+   ],
+   "respuesta_correcta": "Alucinaciones visuales o auditivas breves y transitorias del fallecido, como verlo sentado en su silla o escuchar su voz momentáneamente."
+  },
+  {
+   "id": "om_08",
+   "tipo": "opcion_multiple",
+   "pregunta": "¿Cuál de los siguientes se considera un síntoma negativo de la psicosis?",
+   "opciones": [
+    "Aplanamiento afectivo y abulia.",
+    "Alucinaciones visuales bien estructuradas.",
+    "Delirios de grandeza o persecución.",
+    "Pensamiento y discurso desorganizado."
+   ],
+   "respuesta_correcta": "Aplanamiento afectivo y abulia."
+  },
+  {
+   "id": "om_09",
+   "tipo": "opcion_multiple",
+   "pregunta": "¿Cuál es la principal característica del trastorno delirante (6A24) según la CIE-11?",
+   "opciones": [
+    "Presencia de delirios persistentes (al menos 3 meses) como manifestación predominante, con funcionamiento psicosocial relativamente conservado.",
+    "Presencia de alucinaciones auditivas complejas y desorganización grave del pensamiento.",
+    "Inicio abrupto de síntomas psicóticos que se resuelven en menos de un mes.",
+    "Deterioro cognitivo progresivo que afecta la memoria y las funciones ejecutivas."
+   ],
+   "respuesta_correcta": "Presencia de delirios persistentes (al menos 3 meses) como manifestación predominante, con funcionamiento psicosocial relativamente conservado."
+  },
+  {
+   "id": "om_10",
+   "tipo": "opcion_multiple",
+   "pregunta": "En el modelo dimensional de la CIE-11, ¿qué dominio de rasgo se caracteriza por una tendencia a mantener distancia interpersonal y emocional, siendo egosintónico?",
+   "opciones": [
+    "Desapego (6D11.1).",
+    "Afectividad negativa (6D11.0).",
+    "Disocialidad (6D11.2).",
+    "Desinhibición (6D11.3)."
+   ],
+   "respuesta_correcta": "Desapego (6D11.1)."
+  },
+  {
+   "id": "rel_01",
+   "tipo": "relacionar",
+   "pregunta": "Relaciona cada concepto de los trastornos de personalidad y psicosis en el adulto mayor con su descripción clínica correspondiente.",
+   "opciones": {
+    "Rasgo de Anancastia (6D11.4)": "Resistencia extrema a los cambios, obsesión por el orden y conflictos con cuidadores, agravándose ante la pérdida de control.",
+    "Psicosis de inicio tardío": "Aparición de síntomas psicóticos después de los 60 años sin antecedentes previos, asociada a deterioro cognitivo.",
+    "Trastorno de duelo prolongado (6B42)": "Duelo persistente e incapacitante que dura más de 12 meses en adultos, con anhelo intenso.",
+    "Alucinaciones en el duelo normal": "Fenómenos perceptivos breves y transitorios del fallecido (verlo o escucharlo) que no constituyen un trastorno psicótico.",
+    "Trastorno delirante (6A24)": "Delirios persistentes (al menos 3 meses) como manifestación predominante, con funcionamiento psicosocial relativamente conservado."
+   }
+  },
+  {
+   "id": "rel_02",
+   "tipo": "relacionar",
+   "pregunta": "Relaciona cada categoría diagnóstica o síntoma con su definición o característica principal en el contexto geriátrico.",
+   "opciones": {
+    "Síntomas positivos de psicosis": "Exacerbación o distorsión de funciones psíquicas (delirios, alucinaciones, pensamiento desorganizado).",
+    "Síntomas negativos de psicosis": "Disminución o pérdida de funciones psíquicas (aplanamiento afectivo, abulia, anhedonia).",
+    "Patrón límite (6D11.5)": "Inestabilidad generalizada de relaciones, autoimagen y afectos, con impulsividad y miedo al abandono.",
+    "Duelo normal": "Oleadas de tristeza, autoestima conservada, recuperación gradual en 6-12 meses.",
+    "Depresión mayor": "Estado de ánimo persistentemente bajo, anhedonia generalizada, autoestima disminuida."
+   }
+  },
+  {
+   "id": "ab_01",
+   "tipo": "abierta",
+   "pregunta": "CASO CLÍNICO 1: Paciente mujer de 68 años, sin antecedentes psiquiátricos previos. Acude acompañada por su hijo porque 've a su esposo fallecido hace 2 años sentado en la sala y le habla'. Ella dice que él le da consejos y no parece aterrada, sino más bien ansiosa por lo que dice su hijo. No presenta deterioro cognitivo evidente en la entrevista (orientada, buen recuerdo inmediato y diferido). Hace 3 semanas tuvo una infección urinaria tratada con antibióticos, pero actualmente refiere estar asintomática. Además, el hijo refiere que desde el fallecimiento de su padre, ella se ha vuelto extremadamente rígida con el orden de la casa y se enfurece si se mueven los objetos de su difunto esposo.\n\nINSTRUCCIÓN: Realice un diagnóstico diferencial estructurado que incluya al menos tres hipótesis plausibles (una relacionada con el duelo, una con psicosis y una con rasgos de personalidad). Justifique cada hipótesis con datos específicos del caso (qué datos la apoyan y qué datos la matizan o descartan). Finalmente, emita un diagnóstico final integrador y proponga los siguientes pasos en la evaluación y manejo. (Valor: 5 puntos)",
+   "criterios_evaluacion": "1) Identificación de 3 hipótesis (ej. Duelo normal con fenómenos perceptivos transitorios vs. Duelo prolongado; Psicosis de inicio tardío vs. Psicosis secundaria a causa médica residual por la ITU; Rasgo de personalidad anancástico exacerbado por el duelo). 2) Justificación clínica precisa (ej. las alucinaciones de la esposa son compatibles con duelo; la rigidez con los objetos sugiere rasgo anancástico; la ITU reciente obliga a descartar causa orgánica). 3) Diagnóstico final integrador coherente. 4) Plan de acción (ej. solicitar urocultivo, perfil metabólico, B12, TSH; seguimiento longitudinal; evitar antipsicóticos de entrada; intervención familiar).",
+   "guia_respuesta": "El alumno debe estructurar su respuesta en tres partes:\n\n1. HIPÓTESIS 1: Duelo normal con fenómenos perceptivos transitorios vs. Duelo prolongado. Apoyan: alucinaciones visuales/auditivas del fallecido, no aterrada, sin deterioro cognitivo. Matizan: 2 años de evolución (podría sugerir duelo prolongado 6B42 si hay incapacidad funcional, pero el relato no lo confirma).\n\n2. HIPÓTESIS 2: Psicosis de inicio tardío vs. Psicosis secundaria a causa médica residual (ITU). Apoyan: aparición de alucinaciones visuales después de los 60 años. Matizan: la ITU reciente obliga a descartar causa orgánica (urocultivo, perfil metabólico), aunque actualmente está asintomática. La ausencia de deterioro cognitivo evidente y la naturaleza no aterradora de las alucinaciones hacen menos probable una psicosis primaria.\n\n3. HIPÓTESIS 3: Rasgo de personalidad anancástico (6D11.4) exacerbado por el duelo. Apoyan: rigidez extrema con el orden, furia si se mueven objetos del difunto, resistencia al cambio. Matizan: es egosintónico y persistente, no es un simple TOC.\n\nDIAGNÓSTICO FINAL INTEGRADOR: Duelo normal con fenómenos perceptivos transitorios en una paciente con rasgo de personalidad anancástico exacerbado por la pérdida. Descartar duelo prolongado y causa orgánica residual.\n\nPLAN: Solicitar urocultivo, perfil metabólico, B12, TSH. Seguimiento longitudinal. Evitar antipsicóticos de entrada. Intervención familiar para manejo de la rigidez. Psicoterapia de apoyo si el duelo se complica."
+  },
+  {
+   "id": "ab_02",
+   "tipo": "abierta",
+   "pregunta": "CASO CLÍNICO 2: Paciente varón de 74 años, viudo desde hace 10 meses. Es derivado por su hija por 'pérdida de memoria' y 'comportamiento extraño'. La hija reporta que a veces el paciente 'discute con sillas vacías' y menciona que siente a su esposa en la habitación. Además, se ha vuelto extremadamente rígido: exige que sus medicamentos estén en un orden exacto y se enfurece si ella los mueve, acusándola de 'querer envenenarlo'. La hija confiesa que ha encontrado la caja de diazepam de su esposa fallecida vacía y que él bebe 2-3 copas de vino diarias 'para los nervios', algo que él oculta. MMSE: 26/30 (falla en restas seriadas). GDS de Yesavage: 10/15. Laboratorio: GGT levemente elevada, B12 y TSH normales.\n\nINSTRUCCIÓN: Realice un diagnóstico diferencial estructurado que incluya al menos tres hipótesis plausibles (una relacionada con duelo, una con psicosis y una con rasgos de personalidad). Justifique cada hipótesis con datos específicos del caso (qué datos la apoyan y qué datos la matizan o descartan). Finalmente, emita un diagnóstico final integrador y proponga los siguientes pasos en la evaluación y manejo. (Valor: 5 puntos)",
+   "criterios_evaluacion": "1) Identificación de 3 hipótesis (ej. Trastorno por uso de sedantes/alcohol; Duelo normal con fenómenos perceptivos transitorios vs. Duelo prolongado; Rasgo de personalidad anancástico exacerbado). 2) Justificación clínica precisa (ej. las alucinaciones breves de la esposa son compatibles con duelo normal; la GGT y el diazepam vacío apuntan a uso de sustancias como causa de la confusión y los delirios de envenenamiento; la rigidez con los medicamentos sugiere rasgo anancástico). 3) Diagnóstico final integrador coherente. 4) Plan de acción (ej. intervención familiar, ajuste/retiro seguro de benzodiacepinas, monitoreo, no antipsicóticos de entrada).",
+   "guia_respuesta": "El alumno debe estructurar su respuesta en tres partes:\n\n1. HIPÓTESIS 1: Trastorno por uso de sedantes (benzodiacepinas) y alcohol. Apoyan: caja de diazepam vacía, consumo de 2-3 copas de vino diarias, GGT elevada, MMSE 26/30 con fallo en restas seriadas (deterioro cognitivo leve secundario), delirios de envenenamiento (paranoidismo inducido por sustancias). Matizan: el paciente oculta el consumo, lo que dificulta la anamnesis.\n\n2. HIPÓTESIS 2: Duelo normal con fenómenos perceptivos transitorios vs. Duelo prolongado. Apoyan: 10 meses de viudez, alucinaciones visuales/auditivas de la esposa, discute con sillas vacías. Matizan: la presencia de delirios de envenenamiento y el deterioro cognitivo apuntan más a causa orgánica/sustancias que a duelo puro. El duelo normal no justifica delirios de persecución.\n\n3. HIPÓTESIS 3: Rasgo de personalidad anancástico (6D11.4) exacerbado por el duelo. Apoyan: rigidez extrema con el orden de los medicamentos, furia si se mueven, acusaciones de envenenamiento (control excesivo). Matizan: es egosintónico y persistente, no es un simple TOC.\n\nDIAGNÓSTICO FINAL INTEGRADOR: Trastorno por uso de benzodiacepinas y alcohol (causante de deterioro cognitivo y paranoidismo) en un paciente con duelo normal y rasgo de personalidad anancástico exacerbado. Descartar delirium por abstinencia.\n\nPLAN: Intervención familiar, retiro seguro y gradual de benzodiacepinas, monitoreo de abstinencia, evitar antipsicóticos de entrada, derivar a salud mental para manejo de duelo y rasgo de personalidad."
+  }
+ ]
+}
