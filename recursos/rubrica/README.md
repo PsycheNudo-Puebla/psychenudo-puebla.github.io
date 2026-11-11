@@ -5,4 +5,4 @@ Este espacio contiene la herramienta de evaluación interactiva para asegurar la
 ## Herramientas
 *   **[Rúbrica de Evaluación](./index.html)**: Aplicación web local para la calificación de artículos y perfiles profesionales.
 
-*Nota: Esta herramienta funciona de manera offline. Los datos se guardan en el navegador y deben ser exportados como JSON o CSV para su almacenamiento permanente.*
+*Nota: Esta herramienta funciona de manera offline. Los datos se guardan en el navegador y pueden descargarse como respaldo JSON, tabla CSV/Excel o informe PDF para su almacenamiento permanente.*

@@ -490,6 +490,32 @@
             gap: 10px;
         }
 
+        .backup-reminder {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            background: #fff8e1;
+            border: 1px solid #ffe082;
+            border-left: 5px solid #ffb300;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 15px 0;
+            color: #5d4a00;
+            font-size: 14px;
+        }
+
+        .backup-reminder strong {
+            color: #4a3b00;
+        }
+
+        .backup-reminder button {
+            margin: 0;
+            padding: 8px 14px;
+            white-space: nowrap;
+        }
+
         .evaluation-layout {
             display: grid;
             grid-template-columns: 1fr 2fr;
@@ -883,7 +909,7 @@
                 <div id="activeStatusDisplay" style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef; display: inline-block; text-align: left; min-width: 300px;">
                     <div style="margin-bottom: 5px;"><strong>📂 Rúbrica Activa:</strong> <span id="statusRubric" style="color: var(--primary);">Ninguna</span></div>
                     <div><strong>👥 Grupo Activo:</strong> <span id="statusGroup" style="color: var(--success);">Ninguno</span></div>
-                    <div style="margin-top: 5px;"><strong>💾 Último Guardado Completo:</strong> <span id="statusLastCompleteSave" style="color: #555;">Sin registro</span></div>
+                    <div style="margin-top: 5px;"><strong>💾 Último respaldo descargado:</strong> <span id="statusLastCompleteSave" style="color: #555;">Sin registro</span></div>
                     <button id="btnContinueEvaluation" class="primary" onclick="goToEvaluateRubric()" style="width: 100%; margin-top: 10px; display: none;">➡️ Continuar Evaluando</button>
                 </div>
             </div>
@@ -975,7 +1001,7 @@
                     <h1 style="margin: 0;">Evaluar</h1>
                 </div>
                 <div class="evaluation-header-actions">
-                    <button class="secondary" onclick="exportRubricWithAllData()">📥 Exportar Rúbrica Completa</button>
+                    <button class="secondary" onclick="exportRubricWithAllData()" title="Incluye la rúbrica, el grupo y las calificaciones. Puedes volver a cargar este archivo para continuar después.">💾 Guardar para continuar después (.json)</button>
                 </div>
             </div>
 
@@ -983,6 +1009,14 @@
             <div class="evaluation-header-info">
                 <p><strong>Rúbrica:</strong> <span id="evalRubricName">-</span></p>
                 <p><strong>Alumno:</strong> <span id="evalStudentName">-</span></p>
+            </div>
+
+            <div id="backupReminder" class="backup-reminder" style="display: none;">
+                <div>
+                    <strong>💾 Tus datos están guardados solo en este navegador.</strong><br>
+                    <span id="backupReminderText" style="font-size: 13px;">Descarga un respaldo para no perderlos si borras la caché o cambias de equipo.</span>
+                </div>
+                <button class="secondary" onclick="exportRubricWithAllData()">⬇️ Descargar respaldo (.json)</button>
             </div>
 
             <!-- Layout: Sidebar + Contenido -->
@@ -994,7 +1028,7 @@
                     <div class="group-selector-section">
                         <button class="primary" onclick="triggerImportStudents()" style="width: 100%; margin-bottom: 10px;">📥 Importar Alumnos</button>
                         <input type="file" id="importStudentsFile" accept=".json" style="display: none;" onchange="importStudents()">
-                        <button class="success" onclick="exportToExcel()" style="width: 100%; margin-bottom: 15px;">📊 Exportar a Excel</button>
+                        <button class="success" onclick="exportToExcel()" style="width: 100%; margin-bottom: 15px;" title="Descarga una tabla con la calificación final y el nivel elegido en cada criterio.">📊 Descargar tabla de notas (Excel)</button>
                         <button class="info" onclick="openEvaluationHistory()" style="width: 100%; margin-bottom: 15px;">📖 Ver Historial de Evaluaciones</button>
                     </div>
                     
@@ -1024,9 +1058,22 @@
                                 <button class="secondary" onclick="prevStudent()" style="flex: 1;">⬅️ Alumno Anterior</button>
                                 <button class="secondary" onclick="nextStudent()" style="flex: 1;">Alumno Siguiente ➡️</button>
                             </div>
-                            <button class="success" onclick="saveEvaluation()" style="width: 100%; margin-top: 10px;">💾 Guardar Progreso (Local)</button>
-                            <button class="secondary" onclick="exportEvaluation()" style="width: 100%; margin-top: 8px;">📤 Exportar Esta Evaluación</button>
-                            <button class="warning" onclick="exportEvaluationToPDF()" style="width: 100%; margin-top: 8px;">📄 Exportar Evaluación a PDF</button>
+                            <button class="success" onclick="saveEvaluation()" style="width: 100%; margin-top: 10px;">💾 Guardar avance de este alumno</button>
+
+                            <div style="margin-top: 14px; padding: 14px; background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; text-align: left;">
+                                <div style="font-weight: 600; color: var(--dark); margin-bottom: 4px;">📄 Descargar informe</div>
+                                <p style="font-size: 12px; color: #666; margin: 0 0 10px; line-height: 1.4;">
+                                    El PDF sirve para leer o imprimir. Puedes descargar solo este alumno o todo el grupo en un archivo. En el informe grupal se incluyen únicamente los alumnos ya evaluados.
+                                </p>
+                                <button class="warning" onclick="exportEvaluationToPDF(this)" style="width: 100%; margin-bottom: 8px;">📄 Solo este alumno</button>
+                                <button class="warning" onclick="exportAllEvaluationsToPDF(this)" style="width: 100%; margin-bottom: 12px;">📚 Todo el grupo (un solo PDF)</button>
+
+                                <details style="font-size: 12px; color: #666;">
+                                    <summary style="cursor: pointer; color: #555;">Opciones avanzadas</summary>
+                                    <button class="secondary" onclick="exportEvaluation()" style="width: 100%; margin-top: 8px;" title="Descarga los datos de esta evaluación en JSON para registros o sistemas externos.">📋 Datos de este alumno (.json)</button>
+                                    <div style="margin-top: 6px; color: #888; line-height: 1.35;">Solo incluye a este alumno. Para respaldar todo el proyecto, usa «Guardar para continuar después».</div>
+                                </details>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1197,9 +1244,10 @@
                     <strong>Si borras el historial, caché o usas modo incógnito, podrías perder tus datos al cerrar.</strong>
                 </div>
                 <ul style="margin-top: 5px; padding-left: 20px;">
-                    <li>Usa el botón <strong>"Guardar Evaluación"</strong> frecuentemente para no perder progreso si cierras la pestaña accidentalmente.</li>
-                    <li>Al terminar una sesión, <strong>SIEMPRE EXPORTA</strong> tus resultados (Excel o JSON) a tu computadora.</li>
-                    <li>El archivo exportado es tu única copia de seguridad permanente.</li>
+                    <li>Usa el botón <strong>"Guardar avance de este alumno"</strong> frecuentemente para no perder progreso si cierras la pestaña accidentalmente.</li>
+                    <li>La memoria del navegador puede borrarse al limpiar la caché, cambiar de equipo o usar modo incógnito. <strong>No la uses como único respaldo.</strong></li>
+                    <li>Descarga tu <strong>respaldo (.json)</strong> con frecuencia. Es el archivo que puedes volver a cargar para continuar después.</li>
+                    <li>También puedes descargar el <strong>informe PDF</strong> para leer o imprimir y la <strong>tabla de notas en Excel</strong>.</li>
                 </ul>
 
                 <h4 style="color: var(--primary); margin-bottom: 5px; margin-top: 15px;">🚀 Flujo de Trabajo Recomendado</h4>
@@ -1207,7 +1255,7 @@
                     <li><strong>Crear Rúbrica:</strong> Define criterios y niveles. Puedes usar rangos (ej: 8-10) o puntos fijos.</li>
                     <li><strong>Grupos:</strong> Crea o importa listas de alumnos para agilizar la evaluación.</li>
                     <li><strong>Evaluar:</strong> Selecciona la rúbrica y el alumno. Califica criterio por criterio.</li>
-                    <li><strong>Exportar:</strong> Descarga el reporte final en Excel o JSON.</li>
+                    <li><strong>Descargar:</strong> Genera un informe PDF individual o grupal, una tabla Excel o un respaldo .json para continuar después.</li>
                 </ol>
             </div>
             <div class="modal-footer">
@@ -1365,7 +1413,8 @@
         function setLastCompleteSaveStatus(source, groupName, gradedCount) {
             const groupText = groupName || 'Sin grupo';
             const safeCount = Number.isFinite(gradedCount) ? gradedCount : 0;
-            const text = `${source} • Grupo: ${groupText} • Evaluados: ${safeCount}`;
+            const dateText = new Date().toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' });
+            const text = `${dateText} • Grupo: ${groupText} • Evaluados: ${safeCount}`;
             const statusEl = document.getElementById('statusLastCompleteSave');
 
             if (statusEl) {
@@ -1384,6 +1433,7 @@
             loadFromStorage();
             loadGroupsFromStorage();
             updateWelcomeStatus();
+            updateBackupReminder();
 
             // Navegación con teclado para evaluación
             document.addEventListener('keydown', (e) => {
@@ -1436,6 +1486,41 @@
                     btnContinue.style.display = 'none';
                 }
             }
+        }
+
+        function getHoursSinceLastBackup() {
+            const last = localStorage.getItem('rubrica_last_backup_at');
+            if (!last) return null;
+            const date = new Date(last);
+            if (Number.isNaN(date.getTime())) return null;
+            return (Date.now() - date.getTime()) / 3600000;
+        }
+
+        function updateBackupReminder() {
+            const reminder = document.getElementById('backupReminder');
+            const textEl = document.getElementById('backupReminderText');
+            if (!reminder) return;
+
+            const hours = getHoursSinceLastBackup();
+            if (hours !== null && hours < 12) {
+                reminder.style.display = 'none';
+                return;
+            }
+
+            if (textEl) {
+                if (hours === null) {
+                    textEl.textContent = 'Aún no has descargado un respaldo completo. Descárgalo para no depender de la memoria del navegador.';
+                } else {
+                    const wholeHours = Math.floor(hours);
+                    const days = Math.floor(hours / 24);
+                    const timeText = days >= 1
+                        ? `${days} día${days === 1 ? '' : 's'}`
+                        : `${wholeHours} hora${wholeHours === 1 ? '' : 's'}`;
+                    textEl.textContent = `Tu último respaldo fue hace ${timeText}. Descarga uno nuevo para proteger los cambios recientes.`;
+                }
+            }
+
+            reminder.style.display = 'flex';
         }
 
         // ═══════════════════════════════════════════════════════════════════════════════
@@ -2092,7 +2177,9 @@
             );
 
             setLastCompleteSaveStatus('Local', assoc.associatedGroupName, Object.keys(allStudentScores).length);
-            alert(`✅ Rúbrica exportada\n👥 Grupo: ${assoc.associatedGroupName || 'Sin grupo'}\n✏️ Evaluados: ${Object.keys(allStudentScores).length}`);
+            localStorage.setItem('rubrica_last_backup_at', new Date().toISOString());
+            updateBackupReminder();
+            alert(`✅ Respaldo descargado correctamente.\n👥 Grupo: ${assoc.associatedGroupName || 'Sin grupo'}\n✏️ Evaluados: ${Object.keys(allStudentScores).length}\n\nGuarda este archivo: podrás volver a cargarlo para continuar después, incluso en otro equipo.`);
         }
 
         function triggerImportRubricEdit() {
@@ -2141,6 +2228,7 @@
                 
                 evalRubricNameEl.textContent = currentRubric.name;
                 console.log('Nombre de rúbrica establecido:', currentRubric.name);
+                updateBackupReminder();
                 
                 renderEvaluationCriteria();
                 console.log('Criterios renderizados');
@@ -2427,7 +2515,11 @@
             saveToStorage();
             saveEvaluationToStorage(currentEvaluation.studentName, currentEvaluation.scores);
             renderStudentsList(); // Actualizar lista para mostrar check y progreso
-            alert('✅ Evaluación guardada correctamente');
+            const hoursSinceBackup = getHoursSinceLastBackup();
+            const backupHint = (hoursSinceBackup === null || hoursSinceBackup >= 12)
+                ? '\n\n💡 Recuerda descargar tu respaldo (.json) para no depender de la memoria del navegador.'
+                : '';
+            alert('✅ Avance guardado en este navegador.' + backupHint);
         }
 
         function exportEvaluation() {
@@ -2461,26 +2553,9 @@
             downloadFile(JSON.stringify(evaluation, null, 2), `evaluacion_${currentEvaluation.studentName}_${Date.now()}.json`);
         }
 
-        async function exportEvaluationToPDF() {
-            if (!currentEvaluation.studentName) {
-                alert('Por favor ingresa o selecciona el nombre del alumno antes de exportar.');
-                return;
-            }
-            if (!currentRubric || !currentRubric.criteria || currentRubric.criteria.length === 0) {
-                alert('No hay rúbrica cargada.');
-                return;
-            }
-
-            const { jsPDF } = window.jspdf;
-            const html2canvas = window.html2canvas;
-
-            if (!jsPDF || !html2canvas) {
-                alert('Error: No se pudieron cargar las librerías para generar PDF.');
-                return;
-            }
-
-            const pdfContainer = document.getElementById('pdf-content');
-            const totalScore = document.getElementById('finalScore').textContent;
+        function buildEvaluationReportHTML(studentName, scores) {
+            const finalGrade = calculateFinalGrade(scores);
+            const groupLabel = currentGroup ? currentGroup.name : (currentRubric.associatedGroupName || 'N/A');
 
             let content = `
                 <style>
@@ -2506,21 +2581,21 @@
                     <h2>Rúbrica: ${currentRubric.name}</h2>
                     <div class="pdf-meta">
                         <div>
-                            <strong>Alumno:</strong> ${currentEvaluation.studentName}<br>
+                            <strong>Alumno:</strong> ${studentName}<br>
                             <strong>Fecha:</strong> ${new Date().toLocaleDateString()}<br>
-                            <strong>Grupo:</strong> ${currentGroup ? currentGroup.name : (currentRubric.associatedGroupName || 'N/A')}
+                            <strong>Grupo:</strong> ${groupLabel}
                         </div>
-                        <div class="score-box">Calificación Final<br>${totalScore} / 10</div>
+                        <div class="score-box">Calificación Final<br>${finalGrade.toFixed(2)} / 10</div>
                     </div>
             `;
 
             currentRubric.criteria.forEach((criterion, idx) => {
-                const selectedLevelIdx = currentEvaluation.scores[idx];
+                const selectedLevelIdx = scores[idx];
                 const level = selectedLevelIdx !== undefined ? criterion.levels[selectedLevelIdx] : null;
                 let points = 0;
                 if (level) {
                     if (level.minPoints !== undefined && level.maxPoints !== undefined && level.minPoints !== level.maxPoints) {
-                        points = currentEvaluation.scores[`${idx}_points`] !== undefined ? parseFloat(currentEvaluation.scores[`${idx}_points`]) : parseFloat(level.minPoints);
+                        points = scores[`${idx}_points`] !== undefined ? parseFloat(scores[`${idx}_points`]) : parseFloat(level.minPoints);
                     } else {
                         points = level.minPoints !== undefined ? parseFloat(level.minPoints) : (level.points || 0);
                     }
@@ -2549,21 +2624,221 @@
             });
 
             content += `<div style="text-align: center; margin-top: 30px; font-size: 12px; color: #adb5bd;">Generado por PsycheNudo Puebla</div></div>`;
-            pdfContainer.innerHTML = content;
+            return content;
+        }
+
+        function buildGroupSummaryHTML(reports) {
+            const groupLabel = currentGroup ? currentGroup.name : (currentRubric.associatedGroupName || 'N/A');
+            const grades = reports.map(report => calculateFinalGrade(report.scores));
+            const average = grades.length > 0 ? grades.reduce((sum, grade) => sum + grade, 0) / grades.length : 0;
+            const rows = reports.map((report, idx) => {
+                return `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td>${report.studentName}</td>
+                        <td class="pdf-summary-grade">${grades[idx].toFixed(2)} / 10</td>
+                    </tr>
+                `;
+            }).join('');
+
+            return `
+                <style>
+                    .pdf-summary { font-family: 'Segoe UI', sans-serif; color: #333; padding: 20px; }
+                    .pdf-summary h1 { font-size: 26px; color: #2c3e50; text-align: center; margin-bottom: 5px; }
+                    .pdf-summary h2 { font-size: 18px; color: #7f8c8d; text-align: center; margin-bottom: 25px; }
+                    .pdf-summary-meta { display: flex; justify-content: space-between; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 5px solid #3498db; font-size: 14px; }
+                    .pdf-summary-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                    .pdf-summary-table th { background: #2c3e50; color: white; padding: 10px 12px; text-align: left; font-size: 13px; }
+                    .pdf-summary-table th:last-child { text-align: right; }
+                    .pdf-summary-table td { padding: 9px 12px; border-bottom: 1px solid #dee2e6; font-size: 13px; }
+                    .pdf-summary-table tr:nth-child(even) td { background: #f8f9fa; }
+                    .pdf-summary-table td:last-child { text-align: right; }
+                    .pdf-summary-grade { font-weight: bold; color: #1f7a3a; }
+                    .pdf-summary-note { margin-top: 15px; font-size: 11px; color: #6c757d; }
+                    .pdf-summary-footer { text-align: center; margin-top: 30px; font-size: 12px; color: #adb5bd; }
+                </style>
+                <div class="pdf-summary">
+                    <h1>Resumen de calificaciones</h1>
+                    <h2>Rúbrica: ${currentRubric.name}</h2>
+                    <div class="pdf-summary-meta">
+                        <div><strong>Grupo:</strong> ${groupLabel}</div>
+                        <div><strong>Fecha:</strong> ${new Date().toLocaleDateString()}</div>
+                        <div><strong>Alumnos evaluados:</strong> ${reports.length}</div>
+                        <div><strong>Promedio del grupo:</strong> ${average.toFixed(2)} / 10</div>
+                    </div>
+                    <table class="pdf-summary-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">#</th>
+                                <th>Alumno</th>
+                                <th style="width: 190px;">Calificación final</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows}
+                        </tbody>
+                    </table>
+                    <div class="pdf-summary-note">Este resumen incluye únicamente a los alumnos con evaluación guardada. Las páginas siguientes muestran el detalle de cada uno.</div>
+                    <div class="pdf-summary-footer">Generado por PsycheNudo Puebla</div>
+                </div>
+            `;
+        }
+
+        function addCanvasToPdf(pdf, canvas, pdfWidth, pdfHeight) {
+            const imgData = canvas.toDataURL('image/png');
+            const ratio = canvas.width / canvas.height;
+            let finalImgWidth = pdfWidth - 40;
+            let finalImgHeight = finalImgWidth / ratio;
+            if (finalImgHeight > pdfHeight - 40) {
+                finalImgHeight = pdfHeight - 40;
+                finalImgWidth = finalImgHeight * ratio;
+            }
+            pdf.addImage(imgData, 'PNG', (pdfWidth - finalImgWidth) / 2, (pdfHeight - finalImgHeight) / 2, finalImgWidth, finalImgHeight);
+        }
+
+        async function createEvaluationPdf(reports, filename, includeSummary = false) {
+            const { jsPDF } = window.jspdf;
+            const html2canvas = window.html2canvas;
+
+            if (!jsPDF || !html2canvas) {
+                alert('Error: No se pudieron cargar las librerías para generar PDF.');
+                return;
+            }
+
+            const pdfContainer = document.getElementById('pdf-content');
+            const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: 'a4' });
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            let pageCount = 0;
+
+            const renderPage = async (html) => {
+                if (pageCount > 0) pdf.addPage('a4', 'landscape');
+                pdfContainer.innerHTML = html;
+                const canvas = await html2canvas(pdfContainer, { scale: 2 });
+                addCanvasToPdf(pdf, canvas, pdfWidth, pdfHeight);
+                pageCount++;
+            };
 
             try {
-                const canvas = await html2canvas(pdfContainer, { scale: 2 });
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: 'a4' });
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = pdf.internal.pageSize.getHeight();
-                const ratio = canvas.width / canvas.height;
-                let finalImgWidth = pdfWidth - 40;
-                let finalImgHeight = finalImgWidth / ratio;
-                if (finalImgHeight > pdfHeight - 40) { finalImgHeight = pdfHeight - 40; finalImgWidth = finalImgHeight * ratio; }
-                pdf.addImage(imgData, 'PNG', (pdfWidth - finalImgWidth) / 2, (pdfHeight - finalImgHeight) / 2, finalImgWidth, finalImgHeight);
-                pdf.save(`Evaluacion_${currentEvaluation.studentName.replace(/\s+/g, '_')}.pdf`);
-            } catch (err) { alert('Error al generar el PDF.'); } finally { pdfContainer.innerHTML = ''; }
+                if (includeSummary) {
+                    await renderPage(buildGroupSummaryHTML(reports));
+                }
+                for (const report of reports) {
+                    await renderPage(buildEvaluationReportHTML(report.studentName, report.scores));
+                }
+                pdf.save(filename);
+            } catch (err) {
+                console.error('Error al generar el PDF:', err);
+                alert('Error al generar el PDF.');
+            } finally {
+                pdfContainer.innerHTML = '';
+            }
+        }
+
+        function setDownloadButtonLoading(button, isLoading) {
+            if (!button) return;
+            if (isLoading) {
+                button.dataset.originalText = button.textContent;
+                button.textContent = 'Generando PDF...';
+                button.disabled = true;
+            } else {
+                button.textContent = button.dataset.originalText || button.textContent;
+                button.disabled = false;
+            }
+        }
+
+        async function exportEvaluationToPDF(button) {
+            if (!currentEvaluation.studentName) {
+                alert('Primero selecciona o escribe el nombre del alumno.');
+                return;
+            }
+            if (!currentRubric || !currentRubric.criteria || currentRubric.criteria.length === 0) {
+                alert('No hay rúbrica cargada.');
+                return;
+            }
+
+            setDownloadButtonLoading(button, true);
+            try {
+                await createEvaluationPdf(
+                    [{ studentName: currentEvaluation.studentName, scores: currentEvaluation.scores }],
+                    `Informe_${currentEvaluation.studentName.replace(/\s+/g, '_')}.pdf`
+                );
+            } finally {
+                setDownloadButtonLoading(button, false);
+            }
+        }
+
+        function collectEvaluationsForPdf() {
+            const reports = [];
+            const seen = new Set();
+
+            (importedStudents || []).forEach(student => {
+                const studentName = typeof student === 'string' ? student : student.name;
+                if (!studentName || seen.has(studentName)) return;
+
+                const scores = loadEvaluationFromStorage(studentName);
+                if (scores && Object.keys(scores).length > 0) {
+                    reports.push({ studentName, scores });
+                    seen.add(studentName);
+                }
+            });
+
+            // Incluir alumnos evaluados manualmente que no estén en la lista importada.
+            // Si hay varias evaluaciones del mismo alumno, se conserva la última.
+            const extraEvaluations = new Map();
+            (appData.evaluations || []).forEach(evaluation => {
+                if (evaluation.rubricName !== currentRubric.name) return;
+                if (seen.has(evaluation.studentName)) return;
+                if (!evaluation.scores || Object.keys(evaluation.scores).length === 0) return;
+                extraEvaluations.set(evaluation.studentName, evaluation.scores);
+            });
+
+            extraEvaluations.forEach((scores, studentName) => {
+                reports.push({ studentName, scores });
+            });
+
+            return reports;
+        }
+
+        async function exportAllEvaluationsToPDF(button) {
+            if (!currentRubric || !currentRubric.criteria || currentRubric.criteria.length === 0) {
+                alert('No hay rúbrica cargada.');
+                return;
+            }
+
+            // Guardar el avance actual antes de generar el informe completo.
+            if (currentEvaluation.studentName && Object.keys(currentEvaluation.scores).length > 0) {
+                saveEvaluationToStorage(currentEvaluation.studentName, currentEvaluation.scores);
+            }
+
+            const reports = collectEvaluationsForPdf();
+
+            // Asegurar que el avance visible del alumno actual también se incluya,
+            // aunque todavía no se haya pulsado "Guardar avance".
+            const currentName = currentEvaluation.studentName;
+            if (currentName && Object.keys(currentEvaluation.scores).length > 0) {
+                const existingIndex = reports.findIndex(r => r.studentName === currentName);
+                if (existingIndex >= 0) {
+                    reports[existingIndex].scores = currentEvaluation.scores;
+                } else {
+                    reports.push({ studentName: currentName, scores: currentEvaluation.scores });
+                }
+            }
+
+            if (reports.length === 0) {
+                alert('Todavía no hay alumnos evaluados en esta rúbrica.\n\nCalifica al menos a un alumno y vuelve a intentarlo.');
+                return;
+            }
+
+            const groupName = currentGroup ? currentGroup.name : (currentRubric.associatedGroupName || '');
+            const safeGroup = groupName ? `_${groupName.replace(/\s+/g, '_')}` : '';
+
+            setDownloadButtonLoading(button, true);
+            try {
+                await createEvaluationPdf(reports, `Informes_grupo${safeGroup}_${Date.now()}.pdf`, true);
+            } finally {
+                setDownloadButtonLoading(button, false);
+            }
         }
 
         // ═══════════════════════════════════════════════════════════════════════════════
