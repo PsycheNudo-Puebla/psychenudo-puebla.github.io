@@ -1288,6 +1288,7 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <button class="danger" onclick="deleteAllSavedEvaluations()" title="Elimina todas las calificaciones guardadas de esta rúbrica en este navegador.">🧹 Borrar todas las calificaciones</button>
                 <button class="secondary" onclick="closeModal('modalEvaluationHistory')">Cerrar</button>
             </div>
         </div>
@@ -2549,7 +2550,45 @@
         }
 
         function getEvaluationGroupName(evaluationItem) {
-            return evaluationItem && evaluationItem.groupName ? evaluationItem.groupName : getActiveGroupName();
+            return evaluationItem && evaluationItem.groupName ? evaluationItem.groupName : 'Sin grupo';
+        }
+
+        function getActiveGroupStudentNameSet() {
+            const names = new Set();
+            const addStudent = (student) => {
+                const name = typeof student === 'string' ? student : (student && student.name);
+                if (name) names.add(normalizeStudentName(name));
+            };
+
+            (importedStudents || []).forEach(addStudent);
+            if (currentGroup && Array.isArray(currentGroup.students)) {
+                currentGroup.students.forEach(addStudent);
+            }
+
+            return names;
+        }
+
+        // Indica si una evaluación guardada pertenece al grupo activo.
+        // Evita mezclar calificaciones de grupos anteriores en informes y exportaciones.
+        function evaluationBelongsToActiveGroup(evaluationItem) {
+            if (!currentGroup || !currentGroup.name) return true;
+
+            const activeName = normalizeStudentName(currentGroup.name);
+            const evaluationGroup = evaluationItem && evaluationItem.groupName
+                ? normalizeStudentName(evaluationItem.groupName)
+                : '';
+
+            if (evaluationGroup) return evaluationGroup === activeName;
+
+            // Evaluaciones antiguas sin grupo: solo si el alumno está en el grupo actual.
+            return getActiveGroupStudentNameSet().has(normalizeStudentName(evaluationItem.studentName));
+        }
+
+        function countEvaluationsFromOtherGroups() {
+            if (!currentRubric) return 0;
+            return (appData.evaluations || []).filter(e =>
+                e.rubricName === currentRubric.name && !evaluationBelongsToActiveGroup(e)
+            ).length;
         }
 
         function saveEvaluation() {
@@ -2996,11 +3035,12 @@
                 }
             });
 
-            // Incluir alumnos evaluados manualmente que no estén en la lista importada.
+            // Incluir alumnos evaluados manualmente, pero solo los del grupo activo.
             // Si hay varias evaluaciones del mismo alumno, se conserva la última.
             const extraEvaluations = new Map();
             (appData.evaluations || []).forEach(evaluation => {
                 if (evaluation.rubricName !== currentRubric.name) return;
+                if (!evaluationBelongsToActiveGroup(evaluation)) return;
                 if (seen.has(evaluation.studentName)) return;
                 if (!evaluation.scores || Object.keys(evaluation.scores).length === 0) return;
                 extraEvaluations.set(evaluation.studentName, evaluation.scores);
@@ -3096,7 +3136,13 @@
                         if (currentRubric) currentRubric.students = importedStudents;
                         const group = activateImportedGroup(groupName, importedStudents);
                         renderStudentsList();
-                        alert(`✅ ${importedStudents.length} alumno(s) importado(s) correctamente.\n👥 Grupo: "${group.name}"`);
+
+                        const leftovers = countEvaluationsFromOtherGroups();
+                        const leftoverHint = leftovers > 0
+                            ? `\n\n🧹 Hay ${leftovers} calificación(es) guardada(s) de otros grupos. Puedes borrarlas desde «Ver historial por grupo».`
+                            : '';
+
+                        alert(`✅ ${importedStudents.length} alumno(s) importado(s) correctamente.\n👥 Grupo: "${group.name}"${leftoverHint}`);
                     } else {
                         renderStudentsList();
                         alert(`✅ ${importedStudents.length} alumno(s) importado(s) correctamente`);
@@ -3419,9 +3465,9 @@
                 }
             });
             
-            // Incluir también evaluaciones guardadas en appData
+            // Incluir también evaluaciones guardadas en appData (solo del grupo activo)
             appData.evaluations.forEach(evaluationItem => {
-                if (evaluationItem.rubricName === currentRubric.name) {
+                if (evaluationItem.rubricName === currentRubric.name && evaluationBelongsToActiveGroup(evaluationItem)) {
                     allResults.push({
                         rubric: evaluationItem.rubricName,
                         student: evaluationItem.studentName,
@@ -3477,9 +3523,9 @@
                 }
             });
             
-            // Agregar evaluaciones manuales no importadas
+            // Agregar evaluaciones manuales no importadas (solo del grupo activo)
             appData.evaluations.forEach(evaluationItem => {
-                if (evaluationItem.rubricName === currentRubric.name && !allResults.find(r => r.student === evaluationItem.studentName)) {
+                if (evaluationItem.rubricName === currentRubric.name && evaluationBelongsToActiveGroup(evaluationItem) && !allResults.find(r => r.student === evaluationItem.studentName)) {
                     allResults.push({ student: evaluationItem.studentName, scores: evaluationItem.scores });
                 }
             });
@@ -3552,9 +3598,12 @@
 
             let historyHTML = `
                 <div>
-                    <p style="color: #666; margin-bottom: 15px;">
+                    <p style="color: #666; margin-bottom: 10px;">
                         <strong>Rúbrica:</strong> ${currentRubric.name}<br>
                         <strong>Grupos:</strong> ${groups.size} · <strong>Alumnos evaluados:</strong> ${totalStudents}
+                    </p>
+                    <p style="font-size: 12px; color: #888; margin: 0 0 15px; line-height: 1.4;">
+                        Solo se muestran las calificaciones guardadas en este navegador. Puedes borrar las que ya no necesites; la rúbrica y el grupo no se modifican.
                     </p>
                     <div style="border-top: 1px solid #ddd; margin-bottom: 15px;"></div>
             `;
@@ -3574,9 +3623,13 @@
                     <div style="margin-bottom: 22px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
                         <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; background: #f1f5f9; padding: 10px 14px; border-bottom: 1px solid #e2e8f0;">
                             <strong style="color: var(--dark);">👥 ${groupName}</strong>
-                            <span style="font-size: 12px; color: #555;">
-                                ${students.length} alumno${students.length === 1 ? '' : 's'} · Promedio: <strong style="color: #1f7a3a;">${average.toFixed(1)}/10</strong>
-                            </span>
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <span style="font-size: 12px; color: #555;">
+                                    ${students.length} alumno${students.length === 1 ? '' : 's'} · Promedio: <strong style="color: #1f7a3a;">${average.toFixed(1)}/10</strong>
+                                </span>
+                                <button class="danger" style="padding: 4px 10px; font-size: 12px;" title="Eliminar las calificaciones guardadas de este grupo"
+                                        onclick="deleteSavedGroup(decodeURIComponent('${encodeURIComponent(groupName)}'))">🗑 Borrar grupo</button>
+                            </div>
                         </div>
                         <div>
                 `;
@@ -3589,6 +3642,8 @@
                         day: 'numeric'
                     });
                     const rowBackground = idx % 2 === 0 ? '#ffffff' : '#f8f9fa';
+                    const studentArg = encodeURIComponent(evaluationItem.studentName);
+                    const rubricArg = encodeURIComponent(evaluationItem.rubricName);
 
                     historyHTML += `
                         <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 14px; background: ${rowBackground}; border-bottom: 1px solid #eee;">
@@ -3596,11 +3651,13 @@
                                 <div style="font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${evaluationItem.studentName}</div>
                                 <div style="font-size: 11px; color: #888;">${date}</div>
                             </div>
-                            <div style="display: flex; align-items: center; gap: 10px; white-space: nowrap;">
+                            <div style="display: flex; align-items: center; gap: 8px; white-space: nowrap;">
                                 <span style="color: var(--success); font-weight: bold; font-size: 14px;">${finalGrade.toFixed(1)}/10</span>
-                                <button class="primary" style="padding: 4px 10px; font-size: 12px;" onclick="loadEvaluationFromHistory('${evaluationItem.studentName}', '${evaluationItem.rubricName}')">
+                                <button class="primary" style="padding: 4px 10px; font-size: 12px;" onclick="loadEvaluationFromHistory(decodeURIComponent('${studentArg}'), decodeURIComponent('${rubricArg}'))">
                                     ✏️ Ver/Editar
                                 </button>
+                                <button class="danger" style="padding: 4px 8px; font-size: 12px;" title="Eliminar esta calificación guardada"
+                                        onclick="deleteSavedEvaluation(decodeURIComponent('${studentArg}'), decodeURIComponent('${rubricArg}'))">🗑</button>
                             </div>
                         </div>
                     `;
@@ -3618,6 +3675,95 @@
             document.getElementById('evaluationHistoryContent').innerHTML = historyHTML;
             openModal('modalEvaluationHistory');
             console.log('✅ Modal de historial abierto');
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // BORRADO DE CALIFICACIONES GUARDADAS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function removeEvaluationFromLocalStorage(studentName) {
+            if (!studentName) return;
+            if (currentRubric && currentRubric.id !== undefined) {
+                localStorage.removeItem(`eval_${currentRubric.id}_${studentName}`);
+            }
+        }
+
+        function refreshEvaluationHistory(emptyMessage) {
+            const hasEvaluations = (appData.evaluations || []).some(e => e.rubricName === currentRubric.name);
+
+            if (hasEvaluations) {
+                openEvaluationHistory();
+                return;
+            }
+
+            document.getElementById('evaluationHistoryContent').innerHTML = `
+                <div style="padding: 25px 15px; text-align: center; color: #666;">
+                    <div style="font-size: 32px; margin-bottom: 8px;">🧹</div>
+                    ${emptyMessage || 'No quedan calificaciones guardadas para esta rúbrica.'}
+                </div>
+            `;
+            openModal('modalEvaluationHistory');
+        }
+
+        function deleteSavedEvaluation(studentName, rubricName) {
+            if (!studentName) return;
+
+            const confirmed = confirm(`¿Eliminar la calificación guardada de "${studentName}"?\n\nSe borra de este navegador. La rúbrica, el grupo y la lista de alumnos no se modifican.`);
+            if (!confirmed) return;
+
+            removeEvaluationFromLocalStorage(studentName);
+            appData.evaluations = (appData.evaluations || []).filter(e =>
+                !(e.studentName === studentName && e.rubricName === rubricName)
+            );
+            saveToStorage();
+            renderStudentsList();
+            refreshEvaluationHistory();
+        }
+
+        function deleteSavedGroup(groupName) {
+            const targets = (appData.evaluations || []).filter(e =>
+                e.rubricName === currentRubric.name && getEvaluationGroupName(e) === groupName
+            );
+
+            if (targets.length === 0) return;
+
+            const confirmed = confirm(`¿Eliminar ${targets.length} calificación(es) guardada(s) del grupo "${groupName}"?\n\nSe borran de este navegador. El grupo y sus alumnos se conservan.`);
+            if (!confirmed) return;
+
+            const targetSet = new Set(targets);
+            targets.forEach(evaluationItem => removeEvaluationFromLocalStorage(evaluationItem.studentName));
+            appData.evaluations = appData.evaluations.filter(e => !targetSet.has(e));
+            saveToStorage();
+            renderStudentsList();
+            refreshEvaluationHistory();
+        }
+
+        function deleteAllSavedEvaluations() {
+            const rubricName = currentRubric.name;
+            const total = (appData.evaluations || []).filter(e => e.rubricName === rubricName).length;
+
+            const confirmed = confirm(`¿Eliminar todas las calificaciones guardadas de la rúbrica "${rubricName}"?\n\nSe borran de este navegador, incluidas las de grupos anteriores. La rúbrica, el grupo y la lista de alumnos se conservan.`);
+            if (!confirmed) return;
+
+            (appData.evaluations || []).forEach(evaluationItem => {
+                if (evaluationItem.rubricName === rubricName) {
+                    removeEvaluationFromLocalStorage(evaluationItem.studentName);
+                }
+            });
+
+            // Limpiar también claves sueltas que ya no tengan evaluación asociada.
+            if (currentRubric && currentRubric.id !== undefined) {
+                const prefix = `eval_${currentRubric.id}_`;
+                for (let i = localStorage.length - 1; i >= 0; i--) {
+                    const key = localStorage.key(i);
+                    if (key && key.indexOf(prefix) === 0) localStorage.removeItem(key);
+                }
+            }
+
+            appData.evaluations = (appData.evaluations || []).filter(e => e.rubricName !== rubricName);
+            saveToStorage();
+            renderStudentsList();
+            refreshEvaluationHistory(`Se eliminaron ${total} calificación(es) guardada(s) de esta rúbrica.`);
         }
 
         function loadEvaluationFromHistory(studentName, rubricName) {
