@@ -1973,37 +1973,22 @@
             downloadFile(JSON.stringify(currentRubric, null, 2), `rubrica_${currentRubric.name}_${Date.now()}.json`);
         }
 
-        async function exportRubricToPDF() {
-            if (!currentRubric || currentRubric.criteria.length === 0) {
-                alert('No hay rúbrica para exportar a PDF.');
-                return;
-            }
-
-            // 1. Get the PDF generation libraries
-            const { jsPDF } = window.jspdf;
-            const html2canvas = window.html2canvas;
-
-            if (!jsPDF || !html2canvas) {
-                alert('Error: No se pudieron cargar las librerías para generar PDF. Revisa tu conexión a internet.');
-                return;
-            }
-
-            // 2. Preparar el contenido de la rúbrica para una página vertical.
+        function buildRubricHTML() {
             const groupLabel = currentGroup ? currentGroup.name : (currentRubric.associatedGroupName || 'Sin grupo');
             let content = `
                 <style>
                     .pdf-rubric { color: #333; font-family: 'Segoe UI', sans-serif; padding: 0; }
-                    .pdf-rubric h1 { font-size: 20px; color: #2c3e50; text-align: center; margin: 0 0 4px; }
-                    .pdf-rubric-meta { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; padding: 8px 12px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #3498db; font-size: 11.5px; }
-                    .pdf-rubric .pdf-criterion { border: 1px solid #ccc; border-radius: 6px; margin-bottom: 9px; overflow: hidden; page-break-inside: avoid; }
-                    .pdf-rubric .pdf-criterion-title { background-color: #f2f2f2; padding: 6px 10px; font-weight: bold; font-size: 12px; border-bottom: 1px solid #ccc; }
+                    .pdf-rubric h1 { font-size: 21px; color: #2c3e50; text-align: center; margin: 0 0 4px; }
+                    .pdf-rubric-meta { display: flex; justify-content: center; gap: 22px; flex-wrap: wrap; margin-bottom: 10px; padding: 7px 12px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #3498db; font-size: 12px; }
+                    .pdf-rubric .pdf-criterion { border: 1px solid #ccc; border-radius: 6px; margin-bottom: 7px; overflow: hidden; page-break-inside: avoid; }
+                    .pdf-rubric .pdf-criterion-title { background-color: #f2f2f2; padding: 5px 10px; font-weight: bold; font-size: 12.5px; border-bottom: 1px solid #ccc; }
                     .pdf-rubric .pdf-levels-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-                    .pdf-rubric .pdf-levels-table th, .pdf-rubric .pdf-levels-table td { border-right: 1px solid #ddd; padding: 6px 7px; text-align: left; vertical-align: top; }
+                    .pdf-rubric .pdf-levels-table th, .pdf-rubric .pdf-levels-table td { border-right: 1px solid #ddd; padding: 5px 9px; text-align: left; vertical-align: top; }
                     .pdf-rubric .pdf-levels-table th:last-child, .pdf-rubric .pdf-levels-table td:last-child { border-right: none; }
-                    .pdf-rubric .pdf-levels-table th { background-color: #e9ecef; font-size: 10.5px; border-bottom: 1px solid #ddd; }
-                    .pdf-rubric .pdf-level-name { font-weight: bold; font-size: 10.5px; color: #3498db; }
-                    .pdf-rubric .pdf-level-points { font-size: 9px; color: #555; font-weight: bold; margin-top: 2px; }
-                    .pdf-rubric .pdf-level-desc { font-size: 9.5px; color: #666; white-space: pre-wrap; line-height: 1.28; }
+                    .pdf-rubric .pdf-levels-table th { background-color: #e9ecef; font-size: 11.5px; border-bottom: 1px solid #ddd; }
+                    .pdf-rubric .pdf-level-name { font-weight: bold; font-size: 11.5px; color: #3498db; }
+                    .pdf-rubric .pdf-level-points { font-size: 10px; color: #555; font-weight: bold; margin-top: 2px; }
+                    .pdf-rubric .pdf-level-desc { font-size: 10.5px; color: #444; white-space: pre-wrap; line-height: 1.3; }
                 </style>
                 <div class="pdf-rubric">
                     <div data-pdf-block>
@@ -2037,14 +2022,34 @@
             });
 
             content += `<div data-pdf-block style="text-align: center; margin-top: 10px; font-size: 9px; color: #adb5bd;">Generado por PsycheNudo Puebla</div></div>`;
+            return content;
+        }
 
-            // 3. Generar el PDF en vertical y ajustar el contenido a la página.
-            const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: 'a4' });
+        async function exportRubricToPDF() {
+            if (!currentRubric || currentRubric.criteria.length === 0) {
+                alert('No hay rúbrica para exportar a PDF.');
+                return;
+            }
+
+            // 1. Get the PDF generation libraries
+            const { jsPDF } = window.jspdf;
+            const html2canvas = window.html2canvas;
+
+            if (!jsPDF || !html2canvas) {
+                alert('Error: No se pudieron cargar las librerías para generar PDF. Revisa tu conexión a internet.');
+                return;
+            }
+
+            // 2. Preparar el contenido de la rúbrica para una página horizontal.
+            const content = buildRubricHTML();
+
+            // 3. Generar el PDF en horizontal y ajustar el contenido a la página.
+            const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: 'a4' });
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = pdf.internal.pageSize.getHeight();
 
             try {
-                const rendered = await renderPdfCanvas(content, pdfWidth - 40);
+                const rendered = await renderPdfCanvas(content, pdfRenderWidth(pdfWidth));
                 addCanvasSmart(pdf, rendered.canvas, rendered.blocks, rendered.scale, pdfWidth, pdfHeight);
                 pdf.save(`rubrica_${currentRubric.name.replace(/[^a-z0-9]/gi, '_')}.pdf`);
             } catch (error) {
@@ -2653,22 +2658,22 @@
             let content = `
                 <style>
                     .pdf-report { font-family: 'Segoe UI', sans-serif; color: #333; padding: 0; }
-                    .pdf-report h1 { font-size: 19px; color: #2c3e50; text-align: center; margin: 0 0 2px; }
-                    .pdf-report h2 { font-size: 13px; color: #7f8c8d; text-align: center; margin: 0 0 10px; }
-                    .pdf-meta { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; padding: 8px 12px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #3498db; }
-                    .pdf-meta div { font-size: 11.5px; line-height: 1.35; }
+                    .pdf-report h1 { font-size: 20px; color: #2c3e50; text-align: center; margin: 0 0 2px; }
+                    .pdf-report h2 { font-size: 13px; color: #7f8c8d; text-align: center; margin: 0 0 8px; }
+                    .pdf-meta { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; padding: 7px 12px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #3498db; }
+                    .pdf-meta div { font-size: 12px; line-height: 1.35; }
                     .pdf-meta .score-box { font-size: 16px; font-weight: bold; color: #2ecc71; text-align: right; white-space: nowrap; }
-                    .pdf-criterion { border: 1px solid #dee2e6; border-radius: 6px; margin-bottom: 8px; overflow: hidden; page-break-inside: avoid; }
-                    .pdf-criterion-header { background: #f1f3f5; padding: 6px 10px; font-weight: bold; font-size: 12px; display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid #dee2e6; }
+                    .pdf-criterion { border: 1px solid #dee2e6; border-radius: 6px; margin-bottom: 7px; overflow: hidden; page-break-inside: avoid; }
+                    .pdf-criterion-header { background: #f1f3f5; padding: 5px 10px; font-weight: bold; font-size: 12.5px; display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid #dee2e6; }
                     .pdf-criterion-header span:last-child { white-space: nowrap; color: #495057; }
                     .pdf-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-                    .pdf-table td { padding: 6px 7px; border-right: 1px solid #dee2e6; vertical-align: top; font-size: 10px; }
+                    .pdf-table td { padding: 5px 9px; border-right: 1px solid #dee2e6; vertical-align: top; font-size: 10.5px; }
                     .pdf-table td:last-child { border-right: none; }
                     .pdf-level-selected { background-color: #d4edda !important; position: relative; border: 1.5px solid #28a745 !important; }
                     .pdf-level-selected::after { content: "✓ Seleccionado"; position: absolute; top: 2px; right: 2px; font-size: 7px; color: #155724; font-weight: bold; background: #c3e6cb; padding: 1px 3px; border-radius: 2px; }
-                    .pdf-level-name { font-weight: bold; margin-bottom: 2px; color: #212529; font-size: 10.5px; }
-                    .pdf-level-points { font-size: 9px; color: #666; margin-bottom: 3px; font-weight: bold; }
-                    .pdf-level-desc { color: #495057; line-height: 1.28; font-size: 9.5px; }
+                    .pdf-level-name { font-weight: bold; margin-bottom: 2px; color: #212529; font-size: 11px; }
+                    .pdf-level-points { font-size: 9.5px; color: #666; margin-bottom: 3px; font-weight: bold; }
+                    .pdf-level-desc { color: #444; line-height: 1.3; font-size: 10.5px; }
                 </style>
                 <div class="pdf-report">
                     <div data-pdf-block>
@@ -2740,42 +2745,48 @@
             return `
                 <style>
                     .pdf-summary { font-family: 'Segoe UI', sans-serif; color: #333; padding: 0; }
-                    .pdf-summary h1 { font-size: 26px; color: #2c3e50; text-align: center; margin-bottom: 5px; }
-                    .pdf-summary h2 { font-size: 18px; color: #7f8c8d; text-align: center; margin-bottom: 25px; }
-                    .pdf-summary-meta { display: flex; justify-content: space-between; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 5px solid #3498db; font-size: 14px; }
-                    .pdf-summary-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-                    .pdf-summary-table th { background: #2c3e50; color: white; padding: 10px 12px; text-align: left; font-size: 13px; }
+                    .pdf-summary h1 { font-size: 24px; color: #2c3e50; text-align: center; margin: 0 0 2px; }
+                    .pdf-summary h2 { font-size: 15px; color: #7f8c8d; text-align: center; margin: 0 0 10px; }
+                    .pdf-summary-meta { display: flex; justify-content: space-between; gap: 15px; flex-wrap: wrap; margin-bottom: 10px; padding: 8px 14px; background: #f8f9fa; border-radius: 6px; border-left: 5px solid #3498db; font-size: 12.5px; }
+                    .pdf-summary-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+                    .pdf-summary-table th { background: #2c3e50; color: white; padding: 5px 12px; text-align: left; font-size: 12px; }
                     .pdf-summary-table th:last-child { text-align: right; }
-                    .pdf-summary-table td { padding: 9px 12px; border-bottom: 1px solid #dee2e6; font-size: 13px; }
+                    .pdf-summary-table td { padding: 4px 12px; border-bottom: 1px solid #dee2e6; font-size: 12px; }
                     .pdf-summary-table tr:nth-child(even) td { background: #f8f9fa; }
                     .pdf-summary-table td:last-child { text-align: right; }
                     .pdf-summary-grade { font-weight: bold; color: #1f7a3a; }
-                    .pdf-summary-note { margin-top: 15px; font-size: 11px; color: #6c757d; }
-                    .pdf-summary-footer { text-align: center; margin-top: 30px; font-size: 12px; color: #adb5bd; }
+                    .pdf-summary-note { margin-top: 8px; font-size: 10px; color: #6c757d; }
+                    .pdf-summary-footer { text-align: center; margin-top: 8px; font-size: 10px; color: #adb5bd; }
                 </style>
                 <div class="pdf-summary">
-                    <h1>Resumen de calificaciones</h1>
-                    <h2>Rúbrica: ${currentRubric.name}</h2>
-                    <div class="pdf-summary-meta">
-                        <div><strong>Grupo:</strong> ${groupLabel}</div>
-                        <div><strong>Fecha:</strong> ${new Date().toLocaleDateString()}</div>
-                        <div><strong>Alumnos evaluados:</strong> ${reports.length}</div>
-                        <div><strong>Promedio del grupo:</strong> ${average.toFixed(2)} / 10</div>
+                    <div data-pdf-block>
+                        <h1>Resumen de calificaciones</h1>
+                        <h2>Rúbrica: ${currentRubric.name}</h2>
+                        <div class="pdf-summary-meta">
+                            <div><strong>Grupo:</strong> ${groupLabel}</div>
+                            <div><strong>Fecha:</strong> ${new Date().toLocaleDateString()}</div>
+                            <div><strong>Alumnos evaluados:</strong> ${reports.length}</div>
+                            <div><strong>Promedio del grupo:</strong> ${average.toFixed(2)} / 10</div>
+                        </div>
                     </div>
-                    <table class="pdf-summary-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 50px;">#</th>
-                                <th>Alumno</th>
-                                <th style="width: 190px;">Calificación final</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${rows}
-                        </tbody>
-                    </table>
-                    <div class="pdf-summary-note">Este resumen incluye únicamente a los alumnos con evaluación guardada. Las páginas siguientes muestran el detalle de cada uno.</div>
-                    <div class="pdf-summary-footer">Generado por PsycheNudo Puebla</div>
+                    <div data-pdf-block>
+                        <table class="pdf-summary-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">#</th>
+                                    <th>Alumno</th>
+                                    <th style="width: 200px;">Calificación final</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rows}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div data-pdf-block>
+                        <div class="pdf-summary-note">Este resumen incluye únicamente a los alumnos con evaluación guardada. Las páginas siguientes muestran el detalle de cada uno.</div>
+                        <div class="pdf-summary-footer">Generado por PsycheNudo Puebla</div>
+                    </div>
                 </div>
             `;
         }
@@ -2817,10 +2828,19 @@
             return { canvas, blocks, scale };
         }
 
+        // Márgenes y escala de renderizado del PDF.
+        // El contenido se maqueta más ancho que la página y luego se escala:
+        // así el texto conserva un tamaño legible y se aprovecha todo el ancho.
+        const PDF_MARGIN = 18;
+        const PDF_RENDER_SCALE = 1.6;
+
+        function pdfRenderWidth(pdfWidth) {
+            return Math.round((pdfWidth - PDF_MARGIN * 2) * PDF_RENDER_SCALE);
+        }
+
         function addCanvasToPdf(pdf, canvas, pdfWidth, pdfHeight) {
-            const margin = 20;
-            const contentWidth = pdfWidth - margin * 2;
-            const contentHeight = pdfHeight - margin * 2;
+            const contentWidth = pdfWidth - PDF_MARGIN * 2;
+            const contentHeight = pdfHeight - PDF_MARGIN * 2;
             const ratio = canvas.width / canvas.height;
 
             let finalImgWidth = contentWidth;
@@ -2860,10 +2880,10 @@
         }
 
         function addCanvasSlicesToPdf(pdf, canvas, blocks, scale, pdfWidth, pdfHeight) {
-            const marginX = 20;
-            const marginTop = 20;
-            const marginBottom = 20;
-            const blockGap = 8;
+            const marginX = PDF_MARGIN;
+            const marginTop = PDF_MARGIN;
+            const marginBottom = PDF_MARGIN;
+            const blockGap = 6;
             const contentWidth = pdfWidth - marginX * 2;
             const contentHeight = pdfHeight - marginTop - marginBottom;
             let cursorY = marginTop;
@@ -2885,7 +2905,7 @@
                 }
 
                 if (cursorY + drawHeight > pdfHeight - marginBottom && cursorY > marginTop) {
-                    pdf.addPage('a4', 'portrait');
+                    pdf.addPage('a4', 'landscape');
                     cursorY = marginTop;
                 }
 
@@ -2896,8 +2916,8 @@
         }
 
         function addCanvasSmart(pdf, canvas, blocks, scale, pdfWidth, pdfHeight) {
-            const contentWidth = pdfWidth - 40;
-            const contentHeight = pdfHeight - 40;
+            const contentWidth = pdfWidth - PDF_MARGIN * 2;
+            const contentHeight = pdfHeight - PDF_MARGIN * 2;
             const fullHeight = canvas.height * (contentWidth / canvas.width);
 
             // Si cabe en una página (con un pequeño margen de tolerancia), se usa completa.
@@ -2918,25 +2938,25 @@
                 return;
             }
 
-            const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: 'a4' });
+            const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: 'a4' });
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = pdf.internal.pageSize.getHeight();
-            const contentWidth = pdfWidth - 40;
+            const renderWidth = pdfRenderWidth(pdfWidth);
             let pageStarted = false;
 
             try {
                 if (includeSummary) {
-                    const summary = await renderPdfCanvas(buildGroupSummaryHTML(reports), contentWidth);
-                    addCanvasToPdf(pdf, summary.canvas, pdfWidth, pdfHeight);
+                    const summary = await renderPdfCanvas(buildGroupSummaryHTML(reports), renderWidth);
+                    addCanvasSmart(pdf, summary.canvas, summary.blocks, summary.scale, pdfWidth, pdfHeight);
                     pageStarted = true;
                 }
 
                 for (const report of reports) {
-                    if (pageStarted) pdf.addPage('a4', 'portrait');
+                    if (pageStarted) pdf.addPage('a4', 'landscape');
 
                     const rendered = await renderPdfCanvas(
                         buildEvaluationReportHTML(report.studentName, report.scores),
-                        contentWidth
+                        renderWidth
                     );
                     addCanvasSmart(pdf, rendered.canvas, rendered.blocks, rendered.scale, pdfWidth, pdfHeight);
                     pageStarted = true;
