@@ -956,7 +956,7 @@
                     <button class="warning" onclick="triggerImportRubricEdit()">📂 Importar Rúbrica</button>
                     <button class="info" onclick="associateRubricToGroup()">👥 Asociar a Grupo</button>
                     <button class="info" onclick="exportRubric()" title="Descarga la rúbrica en un archivo .json para guardarla o reutilizarla.">💾 Guardar rúbrica (.json)</button>
-                    <button class="warning" onclick="exportRubricToPDF()" title="Descarga una versión imprimible de la rúbrica en PDF.">📄 Descargar PDF</button>
+                    <button class="warning" onclick="exportRubricToPDF()" title="Descarga la rúbrica completa en un PDF de una sola página horizontal. Se ajusta a la hoja; amplía con zoom para leer los detalles.">📄 Descargar PDF</button>
                     <input type="file" id="importRubricEditFile" accept=".json" style="display: none;" onchange="importRubricEdit()">
                 </div>
             </div>
@@ -1075,10 +1075,10 @@
                             <div style="margin-top: 14px; padding: 14px; background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; text-align: left;">
                                 <div style="font-weight: 600; color: var(--dark); margin-bottom: 4px;">📄 Descargar informe</div>
                                 <p style="font-size: 12px; color: #666; margin: 0 0 10px; line-height: 1.4;">
-                                    El PDF sirve para leer o imprimir. Puedes descargar solo este alumno o todo el grupo en un archivo. En el informe grupal se incluyen únicamente los alumnos ya evaluados.
+                                    Cada informe ocupa <strong>una sola hoja horizontal</strong> y se ajusta al tamaño de la página. Si el texto queda pequeño, amplía con zoom. En el informe grupal se incluyen únicamente los alumnos ya evaluados.
                                 </p>
-                                <button class="warning" onclick="exportEvaluationToPDF(this)" style="width: 100%; margin-bottom: 8px;">📄 Solo este alumno</button>
-                                <button class="warning" onclick="exportAllEvaluationsToPDF(this)" style="width: 100%; margin-bottom: 12px;">📚 Todo el grupo (un solo PDF)</button>
+                                <button class="warning" onclick="exportEvaluationToPDF(this)" style="width: 100%; margin-bottom: 8px;" title="PDF de una página con la evaluación de este alumno.">📄 Solo este alumno</button>
+                                <button class="warning" onclick="exportAllEvaluationsToPDF(this)" style="width: 100%; margin-bottom: 12px;" title="Un PDF con un resumen del grupo y una página por alumno evaluado.">📚 Todo el grupo (un solo PDF)</button>
 
                                 <details style="font-size: 12px; color: #666;">
                                     <summary style="cursor: pointer; color: #555;">Opciones avanzadas</summary>
@@ -1979,7 +1979,7 @@
                 <style>
                     .pdf-rubric { color: #333; font-family: 'Segoe UI', sans-serif; padding: 0; }
                     .pdf-rubric h1 { font-size: 21px; color: #2c3e50; text-align: center; margin: 0 0 4px; }
-                    .pdf-rubric-meta { display: flex; justify-content: center; gap: 22px; flex-wrap: wrap; margin-bottom: 10px; padding: 7px 12px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #3498db; font-size: 12px; }
+                    .pdf-rubric-meta { display: flex; justify-content: center; gap: 22px; flex-wrap: wrap; width: fit-content; margin: 0 auto 10px; padding: 6px 16px; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 20px; font-size: 12px; }
                     .pdf-rubric .pdf-criterion { border: 1px solid #ccc; border-radius: 6px; margin-bottom: 7px; overflow: hidden; page-break-inside: avoid; }
                     .pdf-rubric .pdf-criterion-title { background-color: #f2f2f2; padding: 5px 10px; font-weight: bold; font-size: 12.5px; border-bottom: 1px solid #ccc; }
                     .pdf-rubric .pdf-levels-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
@@ -2040,17 +2040,16 @@
                 return;
             }
 
-            // 2. Preparar el contenido de la rúbrica para una página horizontal.
+            // 2. Preparar el contenido de la rúbrica para una sola página horizontal.
             const content = buildRubricHTML();
 
-            // 3. Generar el PDF en horizontal y ajustar el contenido a la página.
+            // 3. Generar el PDF en horizontal ajustando toda la rúbrica a la hoja.
             const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: 'a4' });
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = pdf.internal.pageSize.getHeight();
 
             try {
-                const rendered = await renderPdfCanvas(content, pdfRenderWidth(pdfWidth));
-                addCanvasSmart(pdf, rendered.canvas, rendered.blocks, rendered.scale, pdfWidth, pdfHeight);
+                await addHtmlAsSinglePage(pdf, content, pdfWidth, pdfHeight);
                 pdf.save(`rubrica_${currentRubric.name.replace(/[^a-z0-9]/gi, '_')}.pdf`);
             } catch (error) {
                 console.error('Error al generar el PDF:', error);
@@ -2791,142 +2790,118 @@
             `;
         }
 
-        async function renderPdfCanvas(html, cssWidth) {
-            const html2canvas = window.html2canvas;
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // PDF DE UNA SOLA PÁGINA
+        // El contenido se maqueta al ancho necesario para que, al escalarlo,
+        // ocupe toda la hoja sin espacios blancos. En rúbricas largas el texto
+        // se reduce y se lee ampliando (zoom) el PDF.
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const PDF_MARGIN = 18;
+        const PDF_MIN_RENDER_WIDTH = 240;
+        const PDF_MAX_RENDER_WIDTH = 6000;
+
+        function getPdfContentSize(pdfWidth, pdfHeight) {
+            return {
+                width: pdfWidth - PDF_MARGIN * 2,
+                height: pdfHeight - PDF_MARGIN * 2
+            };
+        }
+
+        async function withPdfContainer(html, width, callback) {
             const pdfContainer = document.getElementById('pdf-content');
             const previousWidth = pdfContainer.style.width;
             const previousPadding = pdfContainer.style.padding;
+            const previousBackground = pdfContainer.style.background;
 
-            pdfContainer.style.width = `${cssWidth}px`;
+            pdfContainer.style.width = `${width}px`;
             pdfContainer.style.padding = '0';
             pdfContainer.style.background = '#ffffff';
             pdfContainer.innerHTML = html;
 
-            // Medir los bloques que no deben partirse entre páginas.
-            const containerRect = pdfContainer.getBoundingClientRect();
-            const blocks = Array.from(pdfContainer.querySelectorAll('[data-pdf-block]')).map(el => {
-                const rect = el.getBoundingClientRect();
-                return {
-                    top: rect.top - containerRect.top,
-                    bottom: rect.bottom - containerRect.top
-                };
-            }).filter(block => block.bottom > block.top);
-
-            const measuredWidth = pdfContainer.clientWidth;
-            const canvas = await html2canvas(pdfContainer, {
-                scale: 2,
-                useCORS: true,
-                logging: false,
-                backgroundColor: '#ffffff'
-            });
-            const scale = measuredWidth > 0 ? canvas.width / measuredWidth : 2;
-
-            pdfContainer.style.width = previousWidth;
-            pdfContainer.style.padding = previousPadding;
-            pdfContainer.innerHTML = '';
-
-            return { canvas, blocks, scale };
-        }
-
-        // Márgenes y escala de renderizado del PDF.
-        // El contenido se maqueta más ancho que la página y luego se escala:
-        // así el texto conserva un tamaño legible y se aprovecha todo el ancho.
-        const PDF_MARGIN = 18;
-        const PDF_RENDER_SCALE = 1.6;
-
-        function pdfRenderWidth(pdfWidth) {
-            return Math.round((pdfWidth - PDF_MARGIN * 2) * PDF_RENDER_SCALE);
-        }
-
-        function addCanvasToPdf(pdf, canvas, pdfWidth, pdfHeight) {
-            const contentWidth = pdfWidth - PDF_MARGIN * 2;
-            const contentHeight = pdfHeight - PDF_MARGIN * 2;
-            const ratio = canvas.width / canvas.height;
-
-            let finalImgWidth = contentWidth;
-            let finalImgHeight = finalImgWidth / ratio;
-            if (finalImgHeight > contentHeight) {
-                finalImgHeight = contentHeight;
-                finalImgWidth = finalImgHeight * ratio;
+            try {
+                return await callback(pdfContainer);
+            } finally {
+                pdfContainer.style.width = previousWidth;
+                pdfContainer.style.padding = previousPadding;
+                pdfContainer.style.background = previousBackground;
+                pdfContainer.innerHTML = '';
             }
+        }
+
+        async function measurePdfContentHeight(html, width) {
+            return withPdfContainer(html, width, container => container.getBoundingClientRect().height);
+        }
+
+        // Busca el ancho de maquetación cuyo alto dé la misma proporción que la hoja.
+        // Así, al escalar la imagen, llena el ancho y el alto disponible.
+        async function computePdfRenderWidth(html, pdfWidth, pdfHeight) {
+            const content = getPdfContentSize(pdfWidth, pdfHeight);
+            const targetRatio = content.width / content.height;
+            let low = PDF_MIN_RENDER_WIDTH;
+            let high = PDF_MAX_RENDER_WIDTH;
+            let best = low;
+            let bestDiff = Infinity;
+
+            for (let i = 0; i < 14; i++) {
+                const mid = (low + high) / 2;
+                const height = await measurePdfContentHeight(html, mid);
+                if (!height || !isFinite(height)) break;
+
+                const ratio = mid / height;
+                const diff = Math.abs(ratio - targetRatio);
+                if (diff < bestDiff) {
+                    bestDiff = diff;
+                    best = mid;
+                }
+
+                if (ratio < targetRatio) {
+                    low = mid;   // falta ancho: el contenido es demasiado alto
+                } else {
+                    high = mid;  // sobra ancho: el contenido es demasiado bajo
+                }
+            }
+
+            return Math.max(PDF_MIN_RENDER_WIDTH, Math.round(best));
+        }
+
+        async function renderPdfCanvas(html, cssWidth) {
+            const html2canvas = window.html2canvas;
+
+            return withPdfContainer(html, cssWidth, async (pdfContainer) => {
+                const canvas = await html2canvas(pdfContainer, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff'
+                });
+                const measuredWidth = cssWidth;
+                const scale = measuredWidth > 0 ? canvas.width / measuredWidth : 2;
+                return { canvas, scale };
+            });
+        }
+
+        // Dibuja el contenido ocupando el máximo de la hoja, sin deformarlo.
+        function addCanvasToPage(pdf, canvas, pdfWidth, pdfHeight) {
+            const content = getPdfContentSize(pdfWidth, pdfHeight);
+            const scale = Math.min(content.width / canvas.width, content.height / canvas.height);
+            const drawWidth = canvas.width * scale;
+            const drawHeight = canvas.height * scale;
 
             pdf.addImage(
-                canvas.toDataURL('image/png'),
-                'PNG',
-                (pdfWidth - finalImgWidth) / 2,
-                (pdfHeight - finalImgHeight) / 2,
-                finalImgWidth,
-                finalImgHeight
+                canvas.toDataURL('image/jpeg', 0.92),
+                'JPEG',
+                (pdfWidth - drawWidth) / 2,
+                (pdfHeight - drawHeight) / 2,
+                drawWidth,
+                drawHeight
             );
         }
 
-        function createCanvasSlice(canvas, top, bottom) {
-            const sliceHeight = Math.max(1, Math.round(bottom - top));
-            const slice = document.createElement('canvas');
-            slice.width = canvas.width;
-            slice.height = sliceHeight;
-            slice.getContext('2d').drawImage(
-                canvas,
-                0,
-                Math.max(0, Math.round(top)),
-                canvas.width,
-                sliceHeight,
-                0,
-                0,
-                canvas.width,
-                sliceHeight
-            );
-            return slice;
-        }
-
-        function addCanvasSlicesToPdf(pdf, canvas, blocks, scale, pdfWidth, pdfHeight) {
-            const marginX = PDF_MARGIN;
-            const marginTop = PDF_MARGIN;
-            const marginBottom = PDF_MARGIN;
-            const blockGap = 6;
-            const contentWidth = pdfWidth - marginX * 2;
-            const contentHeight = pdfHeight - marginTop - marginBottom;
-            let cursorY = marginTop;
-
-            blocks.forEach(block => {
-                const top = Math.max(0, block.top * scale);
-                const bottom = Math.min(canvas.height, block.bottom * scale);
-                if (bottom - top < 2) return;
-
-                const slice = createCanvasSlice(canvas, top, bottom);
-                let drawWidth = contentWidth;
-                let drawHeight = (bottom - top) * (contentWidth / canvas.width);
-
-                // Si un bloque es más alto que la página, se reduce solo ese bloque.
-                if (drawHeight > contentHeight) {
-                    const factor = contentHeight / drawHeight;
-                    drawHeight = contentHeight;
-                    drawWidth = contentWidth * factor;
-                }
-
-                if (cursorY + drawHeight > pdfHeight - marginBottom && cursorY > marginTop) {
-                    pdf.addPage('a4', 'landscape');
-                    cursorY = marginTop;
-                }
-
-                const x = marginX + (contentWidth - drawWidth) / 2;
-                pdf.addImage(slice.toDataURL('image/png'), 'PNG', x, cursorY, drawWidth, drawHeight);
-                cursorY += drawHeight + blockGap;
-            });
-        }
-
-        function addCanvasSmart(pdf, canvas, blocks, scale, pdfWidth, pdfHeight) {
-            const contentWidth = pdfWidth - PDF_MARGIN * 2;
-            const contentHeight = pdfHeight - PDF_MARGIN * 2;
-            const fullHeight = canvas.height * (contentWidth / canvas.width);
-
-            // Si cabe en una página (con un pequeño margen de tolerancia), se usa completa.
-            // Si es muy larga, se reparte por bloques para no reducir el texto.
-            if (blocks.length === 0 || fullHeight <= contentHeight * 1.15) {
-                addCanvasToPdf(pdf, canvas, pdfWidth, pdfHeight);
-            } else {
-                addCanvasSlicesToPdf(pdf, canvas, blocks, scale, pdfWidth, pdfHeight);
-            }
+        async function addHtmlAsSinglePage(pdf, html, pdfWidth, pdfHeight, renderWidth) {
+            const width = renderWidth || await computePdfRenderWidth(html, pdfWidth, pdfHeight);
+            const rendered = await renderPdfCanvas(html, width);
+            addCanvasToPage(pdf, rendered.canvas, pdfWidth, pdfHeight);
         }
 
         async function createEvaluationPdf(reports, filename, includeSummary = false) {
@@ -2941,24 +2916,26 @@
             const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: 'a4' });
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = pdf.internal.pageSize.getHeight();
-            const renderWidth = pdfRenderWidth(pdfWidth);
             let pageStarted = false;
+            let reportRenderWidth = null;
 
             try {
                 if (includeSummary) {
-                    const summary = await renderPdfCanvas(buildGroupSummaryHTML(reports), renderWidth);
-                    addCanvasSmart(pdf, summary.canvas, summary.blocks, summary.scale, pdfWidth, pdfHeight);
+                    const summaryHtml = buildGroupSummaryHTML(reports);
+                    await addHtmlAsSinglePage(pdf, summaryHtml, pdfWidth, pdfHeight);
                     pageStarted = true;
                 }
 
                 for (const report of reports) {
                     if (pageStarted) pdf.addPage('a4', 'landscape');
 
-                    const rendered = await renderPdfCanvas(
-                        buildEvaluationReportHTML(report.studentName, report.scores),
-                        renderWidth
-                    );
-                    addCanvasSmart(pdf, rendered.canvas, rendered.blocks, rendered.scale, pdfWidth, pdfHeight);
+                    const reportHtml = buildEvaluationReportHTML(report.studentName, report.scores);
+                    // Todos los informes del grupo comparten maquetación:
+                    // se calcula el ancho una sola vez para no repetir la medición.
+                    if (reportRenderWidth === null) {
+                        reportRenderWidth = await computePdfRenderWidth(reportHtml, pdfWidth, pdfHeight);
+                    }
+                    await addHtmlAsSinglePage(pdf, reportHtml, pdfWidth, pdfHeight, reportRenderWidth);
                     pageStarted = true;
                 }
 
