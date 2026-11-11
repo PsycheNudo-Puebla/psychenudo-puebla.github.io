@@ -955,6 +955,8 @@
                     <button class="primary" onclick="renameRubric()">✏️ Renombrar</button>
                     <button class="warning" onclick="triggerImportRubricEdit()">📂 Importar Rúbrica</button>
                     <button class="info" onclick="associateRubricToGroup()">👥 Asociar a Grupo</button>
+                    <button class="info" onclick="exportRubric()" title="Descarga la rúbrica en un archivo .json para guardarla o reutilizarla.">💾 Guardar rúbrica (.json)</button>
+                    <button class="warning" onclick="exportRubricToPDF()" title="Descarga una versión imprimible de la rúbrica en PDF.">📄 Descargar PDF</button>
                     <input type="file" id="importRubricEditFile" accept=".json" style="display: none;" onchange="importRubricEdit()">
                 </div>
             </div>
@@ -973,7 +975,11 @@
                     <button class="secondary" onclick="toggleAllRanges(true)" style="flex: 1; padding: 8px; font-size: 12px;">✅ Habilitar Rangos (Todos)</button>
                     <button class="secondary" onclick="toggleAllRanges(false)" style="flex: 1; padding: 8px; font-size: 12px;">🚫 Usar Puntos Fijos (Todos)</button>
                 </div>
-                <button class="add-criterion-btn success" onclick="addNewCriterion()">➕ Agregar Criterio</button>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <button class="add-criterion-btn success" onclick="addNewCriterion()" style="flex: 1; width: auto; margin-bottom: 0;">➕ Agregar Criterio</button>
+                    <button class="secondary" onclick="setAllCriteriaCollapsed(true)" style="flex: 1; padding: 8px; font-size: 12px;">📁 Contraer todo</button>
+                    <button class="secondary" onclick="setAllCriteriaCollapsed(false)" style="flex: 1; padding: 8px; font-size: 12px;">📂 Expandir todo</button>
+                </div>
                 
                 <div id="criteriaList"></div>
             </div>
@@ -981,9 +987,7 @@
             <!-- Botones de acción -->
             <div style="display: flex; gap: 10px; margin-top: 30px; flex-wrap: wrap;">
                 <button class="secondary" onclick="goBackToWelcome()" style="flex: 1;">⬅️ Volver</button>
-                <button class="info" onclick="exportRubric()" style="flex: 1;">📤 Exportar rúbrica</button>
-                <button class="warning" onclick="exportRubricToPDF()" style="flex: 1;">📄 Exportar a PDF</button>
-                <button class="warning" id="btnExportWithGroup" onclick="exportRubricWithGroup()" style="flex: 1; display: none;">📤 Exportar con Grupo</button>
+                <button class="warning" id="btnExportWithGroup" onclick="exportRubricWithGroup()" style="flex: 1; display: none;">💾 Guardar con el grupo (.json)</button>
                 <button class="primary" onclick="goToEvaluateRubric()" style="flex: 1;">➡️ Ir a Evaluar</button>
             </div>
         </div> <!-- Fin container -->
@@ -1025,11 +1029,19 @@
                 <div class="evaluation-sidebar">
                     <h3>👥 Alumnos</h3>
                     
+                    <div style="margin-bottom: 12px;">
+                        <label for="activeGroupNameInput" style="display: block; font-size: 12px; color: #555; margin-bottom: 4px;"><strong>Grupo actual:</strong></label>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" id="activeGroupNameInput" placeholder="Ej: Grupo A" style="flex: 1; min-width: 0; padding: 7px 9px; font-size: 13px;">
+                            <button class="secondary" onclick="saveActiveGroupName()" title="Guardar el nombre de este grupo." style="padding: 7px 10px; font-size: 12px; white-space: nowrap;">Guardar</button>
+                        </div>
+                    </div>
+
                     <div class="group-selector-section">
                         <button class="primary" onclick="triggerImportStudents()" style="width: 100%; margin-bottom: 10px;">📥 Importar Alumnos</button>
                         <input type="file" id="importStudentsFile" accept=".json" style="display: none;" onchange="importStudents()">
                         <button class="success" onclick="exportToExcel()" style="width: 100%; margin-bottom: 15px;" title="Descarga una tabla con la calificación final y el nivel elegido en cada criterio.">📊 Descargar tabla de notas (Excel)</button>
-                        <button class="info" onclick="openEvaluationHistory()" style="width: 100%; margin-bottom: 15px;">📖 Ver Historial de Evaluaciones</button>
+                        <button class="info" onclick="openEvaluationHistory()" style="width: 100%; margin-bottom: 15px;">📖 Ver historial por grupo</button>
                     </div>
                     
                     <div class="group-selector-section" id="studentsList"></div>
@@ -1058,7 +1070,7 @@
                                 <button class="secondary" onclick="prevStudent()" style="flex: 1;">⬅️ Alumno Anterior</button>
                                 <button class="secondary" onclick="nextStudent()" style="flex: 1;">Alumno Siguiente ➡️</button>
                             </div>
-                            <button class="success" onclick="saveEvaluation()" style="width: 100%; margin-top: 10px;">💾 Guardar avance de este alumno</button>
+                            <button class="success" onclick="saveEvaluation()" style="width: 100%; margin-top: 10px;" title="Guarda en este navegador las calificaciones de todos los alumnos ya evaluados del grupo.">💾 Guardar todo el avance</button>
 
                             <div style="margin-top: 14px; padding: 14px; background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; text-align: left;">
                                 <div style="font-weight: 600; color: var(--dark); margin-bottom: 4px;">📄 Descargar informe</div>
@@ -1244,7 +1256,7 @@
                     <strong>Si borras el historial, caché o usas modo incógnito, podrías perder tus datos al cerrar.</strong>
                 </div>
                 <ul style="margin-top: 5px; padding-left: 20px;">
-                    <li>Usa el botón <strong>"Guardar avance de este alumno"</strong> frecuentemente para no perder progreso si cierras la pestaña accidentalmente.</li>
+                    <li>Usa el botón <strong>"Guardar todo el avance"</strong> para guardar en este navegador las calificaciones de todos los alumnos evaluados.</li>
                     <li>La memoria del navegador puede borrarse al limpiar la caché, cambiar de equipo o usar modo incógnito. <strong>No la uses como único respaldo.</strong></li>
                     <li>Descarga tu <strong>respaldo (.json)</strong> con frecuencia. Es el archivo que puedes volver a cargar para continuar después.</li>
                     <li>También puedes descargar el <strong>informe PDF</strong> para leer o imprimir y la <strong>tabla de notas en Excel</strong>.</li>
@@ -1269,7 +1281,7 @@
          ═══════════════════════════════════════════════════════════════════════════════ -->
     <div id="modalEvaluationHistory" class="modal">
         <div class="modal-content" style="max-width: 700px;">
-            <div class="modal-header">📖 Historial de Evaluaciones</div>
+            <div class="modal-header">📖 Historial por Grupo</div>
             <div style="max-height: 500px; overflow-y: auto;">
                 <div id="evaluationHistoryContent" style="padding: 15px;">
                     <!-- Se llena dinámicamente -->
@@ -1640,7 +1652,7 @@
                 if (btnExportWithGroup) {
                     if (currentRubric.associatedGroupId || currentRubric.associatedGroupName) {
                         btnExportWithGroup.style.display = 'block';
-                        btnExportWithGroup.textContent = `📤 Exportar con Grupo "${currentRubric.associatedGroupName}"`;
+                        btnExportWithGroup.textContent = `💾 Guardar con el grupo "${currentRubric.associatedGroupName}" (.json)`;
                     } else {
                         btnExportWithGroup.style.display = 'none';
                     }
@@ -1759,6 +1771,18 @@
                     button.innerHTML = isCollapsed ? '📂 Expandir' : '📁 Contraer';
                 }
             }
+        }
+
+        function setAllCriteriaCollapsed(collapsed) {
+            if (!currentRubric || !Array.isArray(currentRubric.criteria) || currentRubric.criteria.length === 0) {
+                return;
+            }
+
+            currentRubric.criteria.forEach(criterion => {
+                criterion.isCollapsed = collapsed;
+            });
+
+            renderCriteria();
         }
 
         function addNewCriterion() {
@@ -1964,32 +1988,37 @@
                 return;
             }
 
-            // 2. Get the hidden container and prepare the HTML content
-            const pdfContainer = document.getElementById('pdf-content');
-            if (!pdfContainer) {
-                console.error('El contenedor para el PDF no existe.');
-                return;
-            }
-
+            // 2. Preparar el contenido de la rúbrica para una página vertical.
+            const groupLabel = currentGroup ? currentGroup.name : (currentRubric.associatedGroupName || 'Sin grupo');
             let content = `
                 <style>
-                    #pdf-content { color: #333; }
-                    #pdf-content h1 { font-size: 24px; color: #2c3e50; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-                    #pdf-content .pdf-criterion { border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px; overflow: hidden; page-break-inside: avoid; }
-                    #pdf-content .pdf-criterion-title { background-color: #f2f2f2; padding: 10px; font-weight: bold; font-size: 16px; border-bottom: 1px solid #ccc; }
-                    #pdf-content .pdf-levels-table { width: 100%; border-collapse: collapse; }
-                    #pdf-content .pdf-levels-table th, #pdf-content .pdf-levels-table td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
-                    #pdf-content .pdf-levels-table th { background-color: #e9ecef; font-size: 14px; }
-                    #pdf-content .pdf-level-name { font-weight: bold; font-size: 13px; color: #3498db; }
-                    #pdf-content .pdf-level-points { font-size: 12px; color: #555; font-weight: bold; }
-                    #pdf-content .pdf-level-desc { font-size: 12px; color: #666; white-space: pre-wrap; }
+                    .pdf-rubric { color: #333; font-family: 'Segoe UI', sans-serif; padding: 0; }
+                    .pdf-rubric h1 { font-size: 20px; color: #2c3e50; text-align: center; margin: 0 0 4px; }
+                    .pdf-rubric-meta { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; padding: 8px 12px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #3498db; font-size: 11.5px; }
+                    .pdf-rubric .pdf-criterion { border: 1px solid #ccc; border-radius: 6px; margin-bottom: 9px; overflow: hidden; page-break-inside: avoid; }
+                    .pdf-rubric .pdf-criterion-title { background-color: #f2f2f2; padding: 6px 10px; font-weight: bold; font-size: 12px; border-bottom: 1px solid #ccc; }
+                    .pdf-rubric .pdf-levels-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+                    .pdf-rubric .pdf-levels-table th, .pdf-rubric .pdf-levels-table td { border-right: 1px solid #ddd; padding: 6px 7px; text-align: left; vertical-align: top; }
+                    .pdf-rubric .pdf-levels-table th:last-child, .pdf-rubric .pdf-levels-table td:last-child { border-right: none; }
+                    .pdf-rubric .pdf-levels-table th { background-color: #e9ecef; font-size: 10.5px; border-bottom: 1px solid #ddd; }
+                    .pdf-rubric .pdf-level-name { font-weight: bold; font-size: 10.5px; color: #3498db; }
+                    .pdf-rubric .pdf-level-points { font-size: 9px; color: #555; font-weight: bold; margin-top: 2px; }
+                    .pdf-rubric .pdf-level-desc { font-size: 9.5px; color: #666; white-space: pre-wrap; line-height: 1.28; }
                 </style>
-                <h1>Rúbrica: ${currentRubric.name}</h1>
+                <div class="pdf-rubric">
+                    <div data-pdf-block>
+                        <h1>Rúbrica: ${currentRubric.name}</h1>
+                        <div class="pdf-rubric-meta">
+                            <span><strong>Grupo:</strong> ${groupLabel}</span>
+                            <span><strong>Fecha:</strong> ${new Date().toLocaleDateString()}</span>
+                            <span><strong>Criterios:</strong> ${currentRubric.criteria.length}</span>
+                        </div>
+                    </div>
             `;
 
             currentRubric.criteria.forEach(criterion => {
                 content += `
-                    <div class="pdf-criterion">
+                    <div class="pdf-criterion" data-pdf-block>
                         <div class="pdf-criterion-title">${criterion.title} (Puntuación Máxima: ${criterion.maxPoints} pts)</div>
                         <table class="pdf-levels-table">
                             <thead>
@@ -2007,31 +2036,22 @@
                 `;
             });
 
-            pdfContainer.innerHTML = content;
+            content += `<div data-pdf-block style="text-align: center; margin-top: 10px; font-size: 9px; color: #adb5bd;">Generado por PsycheNudo Puebla</div></div>`;
 
-            // 3. Use html2canvas to capture the content
+            // 3. Generar el PDF en vertical y ajustar el contenido a la página.
+            const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: 'a4' });
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+
             try {
-                const canvas = await html2canvas(pdfContainer, { scale: 2, useCORS: true, logging: false });
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: 'a4' });
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = pdf.internal.pageSize.getHeight();
-                const ratio = canvas.width / canvas.height;
-                let finalImgWidth = pdfWidth - 40;
-                let finalImgHeight = finalImgWidth / ratio;
-                if (finalImgHeight > pdfHeight - 40) {
-                    finalImgHeight = pdfHeight - 40;
-                    finalImgWidth = finalImgHeight * ratio;
-                }
-                const x = (pdfWidth - finalImgWidth) / 2;
-                const y = (pdfHeight - finalImgHeight) / 2;
-                pdf.addImage(imgData, 'PNG', x, y, finalImgWidth, finalImgHeight);
+                const rendered = await renderPdfCanvas(content, pdfWidth - 40);
+                addCanvasSmart(pdf, rendered.canvas, rendered.blocks, rendered.scale, pdfWidth, pdfHeight);
                 pdf.save(`rubrica_${currentRubric.name.replace(/[^a-z0-9]/gi, '_')}.pdf`);
             } catch (error) {
                 console.error('Error al generar el PDF:', error);
                 alert('Hubo un error al generar el PDF. Por favor, inténtalo de nuevo.');
             } finally {
-                pdfContainer.innerHTML = '';
+                document.getElementById('pdf-content').innerHTML = '';
             }
         }
 
@@ -2145,15 +2165,36 @@
             }
 
             // Recopilar todas las calificaciones de los estudiantes
-            let allStudentScores = {};
-            if (importedStudents && importedStudents.length > 0) {
-                importedStudents.forEach(student => {
-                    const studentName = typeof student === 'string' ? student : student.name;
-                    const scores = loadEvaluationFromStorage(studentName);
-                    if (scores && Object.keys(scores).length > 0) {
-                        allStudentScores[studentName] = scores;
-                    }
-                });
+            const allStudentScores = {};
+            const addStudentScores = (studentName, scores) => {
+                if (!studentName || !scores || Object.keys(scores).length === 0) return;
+                allStudentScores[studentName] = scores;
+            };
+
+            (importedStudents || []).forEach(student => {
+                const studentName = typeof student === 'string' ? student : student.name;
+                addStudentScores(studentName, loadEvaluationFromStorage(studentName));
+            });
+
+            // Incluir alumnos evaluados manualmente o cargados desde el historial,
+            // conservando la evaluación más reciente de cada uno.
+            const latestEvaluations = new Map();
+            (appData.evaluations || []).forEach(evaluationItem => {
+                if (evaluationItem.rubricName !== currentRubric.name) return;
+                const previous = latestEvaluations.get(evaluationItem.studentName);
+                const currentTime = new Date(evaluationItem.timestamp).getTime() || 0;
+                const previousTime = previous ? (new Date(previous.timestamp).getTime() || 0) : -1;
+                if (!previous || currentTime >= previousTime) {
+                    latestEvaluations.set(evaluationItem.studentName, evaluationItem);
+                }
+            });
+            latestEvaluations.forEach((evaluationItem, studentName) => {
+                addStudentScores(studentName, evaluationItem.scores);
+            });
+
+            // Incluir también el avance visible aunque aún no se haya guardado.
+            if (currentEvaluation.studentName) {
+                addStudentScores(currentEvaluation.studentName, currentEvaluation.scores);
             }
 
             // Exportar rúbrica COMPLETA con alumnos y calificaciones
@@ -2497,29 +2538,81 @@
             }
         }
 
+        function getActiveGroupName() {
+            if (currentGroup && currentGroup.name) return currentGroup.name;
+            if (currentRubric && currentRubric.associatedGroupName) return currentRubric.associatedGroupName;
+            return 'Sin grupo';
+        }
+
+        function getEvaluationGroupName(evaluationItem) {
+            return evaluationItem && evaluationItem.groupName ? evaluationItem.groupName : getActiveGroupName();
+        }
+
         function saveEvaluation() {
-            if (!currentEvaluation.studentName) {
-                alert('Por favor ingresa el nombre del alumno');
+            // Guardar el alumno que está visible, aunque todavía no esté en la lista importada.
+            if (currentEvaluation.studentName && Object.keys(currentEvaluation.scores).length > 0) {
+                saveEvaluationToStorage(currentEvaluation.studentName, currentEvaluation.scores);
+            }
+
+            // Recopilar las calificaciones de todos los alumnos de esta rúbrica.
+            const collected = new Map();
+
+            (importedStudents || []).forEach(student => {
+                const studentName = typeof student === 'string' ? student : student.name;
+                if (!studentName) return;
+                const scores = loadEvaluationFromStorage(studentName);
+                if (scores && Object.keys(scores).length > 0) {
+                    collected.set(studentName, scores);
+                }
+            });
+
+            appData.evaluations.forEach(evaluationItem => {
+                if (evaluationItem.rubricName !== currentRubric.name) return;
+                if (!evaluationItem.scores || Object.keys(evaluationItem.scores).length === 0) return;
+                if (!collected.has(evaluationItem.studentName)) {
+                    collected.set(evaluationItem.studentName, evaluationItem.scores);
+                }
+            });
+
+            // La evaluación que se ve en pantalla siempre tiene prioridad.
+            if (currentEvaluation.studentName && Object.keys(currentEvaluation.scores).length > 0) {
+                collected.set(currentEvaluation.studentName, currentEvaluation.scores);
+            }
+
+            if (collected.size === 0) {
+                alert('Todavía no hay calificaciones para guardar.\n\nCalifica al menos a un alumno y vuelve a intentarlo.');
                 return;
             }
 
-            const evaluation = {
-                id: Date.now(),
-                rubricName: currentRubric.name,
-                studentName: currentEvaluation.studentName,
-                scores: currentEvaluation.scores,
-                timestamp: new Date().toISOString()
-            };
+            // Actualizar appData sin duplicar alumnos: una entrada por alumno y rúbrica.
+            const groupName = getActiveGroupName();
+            const savedNames = new Set(collected.keys());
+            const now = new Date().toISOString();
 
-            appData.evaluations.push(evaluation);
+            appData.evaluations = appData.evaluations.filter(evaluationItem =>
+                !(evaluationItem.rubricName === currentRubric.name && savedNames.has(evaluationItem.studentName))
+            );
+
+            collected.forEach((scores, studentName) => {
+                appData.evaluations.push({
+                    id: Date.now() + Math.floor(Math.random() * 1000),
+                    rubricName: currentRubric.name,
+                    groupName,
+                    studentName,
+                    scores,
+                    timestamp: now
+                });
+                saveEvaluationToStorage(studentName, scores);
+            });
+
             saveToStorage();
-            saveEvaluationToStorage(currentEvaluation.studentName, currentEvaluation.scores);
-            renderStudentsList(); // Actualizar lista para mostrar check y progreso
+            renderStudentsList();
+
             const hoursSinceBackup = getHoursSinceLastBackup();
             const backupHint = (hoursSinceBackup === null || hoursSinceBackup >= 12)
                 ? '\n\n💡 Recuerda descargar tu respaldo (.json) para no depender de la memoria del navegador.'
                 : '';
-            alert('✅ Avance guardado en este navegador.' + backupHint);
+            alert(`✅ Avance guardado en este navegador.\n👥 Grupo: ${groupName}\n✏️ Alumnos evaluados: ${collected.size}` + backupHint);
         }
 
         function exportEvaluation() {
@@ -2559,24 +2652,26 @@
 
             let content = `
                 <style>
-                    .pdf-report { font-family: 'Segoe UI', sans-serif; color: #333; padding: 20px; }
-                    .pdf-report h1 { font-size: 24px; color: #2c3e50; text-align: center; margin-bottom: 5px; }
-                    .pdf-report h2 { font-size: 18px; color: #7f8c8d; text-align: center; margin-bottom: 25px; }
-                    .pdf-meta { display: flex; justify-content: space-between; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 5px solid #3498db; }
-                    .pdf-meta div { font-size: 14px; }
-                    .pdf-meta .score-box { font-size: 20px; font-weight: bold; color: #2ecc71; text-align: right; }
-                    .pdf-criterion { border: 1px solid #dee2e6; border-radius: 8px; margin-bottom: 20px; overflow: hidden; page-break-inside: avoid; }
-                    .pdf-criterion-header { background: #f1f3f5; padding: 12px 15px; font-weight: bold; font-size: 16px; display: flex; justify-content: space-between; border-bottom: 1px solid #dee2e6; }
+                    .pdf-report { font-family: 'Segoe UI', sans-serif; color: #333; padding: 0; }
+                    .pdf-report h1 { font-size: 19px; color: #2c3e50; text-align: center; margin: 0 0 2px; }
+                    .pdf-report h2 { font-size: 13px; color: #7f8c8d; text-align: center; margin: 0 0 10px; }
+                    .pdf-meta { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; padding: 8px 12px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #3498db; }
+                    .pdf-meta div { font-size: 11.5px; line-height: 1.35; }
+                    .pdf-meta .score-box { font-size: 16px; font-weight: bold; color: #2ecc71; text-align: right; white-space: nowrap; }
+                    .pdf-criterion { border: 1px solid #dee2e6; border-radius: 6px; margin-bottom: 8px; overflow: hidden; page-break-inside: avoid; }
+                    .pdf-criterion-header { background: #f1f3f5; padding: 6px 10px; font-weight: bold; font-size: 12px; display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid #dee2e6; }
+                    .pdf-criterion-header span:last-child { white-space: nowrap; color: #495057; }
                     .pdf-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-                    .pdf-table td { padding: 12px; border-right: 1px solid #dee2e6; vertical-align: top; font-size: 12px; }
+                    .pdf-table td { padding: 6px 7px; border-right: 1px solid #dee2e6; vertical-align: top; font-size: 10px; }
                     .pdf-table td:last-child { border-right: none; }
-                    .pdf-level-selected { background-color: #d4edda !important; position: relative; border: 2px solid #28a745 !important; }
-                    .pdf-level-selected::after { content: "✓ Seleccionado"; position: absolute; top: 5px; right: 5px; font-size: 9px; color: #155724; font-weight: bold; background: #c3e6cb; padding: 2px 5px; border-radius: 3px; }
-                    .pdf-level-name { font-weight: bold; margin-bottom: 5px; color: #212529; }
-                    .pdf-level-points { font-size: 11px; color: #666; margin-bottom: 8px; font-weight: bold; }
-                    .pdf-level-desc { color: #495057; line-height: 1.4; }
+                    .pdf-level-selected { background-color: #d4edda !important; position: relative; border: 1.5px solid #28a745 !important; }
+                    .pdf-level-selected::after { content: "✓ Seleccionado"; position: absolute; top: 2px; right: 2px; font-size: 7px; color: #155724; font-weight: bold; background: #c3e6cb; padding: 1px 3px; border-radius: 2px; }
+                    .pdf-level-name { font-weight: bold; margin-bottom: 2px; color: #212529; font-size: 10.5px; }
+                    .pdf-level-points { font-size: 9px; color: #666; margin-bottom: 3px; font-weight: bold; }
+                    .pdf-level-desc { color: #495057; line-height: 1.28; font-size: 9.5px; }
                 </style>
                 <div class="pdf-report">
+                    <div data-pdf-block>
                     <h1>Reporte de Evaluación Individual</h1>
                     <h2>Rúbrica: ${currentRubric.name}</h2>
                     <div class="pdf-meta">
@@ -2586,6 +2681,7 @@
                             <strong>Grupo:</strong> ${groupLabel}
                         </div>
                         <div class="score-box">Calificación Final<br>${finalGrade.toFixed(2)} / 10</div>
+                    </div>
                     </div>
             `;
 
@@ -2601,7 +2697,7 @@
                     }
                 }
                 content += `
-                    <div class="pdf-criterion">
+                    <div class="pdf-criterion" data-pdf-block>
                         <div class="pdf-criterion-header">
                             <span>${criterion.title}</span>
                             <span>Puntos: ${points.toFixed(2)} / ${criterion.maxPoints}</span>
@@ -2623,7 +2719,7 @@
                     </div>`;
             });
 
-            content += `<div style="text-align: center; margin-top: 30px; font-size: 12px; color: #adb5bd;">Generado por PsycheNudo Puebla</div></div>`;
+            content += `<div data-pdf-block style="text-align: center; margin-top: 10px; font-size: 9px; color: #adb5bd;">Generado por PsycheNudo Puebla</div></div>`;
             return content;
         }
 
@@ -2643,7 +2739,7 @@
 
             return `
                 <style>
-                    .pdf-summary { font-family: 'Segoe UI', sans-serif; color: #333; padding: 20px; }
+                    .pdf-summary { font-family: 'Segoe UI', sans-serif; color: #333; padding: 0; }
                     .pdf-summary h1 { font-size: 26px; color: #2c3e50; text-align: center; margin-bottom: 5px; }
                     .pdf-summary h2 { font-size: 18px; color: #7f8c8d; text-align: center; margin-bottom: 25px; }
                     .pdf-summary-meta { display: flex; justify-content: space-between; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 5px solid #3498db; font-size: 14px; }
@@ -2684,16 +2780,133 @@
             `;
         }
 
+        async function renderPdfCanvas(html, cssWidth) {
+            const html2canvas = window.html2canvas;
+            const pdfContainer = document.getElementById('pdf-content');
+            const previousWidth = pdfContainer.style.width;
+            const previousPadding = pdfContainer.style.padding;
+
+            pdfContainer.style.width = `${cssWidth}px`;
+            pdfContainer.style.padding = '0';
+            pdfContainer.style.background = '#ffffff';
+            pdfContainer.innerHTML = html;
+
+            // Medir los bloques que no deben partirse entre páginas.
+            const containerRect = pdfContainer.getBoundingClientRect();
+            const blocks = Array.from(pdfContainer.querySelectorAll('[data-pdf-block]')).map(el => {
+                const rect = el.getBoundingClientRect();
+                return {
+                    top: rect.top - containerRect.top,
+                    bottom: rect.bottom - containerRect.top
+                };
+            }).filter(block => block.bottom > block.top);
+
+            const measuredWidth = pdfContainer.clientWidth;
+            const canvas = await html2canvas(pdfContainer, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff'
+            });
+            const scale = measuredWidth > 0 ? canvas.width / measuredWidth : 2;
+
+            pdfContainer.style.width = previousWidth;
+            pdfContainer.style.padding = previousPadding;
+            pdfContainer.innerHTML = '';
+
+            return { canvas, blocks, scale };
+        }
+
         function addCanvasToPdf(pdf, canvas, pdfWidth, pdfHeight) {
-            const imgData = canvas.toDataURL('image/png');
+            const margin = 20;
+            const contentWidth = pdfWidth - margin * 2;
+            const contentHeight = pdfHeight - margin * 2;
             const ratio = canvas.width / canvas.height;
-            let finalImgWidth = pdfWidth - 40;
+
+            let finalImgWidth = contentWidth;
             let finalImgHeight = finalImgWidth / ratio;
-            if (finalImgHeight > pdfHeight - 40) {
-                finalImgHeight = pdfHeight - 40;
+            if (finalImgHeight > contentHeight) {
+                finalImgHeight = contentHeight;
                 finalImgWidth = finalImgHeight * ratio;
             }
-            pdf.addImage(imgData, 'PNG', (pdfWidth - finalImgWidth) / 2, (pdfHeight - finalImgHeight) / 2, finalImgWidth, finalImgHeight);
+
+            pdf.addImage(
+                canvas.toDataURL('image/png'),
+                'PNG',
+                (pdfWidth - finalImgWidth) / 2,
+                (pdfHeight - finalImgHeight) / 2,
+                finalImgWidth,
+                finalImgHeight
+            );
+        }
+
+        function createCanvasSlice(canvas, top, bottom) {
+            const sliceHeight = Math.max(1, Math.round(bottom - top));
+            const slice = document.createElement('canvas');
+            slice.width = canvas.width;
+            slice.height = sliceHeight;
+            slice.getContext('2d').drawImage(
+                canvas,
+                0,
+                Math.max(0, Math.round(top)),
+                canvas.width,
+                sliceHeight,
+                0,
+                0,
+                canvas.width,
+                sliceHeight
+            );
+            return slice;
+        }
+
+        function addCanvasSlicesToPdf(pdf, canvas, blocks, scale, pdfWidth, pdfHeight) {
+            const marginX = 20;
+            const marginTop = 20;
+            const marginBottom = 20;
+            const blockGap = 8;
+            const contentWidth = pdfWidth - marginX * 2;
+            const contentHeight = pdfHeight - marginTop - marginBottom;
+            let cursorY = marginTop;
+
+            blocks.forEach(block => {
+                const top = Math.max(0, block.top * scale);
+                const bottom = Math.min(canvas.height, block.bottom * scale);
+                if (bottom - top < 2) return;
+
+                const slice = createCanvasSlice(canvas, top, bottom);
+                let drawWidth = contentWidth;
+                let drawHeight = (bottom - top) * (contentWidth / canvas.width);
+
+                // Si un bloque es más alto que la página, se reduce solo ese bloque.
+                if (drawHeight > contentHeight) {
+                    const factor = contentHeight / drawHeight;
+                    drawHeight = contentHeight;
+                    drawWidth = contentWidth * factor;
+                }
+
+                if (cursorY + drawHeight > pdfHeight - marginBottom && cursorY > marginTop) {
+                    pdf.addPage('a4', 'portrait');
+                    cursorY = marginTop;
+                }
+
+                const x = marginX + (contentWidth - drawWidth) / 2;
+                pdf.addImage(slice.toDataURL('image/png'), 'PNG', x, cursorY, drawWidth, drawHeight);
+                cursorY += drawHeight + blockGap;
+            });
+        }
+
+        function addCanvasSmart(pdf, canvas, blocks, scale, pdfWidth, pdfHeight) {
+            const contentWidth = pdfWidth - 40;
+            const contentHeight = pdfHeight - 40;
+            const fullHeight = canvas.height * (contentWidth / canvas.width);
+
+            // Si cabe en una página (con un pequeño margen de tolerancia), se usa completa.
+            // Si es muy larga, se reparte por bloques para no reducir el texto.
+            if (blocks.length === 0 || fullHeight <= contentHeight * 1.15) {
+                addCanvasToPdf(pdf, canvas, pdfWidth, pdfHeight);
+            } else {
+                addCanvasSlicesToPdf(pdf, canvas, blocks, scale, pdfWidth, pdfHeight);
+            }
         }
 
         async function createEvaluationPdf(reports, filename, includeSummary = false) {
@@ -2705,33 +2918,36 @@
                 return;
             }
 
-            const pdfContainer = document.getElementById('pdf-content');
-            const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: 'a4' });
+            const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: 'a4' });
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = pdf.internal.pageSize.getHeight();
-            let pageCount = 0;
-
-            const renderPage = async (html) => {
-                if (pageCount > 0) pdf.addPage('a4', 'landscape');
-                pdfContainer.innerHTML = html;
-                const canvas = await html2canvas(pdfContainer, { scale: 2 });
-                addCanvasToPdf(pdf, canvas, pdfWidth, pdfHeight);
-                pageCount++;
-            };
+            const contentWidth = pdfWidth - 40;
+            let pageStarted = false;
 
             try {
                 if (includeSummary) {
-                    await renderPage(buildGroupSummaryHTML(reports));
+                    const summary = await renderPdfCanvas(buildGroupSummaryHTML(reports), contentWidth);
+                    addCanvasToPdf(pdf, summary.canvas, pdfWidth, pdfHeight);
+                    pageStarted = true;
                 }
+
                 for (const report of reports) {
-                    await renderPage(buildEvaluationReportHTML(report.studentName, report.scores));
+                    if (pageStarted) pdf.addPage('a4', 'portrait');
+
+                    const rendered = await renderPdfCanvas(
+                        buildEvaluationReportHTML(report.studentName, report.scores),
+                        contentWidth
+                    );
+                    addCanvasSmart(pdf, rendered.canvas, rendered.blocks, rendered.scale, pdfWidth, pdfHeight);
+                    pageStarted = true;
                 }
+
                 pdf.save(filename);
             } catch (err) {
                 console.error('Error al generar el PDF:', err);
                 alert('Error al generar el PDF.');
             } finally {
-                pdfContainer.innerHTML = '';
+                document.getElementById('pdf-content').innerHTML = '';
             }
         }
 
@@ -2859,19 +3075,35 @@
             reader.onload = (e) => {
                 try {
                     const data = JSON.parse(e.target.result);
-                    
+                    const fileNameGroup = (file.name || '')
+                        .replace(/\.json$/i, '')
+                        .replace(/^grupo[_-]?/i, '')
+                        .replace(/_\d{10,}$/, '')
+                        .replace(/[_-]+/g, ' ')
+                        .trim();
+
+                    let groupName = '';
+
                     if (Array.isArray(data)) {
                         importedStudents = data;
+                        groupName = fileNameGroup || 'Grupo importado';
                     } else if (data.students && Array.isArray(data.students)) {
                         importedStudents = data.students;
-                    } else if (data.name && Array.isArray(data.students)) {
-                        importedStudents = data.students;
+                        groupName = (data.name || data.groupName || data.nombre || fileNameGroup || 'Grupo importado').trim();
                     } else {
                         importedStudents = [data.name || 'Alumno'];
+                        groupName = '';
                     }
-                    
-                    renderStudentsList();
-                    alert(`✅ ${importedStudents.length} alumno(s) importado(s) correctamente`);
+
+                    if (groupName) {
+                        if (currentRubric) currentRubric.students = importedStudents;
+                        const group = activateImportedGroup(groupName, importedStudents);
+                        renderStudentsList();
+                        alert(`✅ ${importedStudents.length} alumno(s) importado(s) correctamente.\n👥 Grupo: "${group.name}"`);
+                    } else {
+                        renderStudentsList();
+                        alert(`✅ ${importedStudents.length} alumno(s) importado(s) correctamente`);
+                    }
                 } catch (err) {
                     alert('❌ Error al importar: ' + err.message);
                 }
@@ -2879,8 +3111,117 @@
             reader.readAsText(file);
         }
 
+        function activateImportedGroup(name, students) {
+            const cleanName = (name || 'Grupo importado').trim();
+            const groupStudents = Array.isArray(students) ? students.slice() : [];
+
+            let group = createdGroups.find(g =>
+                normalizeStudentName(g.name) === normalizeStudentName(cleanName)
+            );
+
+            if (group) {
+                group.students = groupStudents;
+            } else {
+                group = {
+                    id: Date.now(),
+                    name: cleanName,
+                    students: groupStudents,
+                    createdAt: new Date().toISOString()
+                };
+                createdGroups.push(group);
+            }
+
+            currentGroup = group;
+
+            if (currentRubric) {
+                currentRubric.associatedGroupName = group.name;
+                currentRubric.associatedGroupId = group.id;
+            }
+
+            saveGroupsToStorage();
+            if (currentRubric) saveToStorage();
+            updateWelcomeStatus();
+            updateExportGroupsButton();
+            updateActiveGroupNameInput();
+
+            return group;
+        }
+
+        function updateActiveGroupNameInput() {
+            const input = document.getElementById('activeGroupNameInput');
+            if (!input) return;
+
+            if (currentGroup && currentGroup.name) {
+                input.value = currentGroup.name;
+            } else if (currentRubric && currentRubric.associatedGroupName) {
+                input.value = currentRubric.associatedGroupName;
+            } else {
+                input.value = '';
+            }
+        }
+
+        function saveActiveGroupName() {
+            const input = document.getElementById('activeGroupNameInput');
+            const newName = input ? input.value.trim() : '';
+
+            if (!newName) {
+                alert('Escribe un nombre para el grupo.');
+                return;
+            }
+
+            if (!currentGroup) {
+                currentGroup = {
+                    id: Date.now(),
+                    name: newName,
+                    students: Array.isArray(importedStudents) ? importedStudents.slice() : [],
+                    createdAt: new Date().toISOString()
+                };
+                createdGroups.push(currentGroup);
+            } else {
+                const previousName = currentGroup.name;
+                currentGroup.name = newName;
+
+                let storedGroup = createdGroups.find(g => g.id === currentGroup.id);
+                if (!storedGroup) {
+                    storedGroup = createdGroups.find(g =>
+                        normalizeStudentName(g.name) === normalizeStudentName(previousName)
+                    );
+                }
+                if (storedGroup) {
+                    storedGroup.name = newName;
+                    storedGroup.students = currentGroup.students || storedGroup.students || [];
+                } else {
+                    delete currentGroup.isVirtual;
+                    createdGroups.push(currentGroup);
+                }
+
+                // Actualizar el nombre en las evaluaciones ya guardadas de este grupo.
+                (appData.evaluations || []).forEach(evaluationItem => {
+                    if (!currentRubric || evaluationItem.rubricName !== currentRubric.name) return;
+                    if (!evaluationItem.groupName || evaluationItem.groupName === previousName) {
+                        evaluationItem.groupName = newName;
+                    }
+                });
+                saveToStorage();
+            }
+
+            if (currentRubric) {
+                currentRubric.associatedGroupName = newName;
+                currentRubric.associatedGroupId = currentGroup.id;
+                saveToStorage();
+            }
+
+            saveGroupsToStorage();
+            updateWelcomeStatus();
+            updateExportGroupsButton();
+            updateActiveGroupNameInput();
+            renderStudentsList();
+            alert(`✅ Grupo guardado como "${newName}".`);
+        }
+
         function renderStudentsList() {
             const container = document.getElementById('studentsList');
+            updateActiveGroupNameInput();
             
             if (importedStudents.length === 0) {
                 container.innerHTML = '<div style="text-align: center; color: #999; padding: 15px; font-size: 13px;">📭 Sin alumnos cargados</div>';
@@ -3180,59 +3521,102 @@
 
         function openEvaluationHistory() {
             console.log('📖 Abriendo historial de evaluaciones');
-            
+
             // Recopilar todas las evaluaciones de la rúbrica actual
-            const evaluationsOfCurrentRubric = appData.evaluations.filter(e => 
+            const evaluationsOfCurrentRubric = appData.evaluations.filter(e =>
                 e.rubricName === currentRubric.name
             );
-            
+
             console.log('Evaluaciones encontradas:', evaluationsOfCurrentRubric.length);
-            
+
             if (evaluationsOfCurrentRubric.length === 0) {
-                alert('No hay evaluaciones guardadas para esta rúbrica aún.');
+                alert('No hay evaluaciones guardadas para esta rúbrica aún.\n\nCalifica a un alumno y pulsa «Guardar todo el avance».');
                 return;
             }
-            
-            // Construir HTML con el historial
+
+            // Agrupar por grupo y conservar solo la evaluación más reciente de cada alumno.
+            const groups = new Map();
+            evaluationsOfCurrentRubric.forEach(evaluationItem => {
+                const groupName = getEvaluationGroupName(evaluationItem);
+                if (!groups.has(groupName)) groups.set(groupName, new Map());
+
+                const students = groups.get(groupName);
+                const previous = students.get(evaluationItem.studentName);
+                const currentTime = new Date(evaluationItem.timestamp).getTime() || 0;
+                const previousTime = previous ? (new Date(previous.timestamp).getTime() || 0) : -1;
+
+                if (!previous || currentTime >= previousTime) {
+                    students.set(evaluationItem.studentName, evaluationItem);
+                }
+            });
+
+            const totalStudents = Array.from(groups.values())
+                .reduce((sum, students) => sum + students.size, 0);
+
             let historyHTML = `
                 <div>
                     <p style="color: #666; margin-bottom: 15px;">
                         <strong>Rúbrica:</strong> ${currentRubric.name}<br>
-                        <strong>Total de evaluaciones:</strong> ${evaluationsOfCurrentRubric.length}
+                        <strong>Grupos:</strong> ${groups.size} · <strong>Alumnos evaluados:</strong> ${totalStudents}
                     </p>
                     <div style="border-top: 1px solid #ddd; margin-bottom: 15px;"></div>
             `;
-            
-            evaluationsOfCurrentRubric.forEach((evaluationItem, idx) => {
-                const finalGrade = calculateFinalGrade(evaluationItem.scores);
-                const date = new Date(evaluationItem.timestamp).toLocaleDateString('es-ES', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                
+
+            const sortedGroupNames = Array.from(groups.keys()).sort((a, b) => a.localeCompare(b, 'es'));
+
+            sortedGroupNames.forEach(groupName => {
+                const students = Array.from(groups.get(groupName).values())
+                    .sort((a, b) => a.studentName.localeCompare(b.studentName, 'es'));
+
+                const grades = students.map(studentItem => calculateFinalGrade(studentItem.scores));
+                const average = grades.length > 0
+                    ? grades.reduce((sum, grade) => sum + grade, 0) / grades.length
+                    : 0;
+
                 historyHTML += `
-                    <div style="background: #f9f9f9; padding: 12px; margin-bottom: 10px; border-radius: 6px; border-left: 4px solid var(--primary);">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <strong>${evaluationItem.studentName}</strong>
-                            <span style="color: var(--success); font-weight: bold; font-size: 14px;">${finalGrade.toFixed(1)}/10</span>
+                    <div style="margin-bottom: 22px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; background: #f1f5f9; padding: 10px 14px; border-bottom: 1px solid #e2e8f0;">
+                            <strong style="color: var(--dark);">👥 ${groupName}</strong>
+                            <span style="font-size: 12px; color: #555;">
+                                ${students.length} alumno${students.length === 1 ? '' : 's'} · Promedio: <strong style="color: #1f7a3a;">${average.toFixed(1)}/10</strong>
+                            </span>
                         </div>
-                        <div style="font-size: 12px; color: #888;">
-                            ${date}
+                        <div>
+                `;
+
+                students.forEach((evaluationItem, idx) => {
+                    const finalGrade = calculateFinalGrade(evaluationItem.scores);
+                    const date = new Date(evaluationItem.timestamp).toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    const rowBackground = idx % 2 === 0 ? '#ffffff' : '#f8f9fa';
+
+                    historyHTML += `
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 14px; background: ${rowBackground}; border-bottom: 1px solid #eee;">
+                            <div style="min-width: 0;">
+                                <div style="font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${evaluationItem.studentName}</div>
+                                <div style="font-size: 11px; color: #888;">${date}</div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px; white-space: nowrap;">
+                                <span style="color: var(--success); font-weight: bold; font-size: 14px;">${finalGrade.toFixed(1)}/10</span>
+                                <button class="primary" style="padding: 4px 10px; font-size: 12px;" onclick="loadEvaluationFromHistory('${evaluationItem.studentName}', '${evaluationItem.rubricName}')">
+                                    ✏️ Ver/Editar
+                                </button>
+                            </div>
                         </div>
-                        <div style="margin-top: 8px;">
-                            <button class="primary" style="padding: 4px 12px; font-size: 12px;" onclick="loadEvaluationFromHistory('${evaluationItem.studentName}', '${evaluationItem.rubricName}')">
-                                ✏️ Ver/Editar
-                            </button>
+                    `;
+                });
+
+                historyHTML += `
                         </div>
                     </div>
                 `;
             });
-            
+
             historyHTML += '</div>';
-            
+
             // Mostrar en modal
             document.getElementById('evaluationHistoryContent').innerHTML = historyHTML;
             openModal('modalEvaluationHistory');
@@ -3241,25 +3625,33 @@
 
         function loadEvaluationFromHistory(studentName, rubricName) {
             console.log('📖 Cargando evaluación de historial:', studentName);
-            
-            const evaluation = appData.evaluations.find(e => 
-                e.studentName === studentName && 
+
+            const matches = appData.evaluations.filter(e =>
+                e.studentName === studentName &&
                 e.rubricName === rubricName
+            ).sort((a, b) =>
+                (new Date(b.timestamp).getTime() || 0) - (new Date(a.timestamp).getTime() || 0)
             );
-            
+
+            const evaluation = matches[0];
             if (evaluation) {
+                // Recuperar el grupo al que pertenece la evaluación, si sigue existiendo.
+                const savedGroupName = getEvaluationGroupName(evaluation);
+                const matchingGroup = (createdGroups || []).find(group => group.name === savedGroupName);
+                if (matchingGroup) currentGroup = matchingGroup;
+
                 currentEvaluation.studentName = studentName;
                 currentEvaluation.scores = evaluation.scores;
                 currentCriterionIndex = 0;
-                
+
                 document.getElementById('manualStudentName').value = studentName;
-                
+
                 closeModal('modalEvaluationHistory');
                 renderStudentsList();
                 updateEvaluationHeader();
                 renderEvaluationCriteria();
                 updateSummary();
-                
+
                 alert(`✏️ Evaluación cargada de ${studentName}\n\nPuedes editar y guardar cambios nuevamente.`);
                 console.log('✅ Evaluación cargada:', evaluation);
             } else {
@@ -3347,6 +3739,7 @@
                 createdGroups.push(group);
                 currentGroup = group; // Activar grupo recién creado
                 updateWelcomeStatus();
+                updateActiveGroupNameInput();
                 console.log('Grupo añadido a array:', group);
                 saveGroupsToStorage();
                 console.log('Grupo guardado en storage');
@@ -3436,6 +3829,7 @@
                         updateWelcomeStatus();
                         saveGroupsToStorage();
                         updateExportGroupsButton();
+                        updateActiveGroupNameInput();
                         
                         closeModal('modalImportGroup');
                         alert(`✅ Grupo "${group.name}" importado correctamente.\n\nTienes ${createdGroups.length} grupo(s) disponible(s).`);
